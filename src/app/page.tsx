@@ -1,5 +1,11 @@
 import Link from "next/link";
 import VerificationWidget from "@/components/VerificationWidget";
+import LeaderCard from "@/components/LeaderCard";
+import ArrestGuidelines from "@/components/ArrestGuidelines";
+import DocumentsFilter from "@/components/DocumentsFilter";
+import FAQSection from "@/components/FAQSection";
+import GrievanceForm from "@/components/GrievanceForm";
+import ScrollProgress from "@/components/ScrollProgress";
 
 export default function Home() {
   return (
@@ -185,34 +191,17 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Supreme Court Arrest Guidelines (DK Basu Case) Accordion */}
+            {/* Supreme Court Arrest Guidelines (DK Basu Case) Interactive Stepper */}
             <div className="mt-8 bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-800 mb-4 font-serif flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#D62828]"></span>
+              <h3 className="text-lg font-bold text-slate-800 font-serif flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#D62828] animate-pulse"></span>
                 Supreme Court Arrest Guidelines (D.K. Basu Case)
               </h3>
-              <p className="text-xs text-slate-600 mb-4 leading-relaxed font-light">
+              <p className="text-xs text-slate-600 leading-relaxed font-light mt-2">
                 The Hon'ble Supreme Court of India in <strong>D.K. Basu vs. State of West Bengal</strong> has laid down mandatory guidelines to be followed by law enforcement during arrests and detention to prevent custodial torture.
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">1.</span>
-                  <p className="text-slate-600">Police officers conducting arrests must wear clear, visible name tags with accurate designations.</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">2.</span>
-                  <p className="text-slate-600">An arrest memo must be prepared at the time of arrest, witnessed by a family member or local respectable citizen.</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">3.</span>
-                  <p className="text-slate-600">The arrestee is entitled to inform a friend or relative of their location within 8-12 hours of arrest.</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">4.</span>
-                  <p className="text-slate-600">Arrested persons must undergo a medical examination at the time of arrest and every 48 hours in custody.</p>
-                </div>
-              </div>
+              <ArrestGuidelines />
             </div>
 
           </div>
@@ -359,53 +348,31 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {/* Leader 1 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/3.jpg" className="w-full h-full object-cover" alt="Danish Khan" />
-                </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Danish Khan</h4>
-                  <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-wider mt-0.5">Founder & Director</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">India's famous RTI & Social Activist. Raised voice against custodial deaths, corruption, and social injustice before national media.</p>
-                </div>
-              </div>
-
-              {/* Leader 2 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/1.jpg" className="w-full h-full object-cover" alt="Mohd Wasim Qureshi" />
-                </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Mohd Wasim Qureshi</h4>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">National President</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">Prominent industrialist and social welfare contributor representing national operations from Ajmer, Rajasthan.</p>
-                </div>
-              </div>
-
-              {/* Leader 3 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/2.jpg" className="w-full h-full object-cover" alt="Vipin Kumar Sharma" />
-                </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Vipin Kumar Sharma</h4>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Chief Executive Officer</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">Government-approved journalist, National CEO of DKFFJ, overseeing executive operations and grievance reporting from BKT, Lucknow.</p>
-                </div>
-              </div>
-
-              {/* Leader 4 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/4.jpg" className="w-full h-full object-cover" alt="Jay Prakash Tiwari" />
-                </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Jay Prakash Tiwari</h4>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">National Secretary</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">Leading administrative operations, registrations compliance, and national coordinate activities from Ayodhya, UP.</p>
-                </div>
-              </div>
+              <LeaderCard
+                name="Danish Khan"
+                role="Founder & Director"
+                imageSrc="/3.jpg"
+                description="India's famous RTI & Social Activist. Raised voice against custodial deaths, corruption, and social injustice before national media."
+                isPrimary={true}
+              />
+              <LeaderCard
+                name="Mohd Wasim Qureshi"
+                role="National President"
+                imageSrc="/1.jpg"
+                description="Prominent industrialist and social welfare contributor representing national operations from Ajmer, Rajasthan."
+              />
+              <LeaderCard
+                name="Vipin Kumar Sharma"
+                role="Chief Executive Officer"
+                imageSrc="/2.jpg"
+                description="Government-approved journalist, National CEO of DKFFJ, overseeing executive operations and grievance reporting from BKT, Lucknow."
+              />
+              <LeaderCard
+                name="Jay Prakash Tiwari"
+                role="National Secretary"
+                imageSrc="/4.jpg"
+                description="Leading administrative operations, registrations compliance, and national coordinate activities from Ayodhya, UP."
+              />
             </div>
           </div>
         </section>
@@ -419,115 +386,7 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Document 1 */}
-              <a href="/documents/1750940512.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-800">MCA Articles of Association</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 181 KB</span>
-                  </div>
-                </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                </div>
-              </a>
-
-              {/* Document 2 */}
-              <a href="/documents/1713277338.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-800">12A Income Tax Exemption</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 55 KB</span>
-                  </div>
-                </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                </div>
-              </a>
-
-              {/* Document 3 */}
-              <a href="/documents/1713277369.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-800">80G Income Tax Certificate</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 55 KB</span>
-                  </div>
-                </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                </div>
-              </a>
-
-              {/* Document 4 */}
-              <a href="/documents/1713277422.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-800">CSR Registration Certificate</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 48 KB</span>
-                  </div>
-                </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                </div>
-              </a>
-
-              {/* Document 5 */}
-              <a href="/documents/1713278028.PDF" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-800">NITI Aayog Registration</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 56 KB</span>
-                  </div>
-                </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                </div>
-              </a>
-
-              {/* Document 6 */}
-              <a href="/documents/1750870809.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.5 8H16.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-800">Police Appreciation Certificate</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 672 KB</span>
-                  </div>
-                </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                </div>
-              </a>
-            </div>
+            <DocumentsFilter />
           </div>
         </section>
 
@@ -587,6 +446,8 @@ export default function Home() {
           </div>
         </section>
 
+        <FAQSection />
+
         {/* 9. Contact & Complaint Lodging Form */}
         <section id="contact" className="py-20 px-6 bg-slate-50 border-t border-slate-200">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
@@ -599,44 +460,7 @@ export default function Home() {
                 <p className="text-xs text-slate-500 mt-1">Fill out the official inquiry or complaint file. Our coordinators will contact you.</p>
               </div>
 
-              <form className="flex flex-col gap-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Full Name *</label>
-                    <input type="text" required placeholder="Your Name" className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Mobile No. *</label>
-                    <input type="text" required placeholder="Phone Number" className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Email Address</label>
-                    <input type="email" placeholder="email@example.com" className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Grievance Type *</label>
-                    <select required className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none">
-                      <option>General Legal Inquiry</option>
-                      <option>Human Rights Infringement</option>
-                      <option>RTI Drafting Request</option>
-                      <option>Membership Query</option>
-                      <option>Grievance / Public complaint</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase text-slate-500">Details / Complaint Text *</label>
-                  <textarea required rows={4} placeholder="State your problem clearly with landmarks, dates, and names of officers involved if applicable..." className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none resize-none"></textarea>
-                </div>
-
-                <button type="submit" className="bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest py-4 rounded-lg mt-2 transition-all active:scale-95 shadow-[0_4px_12px_rgba(15,76,129,0.15)] cursor-pointer">
-                  Submit Application
-                </button>
-              </form>
+              <GrievanceForm />
             </div>
 
             {/* Right Contact Info Details */}
@@ -747,6 +571,7 @@ export default function Home() {
         </div>
       </footer>
 
+      <ScrollProgress />
     </div>
   );
 }

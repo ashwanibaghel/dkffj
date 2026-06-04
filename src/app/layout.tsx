@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Cinzel } from "next/font/google";
+import { Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
-const cinzel = Cinzel({
-  variable: "--font-cinzel",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakarta.variable} ${cinzel.variable} h-full antialiased`}
+      className={`${outfit.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-[#0F4C81]/10 selection:text-[#0F4C81]">
         {children}
