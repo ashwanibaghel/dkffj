@@ -320,17 +320,6 @@ export const teamMembers: TeamMember[] = [
     show_home: 0
   },
   {
-    id: "1060",
-    name: "Jatin Bhasin",
-    role: "Member",
-    education: "12+",
-    location: "Lucknow, India",
-    mobile: "7275301301",
-    photo: "",
-    status: 1,
-    show_home: 0
-  },
-  {
     id: "1095",
     name: "Jyoti Kohli",
     role: "Administrative Secretary",
@@ -672,17 +661,6 @@ export const teamMembers: TeamMember[] = [
     show_home: 0
   },
   {
-    id: "1018",
-    name: "Shaikh abdul gani mansuri",
-    role: "Member",
-    education: "Bsc B.Ed",
-    location: "Nandurbar district, India",
-    mobile: "9763683243",
-    photo: "",
-    status: 1,
-    show_home: 0
-  },
-  {
     id: "1118",
     name: "Shashi Kumar",
     role: "Human Rights Activist",
@@ -859,17 +837,6 @@ export const teamMembers: TeamMember[] = [
     show_home: 0
   },
   {
-    id: "1061",
-    name: "Hold DILIP KUMAR BHARATI",
-    role: "Member",
-    education: "HIGH SCHOOL",
-    location: "KUSHINAGAR, India",
-    mobile: "9455824423",
-    photo: "",
-    status: 0,
-    show_home: 0
-  },
-  {
     id: "1026",
     name: "I'd hold national position",
     role: "DIRECTOER",
@@ -936,17 +903,6 @@ export const teamMembers: TeamMember[] = [
     show_home: 0
   },
   {
-    id: "1104",
-    name: "Md Daud Alam",
-    role: "Member",
-    education: "B.sc chemistry",
-    location: "Raipur, India",
-    mobile: "6206332619",
-    photo: "",
-    status: 0,
-    show_home: 0
-  },
-  {
     id: "1037",
     name: "Mehfooz Hussain",
     role: "PRESIDENT",
@@ -991,17 +947,6 @@ export const teamMembers: TeamMember[] = [
     show_home: 1
   },
   {
-    id: "1051",
-    name: "Naresh Kumar hold id",
-    role: "Member",
-    education: "High school",
-    location: "Bijnor, India",
-    mobile: "6397901587",
-    photo: "",
-    status: 0,
-    show_home: 0
-  },
-  {
     id: "1008",
     name: "Prabhat Kishore Singh",
     role: "Nodal officer",
@@ -1019,17 +964,6 @@ export const teamMembers: TeamMember[] = [
     education: "B com",
     location: "Amravati, India",
     mobile: "9834765064",
-    photo: "",
-    status: 0,
-    show_home: 0
-  },
-  {
-    id: "1007",
-    name: "Rajiv Chaudhary",
-    role: "Member",
-    education: "B.Com",
-    location: "Gautam Nagar, India",
-    mobile: "9411186786",
     photo: "",
     status: 0,
     show_home: 0
@@ -1134,17 +1068,6 @@ export const teamMembers: TeamMember[] = [
     show_home: 0
   },
   {
-    id: "1111",
-    name: "Vivek Kumar valmiki",
-    role: "Member",
-    education: "Ll.b",
-    location: "Hazaribagh, India",
-    mobile: "7004501470",
-    photo: "",
-    status: 0,
-    show_home: 0
-  },
-  {
     id: "1015",
     name: "natonal secretary",
     role: "PRESIDENT",
@@ -1154,27 +1077,5 @@ export const teamMembers: TeamMember[] = [
     photo: "",
     status: 0,
     show_home: 1
-  },
-  {
-    id: "1009",
-    name: "reservation national position",
-    role: "Other",
-    education: "High school",
-    location: "Bijnor, India",
-    mobile: "9568116286",
-    photo: "",
-    status: 0,
-    show_home: 0
-  },
-  {
-    id: "1081",
-    name: "vinay kumar pandey",
-    role: "Member",
-    education: "LLM",
-    location: "west delhi, India",
-    mobile: "8882033556",
-    photo: "",
-    status: 0,
-    show_home: 0
   },
 ];

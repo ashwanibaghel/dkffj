@@ -131,8 +131,8 @@ for line in lines:
             # Fallback for designation
             role = designation if designation else enroll_me
             role = role.replace("'", "").strip()
-            if not role:
-                role = "Member"
+            if not role or role.lower() == "member" or role.lower() == "other":
+                continue
                 
             edu = qualification if qualification else education
             edu = edu.replace("'", "").strip()
