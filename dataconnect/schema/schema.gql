@@ -1,23 +1,49 @@
-# Users / Members table
+# Users / Members table representing registered profiles & membership logs
 type User @table {
   id: UUID! @default(expr: "uuid_generate_v4()")
+  idNo: String @unique
+  acknowledgementNo: String
+  role: String! # admin, coordinator, member, guest
+  enrollMe: String # Designation requested (e.g. DIRECTOR, PRESIDENT)
+  workingArea: String
+  zone: String
+  district: String
+  tehsil: String
   firstName: String!
-  lastName: String
-  email: String! @unique
+  fatherName: String
+  surname: String
+  dobDate: String
+  dobMonth: String
+  dobYear: String
+  gender: String
+  profession: String
+  education: String
+  address: String!
+  landmark: String
+  postOffice: String
+  pincode: String!
   mobile: String!
-  state: String!
-  idNo: String
-  role: String! # admin, coordinator, student, member
-  userPhoto: String
+  whatsappNo: String
+  email: String! @unique
+  policeStation: String
+  aadharCardUrl: String
+  userPhotoUrl: String
+  signatureUrl: String
+  status: Int! @default(value: 0) # 0: Pending, 1: Approved, 2: Rejected
+  showHome: Int! @default(value: 0) # 1: Display on home page
+  joinedDate: Timestamp @default(expr: "request.time")
+  expiryDate: Timestamp
   addedDate: Timestamp! @default(expr: "request.time")
 }
 
-# Courses table
+# Courses table for Academy certifications
 type Course @table {
   id: UUID! @default(expr: "uuid_generate_v4()")
   title: String!
   slug: String! @unique
   description: String!
+  duration: String! @default(value: "4 Weeks")
+  fees: Int! @default(value: 0) # Course fee in INR
   thumbnail: String
   status: Int! @default(value: 1)
   addedDate: Timestamp! @default(expr: "request.time")
@@ -34,41 +60,108 @@ type Lesson @table {
   addedDate: Timestamp! @default(expr: "request.time")
 }
 
-# Student Enrollments & Progress tracking
+# Student Enrollments & Course Progress tracking
 type Enrollment @table {
   id: UUID! @default(expr: "uuid_generate_v4()")
   user: User!
   course: Course!
   progressPercent: Int! @default(value: 0)
   isCompleted: Boolean! @default(value: false)
+  paymentStatus: String! @default(value: "PENDING") # PENDING, SUCCESS, FAILED
   enrollmentDate: Timestamp! @default(expr: "request.time")
 }
 
-# Grievances/Complaints Portal
+# Public & Member Grievances/Complaints
 type Complaint @table {
   id: UUID! @default(expr: "uuid_generate_v4()")
-  user: User
+  ticketNumber: String! @unique
+  grievance: String! # Grievance category
   firstName: String!
   fatherName: String
   surname: String
-  dob: String
+  dobDate: String
+  dobMonth: String
+  dobYear: String
   gender: String
   profession: String
   complaintText: String!
+  landmark: String
+  postOffice: String
+  tehsil: String
+  district: String
   state: String!
+  pincode: String!
   mobile: String!
+  whatsappNo: String
+  email: String!
   policeStation: String
+  aadharCardUrl: String
+  supportingDocUrl: String
+  status: String! @default(value: "PENDING") # PENDING, UNDER_REVIEW, RESOLVED, CLOSED
+  resolutionSummary: String
   addedDate: Timestamp! @default(expr: "request.time")
 }
 
-# Donations table (PhonePe payment tracking)
+# Academy Course Certificates issued
+type Certificate @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  certificateNumber: String! @unique
+  user: User!
+  course: Course!
+  issueDate: Timestamp! @default(expr: "request.time")
+  pdfUrl: String
+  qrCodeUrl: String
+  status: String! @default(value: "ACTIVE") # ACTIVE, REVOKED
+}
+
+# Official Downloadable Legals / Registration PDF Documents
+type Document @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  name: String!
+  fileUrl: String!
+  category: String! # MCA, 80G, 12A, CSR, NITIAAYOG, APPRECIATION
+  status: Int! @default(value: 1)
+  addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Banners / Sliders
+type Slider @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  imageUrl: String!
+  status: Int! @default(value: 1)
+  addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Blog / News table
+type Blog @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  title: String!
+  slug: String! @unique
+  content: String!
+  imageUrl: String
+  status: Int! @default(value: 1)
+  addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Donations table (PhonePe payment logs)
 type Donation @table {
   id: UUID! @default(expr: "uuid_generate_v4()")
   orderId: String! @unique
   name: String!
   email: String!
   mobile: String!
-  amount: Int! # Amount in Paisa (multiplied by 100) or standard Rupees
-  status: String! # pending, success, failed
+  amount: Int! # Rupees
+  status: String! # PENDING, SUCCESS, FAILED
   addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Global Site Settings for dynamic contact info
+type SiteSetting @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  logoUrl: String
+  bannerUrl: String
+  mobile: String!
+  email: String!
+  address: String!
+  mapEmbedUrl: String
 }

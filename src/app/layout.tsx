@@ -25,9 +25,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakarta.variable} ${cinzel.variable} h-full antialiased dark`}
+      className={`${plusJakarta.variable} ${cinzel.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#020617] text-slate-100 selection:bg-amber-500/30 selection:text-amber-200">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-[#0F4C81]/10 selection:text-[#0F4C81]">
         {children}
       </body>
     </html>

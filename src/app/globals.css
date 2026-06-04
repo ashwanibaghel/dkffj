@@ -1,13 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --primary: #0f4c81;
+  --secondary: #d62828;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
   --font-sans: var(--font-jakarta);
   --font-serif: var(--font-cinzel);
 }
@@ -19,11 +23,11 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom glow effects */
-.glow-gold {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+/* Custom shadow/glow effects for premium light cards */
+.glow-primary {
+  box-shadow: 0 4px 20px rgba(15, 76, 129, 0.05);
 }
 
-.glow-emerald {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+.glow-secondary {
+  box-shadow: 0 4px 20px rgba(214, 40, 40, 0.05);
 }

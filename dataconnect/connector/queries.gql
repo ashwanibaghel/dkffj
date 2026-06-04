@@ -1,21 +1,136 @@
-# Example query to get users
+# Query to list users/members
 query getUsers {
   users {
     id
+    idNo
     firstName
-    lastName
+    fatherName
     email
+    mobile
     role
+    status
+    showHome
   }
 }
 
-# Example mutation to create a user
-mutation createUser($firstName: String!, $email: String!, $mobile: String!, $state: String!, $role: String!) {
+# Mutation to create a new user profile / member application
+mutation createUser(
+  $firstName: String!
+  $email: String!
+  $mobile: String!
+  $address: String!
+  $pincode: String!
+  $role: String!
+  $enrollMe: String
+  $fatherName: String
+  $gender: String
+  $dobDate: String
+  $dobMonth: String
+  $dobYear: String
+  $profession: String
+  $education: String
+  $whatsappNo: String
+  $policeStation: String
+  $userPhotoUrl: String
+  $aadharCardUrl: String
+  $signatureUrl: String
+) {
   user_insert(data: {
-    firstName: $firstName,
-    email: $email,
-    mobile: $mobile,
-    state: $state,
+    firstName: $firstName
+    email: $email
+    mobile: $mobile
+    address: $address
+    pincode: $pincode
     role: $role
+    enrollMe: $enrollMe
+    fatherName: $fatherName
+    gender: $gender
+    dobDate: $dobDate
+    dobMonth: $dobMonth
+    dobYear: $dobYear
+    profession: $profession
+    education: $education
+    whatsappNo: $whatsappNo
+    policeStation: $policeStation
+    userPhotoUrl: $userPhotoUrl
+    aadharCardUrl: $aadharCardUrl
+    signatureUrl: $signatureUrl
+    status: 0 # Pending by default
   })
+}
+
+# Query to search and verify a certificate
+query getCertificate($certificateNumber: String!) {
+  certificate(key: { certificateNumber: $certificateNumber }) {
+    id
+    certificateNumber
+    issueDate
+    pdfUrl
+    qrCodeUrl
+    status
+    user {
+      firstName
+      fatherName
+      idNo
+    }
+    course {
+      title
+    }
+  }
+}
+
+# Mutation to log a public complaint
+mutation createComplaint(
+  $ticketNumber: String!
+  $grievance: String!
+  $firstName: String!
+  $fatherName: String
+  $complaintText: String!
+  $state: String!
+  $pincode: String!
+  $mobile: String!
+  $email: String!
+  $policeStation: String
+  $aadharCardUrl: String
+  $supportingDocUrl: String
+) {
+  complaint_insert(data: {
+    ticketNumber: $ticketNumber
+    grievance: $grievance
+    firstName: $firstName
+    fatherName: $fatherName
+    complaintText: $complaintText
+    state: $state
+    pincode: $pincode
+    mobile: $mobile
+    email: $email
+    policeStation: $policeStation
+    aadharCardUrl: $aadharCardUrl
+    supportingDocUrl: $supportingDocUrl
+    status: "PENDING"
+  })
+}
+
+# Query to list downloadable legals/documents
+query getDocuments {
+  documents {
+    id
+    name
+    fileUrl
+    category
+    status
+  }
+}
+
+# Query to list blogs/news
+query getBlogs {
+  blogs {
+    id
+    title
+    slug
+    content
+    imageUrl
+    status
+    addedDate
+  }
 }
