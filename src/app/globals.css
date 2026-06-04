@@ -5,6 +5,8 @@
   --foreground: #0f172a;
   --primary: #0f4c81;
   --secondary: #d62828;
+  --font-jakarta: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+  --font-cinzel: Cinzel, Georgia, "Times New Roman", serif;
 }
 
 @theme inline {
@@ -30,4 +32,14 @@ body {
 
 .glow-secondary {
   box-shadow: 0 4px 20px rgba(214, 40, 40, 0.05);
+}
+
+/* Subtle image panning zoom for hero slider */
+@keyframes subtle-zoom {
+  0% { transform: scale(1.02); }
+  100% { transform: scale(1.07); }
+}
+
+.animate-subtle-zoom {
+  animation: subtle-zoom 20s infinite alternate ease-in-out;
 }

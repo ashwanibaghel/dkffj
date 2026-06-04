@@ -1,5 +1,6 @@
 import Link from "next/link";
 import VerificationWidget from "@/components/VerificationWidget";
+import HeroSlider from "@/components/HeroSlider";
 
 export default function Home() {
   return (
@@ -52,62 +53,68 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center">
-        <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-          
-          {/* Left Hero Column */}
-          <div className="lg:col-span-7 flex flex-col gap-6 text-left">
+        <section className="relative py-20 md:py-32 px-6 w-full overflow-hidden bg-slate-950">
+          {/* Automatic Cross-fade Background Hero Images Slider */}
+          <HeroSlider />
+
+          {/* Content overlay on top of background */}
+          <div className="relative z-20 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
             
-            {/* Trust Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#0F4C81]/10 border border-[#0F4C81]/20 rounded-full px-3 py-1 self-start">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D62828] animate-ping"></span>
-              <span className="text-[10px] text-[#0F4C81] font-bold uppercase tracking-widest">MCA & NITI Aayog Approved Portal</span>
+            {/* Left Hero Column */}
+            <div className="lg:col-span-7 flex flex-col gap-6 text-left">
+              
+              {/* Trust Badge */}
+              <div className="inline-flex items-center gap-2 bg-black/40 border border-white/10 rounded-full px-3 py-1 self-start">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D62828] animate-ping"></span>
+                <span className="text-[10px] text-sky-400 font-bold uppercase tracking-widest">MCA & NITI Aayog Approved Portal</span>
+              </div>
+
+              {/* Main Header with drop-shadows for high readability */}
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight font-serif drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                Protecting <span className="text-sky-400">Human Rights</span>, <br />
+                Empowering Citizens, <br />
+                Securing <span className="text-red-400">Justice</span>
+              </h1>
+
+              {/* Subtext description with drop-shadow for high legibility */}
+              <p className="text-slate-200 text-sm md:text-base leading-relaxed max-w-xl font-light drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+                DK Foundation of Freedom and Justice (DKFFJ) stands as India's premier human rights protection, legal aid, and public advocacy coalition. We help poor and marginalized citizens defend their constitutional rights through legal support, RTI awareness, and official welfare campaigns.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-4 mt-4 relative z-30">
+                
+                <Link 
+                  href="#joining" 
+                  className="bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.3)]"
+                >
+                  Join Membership
+                </Link>
+                
+                <Link 
+                  href="#complaint" 
+                  className="bg-[#D62828] hover:bg-[#b02020] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(214,40,40,0.3)]"
+                >
+                  File a Complaint
+                </Link>
+                
+                <Link 
+                  href="#courses" 
+                  className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/15 font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95"
+                >
+                  Explore Courses
+                </Link>
+
+              </div>
+
             </div>
 
-            {/* Main Header */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight font-serif">
-              Protecting <span className="text-[#0F4C81]">Human Rights</span>, <br />
-              Empowering Citizens, <br />
-              Securing <span className="text-[#D62828]">Justice</span>
-            </h1>
-
-            {/* Subtext description */}
-            <p className="text-slate-600 text-sm md:text-base leading-relaxed max-w-xl font-light">
-              DK Foundation of Freedom and Justice (DKFFJ) stands as India's premier human rights protection, legal aid, and public advocacy coalition. We help poor and marginalized citizens defend their constitutional rights through legal support, RTI awareness, and official welfare campaigns.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 mt-4">
-              
-              <Link 
-                href="#joining" 
-                className="bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.2)]"
-              >
-                Join Membership
-              </Link>
-              
-              <Link 
-                href="#complaint" 
-                className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-sm"
-              >
-                File a Complaint
-              </Link>
-              
-              <Link 
-                href="#courses" 
-                className="bg-slate-100 hover:bg-slate-200 text-[#0F4C81] font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95"
-              >
-                Explore Courses
-              </Link>
-
+            {/* Right Hero Column (Interactive Portal Widget) */}
+            <div className="lg:col-span-5 w-full flex items-center justify-center lg:justify-end relative z-20">
+              <VerificationWidget />
             </div>
 
           </div>
-
-          {/* Right Hero Column (Interactive Portal Widget) */}
-          <div className="lg:col-span-5 w-full flex items-center justify-center lg:justify-end">
-            <VerificationWidget />
-          </div>
-
         </section>
 
         {/* 2. Impact Statistics Bar */}
