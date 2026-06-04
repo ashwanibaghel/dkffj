@@ -477,6 +477,16 @@ export default function Home() {
                 </p>
               </div>
             </div>
+
+            {/* View Full Council Button */}
+            <div className="flex justify-center mt-8">
+              <Link 
+                href="/team" 
+                className="inline-flex items-center gap-2 bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.2)] hover:-translate-y-0.5 cursor-pointer"
+              >
+                View Full Executive Council (100+ Members)
+              </Link>
+            </div>
           </div>
         </section>
 
