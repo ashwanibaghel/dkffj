@@ -3,11 +3,9 @@
 import { useState, useEffect } from "react";
 
 const sliderImages = [
-  "/slider/1751023775.jpg", // President Droupadi Murmu Award Presentation
-  "/slider/1751023830.png", // Lady Justice & Gavel
-  "/slider/1751023693.jpg", // Official leadership briefings
-  "/slider/1751022050.jpg", // National Campaigns
-  "/slider/1750952334.jpg", // Social welfare meet
+  "/slider/constitution_of_india.png", // Constitution of India
+  "/slider/supreme_court_justice.png", // Supreme Court and Scales of Justice
+  "/slider/citizens_rights.png",       // Citizens Rights & Legal Awareness
 ];
 
 export default function HeroSlider() {

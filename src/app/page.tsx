@@ -1,10 +1,32 @@
+"use client";
+
 import Link from "next/link";
 import VerificationWidget from "@/components/VerificationWidget";
 import HeroSlider from "@/components/HeroSlider";
+import GuidelinesAccordion from "@/components/GuidelinesAccordion";
+import { 
+  Shield, 
+  FileText, 
+  BookOpen, 
+  Search, 
+  Users, 
+  GraduationCap, 
+  Download, 
+  FileCheck, 
+  FileDown, 
+  PlayCircle,
+  Clock,
+  Briefcase,
+  ChevronRight,
+  Gavel,
+  Award,
+  Globe2,
+  FileSpreadsheet
+} from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative overflow-hidden pb-16 md:pb-0">
       
       {/* Light Geometric/Mesh Design Accents */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -36,6 +58,8 @@ export default function Home() {
             <Link href="#services" className="hover:text-[#0F4C81] transition-colors">Services</Link>
             <Link href="#courses" className="hover:text-[#0F4C81] transition-colors">Academy</Link>
             <Link href="#documents" className="hover:text-[#0F4C81] transition-colors">Legals</Link>
+            <Link href="#news" className="hover:text-[#0F4C81] transition-colors">News</Link>
+            <Link href="#video-gallery" className="hover:text-[#0F4C81] transition-colors">Gallery</Link>
             <Link href="#contact" className="hover:text-[#0F4C81] transition-colors">Contact</Link>
           </nav>
 
@@ -53,7 +77,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center">
-        <section className="relative py-20 md:py-32 px-6 w-full overflow-hidden bg-slate-950">
+        <section id="verify-section" className="relative py-20 md:py-32 px-6 w-full overflow-hidden bg-slate-950">
           {/* Automatic Cross-fade Background Hero Images Slider */}
           <HeroSlider />
 
@@ -83,19 +107,18 @@ export default function Home() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 mt-4 relative z-30">
-                
                 <Link 
-                  href="#joining" 
+                  href="#contact" 
                   className="bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.3)]"
                 >
                   Join Membership
                 </Link>
                 
                 <Link 
-                  href="#complaint" 
+                  href="#contact" 
                   className="bg-[#D62828] hover:bg-[#b02020] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(214,40,40,0.3)]"
                 >
-                  File a Complaint
+                  File Complaint
                 </Link>
                 
                 <Link 
@@ -104,14 +127,23 @@ export default function Home() {
                 >
                   Explore Courses
                 </Link>
-
               </div>
-
             </div>
 
-            {/* Right Hero Column (Interactive Portal Widget) */}
-            <div className="lg:col-span-5 w-full flex items-center justify-center lg:justify-end relative z-20">
+            {/* Right Hero Column (Interactive Verification Widget + Suggestion Badge) */}
+            <div className="lg:col-span-5 w-full flex flex-col items-center lg:items-end justify-center gap-4 relative z-20">
               <VerificationWidget />
+              
+              {/* Suggestion Trust Badge */}
+              <div className="flex items-center gap-3 border border-white/10 bg-slate-900/80 backdrop-blur-md rounded-2xl px-5 py-3 w-full max-w-[420px] shadow-lg">
+                <div className="w-8 h-8 rounded-lg bg-[#0F4C81]/20 flex items-center justify-center text-sky-400 shrink-0">
+                  <Globe2 className="w-5 h-5" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-xs font-bold text-sky-400 tracking-wide">Trusted Across 28+ States</span>
+                  <span className="text-[10px] text-slate-300 font-medium leading-tight">Official Human Rights & Legal Awareness Organization</span>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -144,90 +176,84 @@ export default function Home() {
         </section>
 
         {/* 3. About Organization Section */}
-        <section id="about" className="py-20 px-6 bg-slate-50">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+        <section id="about" className="py-24 px-6 bg-slate-50">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Who We Are</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Pillars of Dignity and Constitutional Advocacy</h2>
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            {/* Cards Grid */}
+            {/* Cards Grid: Spacing and Typography Improved */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                <div className="w-12 h-12 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] mb-6">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+              {/* Mission Card */}
+              <div className="bg-white p-10 md:p-12 rounded-3xl border border-slate-200/60 shadow-[0_10px_30px_rgba(15,76,129,0.02)] hover:shadow-[0_15px_40px_rgba(15,76,129,0.06)] hover:border-[#0F4C81]/30 transition-all duration-300 flex flex-col gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] shrink-0">
+                  <Shield className="w-7 h-7" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Our Mission</h3>
-                <p className="text-slate-600 text-xs leading-relaxed font-light">
-                  To eliminate corruption and human rights infringements by deploying RTI checks, providing active representation to marginalized families, and promoting social welfare throughout India.
-                </p>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-3 font-serif">Our Mission</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">
+                    To eliminate corruption and human rights infringements by deploying RTI checks, providing active representation to marginalized families, and promoting social welfare throughout India.
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                <div className="w-12 h-12 rounded-lg bg-[#D62828]/10 flex items-center justify-center text-[#D62828] mb-6">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
+              {/* Vision Card */}
+              <div className="bg-white p-10 md:p-12 rounded-3xl border border-slate-200/60 shadow-[0_10px_30px_rgba(15,76,129,0.02)] hover:shadow-[0_15px_40px_rgba(15,76,129,0.06)] hover:border-[#D62828]/20 transition-all duration-300 flex flex-col gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] shrink-0">
+                  <BookOpen className="w-7 h-7" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Our Vision</h3>
-                <p className="text-slate-600 text-xs leading-relaxed font-light">
-                  To establish a transparent, rights-aware society in India where every citizen has access to speedy legal assistance, transparent administration, and absolute human dignity.
-                </p>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-3 font-serif">Our Vision</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">
+                    To establish a transparent, rights-aware society in India where every citizen has access to speedy legal assistance, transparent administration, and absolute human dignity.
+                  </p>
+                </div>
               </div>
 
-              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
-                <div className="w-12 h-12 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] mb-6">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
+              {/* Objectives Card */}
+              <div className="bg-white p-10 md:p-12 rounded-3xl border border-slate-200/60 shadow-[0_10px_30px_rgba(15,76,129,0.02)] hover:shadow-[0_15px_40px_rgba(15,76,129,0.06)] hover:border-[#0F4C81]/30 transition-all duration-300 flex flex-col gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] shrink-0">
+                  <Gavel className="w-7 h-7" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Our Objectives</h3>
-                <p className="text-slate-600 text-xs leading-relaxed font-light">
-                  Educating common people on the Right to Information Act, supporting citizens in filing official grievances with government bodies, and establishing certifying legal and social studies.
-                </p>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-3 font-serif">Our Objectives</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">
+                    Educating common people on the Right to Information Act, supporting citizens in filing official grievances with government bodies, and establishing certifying legal and social studies.
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Supreme Court Arrest Guidelines (DK Basu Case) Accordion */}
-            <div className="mt-8 bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-800 mb-4 font-serif flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#D62828]"></span>
-                Supreme Court Arrest Guidelines (D.K. Basu Case)
-              </h3>
-              <p className="text-xs text-slate-600 mb-4 leading-relaxed font-light">
-                The Hon'ble Supreme Court of India in <strong>D.K. Basu vs. State of West Bengal</strong> has laid down mandatory guidelines to be followed by law enforcement during arrests and detention to prevent custodial torture.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">1.</span>
-                  <p className="text-slate-600">Police officers conducting arrests must wear clear, visible name tags with accurate designations.</p>
+            <div className="mt-8 bg-white border border-slate-200/80 rounded-3xl p-8 md:p-10 shadow-sm max-w-4xl mx-auto w-full">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-slate-100">
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Legal Awareness</span>
+                  <h3 className="text-2xl font-bold text-slate-900 font-serif">
+                    Supreme Court Arrest Guidelines (D.K. Basu Case)
+                  </h3>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">2.</span>
-                  <p className="text-slate-600">An arrest memo must be prepared at the time of arrest, witnessed by a family member or local respectable citizen.</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">3.</span>
-                  <p className="text-slate-600">The arrestee is entitled to inform a friend or relative of their location within 8-12 hours of arrest.</p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex gap-3">
-                  <span className="font-bold text-[#0F4C81]">4.</span>
-                  <p className="text-slate-600">Arrested persons must undergo a medical examination at the time of arrest and every 48 hours in custody.</p>
+                <div className="shrink-0 bg-amber-50 text-amber-700 text-[10px] font-bold border border-amber-200 rounded-full px-3 py-1 uppercase tracking-wider self-start">
+                  ⚖️ Mandatory Compliance
                 </div>
               </div>
+              
+              <p className="text-xs text-slate-500 mb-6 leading-relaxed font-light">
+                The Hon'ble Supreme Court of India in the landmark case of <strong>D.K. Basu vs. State of West Bengal</strong> has laid down specific, mandatory procedures to be followed by law enforcement during arrest and detention to prevent custodial violence.
+              </p>
+              
+              {/* Guidelines Accordion Component */}
+              <GuidelinesAccordion />
             </div>
 
           </div>
         </section>
 
-        {/* 4. Services Section */}
-        <section id="services" className="py-20 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+        {/* 4. Services Section (Premium Lucide Icons & Larger Size) */}
+        <section id="services" className="py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Our Operations</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Comprehensive Public Service System</h2>
@@ -236,77 +262,65 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Service 1 */}
-              <div className="border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04A15.003 15.003 0 015 10c0-6 4-8.997 4-8.997s4 2.997 4 8.997c0 1.306-.18 2.568-.52 3.768M16.5 16.155A9 9 0 1113.5 3c2.43 0 4.621.996 6.21 2.61" />
-                  </svg>
+              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
+                  <Shield className="w-6 h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800">Human Rights Support</h4>
+                <h4 className="text-base font-bold text-slate-800 font-serif">Human Rights Support</h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-light">Legal assistance and representation against state arbitrary actions and constitutional violations.</p>
               </div>
 
               {/* Service 2 */}
-              <div className="border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-[#D62828]/10 flex items-center justify-center text-[#D62828]">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
+              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
+                  <FileText className="w-6 h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800">Grievance Assistance</h4>
+                <h4 className="text-base font-bold text-slate-800 font-serif">Grievance Assistance</h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-light">Assisting local citizens in drafting, filing, and tracking official grievance applications to authorities.</p>
               </div>
 
               {/* Service 3 */}
-              <div className="border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
+              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="w-6 h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800">Legal Awareness</h4>
+                <h4 className="text-base font-bold text-slate-800 font-serif">Legal Awareness</h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-light">Organizing educational camps to inform common citizens about their legal rights and standard procedures.</p>
               </div>
 
               {/* Service 4 */}
-              <div className="border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-[#D62828]/10 flex items-center justify-center text-[#D62828]">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
+                  <Search className="w-6 h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800">RTI Advocacy</h4>
+                <h4 className="text-base font-bold text-slate-800 font-serif">RTI Advocacy</h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-light">Spreading information and filing thousands of RTIs to combat corruption and expose scams in government programs.</p>
               </div>
 
               {/* Service 5 */}
-              <div className="border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
+              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
+                  <Users className="w-6 h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800">Membership Program</h4>
+                <h4 className="text-base font-bold text-slate-800 font-serif">Membership Program</h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-light">Enrolling dedicated social and legal activists across all Indian states with official verification ID cards.</p>
               </div>
 
               {/* Service 6 */}
-              <div className="border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-10 h-10 rounded-lg bg-[#D62828]/10 flex items-center justify-center text-[#D62828]">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                  </svg>
+              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
+                  <GraduationCap className="w-6 h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800">Certification Academy</h4>
+                <h4 className="text-base font-bold text-slate-800 font-serif">Certification Academy</h4>
                 <p className="text-xs text-slate-500 leading-relaxed font-light">Providing official certification courses in citizen rights, RTI drafting, and community leadership.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 5. Featured Courses Section */}
-        <section id="courses" className="py-20 px-6 bg-slate-50 border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+        {/* 5. Featured Courses Section (Improved visual hierarchy & badges) */}
+        <section id="courses" className="py-24 px-6 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">DKFFJ Academy</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Legal Study & Advocacy Certifications</h2>
@@ -315,50 +329,83 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Course 1 */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                <div className="p-6 flex flex-col gap-4">
-                  <span className="text-[9px] text-[#0F4C81] font-bold bg-[#0F4C81]/10 px-2 py-0.5 rounded-full uppercase tracking-wider self-start">4 Weeks Certification</span>
-                  <h4 className="text-base font-bold text-slate-800">RTI Drafting Specialist</h4>
+              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg transition-all flex flex-col justify-between">
+                <div className="p-8 flex flex-col gap-5">
+                  <div className="flex gap-2 items-center">
+                    <span className="text-[9px] text-[#0F4C81] font-bold bg-[#0F4C81]/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      Right to Information
+                    </span>
+                    <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold">
+                      <Clock className="w-3 h-3 text-[#0F4C81]" /> 4 Weeks
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-slate-800 font-serif">RTI Drafting Specialist</h4>
                   <p className="text-xs text-slate-500 leading-relaxed font-light">Learn the art of drafting powerful Right to Information applications to demand transparency from government bodies.</p>
                 </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-slate-800 font-extrabold text-sm">FREE / Open for All</span>
-                  <Link href="#contact" className="bg-[#0F4C81] text-white text-xs font-bold px-4 py-2 rounded hover:bg-[#0c3e6b] transition-all">Apply</Link>
+                <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
+                  <Link 
+                    href="#contact" 
+                    className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                  >
+                    Apply for Course <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
 
               {/* Course 2 */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                <div className="p-6 flex flex-col gap-4">
-                  <span className="text-[9px] text-[#D62828] font-bold bg-[#D62828]/10 px-2 py-0.5 rounded-full uppercase tracking-wider self-start">6 Weeks Certification</span>
-                  <h4 className="text-base font-bold text-slate-800">Human Rights Advocacy Course</h4>
+              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg transition-all flex flex-col justify-between">
+                <div className="p-8 flex flex-col gap-5">
+                  <div className="flex gap-2 items-center">
+                    <span className="text-[9px] text-[#D62828] font-bold bg-[#D62828]/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      Legal Studies
+                    </span>
+                    <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold">
+                      <Clock className="w-3 h-3 text-[#D62828]" /> 6 Weeks
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-slate-800 font-serif">Human Rights Advocacy</h4>
                   <p className="text-xs text-slate-500 leading-relaxed font-light">An advanced module covering key international declarations, the Indian constitution, and standard legal recourse methods.</p>
                 </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-slate-800 font-extrabold text-sm">FREE / Open for All</span>
-                  <Link href="#contact" className="bg-[#0F4C81] text-white text-xs font-bold px-4 py-2 rounded hover:bg-[#0c3e6b] transition-all">Apply</Link>
+                <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
+                  <Link 
+                    href="#contact" 
+                    className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                  >
+                    Apply for Course <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
 
               {/* Course 3 */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                <div className="p-6 flex flex-col gap-4">
-                  <span className="text-[9px] text-[#0F4C81] font-bold bg-[#0F4C81]/10 px-2 py-0.5 rounded-full uppercase tracking-wider self-start">2 Weeks Certification</span>
-                  <h4 className="text-base font-bold text-slate-800">Citizen Rights and B.S. Guidelines</h4>
+              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg transition-all flex flex-col justify-between">
+                <div className="p-8 flex flex-col gap-5">
+                  <div className="flex gap-2 items-center">
+                    <span className="text-[9px] text-[#0F4C81] font-bold bg-[#0F4C81]/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      Constitutional Rights
+                    </span>
+                    <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold">
+                      <Clock className="w-3 h-3 text-[#0F4C81]" /> 2 Weeks
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-slate-800 font-serif">Citizen Rights & Arrest Guidelines</h4>
                   <p className="text-xs text-slate-500 leading-relaxed font-light">Short crash course outlining the essential Supreme Court arrest guidelines and standard police reporting formats.</p>
                 </div>
-                <div className="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-slate-800 font-extrabold text-sm">FREE / Open for All</span>
-                  <Link href="#contact" className="bg-[#0F4C81] text-white text-xs font-bold px-4 py-2 rounded hover:bg-[#0c3e6b] transition-all">Apply</Link>
+                <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
+                  <Link 
+                    href="#contact" 
+                    className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                  >
+                    Apply for Course <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 6. Leadership Team Section */}
-        <section className="py-20 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+        {/* 6. Leadership Team Section (Improved alignment, heights, & real images) */}
+        <section className="py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Our Leadership</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Executive Council Members</h2>
@@ -367,59 +414,75 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {/* Leader 1 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/3.jpg" className="w-full h-full object-cover" alt="Danish Khan" />
+              <div className="bg-slate-50 border border-slate-200/80 rounded-3xl overflow-hidden p-8 text-center flex flex-col items-center justify-between gap-6 hover:border-[#0F4C81]/30 hover:shadow-md transition-all duration-300 h-full">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0">
+                    <img src="/members/danish.jpg" className="w-full h-full object-cover" alt="Danish Khan" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-base font-bold text-slate-800 font-serif">Danish Khan</h4>
+                    <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-wider mt-1">Founder & Director</span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Danish Khan</h4>
-                  <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-wider mt-0.5">Founder & Director</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">India's famous RTI & Social Activist. Raised voice against custodial deaths, corruption, and social injustice before national media.</p>
-                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-light mt-2">
+                  India's renowned RTI & Social Activist. Raised voice against custodial deaths, corruption, and social injustice before national media.
+                </p>
               </div>
 
               {/* Leader 2 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/1.jpg" className="w-full h-full object-cover" alt="Mohd Wasim Qureshi" />
+              <div className="bg-slate-50 border border-slate-200/80 rounded-3xl overflow-hidden p-8 text-center flex flex-col items-center justify-between gap-6 hover:border-[#D62828]/20 hover:shadow-md transition-all duration-300 h-full">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0">
+                    <img src="/members/wasim.jpg" className="w-full h-full object-cover" alt="Mohd Wasim Qureshi" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-base font-bold text-slate-800 font-serif">Mohd Wasim Qureshi</h4>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">National President</span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Mohd Wasim Qureshi</h4>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">National President</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">Prominent industrialist and social welfare contributor representing national operations from Ajmer, Rajasthan.</p>
-                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-light mt-2">
+                  Prominent industrialist and social welfare contributor representing national operations from Ajmer, Rajasthan.
+                </p>
               </div>
 
               {/* Leader 3 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/2.jpg" className="w-full h-full object-cover" alt="Vipin Kumar Sharma" />
+              <div className="bg-slate-50 border border-slate-200/80 rounded-3xl overflow-hidden p-8 text-center flex flex-col items-center justify-between gap-6 hover:border-[#0F4C81]/30 hover:shadow-md transition-all duration-300 h-full">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0">
+                    <img src="/members/vipin.jpg" className="w-full h-full object-cover" alt="Vipin Kumar Sharma" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-base font-bold text-slate-800 font-serif">Vipin Kumar Sharma</h4>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Chief Executive Officer</span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Vipin Kumar Sharma</h4>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Chief Executive Officer</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">Government-approved journalist, National CEO of DKFFJ, overseeing executive operations and grievance reporting from BKT, Lucknow.</p>
-                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-light mt-2">
+                  Government-approved journalist, National CEO of DKFFJ, overseeing executive operations and grievance reporting from Lucknow, UP.
+                </p>
               </div>
 
               {/* Leader 4 */}
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden p-6 text-center flex flex-col items-center gap-4 hover:border-[#0F4C81]/30 transition-all">
-                <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#0F4C81]/30">
-                  <img src="/4.jpg" className="w-full h-full object-cover" alt="Jay Prakash Tiwari" />
+              <div className="bg-slate-50 border border-slate-200/80 rounded-3xl overflow-hidden p-8 text-center flex flex-col items-center justify-between gap-6 hover:border-[#D62828]/20 hover:shadow-md transition-all duration-300 h-full">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0">
+                    <img src="/members/tiwari.jpg" className="w-full h-full object-cover" alt="Jay Prakash Tiwari" />
+                  </div>
+                  <div className="flex flex-col">
+                    <h4 className="text-base font-bold text-slate-800 font-serif">Jay Prakash Tiwari</h4>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">National Secretary</span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-800">Jay Prakash Tiwari</h4>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">National Secretary</span>
-                  <p className="text-[9px] text-slate-500 mt-2 leading-relaxed">Leading administrative operations, registrations compliance, and national coordinate activities from Ayodhya, UP.</p>
-                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-light mt-2">
+                  Leading administrative operations, registrations compliance, and national coordinating activities from Ayodhya, UP.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 7. Documents & Registrations Section */}
-        <section id="documents" className="py-20 px-6 bg-slate-50 border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+        {/* 7. Documents & Registrations Section (Download CTA, sizes, & hover effects) */}
+        <section id="documents" className="py-24 px-6 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Official Downloads</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Registration Documents & Tax Approvals</h2>
@@ -428,204 +491,244 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Document 1 */}
-              <a href="/documents/1750940512.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
+              <a 
+                href="/documents/1750940512.pdf" 
+                target="_blank" 
+                className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81] hover:shadow-lg transition-all duration-300 group shadow-sm"
+              >
                 <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#0F4C81] group-hover:text-white transition-all shrink-0">
+                    <FileCheck className="w-5 h-5" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col text-left">
                     <span className="text-xs font-bold text-slate-800">MCA Articles of Association</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 181 KB</span>
+                    <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">PDF | 181 KB</span>
                   </div>
                 </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                  <span>Download</span>
+                  <Download className="w-4 h-4" />
                 </div>
               </a>
 
               {/* Document 2 */}
-              <a href="/documents/1713277338.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
+              <a 
+                href="/documents/1713277338.pdf" 
+                target="_blank" 
+                className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81] hover:shadow-lg transition-all duration-300 group shadow-sm"
+              >
                 <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
+                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#0F4C81] group-hover:text-white transition-all shrink-0">
+                    <FileCheck className="w-5 h-5" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col text-left">
                     <span className="text-xs font-bold text-slate-800">12A Income Tax Exemption</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 55 KB</span>
+                    <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">PDF | 55 KB</span>
                   </div>
                 </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                  <span>Download</span>
+                  <Download className="w-4 h-4" />
                 </div>
               </a>
 
               {/* Document 3 */}
-              <a href="/documents/1713277369.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
+              <a 
+                href="/documents/1713277369.pdf" 
+                target="_blank" 
+                className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81] hover:shadow-lg transition-all duration-300 group shadow-sm"
+              >
                 <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
+                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#0F4C81] group-hover:text-white transition-all shrink-0">
+                    <FileCheck className="w-5 h-5" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col text-left">
                     <span className="text-xs font-bold text-slate-800">80G Income Tax Certificate</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 55 KB</span>
+                    <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">PDF | 55 KB</span>
                   </div>
                 </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                  <span>Download</span>
+                  <Download className="w-4 h-4" />
                 </div>
               </a>
 
               {/* Document 4 */}
-              <a href="/documents/1713277422.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
+              <a 
+                href="/documents/1713277422.pdf" 
+                target="_blank" 
+                className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81] hover:shadow-lg transition-all duration-300 group shadow-sm"
+              >
                 <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#0F4C81] group-hover:text-white transition-all shrink-0">
+                    <FileCheck className="w-5 h-5" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col text-left">
                     <span className="text-xs font-bold text-slate-800">CSR Registration Certificate</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 48 KB</span>
+                    <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">PDF | 48 KB</span>
                   </div>
                 </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                  <span>Download</span>
+                  <Download className="w-4 h-4" />
                 </div>
               </a>
 
               {/* Document 5 */}
-              <a href="/documents/1713278028.PDF" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
+              <a 
+                href="/documents/1713278028.PDF" 
+                target="_blank" 
+                className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81] hover:shadow-lg transition-all duration-300 group shadow-sm"
+              >
                 <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#0F4C81] group-hover:text-white transition-all shrink-0">
+                    <FileCheck className="w-5 h-5" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col text-left">
                     <span className="text-xs font-bold text-slate-800">NITI Aayog Registration</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 56 KB</span>
+                    <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">PDF | 56 KB</span>
                   </div>
                 </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                  <span>Download</span>
+                  <Download className="w-4 h-4" />
                 </div>
               </a>
 
               {/* Document 6 */}
-              <a href="/documents/1750870809.pdf" target="_blank" className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 transition-all group shadow-sm">
+              <a 
+                href="/documents/1750870809.pdf" 
+                target="_blank" 
+                className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81] hover:shadow-lg transition-all duration-300 group shadow-sm"
+              >
                 <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.5 8H16.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:bg-[#0F4C81] group-hover:text-white transition-all shrink-0">
+                    <FileCheck className="w-5 h-5" />
                   </div>
-                  <div className="flex flex-col">
+                  <div className="flex flex-col text-left">
                     <span className="text-xs font-bold text-slate-800">Police Appreciation Certificate</span>
-                    <span className="text-[9px] text-slate-400 mt-1 uppercase">PDF | 672 KB</span>
+                    <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">PDF | 672 KB</span>
                   </div>
                 </div>
-                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                <div className="text-slate-400 group-hover:text-[#0F4C81] transition-colors shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                  <span>Download</span>
+                  <Download className="w-4 h-4" />
                 </div>
               </a>
             </div>
           </div>
         </section>
 
-        {/* 8. Latest News & Video Highlights */}
-        <section className="py-20 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+        {/* 8. Latest News Section */}
+        <section id="news" className="py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
             <div className="text-center max-w-2xl mx-auto">
-              <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">News & Media</span>
-              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Latest Campaigns and Video Briefings</h2>
+              <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest font-sans">Announcements</span>
+              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Latest Press & Campaign News</h2>
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            {/* Video Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm aspect-video bg-black">
-                <iframe 
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/hjLMgfZ_Wp4?si=AK0l6ivlxAr0QeMD" 
-                  title="DKFFJ Media Broadcast" 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowFullScreen
-                ></iframe>
-              </div>
-              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm aspect-video bg-black">
-                <iframe 
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/dT87hA0fhbM?si=7xM2EQASk1OLY1R2" 
-                  title="DKFFJ Ground Report" 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                  allowFullScreen
-                ></iframe>
-              </div>
-            </div>
-
             {/* News Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3">
-                <span className="text-[9px] text-[#0F4C81] font-bold">September 2024</span>
-                <h4 className="text-sm font-bold text-slate-800">डीके फाउंडेशन ऑफ फ़्रीडम एंड जस्टिस नियमावली</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 hover:border-[#0F4C81]/30 transition-all duration-300">
+                <span className="text-[9px] text-[#0F4C81] font-bold font-mono bg-[#0F4C81]/10 px-2 py-0.5 rounded self-start">September 2024</span>
+                <h4 className="text-sm font-bold text-slate-800 font-serif leading-snug">डीके फाउंडेशन ऑफ फ़्रीडम एंड जस्टिस नियमावली</h4>
                 <p className="text-[11px] text-slate-500 leading-relaxed font-light">Foundation parameters defining executive operations, local RTI coordinator guidelines, and social relief camp registrations.</p>
               </div>
 
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3">
-                <span className="text-[9px] text-[#0F4C81] font-bold">August 2024</span>
-                <h4 className="text-sm font-bold text-slate-800">मानवधिकार हनन को रोकना देश के हर नागरिक का प्रथम कर्तव्य है</h4>
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 hover:border-[#D62828]/25 transition-all duration-300">
+                <span className="text-[9px] text-[#D62828] font-bold font-mono bg-[#D62828]/10 px-2 py-0.5 rounded self-start">August 2024</span>
+                <h4 className="text-sm font-bold text-slate-800 font-serif leading-snug">मानवधिकार हनन को रोकना देश के हर नागरिक का प्रथम कर्तव्य है</h4>
                 <p className="text-[11px] text-slate-500 leading-relaxed font-light">CEO Vipin Sharma's address to the legal advocacy cell on helping unjustly detained youth and lodging standard writs of Habeas Corpus.</p>
               </div>
 
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 flex flex-col gap-3">
-                <span className="text-[9px] text-[#0F4C81] font-bold">June 2025</span>
-                <h4 className="text-sm font-bold text-slate-800">National Executive Meeting at Ajmer Guest House</h4>
-                <p className="text-[11px] text-slate-500 leading-relaxed font-light">Director Danish Khan and National President Wasim Qureshi finalize structural deployment parameters for standard member certificates.</p>
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 hover:border-[#0F4C81]/30 transition-all duration-300">
+                <span className="text-[9px] text-[#0F4C81] font-bold font-mono bg-[#0F4C81]/10 px-2 py-0.5 rounded self-start">June 2025</span>
+                <h4 className="text-sm font-bold text-slate-800 font-serif leading-snug">National Executive Meeting at Ajmer Guest House</h4>
+                <p className="text-[11px] text-slate-500 leading-relaxed font-light">Director Danish Khan and National President Wasim Qureshi finalize structural deployment parameters for member certificate issuances.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 9. Contact & Complaint Lodging Form */}
-        <section id="contact" className="py-20 px-6 bg-slate-50 border-t border-slate-200">
+        {/* 9. Video Gallery Section */}
+        <section id="video-gallery" className="py-24 px-6 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+            <div className="text-center max-w-2xl mx-auto">
+              <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest font-sans">Press Briefings</span>
+              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Official Video Library</h2>
+              <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            {/* Video Gallery Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-3 group">
+                <div className="rounded-2xl overflow-hidden border border-slate-200/80 shadow-md aspect-video bg-black relative">
+                  <iframe 
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/hjLMgfZ_Wp4?si=AK0l6ivlxAr0QeMD" 
+                    title="DKFFJ Media Broadcast" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowFullScreen
+                  ></iframe>
+                </div>
+                <h4 className="text-sm font-bold text-slate-800 font-serif px-1 mt-1 flex items-center gap-2">
+                  <PlayCircle className="w-4 h-4 text-[#D62828]" /> Media Coverage & Ground Report
+                </h4>
+              </div>
+
+              <div className="flex flex-col gap-3 group">
+                <div className="rounded-2xl overflow-hidden border border-slate-200/80 shadow-md aspect-video bg-black relative">
+                  <iframe 
+                    className="w-full h-full"
+                    src="https://www.youtube.com/embed/dT87hA0fhbM?si=7xM2EQASk1OLY1R2" 
+                    title="DKFFJ Ground Report" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowFullScreen
+                  ></iframe>
+                </div>
+                <h4 className="text-sm font-bold text-slate-800 font-serif px-1 mt-1 flex items-center gap-2">
+                  <PlayCircle className="w-4 h-4 text-[#D62828]" /> Executive Council Address
+                </h4>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 10. Contact & Complaint Lodging Form */}
+        <section id="contact" className="py-24 px-6 bg-white border-t border-slate-200">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
             
             {/* Left Contact Form */}
-            <div className="lg:col-span-7 bg-white p-8 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col gap-6">
+            <div className="lg:col-span-7 bg-slate-50 p-8 md:p-10 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col gap-6">
               <div>
-                <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Submit Case</span>
-                <h3 className="text-2xl font-bold font-serif text-slate-900 mt-1">Get in Touch / File a Grievance</h3>
-                <p className="text-xs text-slate-500 mt-1">Fill out the official inquiry or complaint file. Our coordinators will contact you.</p>
+                <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest font-sans">Submit Grievance</span>
+                <h3 className="text-2xl font-bold font-serif text-slate-900 mt-1">File Public Complaint / Grievance</h3>
+                <p className="text-xs text-slate-500 mt-1">Provide clear inputs below. Our active human rights desk will review and assign support coordinators.</p>
               </div>
 
               <form className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Full Name *</label>
-                    <input type="text" required placeholder="Your Name" className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
+                    <input type="text" required placeholder="Your Name" className="bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Mobile No. *</label>
-                    <input type="text" required placeholder="Phone Number" className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
+                    <input type="text" required placeholder="Phone Number" className="bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Email Address</label>
-                    <input type="email" placeholder="email@example.com" className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
+                    <input type="email" placeholder="email@example.com" className="bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none" />
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Grievance Type *</label>
-                    <select required className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none">
+                    <select required className="bg-white border border-slate-200 focus:border-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none">
                       <option>General Legal Inquiry</option>
                       <option>Human Rights Infringement</option>
                       <option>RTI Drafting Request</option>
@@ -635,19 +738,20 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5 text-left">
                   <label className="text-[10px] font-bold uppercase text-slate-500">Details / Complaint Text *</label>
-                  <textarea required rows={4} placeholder="State your problem clearly with landmarks, dates, and names of officers involved if applicable..." className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none resize-none"></textarea>
+                  <textarea required rows={4} placeholder="State your problem clearly with landmarks, dates, and names of officials involved if applicable..." className="bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none resize-none"></textarea>
                 </div>
 
+                {/* Submitting Text Improved */}
                 <button type="submit" className="bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest py-4 rounded-lg mt-2 transition-all active:scale-95 shadow-[0_4px_12px_rgba(15,76,129,0.15)] cursor-pointer">
-                  Submit Application
+                  Submit Complaint
                 </button>
               </form>
             </div>
 
             {/* Right Contact Info Details */}
-            <div className="lg:col-span-5 flex flex-col gap-8">
+            <div className="lg:col-span-5 flex flex-col gap-8 text-left">
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Office Locations</span>
                 <h3 className="text-2xl font-bold font-serif text-slate-900">DKFFJ Coordinates</h3>
@@ -663,7 +767,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h5 className="font-bold text-slate-800 mb-1">Mobile Support Lines</h5>
-                    <p className="font-mono">+91 9871219033, +91 8960552986</p>
+                    <p className="font-mono text-slate-700 font-semibold">+91 9871219033, +91 8960552986</p>
                     <p className="font-mono text-slate-400 mt-0.5">Alt: +91 9453457930</p>
                   </div>
                 </div>
@@ -676,7 +780,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h5 className="font-bold text-slate-800 mb-1">Official Emails</h5>
-                    <p className="font-mono">info@dkffj.org</p>
+                    <p className="font-mono text-slate-700 font-semibold">info@dkffj.org</p>
                     <p className="font-mono text-slate-400 mt-0.5">dkfoundationoffreedom@gmail.com</p>
                   </div>
                 </div>
@@ -690,10 +794,10 @@ export default function Home() {
                   </div>
                   <div>
                     <h5 className="font-bold text-slate-800 mb-1">Corporate & Regional Offices</h5>
-                    <p className="mb-2"><strong>Head Office:</strong> 117/M/29-C Kakadeo M-Block, Madhuvan Appt. Road, Kanpur, UP 208019</p>
-                    <p className="mb-2"><strong>Ajmer Office:</strong> Sarwar Guest House, Ander Kot District, Ajmer, Rajasthan 305001</p>
-                    <p className="mb-2"><strong>Lucknow Office:</strong> 20B, Gata No. 458, Bhakamau BKT, Basha, Lucknow, UP 226026</p>
-                    <p><strong>Delhi Office:</strong> 18/51 Trilok Puri, Near Shiv Mandir, Delhi 110091</p>
+                    <p className="mb-2 leading-relaxed"><strong>Head Office:</strong> 117/M/29-C Kakadeo M-Block, Madhuvan Appt. Road, Kanpur, UP 208019</p>
+                    <p className="mb-2 leading-relaxed"><strong>Ajmer Office:</strong> Sarwar Guest House, Ander Kot District, Ajmer, Rajasthan 305001</p>
+                    <p className="mb-2 leading-relaxed"><strong>Lucknow Office:</strong> 20B, Gata No. 458, Bhakamau BKT, Basha, Lucknow, UP 226026</p>
+                    <p className="leading-relaxed"><strong>Delhi Office:</strong> 18/51 Trilok Puri, Near Shiv Mandir, Delhi 110091</p>
                   </div>
                 </div>
               </div>
@@ -704,29 +808,35 @@ export default function Home() {
 
       </main>
 
-      {/* Global Footer */}
+      {/* Global Footer (Improved with NITI, MCA, 12A, 80G and verification links) */}
       <footer className="border-t border-slate-200 bg-white py-12 px-6">
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-10 text-xs text-slate-500">
           
-          <div className="flex flex-col gap-3">
-            <h5 className="font-serif font-bold text-[#0F4C81] text-sm leading-none">DKFFJ</h5>
+          <div className="flex flex-col gap-3 text-left">
+            <h5 className="font-serif font-bold text-[#0F4C81] text-sm leading-none">DKFFJ NGO</h5>
             <p className="leading-relaxed font-light text-slate-400">
               DK Foundation of Freedom and Justice is a constitutional rights protection organ registered under Section 8 of the Companies Act, 2013, Ministry of Corporate Affairs, Govt. of India.
             </p>
-            <span className="text-[10px] text-slate-400 mt-2 font-mono">CIN: U88100UP2023NPL181342</span>
+            <div className="flex flex-col gap-1 mt-2 text-[10px] text-slate-400 font-semibold font-mono">
+              <span>CIN: U88100UP2023NPL181342</span>
+              <span className="text-[#0F4C81]">✓ MCA Registered Section 8</span>
+              <span className="text-[#0F4C81]">✓ NITI Aayog: UP/2023/0343513</span>
+              <span className="text-[#0F4C81]">✓ IT Exemption: 12A & 80G</span>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 text-left">
             <h5 className="font-bold text-slate-800 uppercase tracking-wider">Quick Links</h5>
             <div className="flex flex-col gap-2">
               <Link href="#about" className="hover:text-[#0F4C81] transition-colors">About Objectives</Link>
               <Link href="#services" className="hover:text-[#0F4C81] transition-colors">Operations Details</Link>
               <Link href="#courses" className="hover:text-[#0F4C81] transition-colors">Academy Courses</Link>
               <Link href="#documents" className="hover:text-[#0F4C81] transition-colors">Downloadable Legals</Link>
+              <Link href="#verify-section" className="text-[#0F4C81] font-bold hover:underline transition-all">Verify Registry Certificate</Link>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 text-left">
             <h5 className="font-bold text-slate-800 uppercase tracking-wider">Official Policies</h5>
             <div className="flex flex-col gap-2">
               <Link href="#" className="hover:text-[#0F4C81] transition-colors">Privacy Policy</Link>
@@ -736,7 +846,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 items-start md:items-end">
+          <div className="flex flex-col gap-4 items-start md:items-end text-left md:text-right">
             <h5 className="font-bold text-slate-800 uppercase tracking-wider">Social Handles</h5>
             <div className="flex gap-4 text-[#0f4c81]">
               <a href="https://www.facebook.com/dkffjorg" target="_blank" className="hover:text-[#0c3e6b] transition-colors">
@@ -746,13 +856,35 @@ export default function Home() {
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
               </a>
             </div>
-            <span className="text-[10px] text-slate-400 mt-2">
+            <span className="text-[10px] text-slate-400 mt-2 block">
               &copy; {new Date().getFullYear()} DKFFJ. All rights reserved.
             </span>
           </div>
 
         </div>
       </footer>
+
+      {/* 13. Mobile Sticky Action Bar */}
+      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-50 py-3 px-4 flex gap-2 justify-around shadow-[0_-5px_15px_rgba(0,0,0,0.08)]">
+        <Link 
+          href="#contact" 
+          className="flex-1 text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-wider transition-colors"
+        >
+          Join Member
+        </Link>
+        <Link 
+          href="#contact" 
+          className="flex-1 text-center bg-[#D62828] hover:bg-[#b02020] text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-wider transition-colors"
+        >
+          File Complaint
+        </Link>
+        <Link 
+          href="#verify-section" 
+          className="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-wider transition-colors"
+        >
+          Verify Certificate
+        </Link>
+      </div>
 
     </div>
   );
