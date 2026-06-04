@@ -1,0 +1,74 @@
+# Users / Members table
+type User @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  firstName: String!
+  lastName: String
+  email: String! @unique
+  mobile: String!
+  state: String!
+  idNo: String
+  role: String! # admin, coordinator, student, member
+  userPhoto: String
+  addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Courses table
+type Course @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  title: String!
+  slug: String! @unique
+  description: String!
+  thumbnail: String
+  status: Int! @default(value: 1)
+  addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Lessons inside Courses
+type Lesson @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  course: Course!
+  title: String!
+  slug: String!
+  videoUrl: String!
+  order: Int!
+  addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Student Enrollments & Progress tracking
+type Enrollment @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  user: User!
+  course: Course!
+  progressPercent: Int! @default(value: 0)
+  isCompleted: Boolean! @default(value: false)
+  enrollmentDate: Timestamp! @default(expr: "request.time")
+}
+
+# Grievances/Complaints Portal
+type Complaint @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  user: User
+  firstName: String!
+  fatherName: String
+  surname: String
+  dob: String
+  gender: String
+  profession: String
+  complaintText: String!
+  state: String!
+  mobile: String!
+  policeStation: String
+  addedDate: Timestamp! @default(expr: "request.time")
+}
+
+# Donations table (PhonePe payment tracking)
+type Donation @table {
+  id: UUID! @default(expr: "uuid_generate_v4()")
+  orderId: String! @unique
+  name: String!
+  email: String!
+  mobile: String!
+  amount: Int! # Amount in Paisa (multiplied by 100) or standard Rupees
+  status: String! # pending, success, failed
+  addedDate: Timestamp! @default(expr: "request.time")
+}

@@ -1,0 +1,9 @@
+specVersion: "v1alpha"
+serviceId: "dkffj-service"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "dkffj-db"
+connectorDirs:
+  - "./connector"

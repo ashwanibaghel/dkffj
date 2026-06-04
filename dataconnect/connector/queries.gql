@@ -1,0 +1,21 @@
+# Example query to get users
+query getUsers {
+  users {
+    id
+    firstName
+    lastName
+    email
+    role
+  }
+}
+
+# Example mutation to create a user
+mutation createUser($firstName: String!, $email: String!, $mobile: String!, $state: String!, $role: String!) {
+  user_insert(data: {
+    firstName: $firstName,
+    email: $email,
+    mobile: $mobile,
+    state: $state,
+    role: $role
+  })
+}

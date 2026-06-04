@@ -1,0 +1,6 @@
+specVersion: "v1alpha"
+connectorId: "dkffj-connector"
+generate:
+  javascriptSdk:
+    outputDir: "../src/lib/generated"
+    package: "@dkffj/sdk"
