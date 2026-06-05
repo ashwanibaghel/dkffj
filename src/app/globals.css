@@ -14,8 +14,8 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
-  --font-sans: var(--font-jakarta);
-  --font-serif: var(--font-cinzel);
+  --font-sans: var(--font-outfit);
+  --font-serif: var(--font-playfair);
 }
 
 body {
