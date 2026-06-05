@@ -1,9 +1,9 @@
 specVersion: "v1alpha"
-serviceId: "dkffj-service"
+serviceId: "dkffj-88e1c-service"
 schema:
   source: "./schema"
   datasource:
     postgresql:
-      database: "dkffj-db"
+      database: "dkffj-88e1c-database"
 connectorDirs:
   - "./connector"
