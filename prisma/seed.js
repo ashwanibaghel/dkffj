@@ -1,0 +1,1093 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+const teamMembers = [
+  {
+    id: "1000",
+    name: "Danish khan",
+    role: "DIRECTOR",
+    education: "Mass Communication jamia university",
+    location: "East Delhi, UTTAR PRADESH",
+    mobile: "9359310097",
+    photo: "/members/danish.jpg",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1012",
+    name: "Jay Prakash Tiwari",
+    role: "National Secretary",
+    education: "Graduate",
+    location: "Ayodhya, India",
+    mobile: "9453457930",
+    photo: "/members/tiwari.jpg",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1004",
+    name: "Mohd Wasim Qureshi",
+    role: "National President",
+    education: "MBA.",
+    location: "District Ajmer, Uttarakhand",
+    mobile: "9829070555",
+    photo: "/members/wasim.jpg",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1010",
+    name: "Vipin Kumar Sharma",
+    role: "Chief Executive Officer",
+    education: "MA (governor Award Holder up)",
+    location: "Rampur, India",
+    mobile: "9458830001",
+    photo: "/members/vipin.jpg",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1031",
+    name: "Ad Sanjeev Kumar",
+    role: "Chief Observer",
+    education: "B Com, Mass Communication. LLB",
+    location: "Ballia, India",
+    mobile: "9838651849",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1028",
+    name: "Adarsh Lodhi",
+    role: "PRESIDENT",
+    education: "Inter Mediate",
+    location: "Lucknow, India",
+    mobile: "8400007777",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1106",
+    name: "Adv Vikky Raj",
+    role: "Legal Advisor",
+    education: "M.A L.L.B",
+    location: "Rampur, India",
+    mobile: "9458728586",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1078",
+    name: "Adv. Shailendra Tiwari",
+    role: "Legal Advisor",
+    education: "LLB",
+    location: "Prayagraj, India",
+    mobile: "9616171819",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1027",
+    name: "Adv. Sumit Saxena",
+    role: "Legal Advisor",
+    education: "MA L.L.B",
+    location: "Prayagraj, India",
+    mobile: "+97954 77775",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1090",
+    name: "Ahbab Zameer",
+    role: "Social Media Activist",
+    education: "MA English",
+    location: "Bareilly, India",
+    mobile: "8077940452",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1103",
+    name: "Ajay Kumar Singh",
+    role: "Human Rights Activist",
+    education: "UGC NET QUALIFIED",
+    location: "Ballia, India",
+    mobile: "9911376318",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1102",
+    name: "Anubhav Sagar",
+    role: "Vice President",
+    education: "B.A complet/polytechnic diploma In electrical engineering",
+    location: "Rampur, India",
+    mobile: "7088667839",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1033",
+    name: "Ashar Nafees",
+    role: "Deputy Chief Co-ordinator",
+    education: "BCA",
+    location: "Muzaffarnagar, India",
+    mobile: "9719222896",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1019",
+    name: "Bhupendra Kumar Sharma",
+    role: "PRESIDENT",
+    education: "Intermediate",
+    location: "Bijnor, India",
+    mobile: "9058009333",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1006",
+    name: "Bhupendra Pratap Singh",
+    role: "Chief Reporting Officer",
+    education: "MSC agricultural",
+    location: "Ghazipur, UTTAR PRADESH",
+    mobile: "7897804441",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1057",
+    name: "CHETAN SHANDILYA",
+    role: "Legal Advisor",
+    education: "BCOM, DBA, PGDSM, MBA, LLB",
+    location: "Delhi, India",
+    mobile: "9810094281",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1069",
+    name: "Dr Mithu Mohammad",
+    role: "PRESIDENT",
+    education: "Graduation Dentist doctor",
+    location: "Barnala, India",
+    mobile: "9878620787",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1024",
+    name: "Dr Mohd Arif Siddiqui",
+    role: "Human Welfare Secretary",
+    education: "MBBS ms",
+    location: "Rampur, India",
+    mobile: "7599334852",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1119",
+    name: "Dr Mohd Safiullah Ajmeri",
+    role: "PRESIDENT",
+    education: "BUMS",
+    location: "Malerkotla, India",
+    mobile: "9761660000",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1086",
+    name: "Dr Salahuddin",
+    role: "Executive President",
+    education: "MSW",
+    location: "Bijnor, India",
+    mobile: "9758251000",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1085",
+    name: "Dr mohd kamil",
+    role: "Chief Observer",
+    education: "graduation B.U.M.S",
+    location: "Jaunpur, India",
+    mobile: "8960552986",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1082",
+    name: "Dr. Naseem Akhtar",
+    role: "Women Empowerment Secretary",
+    education: "PhD",
+    location: "District Agra, India",
+    mobile: "7037452442",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1002",
+    name: "Farin Khan",
+    role: "Secretary",
+    education: "BA part 1",
+    location: "East Delhi, UTTAR PRADESH",
+    mobile: "9871219033",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1023",
+    name: "Gaurav Agarwal",
+    role: "Human Welfare Secretary",
+    education: "12 th",
+    location: "Rampur, India",
+    mobile: "8449798800",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1022",
+    name: "Gaurav Tyagi",
+    role: "Joint Secretary",
+    education: "B A Bachelor of Art",
+    location: "Gautam Nagar, India",
+    mobile: "9811360638",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1058",
+    name: "Harsh Sharma",
+    role: "Information Secretary",
+    education: "10+ 12 Graduation",
+    location: "Ghaziabad, India",
+    mobile: "8851013619",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1059",
+    name: "Indra Kumar Yadav",
+    role: "Social Media Activist",
+    education: "10+2",
+    location: "Thane, India",
+    mobile: "8898888418",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1052",
+    name: "Jalaluddin Mondal",
+    role: "Deputy Chief Co-ordinator",
+    education: "HIGHER SECONDARY",
+    location: "Hooghly, India",
+    mobile: "9932285642",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1095",
+    name: "Jyoti Kohli",
+    role: "Administrative Secretary",
+    education: "BA poltical hons LLB. LLM",
+    location: "Delhi East, India",
+    mobile: "8512042219",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1064",
+    name: "Khursheed Ahmad Khan",
+    role: "Chief Reporting Officer",
+    education: "Post graduation Chief Editor news time nation",
+    location: "Sultanpur, India",
+    mobile: "7985274995",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1030",
+    name: "Kumar intkhab",
+    role: "Deputy Chief Observer",
+    education: "Master of art",
+    location: "Muzaffarnagar, India",
+    mobile: "98974 41396",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1045",
+    name: "MD Manuarur Jaman Mollick",
+    role: "Organising Secretary",
+    education: "HIGHER SECONDARY",
+    location: "Hooghly, India",
+    mobile: "8972474054",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1083",
+    name: "MOHD IQBAL HASAN",
+    role: "Co-ordinator",
+    education: "MBA",
+    location: "Moradabad, India",
+    mobile: "9997174428",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1041",
+    name: "Majid Ali Khan",
+    role: "Minority Welfare Secretary",
+    education: "MA History  PG in Archival Study and Record Management",
+    location: "Ghaziabad, India",
+    mobile: "9313542450",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1093",
+    name: "Manoj Kumar Goel",
+    role: "IT Cell Incharge",
+    education: "B.com",
+    location: "Bijnor, India",
+    mobile: "7017116941",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1114",
+    name: "Manoj Tandon",
+    role: "Chief Observer",
+    education: "PG DIPLOMA MASS COMMUNICATION",
+    location: "East Delhi, India",
+    mobile: "9891197457",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1042",
+    name: "Mohd Abrar Ahmed",
+    role: "Administrative Secretary",
+    education: "B.Com",
+    location: "Gulbarga, India",
+    mobile: "8179829484",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1096",
+    name: "Mohd Arif Khan",
+    role: "PRESIDENT",
+    education: "10th and Diploma",
+    location: "Hydrabad, India",
+    mobile: "8686620706",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1048",
+    name: "Mohd Fardeen Khan",
+    role: "Organising Secretary",
+    education: "M.Com Ex NCC Cadet (IAF)",
+    location: "Ghaziabad, India",
+    mobile: "8009534936",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1116",
+    name: "Mohd Mujahid",
+    role: "Chief Reporting Officer",
+    education: "MBA",
+    location: "Delhi, India",
+    mobile: "9266663456",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1079",
+    name: "Mohd Nawaz",
+    role: "Chief Co-ordinator",
+    education: "Intermediate",
+    location: "Lucknow, India",
+    mobile: "9580842100",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1100",
+    name: "Mohd sazzad ahmad",
+    role: "Secretary",
+    education: "Inter",
+    location: "Lucknow, India",
+    mobile: "9005067267",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1021",
+    name: "Mohd. Rizwan Hasan",
+    role: "PRESIDENT",
+    education: "MA. IN HUMAN RIGHTS B.A LLB",
+    location: "Muradabad, India",
+    mobile: "7017677859",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1070",
+    name: "Naeem Ahmad",
+    role: "Deputy Chief Co-ordinator",
+    education: "12th",
+    location: "District bijnor, India",
+    mobile: "95362 05064",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1091",
+    name: "Neelam Singh",
+    role: "Women Empowerment Secretary",
+    education: "Graduation",
+    location: "Ayodhya, India",
+    mobile: "9532731376",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1074",
+    name: "Pandit Santosh Joshi",
+    role: "Social Welfare Secretary",
+    education: "10th",
+    location: "Delhi State, India",
+    mobile: "7042974119",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1043",
+    name: "Pankaj Kr Tripathi",
+    role: "Minority Welfare Secretary",
+    education: "LL.M. NET Motivational Speaker",
+    location: "Lucknow, India",
+    mobile: "8318232004",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1112",
+    name: "Parvej Chaudhary",
+    role: "PRESIDENT",
+    education: "B A Bachelor of Art",
+    location: "Ghaziabad, India",
+    mobile: "9997703332",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1011",
+    name: "Pooja Devi",
+    role: "Women Empowerment Secretary",
+    education: "BA, MA Sociology, Political Science",
+    location: "Ayodhya, India",
+    mobile: "6307133483",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1087",
+    name: "Prem Chand Pal",
+    role: "PRESIDENT",
+    education: "12+",
+    location: "East Delhi, India",
+    mobile: "9968717172",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1038",
+    name: "RASHID ALI",
+    role: "Human Rights Activist",
+    education: "Graduate",
+    location: "Rampur, India",
+    mobile: "9997086408",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1076",
+    name: "RISHI KUMAR",
+    role: "Deputy Executive President",
+    education: "Graduation D Pharna",
+    location: "Ayodhya, India",
+    mobile: "9839809923",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1075",
+    name: "ROSHAN LAL",
+    role: "Administrative Secretary",
+    education: "POST GRADUATE",
+    location: "AYODHYA, India",
+    mobile: "9415310732",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1056",
+    name: "Rahul Kumar",
+    role: "Joint Secretary",
+    education: "B.Sc B.Ed LLB",
+    location: "Azamgarh, India",
+    mobile: "9453686897",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1068",
+    name: "SK Oliulla",
+    role: "Human Rights Activist",
+    education: "10th",
+    location: "Hooghly, India",
+    mobile: "7710887837",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1110",
+    name: "SK RAJA",
+    role: "PRESIDENT",
+    education: "Diploma in Civil Engineering",
+    location: "Kolkata, India",
+    mobile: "9339245241",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1072",
+    name: "Sanjay Kumar Sahu",
+    role: "PRESIDENT",
+    education: "M.A.,LLB",
+    location: "Ayodhya, India",
+    mobile: "9452256355",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1101",
+    name: "Satish Singh",
+    role: "Co-ordinator",
+    education: "BA",
+    location: "Gorakhpur, India",
+    mobile: "8009217032",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1099",
+    name: "Shabana Khatoon",
+    role: "General Counsel",
+    education: "BA. LLB",
+    location: "East Delhi, India",
+    mobile: "8810558265",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1118",
+    name: "Shashi Kumar",
+    role: "Human Rights Activist",
+    education: "Graduation",
+    location: "Ballia, India",
+    mobile: "8957734318",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1073",
+    name: "Sheeraz Malik",
+    role: "Executive President",
+    education: "MBA",
+    location: "District pilibhit, India",
+    mobile: "90121 43999",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1053",
+    name: "Smriti Singh",
+    role: "Women Empowerment Secretary",
+    education: "PhD. Urdu",
+    location: "Ghaziabad, India",
+    mobile: "8384048723",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1094",
+    name: "Sukhdev Raj",
+    role: "PRESIDENT",
+    education: "BA, PGDC",
+    location: "Gurdaspur, India",
+    mobile: "8837531300",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1113",
+    name: "Surjeet Yadav",
+    role: "Nodal officer",
+    education: "MA",
+    location: "District Amethi, India",
+    mobile: "9005909448",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1080",
+    name: "Tanveer Ahmad Khan",
+    role: "Minority Welfare Secretary",
+    education: "Phd qualified aligarh university",
+    location: "Delhi, India",
+    mobile: "+91 9997629988",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1077",
+    name: "Ved Ratan Gupta",
+    role: "Joint Secretary",
+    education: "Graduation",
+    location: "Sultanpur, India",
+    mobile: "9956991499",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1032",
+    name: "Vimal Kumar Jain",
+    role: "PRESIDENT",
+    education: "12th",
+    location: "jaipur, India",
+    mobile: "78500 89092",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1062",
+    name: "Vineet Vohra",
+    role: "Human Rights Activist",
+    education: "Graduation",
+    location: "Nainital, India",
+    mobile: "9758542378",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1025",
+    name: "Virendra singh varma",
+    role: "Information Secretary",
+    education: "MA. PhD",
+    location: "Moradabad, India",
+    mobile: "6396599225",
+    photo: "",
+    status: 1,
+    showHome: 1
+  },
+  {
+    id: "1039",
+    name: "Wajid Qureshi",
+    role: "Deputy Chief Observer",
+    education: "B.Sc LLB",
+    location: "Agra, India",
+    mobile: "9927530697",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1063",
+    name: "Yashpal Singh",
+    role: "Chief Reporting Officer",
+    education: "M.phil economics",
+    location: "Solan, India",
+    mobile: "9318514580",
+    photo: "",
+    status: 1,
+    showHome: 0
+  },
+  {
+    id: "1109",
+    name: "Anil Yadav",
+    role: "Nodal officer",
+    education: "M.A",
+    location: "Kushinagar, India",
+    mobile: "7897008181",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1117",
+    name: "Arsh Iqbal",
+    role: "1",
+    education: "BSW (AMU), Masters in Journalism and Mass communication) (AMU) PG Diploma in still photography and visual",
+    location: "Delhi, India",
+    mobile: "8433474063",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1046",
+    name: "Avinash Prakash Pathak",
+    role: "Joint Secretary",
+    education: "Graduation",
+    location: "Mirzapur, India",
+    mobile: "9125507450",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1115",
+    name: "Dr Mohd Danish",
+    role: "Deputy Chief Secretary",
+    education: "BAMS",
+    location: "Rampur, India",
+    mobile: "8218167718",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1026",
+    name: "I'd hold national position",
+    role: "DIRECTOER",
+    education: "PG DIPLOMA MASS COMMUNICATION JAMIA MILLIA NEW DELH",
+    location: "Nainital, India",
+    mobile: "9458044777",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1047",
+    name: "Ipshita Mishra",
+    role: "Chief Executive Officer",
+    education: "MBA PhD pursuing",
+    location: "Varanasi, India",
+    mobile: "8881607***",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1003",
+    name: "Kaif Mohammad khan",
+    role: "ADD DIRECTOR",
+    education: "MA LLB",
+    location: "Kanpur, Uttar Pradesh",
+    mobile: "7080403333",
+    photo: "",
+    status: 0,
+    showHome: 1
+  },
+  {
+    id: "1016",
+    name: "Kaihkasha Chaudhary",
+    role: "Women Empowerment Secretary",
+    education: "Bachelor of journalism Mass Communication",
+    location: "Gautam Budh Nagar, India",
+    mobile: "9999118545",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1098",
+    name: "Krashan Kumar",
+    role: "Administrative Secretary",
+    education: "Bcs",
+    location: "Etawah, India",
+    mobile: "9454434964",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1014",
+    name: "M Haris shamsi",
+    role: "Chief Executive Officer",
+    education: "B. A",
+    location: "Rampur up, India",
+    mobile: "9045520798",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1037",
+    name: "Mehfooz Hussain",
+    role: "PRESIDENT",
+    education: "Inter",
+    location: "Rampur UP, India",
+    mobile: "8006502643",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1049",
+    name: "Mohammad Afzal Chaudhary",
+    role: "Administrative Secretary",
+    education: "SSC",
+    location: "Navi mumbai, India",
+    mobile: "9004609786",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1067",
+    name: "Mohd Salauddin",
+    role: "PRESIDENT",
+    education: "8rth",
+    location: "Bijnor, India",
+    mobile: "6395527158",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1017",
+    name: "Mustkim",
+    role: "Deputy Chief Reporting Officer",
+    education: "12+",
+    location: "Bijnor, India",
+    mobile: "9568116286",
+    photo: "",
+    status: 0,
+    showHome: 1
+  },
+  {
+    id: "1008",
+    name: "Prabhat Kishore Singh",
+    role: "Nodal officer",
+    education: "Master in agriculture science",
+    location: "Sitapur, India",
+    mobile: "88794 81888",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1089",
+    name: "Pravin Wankhade",
+    role: "PRESIDENT",
+    education: "B com",
+    location: "Amravati, India",
+    mobile: "9834765064",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1105",
+    name: "Rashmi Tyagi",
+    role: "Human Rights Activist",
+    education: "B.Com",
+    location: "Ghaziabad, India",
+    mobile: "8601618503",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1071",
+    name: "Samreen khan",
+    role: "Women Empowerment Secretary",
+    education: "M.A",
+    location: "Bareilly, India",
+    mobile: "8979207790",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1055",
+    name: "Satya Prakash maurya",
+    role: "PRESIDENT",
+    education: "Llb",
+    location: "AYODHYA, India",
+    mobile: "9984528014",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1108",
+    name: "Shailendra bhadoriya",
+    role: "Administrative Secretary",
+    education: "Graduation",
+    location: "Gwalior, India",
+    mobile: "8103894135",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1066",
+    name: "Shamsuddin",
+    role: "Co-ordinator",
+    education: "12th pass out",
+    location: "Bijnor, India",
+    mobile: "9528293245",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1050",
+    name: "Sharad Kumar Yadav",
+    role: "PRESIDENT",
+    education: "Graduation",
+    location: "Ambedkar Nagar, India",
+    mobile: "9519441892",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1005",
+    name: "Shehzad khan",
+    role: "PRESIDENT",
+    education: "Graduate",
+    location: "Ghaziabad, Uttar Pradesh",
+    mobile: "+919212037213",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1054",
+    name: "Sopal Singh",
+    role: "Human Rights Activist",
+    education: "High school",
+    location: "Bijnor, India",
+    mobile: "90129 34461",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1088",
+    name: "Vinod Kumar",
+    role: "DIRECTOER",
+    education: "12",
+    location: "Mathuta, India",
+    mobile: "6396250440",
+    photo: "",
+    status: 0,
+    showHome: 0
+  },
+  {
+    id: "1015",
+    name: "natonal secretary",
+    role: "PRESIDENT",
+    education: "Graduation",
+    location: "Ajmer, India",
+    mobile: "9829070555",
+    photo: "",
+    status: 0,
+    showHome: 1
+  },
+];
+
+async function main() {
+  console.log("Seeding database...");
+  for (const m of teamMembers) {
+    await prisma.teamMember.upsert({
+      where: { id: m.id },
+      update: m,
+      create: m
+    });
+  }
+  console.log("Seeding complete!");
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

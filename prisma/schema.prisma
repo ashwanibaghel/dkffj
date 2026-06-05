@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TeamMember {
+  id        String   @id // matches the legacy ID like "1000", "1012"
+  name      String
+  role      String
+  education String
+  location  String
+  mobile    String
+  photo     String
+  status    Int
+  showHome  Int
+  createdAt DateTime @default(now)
+}
+
+model Complaint {
+  id            String   @id @default(uuid())
+  name          String
+  mobile        String
+  email         String?
+  grievanceType String
+  details       String
+  status        String   @default("Pending")
+  createdAt     DateTime @default(now)
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  name      String
+  mobile    String
+  email     String?
+  courseId  String
+  status    String   @default("Pending")
+  createdAt DateTime @default(now)
+}
