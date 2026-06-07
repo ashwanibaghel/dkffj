@@ -14,7 +14,8 @@ import {
   FileText, 
   LogOut, 
   Newspaper,
-  BookOpen
+  BookOpen,
+  Image as ImageIcon
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -140,6 +141,20 @@ export default async function AdminLayout({
               className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold transition-all hover:bg-slate-800 hover:text-white"
             >
               <Newspaper className="w-4 h-4" /> News/Blogs Desk
+            </Link>
+
+            <Link
+              href="/admin/leaders"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold transition-all hover:bg-slate-800 hover:text-white"
+            >
+              <Users className="w-4 h-4" /> Executive Council
+            </Link>
+
+            <Link
+              href="/admin/banners"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold transition-all hover:bg-slate-800 hover:text-white"
+            >
+              <ImageIcon className="w-4 h-4" /> Slider Banners
             </Link>
 
             <Link
