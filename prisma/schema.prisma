@@ -12,16 +12,17 @@ datasource db {
 }
 
 model TeamMember {
-  id        String   @id // matches the legacy ID like "1000", "1012"
-  name      String
-  role      String
-  education String
-  location  String
-  mobile    String
-  photo     String
-  status    Int
-  showHome  Int
-  createdAt DateTime @default(now())
+  id          String   @id // matches the legacy ID like "1000", "1012"
+  name        String
+  role        String
+  education   String
+  location    String
+  mobile      String
+  photo       String
+  status      Int
+  showHome    Int
+  description String?  @default("")
+  createdAt   DateTime @default(now())
 }
 
 model Complaint {
@@ -42,5 +43,35 @@ model Enrollment {
   email     String?
   courseId  String
   status    String   @default("Pending")
+  createdAt DateTime @default(now())
+}
+
+model News {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  category    String
+  status      String   @default("Published")
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  title     String
+  url       String
+  size      String
+  category  String
+  iconType  String
+  createdAt DateTime @default(now())
+}
+
+model Banner {
+  id        String   @id @default(uuid())
+  imageUrl  String
+  title     String?  @default("")
+  subtitle  String?  @default("")
+  linkUrl   String?  @default("")
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }

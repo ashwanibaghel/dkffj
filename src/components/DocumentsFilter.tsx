@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getHomeDocuments } from "@/app/actions/home";
 
 interface LegalDoc {
   title: string;
@@ -9,51 +10,6 @@ interface LegalDoc {
   category: "all" | "registration" | "tax" | "appreciation";
   iconType: "download" | "shield" | "building" | "award";
 }
-
-const documentList: LegalDoc[] = [
-  {
-    title: "MCA Articles of Association",
-    url: "/documents/1750940512.pdf",
-    size: "PDF | 181 KB",
-    category: "registration",
-    iconType: "building",
-  },
-  {
-    title: "12A Income Tax Exemption",
-    url: "/documents/1713277338.pdf",
-    size: "PDF | 55 KB",
-    category: "tax",
-    iconType: "shield",
-  },
-  {
-    title: "80G Income Tax Certificate",
-    url: "/documents/1713277369.pdf",
-    size: "PDF | 55 KB",
-    category: "tax",
-    iconType: "shield",
-  },
-  {
-    title: "CSR Registration Certificate",
-    url: "/documents/1713277422.pdf",
-    size: "PDF | 48 KB",
-    category: "registration",
-    iconType: "building",
-  },
-  {
-    title: "NITI Aayog Registration",
-    url: "/documents/1713278028.PDF",
-    size: "PDF | 56 KB",
-    category: "registration",
-    iconType: "building",
-  },
-  {
-    title: "Police Appreciation Certificate",
-    url: "/documents/1750870809.pdf",
-    size: "PDF | 672 KB",
-    category: "appreciation",
-    iconType: "award",
-  },
-];
 
 const categories = [
   { id: "all", label: "All Docs" },
@@ -64,8 +20,17 @@ const categories = [
 
 export default function DocumentsFilter() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [documents, setDocuments] = useState<LegalDoc[]>([]);
 
-  const filteredDocs = documentList.filter(
+  useEffect(() => {
+    async function loadDocs() {
+      const data = await getHomeDocuments();
+      setDocuments(data as LegalDoc[]);
+    }
+    loadDocs();
+  }, []);
+
+  const filteredDocs = documents.filter(
     (doc) => selectedCategory === "all" || doc.category === selectedCategory
   );
 

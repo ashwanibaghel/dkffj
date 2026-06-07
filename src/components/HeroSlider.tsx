@@ -1,37 +1,53 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getHomeBanners } from "@/app/actions/home";
 
-const sliderImages = [
-  "/slider/constitution_of_india.png", // Constitution of India
-  "/slider/supreme_court_justice.png", // Supreme Court and Scales of Justice
-  "/slider/citizens_rights.png",       // Citizens Rights & Legal Awareness
-];
+interface Banner {
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  linkUrl: string;
+}
 
 export default function HeroSlider() {
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
 
   useEffect(() => {
+    async function loadBanners() {
+      const data = await getHomeBanners();
+      setBanners(data as Banner[]);
+    }
+    loadBanners();
+  }, []);
+
+  useEffect(() => {
+    if (banners.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentIdx((prev) => (prev + 1) % sliderImages.length);
+      setCurrentIdx((prev) => (prev + 1) % banners.length);
     }, 6000); // 6 seconds per slide
     return () => clearInterval(timer);
-  }, []);
+  }, [banners]);
+
+  if (banners.length === 0) {
+    return <div className="absolute inset-0 w-full h-full bg-slate-950 z-0 animate-pulse"></div>;
+  }
 
   return (
     <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950">
       {/* Slides */}
-      {sliderImages.map((src, index) => (
+      {banners.map((banner, index) => (
         <div
-          key={src}
+          key={banner.imageUrl}
           className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
             index === currentIdx ? "opacity-90" : "opacity-0"
           }`}
         >
           <img
-            src={src}
-            alt={`DKFFJ Activity Slide ${index + 1}`}
-            className="w-full h-full object-cover object-center scale-105 animate-subtle-zoom"
+            src={banner.imageUrl}
+            alt={banner.title || `DKFFJ Activity Slide ${index + 1}`}
+            className="w-full h-full object-cover object-center scale-105"
           />
         </div>
       ))}
