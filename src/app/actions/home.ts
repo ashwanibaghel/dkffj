@@ -64,10 +64,10 @@ export async function getHomeNews() {
   try {
     const dbNews = await prisma.news.findMany({
       where: {
-        status: "Published"
+        is_published: true
       },
       orderBy: {
-        publishedAt: "desc"
+        created_at: "desc"
       },
       take: 3
     });
@@ -77,8 +77,8 @@ export async function getHomeNews() {
         id: n.id,
         title: n.title,
         content: n.content,
-        category: n.category,
-        date: new Date(n.publishedAt).toLocaleDateString("en-IN", {
+        category: n.category || "General",
+        date: new Date(n.created_at).toLocaleDateString("en-IN", {
           year: "numeric",
           month: "long",
           day: "numeric"
@@ -118,20 +118,30 @@ export async function getHomeNews() {
 // 3. Fetch Official Documents for Homepage
 export async function getHomeDocuments() {
   try {
-    const dbDocs = await prisma.document.findMany({
+    const dbDocs = await prisma.documents.findMany({
+      where: {
+        is_active: true
+      },
       orderBy: {
-        createdAt: "desc"
+        created_at: "desc"
       }
     });
 
     if (dbDocs.length > 0) {
-      return dbDocs.map((d) => ({
-        title: d.title,
-        url: d.url,
-        size: d.size,
-        category: d.category as "all" | "registration" | "tax" | "appreciation",
-        iconType: d.iconType as "download" | "shield" | "building" | "award"
-      }));
+      return dbDocs.map((d) => {
+        let iconType: "download" | "shield" | "building" | "award" = "download";
+        if (d.category === "registration") iconType = "building";
+        else if (d.category === "tax") iconType = "shield";
+        else if (d.category === "appreciation") iconType = "award";
+
+        return {
+          title: d.title,
+          url: d.file_url,
+          size: d.file_size,
+          category: d.category as "all" | "registration" | "tax" | "appreciation",
+          iconType
+        };
+      });
     }
   } catch (error) {
     console.error("Error fetching homepage documents from database:", error);

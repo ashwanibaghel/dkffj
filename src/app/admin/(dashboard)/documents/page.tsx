@@ -15,7 +15,6 @@ export default function AdminDocumentsPage() {
   const [url, setUrl] = useState("");
   const [size, setSize] = useState("PDF | 100 KB");
   const [category, setCategory] = useState("registration");
-  const [iconType, setIconType] = useState("building");
   const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
@@ -26,7 +25,7 @@ export default function AdminDocumentsPage() {
     setLoading(true);
     try {
       const data = await getDocuments();
-      setDocuments(data);
+      setBannersOrDocs(data);
     } catch (err: any) {
       setError(err.message || "Failed to load documents");
     } finally {
@@ -34,12 +33,15 @@ export default function AdminDocumentsPage() {
     }
   };
 
+  const setBannersOrDocs = (data: any[]) => {
+    setDocuments(data);
+  };
+
   const openAddModal = () => {
     setTitle("");
     setUrl("");
     setSize("PDF | 100 KB");
     setCategory("registration");
-    setIconType("building");
     setModalOpen(true);
   };
 
@@ -66,7 +68,7 @@ export default function AdminDocumentsPage() {
 
     setSubmitLoading(true);
     try {
-      const res = await addDocument({ title, url, size, category, iconType });
+      const res = await addDocument({ title, url, size, category });
       if (res.success) {
         setModalOpen(false);
         await fetchDocs();
@@ -80,13 +82,13 @@ export default function AdminDocumentsPage() {
     }
   };
 
-  const renderIcon = (type: string) => {
-    switch (type) {
-      case "building":
+  const renderIcon = (cat: string) => {
+    switch (cat) {
+      case "registration":
         return <Landmark className="w-5 h-5" />;
-      case "shield":
+      case "tax":
         return <Shield className="w-5 h-5" />;
-      case "award":
+      case "appreciation":
         return <Award className="w-5 h-5" />;
       default:
         return <FileText className="w-5 h-5" />;
@@ -125,7 +127,7 @@ export default function AdminDocumentsPage() {
         </div>
       ) : documents.length === 0 ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <p className="text-slate-500">No official documents registered yet.</p>
+          <p className="text-slate-550">No official documents registered yet.</p>
         </div>
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
@@ -137,14 +139,14 @@ export default function AdminDocumentsPage() {
               <div key={doc.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded bg-[#D62828]/5 border border-slate-250 flex items-center justify-center text-[#D62828] shrink-0">
-                    {renderIcon(doc.iconType)}
+                    {renderIcon(doc.category)}
                   </div>
                   <div>
                     <h4 className="font-bold text-slate-800 text-sm leading-snug">{doc.title}</h4>
                     <span className="text-[10px] text-slate-400 mt-1 block font-semibold">
                       Category: <span className="text-slate-650 uppercase font-bold">{doc.category}</span> | 
-                      Size: {doc.size} | 
-                      File URL: <span className="font-mono text-sky-600 font-bold">{doc.url}</span>
+                      Size: {doc.file_size} | 
+                      File URL: <span className="font-mono text-sky-605 font-bold">{doc.file_url}</span>
                     </span>
                   </div>
                 </div>
@@ -157,7 +159,7 @@ export default function AdminDocumentsPage() {
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <a 
-                    href={doc.url} 
+                    href={doc.file_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="px-3 py-1.5 bg-[#0F4C81] text-white hover:bg-[#0c3c66] rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 shadow-sm"
@@ -209,8 +211,8 @@ export default function AdminDocumentsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-1">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">File Size *</label>
                   <input 
                     type="text" 
@@ -221,7 +223,7 @@ export default function AdminDocumentsPage() {
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
                   />
                 </div>
-                <div className="col-span-1">
+                <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Category *</label>
                   <select 
                     value={category} 
@@ -231,19 +233,6 @@ export default function AdminDocumentsPage() {
                     <option value="registration">Registration</option>
                     <option value="tax">Tax Approvals</option>
                     <option value="appreciation">Appreciation</option>
-                  </select>
-                </div>
-                <div className="col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Icon Type *</label>
-                  <select 
-                    value={iconType} 
-                    onChange={(e) => setIconType(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
-                  >
-                    <option value="building">Building / Org</option>
-                    <option value="shield">Shield / Tax</option>
-                    <option value="award">Award / Star</option>
-                    <option value="download">File / Download</option>
                   </select>
                 </div>
               </div>

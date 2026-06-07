@@ -8,9 +8,9 @@ export async function getDocuments() {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) throw new Error("Unauthorized");
 
-  return prisma.document.findMany({
+  return prisma.documents.findMany({
     orderBy: {
-      createdAt: "desc"
+      created_at: "desc"
     }
   });
 }
@@ -20,23 +20,22 @@ export async function addDocument(payload: {
   url: string;
   size: string;
   category: string;
-  iconType: string;
 }) {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) return { success: false, error: "Unauthorized access" };
 
-  if (!payload.title || !payload.url || !payload.category || !payload.iconType) {
-    return { success: false, error: "Title, URL, Category, and Icon Type are required" };
+  if (!payload.title || !payload.url || !payload.category) {
+    return { success: false, error: "Title, URL, and Category are required" };
   }
 
   try {
-    const doc = await prisma.document.create({
+    const doc = await prisma.documents.create({
       data: {
         title: payload.title,
-        url: payload.url,
-        size: payload.size || "PDF | 100 KB",
+        file_url: payload.url,
+        file_size: payload.size || "PDF | 100 KB",
         category: payload.category,
-        iconType: payload.iconType
+        is_active: true
       }
     });
 
@@ -53,7 +52,7 @@ export async function deleteDocument(id: string) {
   if (!isAdmin) return { success: false, error: "Unauthorized access" };
 
   try {
-    await prisma.document.delete({
+    await prisma.documents.delete({
       where: { id }
     });
 

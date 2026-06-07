@@ -47,17 +47,17 @@ export default function AdminNewsPage() {
     setEditNewsId(item.id);
     setTitle(item.title);
     setContent(item.content);
-    setCategory(item.category);
-    setStatus(item.status);
+    setCategory(item.category || "Announcements");
+    setStatus(item.is_published ? "Published" : "Draft");
     setModalOpen(true);
   };
 
   const handleToggleStatus = async (item: any) => {
-    const newStatus = item.status === "Published" ? "Draft" : "Published";
+    const newStatus = item.is_published ? "Draft" : "Published";
     try {
       const res = await updateNews(item.id, { status: newStatus });
       if (res.success) {
-        setNews(news.map(n => n.id === item.id ? { ...n, status: newStatus } : n));
+        setNews(news.map(n => n.id === item.id ? { ...n, is_published: !item.is_published } : n));
       } else {
         alert(res.error || "Failed to update publication status");
       }
@@ -122,7 +122,7 @@ export default function AdminNewsPage() {
           <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
             <Newspaper className="w-5 h-5 text-[#0F4C81]" /> News & Blog Desk
           </h1>
-          <p className="text-slate-500 text-[10px] mt-1 font-semibold">Publish news updates, press statements, and official campaigns.</p>
+          <p className="text-slate-550 text-[10px] mt-1 font-semibold">Publish news updates, press statements, and official campaigns.</p>
         </div>
         <button 
           onClick={openAddModal}
@@ -163,9 +163,9 @@ export default function AdminNewsPage() {
                   <div>
                     <h4 className="font-bold text-slate-800 text-sm leading-snug">{post.title}</h4>
                     <span className="text-[10px] text-slate-400 mt-1 block font-semibold">
-                      Category: <strong className="text-slate-600">{post.category}</strong> | 
-                      Published: {new Date(post.publishedAt).toLocaleDateString("en-IN")} | 
-                      Status: <strong className={post.status === "Published" ? "text-emerald-600" : "text-amber-600"}>{post.status}</strong>
+                      Category: <strong className="text-slate-650">{post.category || "General"}</strong> | 
+                      Published: {new Date(post.created_at).toLocaleDateString("en-IN")} | 
+                      Status: <strong className={post.is_published ? "text-emerald-600" : "text-amber-605"}>{post.is_published ? "Published" : "Draft"}</strong>
                     </span>
                     <p className="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-normal font-medium">{post.content}</p>
                   </div>
@@ -176,7 +176,7 @@ export default function AdminNewsPage() {
                     onClick={() => handleToggleStatus(post)}
                     className="px-2.5 py-1.5 border border-slate-200 text-slate-650 hover:bg-slate-55 rounded-lg font-bold uppercase tracking-wider cursor-pointer"
                   >
-                    {post.status === "Published" ? "Draft" : "Publish"}
+                    {post.is_published ? "Draft" : "Publish"}
                   </button>
                   <button 
                     onClick={() => openEditModal(post)}
@@ -267,7 +267,7 @@ export default function AdminNewsPage() {
                 <button 
                   type="button" 
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-55 cursor-pointer"
+                  className="px-4 py-2 border rounded-lg text-slate-650 hover:bg-slate-55 cursor-pointer"
                 >
                   Cancel
                 </button>

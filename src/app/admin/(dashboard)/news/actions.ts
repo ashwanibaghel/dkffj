@@ -4,13 +4,26 @@ import prisma from "@/lib/prisma";
 import { verifyAdmin } from "../auth";
 import { revalidatePath } from "next/cache";
 
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "")
+    + "-" + Math.random().toString(36).substring(2, 7);
+}
+
 export async function getNews() {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) throw new Error("Unauthorized");
 
   return prisma.news.findMany({
     orderBy: {
-      publishedAt: "desc"
+      created_at: "desc"
     }
   });
 }
@@ -20,7 +33,6 @@ export async function addNews(payload: {
   content: string;
   category: string;
   status?: string;
-  publishedAt?: Date;
 }) {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) return { success: false, error: "Unauthorized access" };
@@ -35,8 +47,9 @@ export async function addNews(payload: {
         title: payload.title,
         content: payload.content,
         category: payload.category,
-        status: payload.status || "Published",
-        publishedAt: payload.publishedAt || new Date()
+        slug: slugify(payload.title),
+        is_published: payload.status === "Published",
+        image_url: ""
       }
     });
 
@@ -55,7 +68,6 @@ export async function updateNews(
     content?: string;
     category?: string;
     status?: string;
-    publishedAt?: Date;
   }
 ) {
   const isAdmin = await verifyAdmin();
@@ -65,11 +77,10 @@ export async function updateNews(
     const news = await prisma.news.update({
       where: { id },
       data: {
-        ...(payload.title !== undefined && { title: payload.title }),
+        ...(payload.title !== undefined && { title: payload.title, slug: slugify(payload.title) }),
         ...(payload.content !== undefined && { content: payload.content }),
         ...(payload.category !== undefined && { category: payload.category }),
-        ...(payload.status !== undefined && { status: payload.status }),
-        ...(payload.publishedAt !== undefined && { publishedAt: payload.publishedAt })
+        ...(payload.status !== undefined && { is_published: payload.status === "Published" })
       }
     });
 
