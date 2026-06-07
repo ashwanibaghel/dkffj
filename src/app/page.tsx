@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import VerificationWidget from "@/components/VerificationWidget";
 import HeroSlider from "@/components/HeroSlider";
 import GuidelinesAccordion from "@/components/GuidelinesAccordion";
+import { getActiveCourses } from "@/app/courses/actions";
 import { 
   Shield, 
   FileText, 
@@ -25,6 +27,16 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const [courses, setCourses] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadCourses() {
+      const activeCourses = await getActiveCourses();
+      setCourses(activeCourses);
+    }
+    loadCourses();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative overflow-hidden pb-16 md:pb-0">
       
@@ -318,77 +330,66 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Course 1 */}
-              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg transition-all flex flex-col justify-between">
-                <div className="p-8 flex flex-col gap-5">
-                  <div className="flex gap-2 items-center">
-                    <span className="text-[9px] text-[#0F4C81] font-bold bg-[#0F4C81]/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                      Right to Information
-                    </span>
-                    <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold">
-                      <Clock className="w-3 h-3 text-[#0F4C81]" /> 4 Weeks
-                    </span>
+              {courses.length === 0 ? (
+                Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={idx} className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col gap-5 animate-pulse min-h-[300px]">
+                    <div className="h-6 w-2/3 bg-slate-100 rounded-full"></div>
+                    <div className="h-8 w-full bg-slate-100 rounded-xl"></div>
+                    <div className="h-16 w-full bg-slate-100 rounded-xl"></div>
+                    <div className="h-10 w-full bg-slate-100 rounded-xl mt-auto"></div>
                   </div>
-                  <h4 className="text-lg font-bold text-slate-800 font-serif">RTI Drafting Specialist</h4>
-                  <p className="text-xs text-slate-500 leading-relaxed font-light">Learn the art of drafting powerful Right to Information applications to demand transparency from government bodies.</p>
-                </div>
-                <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
-                  <Link 
-                    href="/courses" 
-                    className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                ))
+              ) : (
+                courses.slice(0, 3).map((course) => (
+                  <div 
+                    key={course.id} 
+                    className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
                   >
-                    Apply for Course <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Course 2 */}
-              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg transition-all flex flex-col justify-between">
-                <div className="p-8 flex flex-col gap-5">
-                  <div className="flex gap-2 items-center">
-                    <span className="text-[9px] text-[#D62828] font-bold bg-[#D62828]/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                      Legal Studies
-                    </span>
-                    <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold">
-                      <Clock className="w-3 h-3 text-[#D62828]" /> 6 Weeks
-                    </span>
+                    <div className="p-8 flex flex-col gap-5">
+                      <div className="flex gap-2 items-center">
+                        <span className={`text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider
+                          ${course.title.toLowerCase().includes("rti") 
+                            ? "bg-[#0F4C81]/10 text-[#0F4C81]" 
+                            : course.title.toLowerCase().includes("human") 
+                            ? "bg-[#D62828]/10 text-[#D62828]" 
+                            : "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                          }`}
+                        >
+                          {course.title.toLowerCase().includes("rti") 
+                            ? "Right to Information" 
+                            : course.title.toLowerCase().includes("human") 
+                            ? "Legal Studies" 
+                            : "Social Work"
+                          }
+                        </span>
+                        <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold font-mono">
+                          <Clock className="w-3 h-3 text-[#0F4C81]" /> {course.duration}
+                        </span>
+                      </div>
+                      <h4 className="text-lg font-bold text-slate-800 font-serif leading-snug">{course.title}</h4>
+                      <p className="text-xs text-slate-500 leading-relaxed font-light line-clamp-3">{course.description}</p>
+                    </div>
+                    <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
+                      <div className="flex items-center justify-between border-t border-slate-100 pt-4 pb-2 text-xs">
+                        <div>
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Fees</span>
+                          <span className="text-sm font-extrabold text-[#D62828] mt-0.5 block">INR {Number(course.fees).toLocaleString("en-IN")}.00</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Eligibility</span>
+                          <span className="text-[11px] text-slate-700 font-semibold truncate mt-0.5 block max-w-[120px]">{course.eligibility}</span>
+                        </div>
+                      </div>
+                      <Link 
+                        href="/courses" 
+                        className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 mt-2"
+                      >
+                        Apply for Course <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
                   </div>
-                  <h4 className="text-lg font-bold text-slate-800 font-serif">Human Rights Advocacy</h4>
-                  <p className="text-xs text-slate-500 leading-relaxed font-light">An advanced module covering key international declarations, the Indian constitution, and standard legal recourse methods.</p>
-                </div>
-                <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
-                  <Link 
-                    href="/courses" 
-                    className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
-                  >
-                    Apply for Course <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Course 3 */}
-              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg transition-all flex flex-col justify-between">
-                <div className="p-8 flex flex-col gap-5">
-                  <div className="flex gap-2 items-center">
-                    <span className="text-[9px] text-[#0F4C81] font-bold bg-[#0F4C81]/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                      Constitutional Rights
-                    </span>
-                    <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold">
-                      <Clock className="w-3 h-3 text-[#0F4C81]" /> 2 Weeks
-                    </span>
-                  </div>
-                  <h4 className="text-lg font-bold text-slate-800 font-serif">Citizen Rights & Arrest Guidelines</h4>
-                  <p className="text-xs text-slate-500 leading-relaxed font-light">Short crash course outlining the essential Supreme Court arrest guidelines and standard police reporting formats.</p>
-                </div>
-                <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
-                  <Link 
-                    href="/courses" 
-                    className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
-                  >
-                    Apply for Course <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
+                ))
+              )}
             </div>
           </div>
         </section>
