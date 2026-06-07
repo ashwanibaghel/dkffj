@@ -334,7 +334,7 @@ export default function Home() {
                 </div>
                 <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
                   <Link 
-                    href="#contact" 
+                    href="/courses" 
                     className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
                   >
                     Apply for Course <ChevronRight className="w-4 h-4" />
@@ -358,7 +358,7 @@ export default function Home() {
                 </div>
                 <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
                   <Link 
-                    href="#contact" 
+                    href="/courses" 
                     className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
                   >
                     Apply for Course <ChevronRight className="w-4 h-4" />
@@ -382,7 +382,7 @@ export default function Home() {
                 </div>
                 <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
                   <Link 
-                    href="#contact" 
+                    href="/courses" 
                     className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
                   >
                     Apply for Course <ChevronRight className="w-4 h-4" />
