@@ -56,7 +56,7 @@ export default function Home() {
             <Link href="/" className="text-[#0F4C81] hover:text-[#0F4C81] transition-colors">Home</Link>
             <Link href="#about" className="hover:text-[#0F4C81] transition-colors">About Us</Link>
             <Link href="#services" className="hover:text-[#0F4C81] transition-colors">Services</Link>
-            <Link href="#courses" className="hover:text-[#0F4C81] transition-colors">Academy</Link>
+            <Link href="/courses" className="hover:text-[#0F4C81] transition-colors">Academy</Link>
             <Link href="#documents" className="hover:text-[#0F4C81] transition-colors">Legals</Link>
             <Link href="#news" className="hover:text-[#0F4C81] transition-colors">News</Link>
             <Link href="#video-gallery" className="hover:text-[#0F4C81] transition-colors">Gallery</Link>
@@ -65,6 +65,12 @@ export default function Home() {
 
           {/* Action Button */}
           <div className="flex items-center gap-3">
+            <Link 
+              href="/admin/login" 
+              className="border border-[#0F4C81] text-[#0F4C81] hover:bg-[#0F4C81] hover:text-white text-xs font-bold px-4 py-2.5 rounded-lg active:scale-95 transition-all"
+            >
+              Admin Portal
+            </Link>
             <Link 
               href="#contact" 
               className="bg-[#D62828] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#b02020] active:scale-95 transition-all shadow-[0_4px_15px_rgba(214,40,40,0.2)]"
@@ -77,15 +83,15 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center">
-        <section id="verify-section" className="relative py-20 md:py-32 px-6 w-full overflow-hidden bg-slate-950">
+        <section id="hero" className="relative py-20 md:py-32 px-6 w-full overflow-hidden bg-slate-950">
           {/* Automatic Cross-fade Background Hero Images Slider */}
           <HeroSlider />
 
           {/* Content overlay on top of background */}
-          <div className="relative z-20 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          <div className="relative z-20 max-w-7xl mx-auto w-full">
             
             {/* Left Hero Column */}
-            <div className="lg:col-span-7 flex flex-col gap-6 text-left">
+            <div className="max-w-4xl flex flex-col gap-6 text-left">
               
               {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 bg-black/40 border border-white/10 rounded-full px-3 py-1 self-start">
@@ -101,48 +107,32 @@ export default function Home() {
               </h1>
 
               {/* Subtext description with drop-shadow for high legibility */}
-              <p className="text-slate-200 text-sm md:text-base leading-relaxed max-w-xl font-light drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+              <p className="text-slate-200 text-sm md:text-base leading-relaxed max-w-2xl font-light drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
                 DK Foundation of Freedom and Justice (DKFFJ) stands as India's premier human rights protection, legal aid, and public advocacy coalition. We help poor and marginalized citizens defend their constitutional rights through legal support, RTI awareness, and official welfare campaigns.
               </p>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 mt-4 relative z-30">
                 <Link 
-                  href="#contact" 
+                  href="/apply" 
                   className="bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.3)]"
                 >
                   Join Membership
                 </Link>
                 
                 <Link 
-                  href="#contact" 
+                  href="/complaint" 
                   className="bg-[#D62828] hover:bg-[#b02020] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(214,40,40,0.3)]"
                 >
                   File Complaint
                 </Link>
                 
                 <Link 
-                  href="#courses" 
+                  href="/courses" 
                   className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/15 font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95"
                 >
                   Explore Courses
                 </Link>
-              </div>
-            </div>
-
-            {/* Right Hero Column (Interactive Verification Widget + Suggestion Badge) */}
-            <div className="lg:col-span-5 w-full flex flex-col items-center lg:items-end justify-center gap-4 relative z-20">
-              <VerificationWidget />
-              
-              {/* Suggestion Trust Badge */}
-              <div className="flex items-center gap-3 border border-white/10 bg-slate-900/80 backdrop-blur-md rounded-2xl px-5 py-3 w-full max-w-[420px] shadow-lg">
-                <div className="w-8 h-8 rounded-lg bg-[#0F4C81]/20 flex items-center justify-center text-sky-400 shrink-0">
-                  <Globe2 className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-xs font-bold text-sky-400 tracking-wide">Trusted Across 28+ States</span>
-                  <span className="text-[10px] text-slate-300 font-medium leading-tight">Official Human Rights & Legal Awareness Organization</span>
-                </div>
               </div>
             </div>
 
@@ -486,6 +476,23 @@ export default function Home() {
               >
                 View Full Executive Council (100+ Members)
               </Link>
+            </div>
+          </div>
+        </section>
+        {/* Dedicated Credentials Verification Section */}
+        <section id="verify-section" className="py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+            <div className="text-center max-w-2xl mx-auto flex flex-col gap-3">
+              <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Verification Registry</span>
+              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Official Credentials Verification Desk</h2>
+              <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
+              <p className="text-sm text-slate-500 mt-2 leading-relaxed font-light">
+                Verify NGO member certificates, designation letters, or official coordinator appointments instantly.
+              </p>
+            </div>
+
+            <div className="flex justify-center w-full">
+              <VerificationWidget />
             </div>
           </div>
         </section>
@@ -842,6 +849,7 @@ export default function Home() {
               <Link href="#services" className="hover:text-[#0F4C81] transition-colors">Operations Details</Link>
               <Link href="#courses" className="hover:text-[#0F4C81] transition-colors">Academy Courses</Link>
               <Link href="#documents" className="hover:text-[#0F4C81] transition-colors">Downloadable Legals</Link>
+              <Link href="/admin/login" className="hover:text-[#0F4C81] transition-colors">Admin Portal</Link>
               <Link href="#verify-section" className="text-[#0F4C81] font-bold hover:underline transition-all">Verify Registry Certificate</Link>
             </div>
           </div>

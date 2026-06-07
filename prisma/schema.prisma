@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model TeamMember {
@@ -20,7 +21,7 @@ model TeamMember {
   photo     String
   status    Int
   showHome  Int
-  createdAt DateTime @default(now)
+  createdAt DateTime @default(now())
 }
 
 model Complaint {
@@ -31,7 +32,7 @@ model Complaint {
   grievanceType String
   details       String
   status        String   @default("Pending")
-  createdAt     DateTime @default(now)
+  createdAt     DateTime @default(now())
 }
 
 model Enrollment {
@@ -41,5 +42,5 @@ model Enrollment {
   email     String?
   courseId  String
   status    String   @default("Pending")
-  createdAt DateTime @default(now)
+  createdAt DateTime @default(now())
 }

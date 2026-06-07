@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { verifyCertificate } from "@/app/verify/actions";
 
 interface Member {
   id: string;
@@ -47,18 +48,44 @@ export default function VerificationWidget() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Member | null | undefined>(undefined);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    const query = searchQuery.trim();
+    if (!query) return;
 
     setLoading(true);
     setResult(undefined);
 
-    setTimeout(() => {
-      const match = mockMembers[searchQuery.trim()];
-      setResult(match || null);
+    // 1. Try mock members
+    const match = mockMembers[query];
+    if (match) {
+      setResult(match);
       setLoading(false);
-    }, 1000);
+      return;
+    }
+
+    // 2. Query real Supabase certificates database
+    try {
+      const liveCert = await verifyCertificate(query);
+      if (liveCert && liveCert.found) {
+        setResult({
+          id: liveCert.certificateNo,
+          name: liveCert.userName,
+          role: liveCert.courseName,
+          state: "All India (Academy)",
+          mobile: "Verified Certificate",
+          status: liveCert.status === "VALID" ? "Active" : "Revoked",
+          addedDate: liveCert.issueDate,
+        });
+      } else {
+        setResult(null);
+      }
+    } catch (err) {
+      console.error(err);
+      setResult(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
