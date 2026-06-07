@@ -444,16 +444,27 @@ export default function Home() {
                     }`}
                   >
                     <div className="flex flex-col items-center gap-4">
-                      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0 bg-slate-100">
-                        <img 
-                          src={leader.photo || "/members/default.jpg"} 
-                          className="w-full h-full object-cover" 
-                          alt={leader.name} 
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/members/default.jpg";
-                          }}
-                        />
-                      </div>
+                      {leader.photo && leader.photo.trim() !== "" ? (
+                        <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0 bg-slate-100">
+                          <img 
+                            src={leader.photo} 
+                            className="w-full h-full object-cover" 
+                            alt={leader.name} 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/members/default.jpg";
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#0F4C81]/15 to-[#D62828]/5 border-2 border-[#0F4C81]/30 text-[#0F4C81] font-bold text-xl flex items-center justify-center shrink-0 shadow-inner">
+                          {(() => {
+                            const nameParts = leader.name.trim().split(/\s+/);
+                            return nameParts.length > 1 
+                              ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+                              : nameParts[0] ? nameParts[0].slice(0, 2).toUpperCase() : "??";
+                          })()}
+                        </div>
+                      )}
                       <div className="flex flex-col">
                         <h4 className="text-base font-bold text-slate-800 font-serif">{leader.name}</h4>
                         <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-wider mt-1">{leader.role}</span>

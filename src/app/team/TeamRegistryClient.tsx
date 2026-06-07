@@ -140,12 +140,12 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredMembers.map((member) => {
               // Calculate initials for fallback photo
-              const nameParts = member.name.split(" ");
+              const nameParts = member.name.trim().split(/\s+/);
               const initials = nameParts.length > 1 
                 ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
-                : nameParts[0].slice(0, 2).toUpperCase();
+                : nameParts[0] ? nameParts[0].slice(0, 2).toUpperCase() : "??";
 
-              const isOfficialLead = member.photo !== "";
+              const isOfficialLead = member.photo && member.photo.trim() !== "";
 
               return (
                 <div 

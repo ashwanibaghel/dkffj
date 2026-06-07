@@ -114,8 +114,8 @@ export default function AdminLeadersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id.trim() || !name.trim() || !role.trim() || !photo.trim()) {
-      alert("ID, Name, Role, and Photo are required");
+    if (!id.trim() || !name.trim() || !role.trim()) {
+      alert("ID, Name, and Role are required");
       return;
     }
 
@@ -198,16 +198,27 @@ export default function AdminLeadersPage() {
                 {leaders.map((leader) => (
                   <tr key={leader.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="p-4 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-100">
-                        <img 
-                          src={leader.photo || "/members/default.jpg"} 
-                          alt={leader.name} 
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/members/default.jpg";
-                          }}
-                        />
-                      </div>
+                      {leader.photo && leader.photo.trim() !== "" ? (
+                        <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-100">
+                          <img 
+                            src={leader.photo} 
+                            alt={leader.name} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/members/default.jpg";
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0F4C81]/15 to-[#D62828]/5 border border-slate-200 text-[#0F4C81] font-bold text-[10px] flex items-center justify-center shrink-0 shadow-inner">
+                          {(() => {
+                            const nameParts = leader.name.trim().split(/\s+/);
+                            return nameParts.length > 1 
+                              ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+                              : nameParts[0] ? nameParts[0].slice(0, 2).toUpperCase() : "??";
+                          })()}
+                        </div>
+                      )}
                       <div>
                         <h4 className="font-bold text-slate-800">{leader.name}</h4>
                         <span className="text-[10px] text-[#D62828] font-bold block mt-0.5">{leader.role}</span>
@@ -324,13 +335,12 @@ export default function AdminLeadersPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Photo URL/Path *</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Photo URL/Path</label>
                   <input 
                     type="text" 
                     value={photo} 
                     onChange={(e) => setPhoto(e.target.value)}
-                    placeholder="e.g. /members/danish.jpg" 
-                    required
+                    placeholder="e.g. /members/danish.jpg (optional)" 
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
                   />
                 </div>

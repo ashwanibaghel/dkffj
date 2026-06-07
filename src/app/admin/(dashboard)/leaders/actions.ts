@@ -22,7 +22,7 @@ export async function addLeader(payload: {
   education: string;
   location: string;
   mobile: string;
-  photo: string;
+  photo?: string;
   status: number;
   showHome: number;
   description?: string;
@@ -30,8 +30,8 @@ export async function addLeader(payload: {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) return { success: false, error: "Unauthorized access" };
 
-  if (!payload.id || !payload.name || !payload.role || !payload.photo) {
-    return { success: false, error: "ID, Name, Role, and Photo path/URL are required" };
+  if (!payload.id || !payload.name || !payload.role) {
+    return { success: false, error: "ID, Name, and Role are required" };
   }
 
   try {
@@ -43,7 +43,7 @@ export async function addLeader(payload: {
         education: payload.education || "",
         location: payload.location || "",
         mobile: payload.mobile || "",
-        photo: payload.photo,
+        photo: payload.photo || "",
         status: payload.status !== undefined ? payload.status : 1,
         showHome: payload.showHome !== undefined ? payload.showHome : 1,
         description: payload.description || ""
