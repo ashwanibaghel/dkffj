@@ -194,8 +194,8 @@ export default function Home() {
         </section>
 
         {/* 3. About Organization Section */}
-        <section id="about" className="py-24 px-6 bg-slate-50">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+        <section id="about" className="py-12 md:py-24 px-6 bg-slate-50">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Who We Are</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Pillars of Dignity and Constitutional Advocacy</h2>
@@ -270,8 +270,8 @@ export default function Home() {
         </section>
 
         {/* 4. Services Section (Premium Lucide Icons & Larger Size) */}
-        <section id="services" className="py-24 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+        <section id="services" className="py-12 md:py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Our Operations</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Comprehensive Public Service System</h2>
@@ -337,8 +337,8 @@ export default function Home() {
         </section>
 
         {/* 5. Featured Courses Section (Improved visual hierarchy & badges) */}
-        <section id="courses" className="py-24 px-6 bg-slate-50 border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+        <section id="courses" className="py-12 md:py-24 px-6 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">DKFFJ Academy</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Legal Study & Advocacy Certifications</h2>
@@ -381,8 +381,8 @@ export default function Home() {
         </section>
 
         {/* 6. Leadership Team Section (Improved alignment, heights, & real images) */}
-        <section className="py-24 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+        <section className="py-12 md:py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Our Leadership</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Executive Council Members</h2>
@@ -472,8 +472,8 @@ export default function Home() {
           </div>
         </section>
         {/* Dedicated Credentials Verification Section */}
-        <section id="verify-section" className="py-24 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
+        <section id="verify-section" className="py-12 md:py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-12">
             <div className="text-center max-w-2xl mx-auto flex flex-col gap-3">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Verification Registry</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Official Credentials Verification Desk</h2>
@@ -490,8 +490,8 @@ export default function Home() {
         </section>
 
         {/* 7. Documents & Registrations Section (Download CTA, sizes, & hover effects) */}
-        <section id="documents" className="py-24 px-6 bg-slate-50 border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+        <section id="documents" className="py-12 md:py-24 px-6 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Official Downloads</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Registration Documents & Tax Approvals</h2>
@@ -503,8 +503,8 @@ export default function Home() {
         </section>
 
         {/* 8. Latest News Section */}
-        <section id="news" className="py-24 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+        <section id="news" className="py-12 md:py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest font-sans">Announcements</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Latest Press & Campaign News</h2>
@@ -546,8 +546,8 @@ export default function Home() {
         </section>
 
         {/* 9. Video Gallery Section */}
-        <section id="video-gallery" className="py-24 px-6 bg-slate-50 border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
+        <section id="video-gallery" className="py-12 md:py-24 px-6 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest font-sans">Press Briefings</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Official Video Library</h2>
@@ -592,8 +592,8 @@ export default function Home() {
         </section>
 
         {/* 10. Contact & Complaint Lodging Form */}
-        <section id="contact" className="py-24 px-6 bg-white border-t border-slate-200">
-          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+        <section id="contact" className="py-12 md:py-24 px-6 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-16 items-start">
             
             {/* Left Contact Form */}
             <div className="lg:col-span-7 bg-slate-50 p-8 md:p-10 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col gap-6">
