@@ -8,6 +8,7 @@ import GuidelinesAccordion from "@/components/GuidelinesAccordion";
 import { getActiveCourses } from "@/app/courses/actions";
 import { getHomeLeaders, getHomeNews } from "@/app/actions/home";
 import DocumentsFilter from "@/components/DocumentsFilter";
+import CourseCard from "@/app/courses/CourseCard";
 import { 
   Shield, 
   FileText, 
@@ -359,53 +360,22 @@ export default function Home() {
                 courses.slice(0, 3).map((course) => (
                   <div 
                     key={course.id} 
-                    className="w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+                    className="w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start"
                   >
-                    <div className="p-8 flex flex-col gap-5">
-                      <div className="flex gap-2 items-center">
-                        <span className={`text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider
-                          ${course.title.toLowerCase().includes("rti") 
-                            ? "bg-[#0F4C81]/10 text-[#0F4C81]" 
-                            : course.title.toLowerCase().includes("human") 
-                            ? "bg-[#D62828]/10 text-[#D62828]" 
-                            : "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                          }`}
-                        >
-                          {course.title.toLowerCase().includes("rti") 
-                            ? "Right to Information" 
-                            : course.title.toLowerCase().includes("human") 
-                            ? "Legal Studies" 
-                            : "Social Work"
-                          }
-                        </span>
-                        <span className="text-[9px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-semibold font-mono">
-                          <Clock className="w-3 h-3 text-[#0F4C81]" /> {course.duration}
-                        </span>
-                      </div>
-                      <h4 className="text-lg font-bold text-slate-800 font-serif leading-snug">{course.title}</h4>
-                      <p className="text-xs text-slate-500 leading-relaxed font-light line-clamp-3">{course.description}</p>
-                    </div>
-                    <div className="px-8 pb-8 pt-0 flex flex-col gap-3">
-                      <div className="flex items-center justify-between border-t border-slate-100 pt-4 pb-2 text-xs">
-                        <div>
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Fees</span>
-                          <span className="text-sm font-extrabold text-[#D62828] mt-0.5 block">INR {Number(course.fees).toLocaleString("en-IN")}.00</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Eligibility</span>
-                          <span className="text-[11px] text-slate-700 font-semibold truncate mt-0.5 block max-w-[120px]">{course.eligibility}</span>
-                        </div>
-                      </div>
-                      <Link 
-                        href="/courses" 
-                        className="w-full text-center bg-[#0F4C81] hover:bg-[#0c3e6b] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 mt-2"
-                      >
-                        Apply for Course <ChevronRight className="w-4 h-4" />
-                      </Link>
-                    </div>
+                    <CourseCard course={course} />
                   </div>
                 ))
               )}
+            </div>
+
+            {/* Explore All Courses Button */}
+            <div className="flex justify-center mt-8">
+              <Link 
+                href="/courses" 
+                className="inline-flex items-center gap-2 bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.2)] hover:-translate-y-0.5 cursor-pointer"
+              >
+                Explore All Courses <ChevronRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </section>
