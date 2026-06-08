@@ -276,59 +276,59 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
               {/* Service 1 */}
-              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-6 h-6" />
+              <div className="group border border-slate-200/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800 font-serif">Human Rights Support</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-light">Legal assistance and representation against state arbitrary actions and constitutional violations.</p>
+                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Human Rights Support</h4>
+                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Legal assistance and representation against state arbitrary actions and constitutional violations.</p>
               </div>
 
               {/* Service 2 */}
-              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
-                  <FileText className="w-6 h-6" />
+              <div className="group border border-slate-200/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800 font-serif">Grievance Assistance</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-light">Assisting local citizens in drafting, filing, and tracking official grievance applications to authorities.</p>
+                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Grievance Assistance</h4>
+                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Assisting local citizens in drafting, filing, and tracking official grievance applications to authorities.</p>
               </div>
 
               {/* Service 3 */}
-              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
-                  <BookOpen className="w-6 h-6" />
+              <div className="group border border-slate-200/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800 font-serif">Legal Awareness</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-light">Organizing educational camps to inform common citizens about their legal rights and standard procedures.</p>
+                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Legal Awareness</h4>
+                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Organizing educational camps to inform common citizens about their legal rights and standard procedures.</p>
               </div>
 
               {/* Service 4 */}
-              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
-                  <Search className="w-6 h-6" />
+              <div className="group border border-slate-200/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
+                  <Search className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800 font-serif">RTI Advocacy</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-light">Spreading information and filing thousands of RTIs to combat corruption and expose scams in government programs.</p>
+                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">RTI Advocacy</h4>
+                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Spreading information and filing thousands of RTIs to combat corruption and expose scams in government programs.</p>
               </div>
 
               {/* Service 5 */}
-              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
-                  <Users className="w-6 h-6" />
+              <div className="group border border-slate-200/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4C81]/30 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] group-hover:scale-110 transition-transform duration-300">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800 font-serif">Membership Program</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-light">Enrolling dedicated social and legal activists across all Indian states with official verification ID cards.</p>
+                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Membership Program</h4>
+                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Enrolling dedicated social and legal activists across all Indian states with official verification ID cards.</p>
               </div>
 
               {/* Service 6 */}
-              <div className="group border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
-                  <GraduationCap className="w-6 h-6" />
+              <div className="group border border-slate-200/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#D62828]/25 transition-all duration-300">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#D62828]/10 flex items-center justify-center text-[#D62828] group-hover:scale-110 transition-transform duration-300">
+                  <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h4 className="text-base font-bold text-slate-800 font-serif">Certification Academy</h4>
-                <p className="text-xs text-slate-500 leading-relaxed font-light">Providing official certification courses in citizen rights, RTI drafting, and community leadership.</p>
+                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Certification Academy</h4>
+                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Providing official certification courses in citizen rights, RTI drafting, and community leadership.</p>
               </div>
             </div>
           </div>
