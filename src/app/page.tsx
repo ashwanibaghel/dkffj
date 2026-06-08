@@ -529,11 +529,11 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            {/* News Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* News Cards Carousel */}
+            <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-6 pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory scrollbar-thin">
               {news.length === 0 ? (
                 Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="bg-slate-50 border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 animate-pulse min-h-[180px]">
+                  <div key={idx} className="w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start bg-slate-50 border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 animate-pulse min-h-[180px]">
                     <div className="h-4 w-1/4 bg-slate-200 rounded-full"></div>
                     <div className="h-6 w-3/4 bg-slate-200 rounded-full"></div>
                     <div className="h-12 w-full bg-slate-200 rounded-xl"></div>
@@ -543,7 +543,7 @@ export default function Home() {
                 news.map((item, idx) => (
                   <div 
                     key={item.id || idx} 
-                    className={`bg-slate-50 border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 hover:border-[#0F4C81]/30 transition-all duration-300 ${
+                    className={`w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start bg-slate-50 border border-slate-200/80 rounded-2xl p-8 flex flex-col gap-4 hover:border-[#0F4C81]/30 transition-all duration-300 ${
                       idx % 2 === 1 ? "hover:border-[#D62828]/25" : ""
                     }`}
                   >
@@ -572,9 +572,9 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            {/* Video Gallery Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="flex flex-col gap-3 group">
+            {/* Video Gallery Carousel */}
+            <div className="flex overflow-x-auto md:grid md:grid-cols-2 gap-6 pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory scrollbar-thin">
+              <div className="w-[85vw] sm:w-[480px] md:w-full shrink-0 md:shrink snap-start flex flex-col gap-3 group">
                 <div className="rounded-2xl overflow-hidden border border-slate-200/80 shadow-md aspect-video bg-black relative">
                   <iframe 
                     className="w-full h-full"
@@ -590,7 +590,7 @@ export default function Home() {
                 </h4>
               </div>
 
-              <div className="flex flex-col gap-3 group">
+              <div className="w-[85vw] sm:w-[480px] md:w-full shrink-0 md:shrink snap-start flex flex-col gap-3 group">
                 <div className="rounded-2xl overflow-hidden border border-slate-200/80 shadow-md aspect-video bg-black relative">
                   <iframe 
                     className="w-full h-full"
