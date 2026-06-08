@@ -18,8 +18,8 @@ model TeamMember {
   photo       String
   status      Int
   showHome    Int
-  description String?  @default("")
   createdAt   DateTime @default(now())
+  description String?  @default("")
 }
 
 model Complaint {
@@ -291,6 +291,16 @@ model users {
   status_logs                                                  status_logs[]
 }
 
+model Banner {
+  id        String   @id @default(uuid())
+  imageUrl  String
+  title     String?  @default("")
+  subtitle  String?  @default("")
+  linkUrl   String?  @default("")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
 enum certificate_status {
   VALID
   REVOKED
@@ -328,14 +338,4 @@ enum user_role {
   USER
   ADMIN
   SUPERADMIN
-}
-
-model Banner {
-  id        String   @id @default(uuid())
-  imageUrl  String
-  title     String?  @default("")
-  subtitle  String?  @default("")
-  linkUrl   String?  @default("")
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
 }
