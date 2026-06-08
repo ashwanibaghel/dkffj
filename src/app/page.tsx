@@ -32,6 +32,7 @@ export default function Home() {
   const [courses, setCourses] = useState<any[]>([]);
   const [leaders, setLeaders] = useState<any[]>([]);
   const [news, setNews] = useState<any[]>([]);
+  const [showAllLeaders, setShowAllLeaders] = useState(false);
 
   useEffect(() => {
     async function loadCourses() {
@@ -417,74 +418,84 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
               {leaders.length === 0 ? (
-                Array.from({ length: 4 }).map((_, idx) => (
-                  <div key={idx} className="bg-slate-50 border border-slate-200/80 rounded-3xl p-8 flex flex-col items-center justify-between gap-6 animate-pulse h-full min-h-[300px]">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-24 h-24 rounded-full bg-slate-200 shrink-0"></div>
+                Array.from({ length: 8 }).map((_, idx) => (
+                  <div key={idx} className={`bg-slate-50 border border-slate-200/80 rounded-2xl md:rounded-3xl p-4 md:p-8 flex flex-col items-center justify-between gap-4 md:gap-6 animate-pulse h-full min-h-[200px] md:min-h-[300px] ${idx >= 4 ? 'hidden lg:flex' : 'flex'}`}>
+                    <div className="flex flex-col items-center gap-3 md:gap-4">
+                      <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-slate-200 shrink-0"></div>
                       <div className="flex flex-col items-center gap-2">
-                        <div className="h-4 w-28 bg-slate-200 rounded-full"></div>
-                        <div className="h-3 w-20 bg-slate-200 rounded-full"></div>
+                        <div className="h-4 w-16 md:w-28 bg-slate-200 rounded-full"></div>
+                        <div className="h-3 w-12 md:w-20 bg-slate-200 rounded-full"></div>
                       </div>
                     </div>
                     <div className="w-full flex flex-col gap-2">
-                      <div className="h-3 w-full bg-slate-200 rounded-full"></div>
                       <div className="h-3 w-full bg-slate-200 rounded-full"></div>
                       <div className="h-3 w-2/3 bg-slate-200 rounded-full"></div>
                     </div>
                   </div>
                 ))
               ) : (
-                leaders.map((leader, index) => (
-                  <div 
-                    key={leader.id} 
-                    className={`bg-slate-50 border border-slate-200/80 rounded-3xl overflow-hidden p-8 text-center flex flex-col items-center justify-between gap-6 hover:shadow-md transition-all duration-300 h-full ${
-                      index % 2 === 0 ? "hover:border-[#0F4C81]/30" : "hover:border-[#D62828]/20"
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-4">
-                      {leader.photo && leader.photo.trim() !== "" ? (
-                        <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0 bg-slate-100">
-                          <img 
-                            src={leader.photo} 
-                            className="w-full h-full object-cover" 
-                            alt={leader.name} 
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/members/default.jpg";
-                            }}
-                          />
+                (showAllLeaders ? leaders : leaders.slice(0, 8)).map((leader, index) => {
+                  const isHiddenOnMobile = !showAllLeaders && index >= 4;
+                  return (
+                    <div 
+                      key={leader.id} 
+                      className={`bg-slate-50 border border-slate-200/80 rounded-2xl md:rounded-3xl overflow-hidden p-4 md:p-8 text-center flex flex-col items-center justify-between gap-3 md:gap-6 hover:shadow-md transition-all duration-300 h-full ${
+                        index % 2 === 0 ? "hover:border-[#0F4C81]/30" : "hover:border-[#D62828]/20"
+                      } ${isHiddenOnMobile ? 'hidden lg:flex' : 'flex'}`}
+                    >
+                      <div className="flex flex-col items-center gap-3 md:gap-4">
+                        {leader.photo && leader.photo.trim() !== "" ? (
+                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-[#0F4C81]/30 shadow-inner shrink-0 bg-slate-100">
+                            <img 
+                              src={leader.photo} 
+                              className="w-full h-full object-cover" 
+                              alt={leader.name} 
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/members/default.jpg";
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-[#0F4C81]/15 to-[#D62828]/5 border-2 border-[#0F4C81]/30 text-[#0F4C81] font-bold text-sm md:text-xl flex items-center justify-center shrink-0 shadow-inner">
+                            {(() => {
+                              const nameParts = leader.name.trim().split(/\s+/);
+                              return nameParts.length > 1 
+                                ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+                                : nameParts[0] ? nameParts[0].slice(0, 2).toUpperCase() : "??";
+                            })()}
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif leading-tight">{leader.name}</h4>
+                          <span className="text-[9px] md:text-[10px] text-[#D62828] font-bold uppercase tracking-wider mt-1">{leader.role}</span>
                         </div>
-                      ) : (
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#0F4C81]/15 to-[#D62828]/5 border-2 border-[#0F4C81]/30 text-[#0F4C81] font-bold text-xl flex items-center justify-center shrink-0 shadow-inner">
-                          {(() => {
-                            const nameParts = leader.name.trim().split(/\s+/);
-                            return nameParts.length > 1 
-                              ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
-                              : nameParts[0] ? nameParts[0].slice(0, 2).toUpperCase() : "??";
-                          })()}
-                        </div>
-                      )}
-                      <div className="flex flex-col">
-                        <h4 className="text-base font-bold text-slate-800 font-serif">{leader.name}</h4>
-                        <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-wider mt-1">{leader.role}</span>
                       </div>
+                      <p className="text-[10px] md:text-[11px] text-slate-500 leading-relaxed font-light mt-1 md:mt-2 line-clamp-3 md:line-clamp-none">
+                        {leader.description}
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-500 leading-relaxed font-light mt-2">
-                      {leader.description}
-                    </p>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 
-            {/* View Full Council Button */}
-            <div className="flex justify-center mt-8">
+            {/* View Full Council / See More Button */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+              {leaders.length > 4 && (
+                <button 
+                  onClick={() => setShowAllLeaders(!showAllLeaders)}
+                  className="inline-flex items-center justify-center gap-2 bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.2)] hover:-translate-y-0.5 cursor-pointer w-full sm:w-auto"
+                >
+                  {showAllLeaders ? "See Less" : "See More"}
+                </button>
+              )}
               <Link 
                 href="/team" 
-                className="inline-flex items-center gap-2 bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-xl transition-all active:scale-95 shadow-[0_5px_15px_rgba(15,76,129,0.2)] hover:-translate-y-0.5 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 border border-slate-300 hover:border-[#0F4C81] text-[#0F4C81] hover:bg-slate-50 font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-xl transition-all active:scale-95 hover:-translate-y-0.5 cursor-pointer w-full sm:w-auto"
               >
-                View Full Executive Council (100+ Members)
+                View Full Registry
               </Link>
             </div>
           </div>
