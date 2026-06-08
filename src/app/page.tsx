@@ -344,10 +344,11 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Courses Cards Carousel */}
+            <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-6 pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory scrollbar-thin">
               {courses.length === 0 ? (
                 Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="bg-white border border-slate-200 rounded-3xl p-8 flex flex-col gap-5 animate-pulse min-h-[300px]">
+                  <div key={idx} className="w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start bg-white border border-slate-200 rounded-3xl p-8 flex flex-col gap-5 animate-pulse min-h-[300px]">
                     <div className="h-6 w-2/3 bg-slate-100 rounded-full"></div>
                     <div className="h-8 w-full bg-slate-100 rounded-xl"></div>
                     <div className="h-16 w-full bg-slate-100 rounded-xl"></div>
@@ -358,7 +359,7 @@ export default function Home() {
                 courses.slice(0, 3).map((course) => (
                   <div 
                     key={course.id} 
-                    className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+                    className="w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.01)] hover:shadow-lg hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
                   >
                     <div className="p-8 flex flex-col gap-5">
                       <div className="flex gap-2 items-center">
