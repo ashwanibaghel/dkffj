@@ -49,6 +49,8 @@ export default function ApplyPage() {
   const [aadhaar, setAadhaar] = useState<File | null>(null);
   const [signature, setSignature] = useState<File | null>(null);
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
   // Check login status on load
   useEffect(() => {
@@ -149,9 +151,28 @@ export default function ApplyPage() {
       return;
     }
 
-    if (!isLoggedIn && !password) {
-      setErrorMsg("Please provide a password to secure your account.");
-      return;
+    if (!isLoggedIn) {
+      if (!password || !confirmPassword) {
+        setErrorMsg("Please choose and confirm your password.");
+        return;
+      }
+      if (password.length < 8) {
+        setErrorMsg("Password must be at least 8 characters long.");
+        return;
+      }
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      
+      if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        setErrorMsg("Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setErrorMsg("Passwords do not match.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -607,7 +628,7 @@ export default function ApplyPage() {
                           onChange={(e) => setPassword(e.target.value)}
                           required
                           className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
-                          placeholder="At least 6 characters"
+                          placeholder="Min 8 chars: A-z, 0-9, @#$%"
                         />
                         <button
                           type="button"
@@ -615,6 +636,27 @@ export default function ApplyPage() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Confirm Portal Password *</label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                          placeholder="Retype password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                     </div>

@@ -22,6 +22,8 @@ export default function CourseCard({ course }: { course: Course }) {
   const [successMsg, setSuccessMsg] = useState<string>("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
   // Form inputs
   const [fullName, setFullName] = useState<string>("");
@@ -54,9 +56,28 @@ export default function CourseCard({ course }: { course: Course }) {
       return;
     }
 
-    if (!isLoggedIn && !password) {
-      setErrorMsg("Please choose a password to register your academy portal account.");
-      return;
+    if (!isLoggedIn) {
+      if (!password || !confirmPassword) {
+        setErrorMsg("Please choose and confirm your password.");
+        return;
+      }
+      if (password.length < 8) {
+        setErrorMsg("Password must be at least 8 characters long.");
+        return;
+      }
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      
+      if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        setErrorMsg("Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setErrorMsg("Passwords do not match.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -209,7 +230,7 @@ export default function CourseCard({ course }: { course: Course }) {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        placeholder="At least 6 characters"
+                        placeholder="Min 8 chars: A-z, 0-9, @#$%"
                         className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
                       />
                       <button
@@ -218,6 +239,27 @@ export default function CourseCard({ course }: { course: Course }) {
                         className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                       >
                         {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Confirm Password *</label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder="Retype password"
+                        className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>
