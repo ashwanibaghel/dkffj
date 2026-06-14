@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { registerForCourse } from "./actions";
+import { registerForCourse, sendCourseOtp, verifyCourseOtp } from "./actions";
 import { createClient } from "@/utils/supabase/client";
-import { BookOpen, Clock, Award, Loader2, AlertCircle, Shield, Check, Eye, EyeOff, User } from "lucide-react";
+import { BookOpen, Clock, Award, Loader2, AlertCircle, Shield, Check, Eye, EyeOff, User, Mail, ArrowLeft } from "lucide-react";
 
 interface Course {
   id: string;
@@ -25,11 +25,29 @@ export default function CourseCard({ course }: { course: Course }) {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
-  // Form inputs
+  // Modal mode: 'REGISTRATION' | 'SIGN_IN' | 'FORGOT_PASSWORD'
+  const [modalMode, setModalMode] = useState<'REGISTRATION' | 'SIGN_IN' | 'FORGOT_PASSWORD'>('REGISTRATION');
+
+  // Form inputs for registration
   const [fullName, setFullName] = useState<string>("");
   const [mobile, setMobile] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  // OTP Verification states
+  const [otpCode, setOtpCode] = useState<string>("");
+  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [otpVerified, setOtpVerified] = useState<boolean>(false);
+  const [otpLoading, setOtpLoading] = useState<boolean>(false);
+
+  // Sign In states
+  const [signInEmail, setSignInEmail] = useState<string>("");
+  const [signInPassword, setSignInPassword] = useState<string>("");
+  const [signInLoading, setSignInLoading] = useState<boolean>(false);
+
+  // Forgot password states
+  const [forgotEmail, setForgotEmail] = useState<string>("");
+  const [forgotLoading, setForgotLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,11 +58,128 @@ export default function CourseCard({ course }: { course: Course }) {
           setIsLoggedIn(true);
           setEmail(user.email || "");
           setFullName(user.user_metadata?.full_name || "");
+        } else {
+          setIsLoggedIn(false);
+          setEmail("");
+          setFullName("");
         }
       };
       checkUser();
+      setModalMode('REGISTRATION');
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtpCode("");
+      setSignInEmail("");
+      setSignInPassword("");
+      setForgotEmail("");
+      setErrorMsg("");
+      setSuccessMsg("");
     }
   }, [isOpen]);
+
+  const handleSendOtp = async () => {
+    setErrorMsg("");
+    setSuccessMsg("");
+    if (!email || !mobile) {
+      setErrorMsg("Please enter both mobile number and email address to receive OTP.");
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const res = await sendCourseOtp(mobile, email);
+      if (res.success) {
+        setOtpSent(true);
+        setSuccessMsg(res.message || "OTP sent successfully.");
+      } else {
+        setErrorMsg(res.error || "Failed to send OTP.");
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error sending OTP.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setErrorMsg("");
+    setSuccessMsg("");
+    if (!otpCode) {
+      setErrorMsg("Please enter the 6-digit OTP code.");
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const res = await verifyCourseOtp(mobile, email, otpCode);
+      if (res.success) {
+        setOtpVerified(true);
+        setSuccessMsg(res.message || "Email verified successfully!");
+      } else {
+        setErrorMsg(res.error || "Invalid OTP code.");
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error verifying OTP.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+    if (!signInEmail || !signInPassword) {
+      setErrorMsg("Please enter both email and password.");
+      return;
+    }
+    setSignInLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: signInEmail,
+        password: signInPassword
+      });
+      if (error) {
+        setErrorMsg(error.message || "Invalid credentials.");
+      } else if (data.user) {
+        setIsLoggedIn(true);
+        setEmail(data.user.email || "");
+        setFullName(data.user.user_metadata?.full_name || "");
+        setModalMode('REGISTRATION');
+        setSuccessMsg("Logged in successfully! You can now complete your enrollment.");
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "An error occurred during sign in.");
+    } finally {
+      setSignInLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+    if (!forgotEmail) {
+      setErrorMsg("Please enter your email address.");
+      return;
+    }
+    setForgotLoading(true);
+    try {
+      const supabase = createClient();
+      const origin = window.location.origin;
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${origin}/api/auth/callback?next=/reset-password`,
+      });
+      if (error) {
+        setErrorMsg(error.message || "Failed to send reset link.");
+      } else {
+        setSuccessMsg("A password reset link has been sent to your email address.");
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error requesting password reset.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +192,10 @@ export default function CourseCard({ course }: { course: Course }) {
     }
 
     if (!isLoggedIn) {
+      if (!otpVerified) {
+        setErrorMsg("Please verify your email address via OTP first.");
+        return;
+      }
       if (!password || !confirmPassword) {
         setErrorMsg("Please choose and confirm your password.");
         return;
@@ -90,6 +229,7 @@ export default function CourseCard({ course }: { course: Course }) {
       formData.append("email", email);
       if (!isLoggedIn) {
         formData.append("password", password);
+        formData.append("otpCode", otpCode);
       }
 
       const res = await registerForCourse(null, formData);
@@ -163,128 +303,387 @@ export default function CourseCard({ course }: { course: Course }) {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {errorMsg && (
-                <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 text-[11px] text-rose-800 font-semibold flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                  <span>{errorMsg}</span>
-                </div>
-              )}
-
-              {successMsg && (
-                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 text-[11px] text-emerald-800 font-semibold flex items-start gap-2">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>{successMsg}</span>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Full Name *</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  disabled={isLoggedIn}
-                  placeholder="Your official name"
-                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile Number *</label>
-                <input
-                  type="tel"
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                  required
-                  placeholder="10-digit mobile number"
-                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address *</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={isLoggedIn}
-                  placeholder="e.g. you@example.com"
-                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
-                />
-              </div>
-
-              {!isLoggedIn && (
-                <div className="border-t pt-3 mt-3 space-y-3">
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Shield className="w-3.5 h-3.5 text-[#0F4C81]" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Portal Security</span>
+            {modalMode === 'SIGN_IN' && (
+              <form onSubmit={handleSignIn} className="p-6 space-y-4">
+                {errorMsg && (
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 text-[11px] text-rose-800 font-semibold flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Choose Password *</label>
-                    <div className="relative">
+                )}
+                {successMsg && (
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 text-[11px] text-emerald-800 font-semibold flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>{successMsg}</span>
+                  </div>
+                )}
+
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Student Sign In</h4>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address *</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Mail className="w-3.5 h-3.5" />
+                    </span>
+                    <input
+                      type="email"
+                      value={signInEmail}
+                      onChange={(e) => setSignInEmail(e.target.value)}
+                      required
+                      placeholder="you@example.com"
+                      className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Password *</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalMode('FORGOT_PASSWORD');
+                        setErrorMsg("");
+                        setSuccessMsg("");
+                      }}
+                      className="text-[9px] text-[#0F4C81] hover:underline font-bold uppercase tracking-wider"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Lock className="w-3.5 h-3.5" />
+                    </span>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={signInPassword}
+                      onChange={(e) => setSignInPassword(e.target.value)}
+                      required
+                      placeholder="••••••••"
+                      className="w-full pl-9 pr-9 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655"
+                    >
+                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={signInLoading}
+                    className="w-full py-2.5 bg-[#0F4C81] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#0c3c66] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    {signInLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    Sign In
+                  </button>
+                </div>
+
+                <div className="text-center pt-3 border-t text-[10px] text-slate-500">
+                  Don't have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalMode('REGISTRATION');
+                      setErrorMsg("");
+                      setSuccessMsg("");
+                    }}
+                    className="text-[#D62828] font-bold hover:underline"
+                  >
+                    Register and Enroll
+                  </button>
+                </div>
+
+                <div className="flex justify-end pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {modalMode === 'FORGOT_PASSWORD' && (
+              <form onSubmit={handleForgotPassword} className="p-6 space-y-4">
+                {errorMsg && (
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 text-[11px] text-rose-800 font-semibold flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+                {successMsg && (
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 text-[11px] text-emerald-800 font-semibold flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>{successMsg}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalMode('SIGN_IN');
+                      setErrorMsg("");
+                      setSuccessMsg("");
+                    }}
+                    className="p-1 hover:bg-slate-105 rounded-full text-slate-550 flex items-center justify-center border border-slate-200"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Reset Password</h4>
+                </div>
+
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Enter your registered email address below. We will send you a password reset link to recover your student profile.
+                </p>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address *</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Mail className="w-3.5 h-3.5" />
+                    </span>
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      required
+                      placeholder="you@example.com"
+                      className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="w-full py-2.5 bg-[#0F4C81] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#0c3c66] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    {forgotLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    Send Reset Link
+                  </button>
+                </div>
+
+                <div className="flex justify-end pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {modalMode === 'REGISTRATION' && (
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {errorMsg && (
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 text-[11px] text-rose-800 font-semibold flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                {successMsg && (
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 text-[11px] text-emerald-800 font-semibold flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span>{successMsg}</span>
+                  </div>
+                )}
+
+                {isLoggedIn && (
+                  <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100 flex items-center gap-2 mb-2">
+                    <div className="w-7 h-7 rounded-full bg-[#0F4C81] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                      {fullName ? fullName.charAt(0).toUpperCase() : "S"}
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold text-slate-800">Logged In as {fullName}</div>
+                      <div className="text-[9px] text-slate-500 font-medium">{email}</div>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    disabled={isLoggedIn}
+                    placeholder="Your official name"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    required
+                    disabled={!isLoggedIn && otpVerified}
+                    placeholder="10-digit mobile number"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address *</label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={isLoggedIn || otpVerified}
+                      placeholder="e.g. you@example.com"
+                      className="w-full px-3 py-2 pr-28 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
+                    />
+                    {!isLoggedIn && !otpVerified && (
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={otpLoading || !email || !mobile}
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-[#0F4C81] hover:bg-[#0c3c66] text-white text-[9px] font-bold uppercase tracking-wider rounded transition-colors disabled:opacity-50 cursor-pointer"
+                      >
+                        {otpLoading ? <Loader2 className="w-3 h-3 animate-spin inline mr-1" /> : null}
+                        {otpSent ? "Resend" : "Send OTP"}
+                      </button>
+                    )}
+                    {!isLoggedIn && otpVerified && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider">
+                        <Check className="w-3.5 h-3.5" /> Verified
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* OTP Input Fields if sent but not verified */}
+                {!isLoggedIn && otpSent && !otpVerified && (
+                  <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2">
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider">Enter 6-Digit Email OTP *</label>
+                    <div className="flex gap-2">
                       <input
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        placeholder="Min 8 chars: A-z, 0-9, @#$%"
-                        className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                        type="text"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value)}
+                        placeholder="e.g. 123456"
+                        maxLength={6}
+                        className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        onClick={handleVerifyOtp}
+                        disabled={otpLoading || otpCode.length !== 6}
+                        className="px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                       >
-                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        {otpLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Verify"}
                       </button>
                     </div>
                   </div>
+                )}
 
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Confirm Password *</label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        placeholder="Retype password"
-                        className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      >
-                        {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      </button>
+                {/* Password Fields - Shown only if not logged in and email verified */}
+                {!isLoggedIn && otpVerified && (
+                  <div className="border-t pt-3 mt-3 space-y-3">
+                    <div className="flex items-center gap-1.5 text-slate-655">
+                      <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-750">Email Verified - Set Password</span>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Choose Password *</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          placeholder="Min 8 chars: A-z, 0-9, @#$%"
+                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Confirm Password *</label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          placeholder="Retype password"
+                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
+                )}
+
+                <div className="flex items-center justify-between border-t pt-4 mt-4 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    disabled={loading}
+                    className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || (!isLoggedIn && !otpVerified)}
+                    className="px-5 py-2.5 bg-[#D62828] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#b02020] transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    Pay INR {Number(course.fees).toLocaleString("en-IN")}
+                  </button>
                 </div>
-              )}
 
-              <div className="flex items-center justify-between border-t pt-4 mt-4 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  disabled={loading}
-                  className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-5 py-2.5 bg-[#D62828] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#b02020] transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5"
-                >
-                  {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                  Pay INR {Number(course.fees).toLocaleString("en-IN")}
-                </button>
-              </div>
-            </form>
+                {!isLoggedIn && (
+                  <div className="text-center pt-3 border-t text-[10px] text-slate-500">
+                    Already have an academy account?{" "}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModalMode('SIGN_IN');
+                        setErrorMsg("");
+                        setSuccessMsg("");
+                      }}
+                      className="text-[#0F4C81] font-bold hover:underline"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                )}
+              </form>
+            )}
           </div>
         </div>
       )}

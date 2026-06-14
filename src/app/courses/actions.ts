@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { paymentServiceInstance } from "@/lib/payment/service";
 import { sendTransactionalEmail } from "@/services/email/service";
-import { getCourseRegistrationReceiptTemplate } from "@/services/email/templates";
+import { getCourseRegistrationReceiptTemplate, getCourseVerificationTemplate } from "@/services/email/templates";
 
 // 1. Fetch all active courses
 export async function getActiveCourses() {
@@ -36,6 +36,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   const mobile = formData.get("mobile") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const otpCode = formData.get("otpCode") as string;
 
   if (!courseId || !fullName || !mobile || !email) {
     return { success: false, error: "Please fill in all registration fields." };
@@ -50,6 +51,24 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   } else {
     if (!password) {
       return { success: false, error: "Please sign in first or enter a password to register your academy account." };
+    }
+    if (!otpCode) {
+      return { success: false, error: "Verification OTP is required to verify your email." };
+    }
+
+    // Verify OTP has been verified for this mobile/email combination
+    const { data: verifiedOtp, error: otpCheckError } = await supabase
+      .from("otp_requests")
+      .select("id")
+      .eq("mobile", mobile)
+      .eq("email", email)
+      .eq("otp_code", otpCode)
+      .eq("verified", true)
+      .limit(1)
+      .maybeSingle();
+
+    if (otpCheckError || !verifiedOtp) {
+      return { success: false, error: "Please verify your email address using OTP first before creating your account." };
     }
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -164,4 +183,94 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     console.error("Course registration pipeline error:", err);
     return { success: false, error: err.message || "An unexpected error occurred." };
   }
+}
+
+// 3. Generate and Send OTP for course registration
+export async function sendCourseOtp(mobile: string, email: string) {
+  if (!mobile || !email) {
+    return { success: false, error: "Mobile number and Email are required." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Generate 6-digit OTP code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 mins expiry
+
+  // Insert OTP request into DB
+  const { error } = await supabase
+    .from("otp_requests")
+    .insert({
+      mobile,
+      email,
+      otp_code: code,
+      expires_at: expiresAt,
+      verified: false
+    });
+
+  if (error) {
+    console.error("Error saving Course OTP request:", error);
+    return { success: false, error: "Failed to generate OTP. Please try again." };
+  }
+
+  // Send Email with OTP
+  const subject = "Email Verification OTP - DKFFJ Academy";
+  const htmlContent = getCourseVerificationTemplate(code);
+  const emailRes = await sendTransactionalEmail(email, subject, htmlContent);
+
+  if (!emailRes.success) {
+    console.warn("Resend email failed, but OTP logged. Error:", emailRes.error);
+  }
+
+  // Log to console for local developer debugging/testing
+  console.log(`[COURSE OTP SENT] To Mobile: ${mobile}, Email: ${email} -> CODE: ${code}`);
+
+  return { success: true, message: "Verification OTP sent successfully. Please check your email." };
+}
+
+// 4. Verify OTP for course registration
+export async function verifyCourseOtp(mobile: string, email: string, code: string) {
+  if (!mobile || !email || !code) {
+    return { success: false, error: "Mobile, Email and OTP code are required." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const now = new Date().toISOString();
+
+  // Fetch the latest active OTP request for this mobile/email combination
+  const { data, error } = await supabase
+    .from("otp_requests")
+    .select("id, otp_code, expires_at, verified")
+    .eq("mobile", mobile)
+    .eq("email", email)
+    .eq("otp_code", code)
+    .eq("verified", false)
+    .gt("expires_at", now)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error checking Course OTP:", error);
+    return { success: false, error: "Database error. Please try again." };
+  }
+
+  if (!data) {
+    return { success: false, error: "Invalid or expired OTP. Please request a new one." };
+  }
+
+  // Mark OTP as verified
+  const { error: updateError } = await supabase
+    .from("otp_requests")
+    .update({ verified: true })
+    .eq("id", data.id);
+
+  if (updateError) {
+    console.error("Error updating Course OTP status:", updateError);
+    return { success: false, error: "Verification failed. Please try again." };
+  }
+
+  return { success: true, message: "Email verified successfully." };
 }

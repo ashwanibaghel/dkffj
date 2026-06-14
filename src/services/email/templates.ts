@@ -21,6 +21,29 @@ export function getMembershipVerificationTemplate(otp: string): string {
   `;
 }
 
+export function getCourseVerificationTemplate(otp: string): string {
+  return `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+      <div style="background-color: #0F4C81; padding: 24px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 22px; tracking-wide; font-family: serif;">DKFFJ Academy</h1>
+      </div>
+      <div style="padding: 32px; background-color: #ffffff; color: #334155;">
+        <h2 style="color: #0F4C81; margin-top: 0; font-size: 20px;">Verify Your Email Address</h2>
+        <p style="font-size: 15px; line-height: 1.6;">A request has been initiated to verify your email address for DKFFJ Academy course registration. Please use the following One-Time Password (OTP) to verify your email and complete your enrollment:</p>
+        
+        <div style="text-align: center; margin: 32px 0;">
+          <span style="font-size: 36px; font-weight: bold; letter-spacing: 6px; color: #D62828; padding: 12px 28px; background-color: #fef2f2; border: 1px dashed #f87171; border-radius: 8px; display: inline-block;">${otp}</span>
+        </div>
+        
+        <p style="font-size: 13px; color: #64748b; line-height: 1.5;">This OTP is valid for 10 minutes. If you did not initiate this request, you can safely ignore this email.</p>
+      </div>
+      <div style="background-color: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+        &copy; ${new Date().getFullYear()} DK Foundation of Freedom and Justice. All Rights Reserved.
+      </div>
+    </div>
+  `;
+}
+
 export function getMembershipReceiptTemplate(name: string, ackNo: string, amount: number): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">

@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { ShieldAlert, Lock, Loader2, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { Lock, Loader2, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
-export default function ResetPasswordPage() {
+export default function StudentResetPasswordPage() {
   const router = useRouter();
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        setErrorMsg("Session expired or invalid. Please request a new password reset link.");
+        setErrorMsg("Your recovery session is invalid or has expired. Please request a new password reset link.");
       }
       setVerifyingSession(false);
     };
@@ -79,12 +79,12 @@ export default function ResetPasswordPage() {
       } else {
         setSuccessMsg("Your password has been successfully updated!");
         
-        // Log out the temporary recovery session
+        // Log out of the temporary recovery session so they can log in fresh
         await supabase.auth.signOut();
         
         setTimeout(() => {
-          router.push("/admin/login");
-        }, 2500);
+          router.push("/");
+        }, 3000);
       }
     } catch (err) {
       setErrorMsg("An unexpected error occurred.");
@@ -117,8 +117,8 @@ export default function ResetPasswordPage() {
           <div className="w-16 h-16 rounded-2xl bg-white/5 border border-slate-800 flex items-center justify-center mx-auto mb-4">
             <img src="/logo.png" className="w-11 h-11 object-contain" alt="DKFFJ Logo" />
           </div>
-          <h2 className="text-[#0F4C81] text-lg font-serif font-bold tracking-wider leading-tight">Create New Password</h2>
-          <p className="text-[9px] text-[#D62828] font-bold tracking-widest uppercase mt-0.5">Administration Shield</p>
+          <h2 className="text-[#0F4C81] text-lg font-serif font-bold tracking-wider leading-tight">Reset Account Password</h2>
+          <p className="text-[9px] text-[#D62828] font-bold tracking-widest uppercase mt-0.5">DKFFJ Academy Portal</p>
         </div>
 
         {errorMsg && (
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        {!successMsg && !errorMsg.includes("Session expired") ? (
+        {!successMsg && !errorMsg.includes("recovery session is invalid") ? (
           <form onSubmit={handleUpdate} className="space-y-5">
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">New Password</label>
@@ -192,7 +192,7 @@ export default function ResetPasswordPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Updating password...
+                  <Loader2 className="w-4 h-4 animate-spin" /> Saving password...
                 </>
               ) : (
                 "Save New Password"
@@ -201,10 +201,10 @@ export default function ResetPasswordPage() {
           </form>
         ) : null}
 
-        {(successMsg || errorMsg.includes("Session expired")) && (
+        {(successMsg || errorMsg.includes("recovery session is invalid")) && (
           <div className="mt-6 text-center border-t border-slate-800/80 pt-4">
-            <Link href="/admin/login" className="text-[10px] text-slate-500 hover:text-slate-350 transition-colors uppercase tracking-wider font-bold">
-              Back to Login Portal
+            <Link href="/" className="text-[10px] text-slate-500 hover:text-slate-350 transition-colors uppercase tracking-wider font-bold">
+              Back to Homepage
             </Link>
           </div>
         )}

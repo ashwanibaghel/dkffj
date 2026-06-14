@@ -140,9 +140,6 @@ export default function AdminLoginPage() {
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
-              <Link href="/admin/forgot-password" className="text-[9px] text-[#0F4C81] hover:underline font-bold uppercase tracking-wider">
-                Forgot Password?
-              </Link>
             </div>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
