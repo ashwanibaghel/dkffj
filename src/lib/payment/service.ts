@@ -21,8 +21,14 @@ export interface PaymentGateway {
 
 export class MockPaymentGateway implements PaymentGateway {
   async createOrder(details: PaymentDetails): Promise<string> {
-    // Return a mocked payment gateway redirection/checkout page URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!baseUrl) {
+      if (process.env.VERCEL_URL) {
+        baseUrl = `https://${process.env.VERCEL_URL}`;
+      } else {
+        baseUrl = "http://localhost:3000";
+      }
+    }
     return `${baseUrl}/payment-mock?orderId=${details.orderId}&amount=${details.amount}&email=${encodeURIComponent(details.customerEmail)}&mobile=${details.customerMobile}`;
   }
 
