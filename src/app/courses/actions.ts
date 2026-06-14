@@ -220,7 +220,8 @@ export async function sendCourseOtp(mobile: string, email: string) {
   const emailRes = await sendTransactionalEmail(email, subject, htmlContent);
 
   if (!emailRes.success) {
-    console.warn("Resend email failed, but OTP logged. Error:", emailRes.error);
+    console.error("Resend email failed:", emailRes.error);
+    return { success: false, error: `Email delivery failed: ${emailRes.error}. If using a free Resend account, make sure RESEND_FROM_EMAIL environment variable is set to onboarding@resend.dev on Vercel.` };
   }
 
   // Log to console for local developer debugging/testing
