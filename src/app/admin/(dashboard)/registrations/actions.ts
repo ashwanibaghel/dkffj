@@ -141,23 +141,26 @@ function generateCertificatePDF(
         // Draw template background
         doc.image(templatePath, 0, 0, { width: 595.28, height: 841.89 });
 
-        // 1. Mask the placeholder student photo area in the background template
-        doc.fillColor("#ffffff").rect(445, 130, 105, 135).fill();
+        // 1. Mask the placeholder student photo area in the background template with rounded rectangle
+        doc.fillColor("#ffffff").roundedRect(445, 130, 105, 135, 10).fill();
 
-        // Draw photo if available
+        // Draw photo if available (clipped to rounded rectangle)
         if (photoBuffer) {
+          doc.save();
+          doc.roundedRect(445, 130, 105, 135, 10).clip();
           doc.image(photoBuffer, 445, 130, { width: 105, height: 135 });
+          doc.restore();
         }
         
         // Draw a clean neat border around the photo box
-        doc.rect(445, 130, 105, 135).lineWidth(0.5).stroke("#cccccc");
+        doc.roundedRect(445, 130, 105, 135, 10).lineWidth(0.5).stroke("#cccccc");
 
-        // 2. Mask the template's placeholder QR code
-        doc.fillColor("#ffffff").rect(462, 708, 80, 80).fill();
+        // 2. Mask the template's placeholder QR code (Y=618 to match template's actual position)
+        doc.fillColor("#ffffff").rect(462, 618, 80, 80).fill();
 
         // Draw QR code if available
         if (qrBuffer) {
-          doc.image(qrBuffer, 462, 708, { width: 80, height: 80 });
+          doc.image(qrBuffer, 462, 618, { width: 80, height: 80 });
         }
 
         // Student's Name (centered in the bubble)
@@ -184,50 +187,50 @@ function generateCertificatePDF(
           .fontSize(11)
           .text("DK Foundation of Freedom and Justice", 230, 418, { width: 320, align: "center" });
 
-        // Duration From and To
+        // Duration From and To (Row 5 - Y = 438)
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(durationFrom, 195, 458, { width: 165, align: "center" });
+          .text(durationFrom, 195, 438, { width: 165, align: "center" });
 
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(durationTo, 395, 458, { width: 155, align: "center" });
+          .text(durationTo, 395, 438, { width: 155, align: "center" });
 
-        // Grade/Percentage
+        // Grade/Percentage (Row 6 - Y = 458)
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(grade, 165, 499, { width: 80, align: "center" });
+          .text(grade, 165, 458, { width: 80, align: "center" });
 
-        // Training Venue
+        // Training Venue (Row 6 - Y = 458)
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(10)
-          .text(venue, 360, 499, { width: 190, align: "center" });
+          .text(venue, 360, 458, { width: 190, align: "center" });
 
-        // Performance
+        // Performance (Row 7 - Y = 499)
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(performance, 405, 537, { width: 120, align: "center" });
+          .text(performance, 405, 499, { width: 120, align: "center" });
 
-        // Mask placeholders on the background template (x, y, w, h)
-        doc.fillColor("#ffffff").rect(170, 574, 110, 15).fill();
-        doc.fillColor("#ffffff").rect(420, 574, 110, 15).fill();
+        // Mask placeholders on the background template (Row 8 - Y = 537)
+        doc.fillColor("#ffffff").rect(170, 533, 110, 15).fill();
+        doc.fillColor("#ffffff").rect(420, 533, 110, 15).fill();
 
-        // Certificate No
+        // Certificate No (Row 8 - Y = 537)
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(10)
-          .text(certNo, 170, 576, { width: 110, align: "left" });
+          .text(certNo, 170, 535, { width: 110, align: "left" });
 
-        // Date of Issue
+        // Date of Issue (Row 8 - Y = 537)
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(10)
-          .text(dateStr, 420, 576, { width: 110, align: "left" });
+          .text(dateStr, 420, 535, { width: 110, align: "left" });
       };
 
       const fetchQr = fetch(qrCodeUrl, { signal: AbortSignal.timeout(4000) })
