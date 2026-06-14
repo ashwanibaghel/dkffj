@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Clock, ShieldAlert, Award } from "lucide-react";
+import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Clock, ShieldAlert, Award, Download } from "lucide-react";
 import { getTrackingDetails, TrackingResult } from "./actions";
 
 function TrackPageContent() {
@@ -203,6 +203,32 @@ function TrackPageContent() {
                     <div className="mb-6 p-4 rounded-xl bg-slate-50 text-slate-600 border border-slate-200/50 text-xs leading-relaxed">
                       <span className="font-bold text-slate-700 block mb-1">Details:</span>
                       {result.details}
+                    </div>
+                  )}
+
+                  {/* Certificate Download Card */}
+                  {result.certificate && (
+                    <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                          <Award className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <div className="text-xs text-left">
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Official Credential Generated
+                          </span>
+                          <h4 className="font-bold text-slate-800 text-sm mt-2 font-serif">Certificate No: {result.certificate.certificate_no}</h4>
+                          <p className="text-slate-500 text-[11px] mt-0.5">Your graduation certificate is available for download as a verified PDF.</p>
+                        </div>
+                      </div>
+                      <a
+                        href={result.certificate.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg shrink-0 cursor-pointer"
+                      >
+                        <Download className="w-4 h-4" /> Download Certificate
+                      </a>
                     </div>
                   )}
 

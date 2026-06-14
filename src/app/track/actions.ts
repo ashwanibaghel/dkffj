@@ -18,6 +18,10 @@ export interface TrackingResult {
     remarks: string;
     date: string;
   }[];
+  certificate?: {
+    certificate_no: string;
+    pdf_url: string;
+  } | null;
 }
 
 export async function getTrackingDetails(type: string, trackingNumber: string): Promise<TrackingResult | null> {
@@ -127,7 +131,10 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
   }
 
   if (type === "enrollment") {
-    const { data: enrollment, error } = await supabase
+    let enrollment = null;
+
+    // 1. Try searching by enrollment_no
+    const { data: byEnrollment, error: errEnrollment } = await supabase
       .from("course_registrations")
       .select(`
         id, 
@@ -150,12 +157,68 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
       .eq("enrollment_no", searchStr)
       .maybeSingle();
 
-    if (error) {
-      console.error("Error fetching enrollment tracking:", error);
+    if (byEnrollment) {
+      enrollment = byEnrollment;
+    } else {
+      // 2. Try searching by certificate_no in certificates table
+      const { data: certRecord, error: errCert } = await supabase
+        .from("certificates")
+        .select("registration_id")
+        .eq("certificate_no", searchStr)
+        .eq("status", "VALID")
+        .maybeSingle();
+
+      if (certRecord && certRecord.registration_id) {
+        const { data: byId, error: errById } = await supabase
+          .from("course_registrations")
+          .select(`
+            id, 
+            enrollment_no, 
+            full_name, 
+            status, 
+            created_at,
+            remarks,
+            courses (
+              title
+            ),
+            status_logs (
+              id,
+              from_status,
+              to_status,
+              remarks,
+              created_at
+            )
+          `)
+          .eq("id", certRecord.registration_id)
+          .maybeSingle();
+
+        if (byId) {
+          enrollment = byId;
+        }
+      }
+    }
+
+    if (!enrollment) {
       return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
     }
 
-    if (!enrollment) return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
+    // 3. Fetch the certificate details if status is COMPLETED
+    let certificate = null;
+    if (enrollment.status === "COMPLETED") {
+      const { data: certData } = await supabase
+        .from("certificates")
+        .select("certificate_no, pdf_url")
+        .eq("registration_id", enrollment.id)
+        .eq("status", "VALID")
+        .maybeSingle();
+
+      if (certData) {
+        certificate = {
+          certificate_no: certData.certificate_no,
+          pdf_url: certData.pdf_url,
+        };
+      }
+    }
 
     const timeline = (enrollment.status_logs || []).map((log: any) => ({
       id: log.id,
@@ -174,6 +237,7 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
       date: new Date(enrollment.created_at).toLocaleDateString("en-IN"),
       details: enrollment.remarks || undefined,
       timeline,
+      certificate,
     };
   }
 

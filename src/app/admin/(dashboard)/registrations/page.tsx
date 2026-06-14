@@ -309,16 +309,24 @@ export default function AdminRegistrationsPage() {
         </div>
       )}
       {/* Toast Notification */}
-      {toast.visible && (
-        <div className={`fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 ease-out flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold ${
-          toast.type === 'success' 
-            ? 'bg-emerald-500 text-white border-emerald-600' 
-            : 'bg-rose-500 text-white border-rose-600'
-        }`}>
-          {toast.type === 'success' ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-          <span>{toast.message}</span>
-        </div>
-      )}
+      <div
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl border text-xs font-bold transition-all duration-300 ease-out ${
+          toast.visible
+            ? "translate-y-0 opacity-100 scale-100 pointer-events-auto"
+            : "translate-y-8 opacity-0 scale-95 pointer-events-none"
+        } ${
+          toast.type === "success"
+            ? "bg-emerald-600 text-white border-emerald-500"
+            : "bg-rose-600 text-white border-rose-500"
+        }`}
+      >
+        {toast.type === "success" ? (
+          <CheckCircle className="w-4 h-4 shrink-0 text-emerald-100" />
+        ) : (
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-100" />
+        )}
+        <span>{toast.message}</span>
+      </div>
     </div>
   );
 }
