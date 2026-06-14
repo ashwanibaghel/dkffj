@@ -48,6 +48,13 @@ export async function sendMembershipOtp(mobile: string, email: string) {
   // Log to console for local developer debugging/testing
   console.log(`[OTP SENT] To Mobile: ${mobile}, Email: ${email} -> CODE: ${code}`);
 
+  if (emailRes.mock) {
+    return {
+      success: true,
+      message: `[MOCK MODE] OTP: ${code} (Vercel is not reading RESEND_API_KEY).`
+    };
+  }
+
   return { success: true, message: "OTP sent successfully. Please check your email/mobile." };
 }
 
