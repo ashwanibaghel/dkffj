@@ -15,8 +15,9 @@ export async function sendTransactionalEmail(to: string, subject: string, htmlCo
   }
 
   try {
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "DKFFJ Portal <noreply@dkffj.org>";
     const data = await resend.emails.send({
-      from: "DKFFJ Portal <noreply@dkffj.org>",
+      from: fromEmail,
       to,
       subject,
       html: htmlContent,
