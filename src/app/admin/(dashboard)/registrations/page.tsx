@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration } from "./actions";
-import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Check, X, FileText, Download, CheckCircle } from "lucide-react";
+import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Check, X, FileText, Download, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
 
 export default function AdminRegistrationsPage() {
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -43,10 +43,10 @@ export default function AdminRegistrationsPage() {
       const q = searchQuery.toLowerCase();
       result = result.filter(
         (r) =>
-          r.full_name.toLowerCase().includes(q) ||
-          r.email.toLowerCase().includes(q) ||
-          r.enrollment_no.toLowerCase().includes(q) ||
-          (r.courses && r.courses.title.toLowerCase().includes(q))
+          (r.full_name || "").toLowerCase().includes(q) ||
+          (r.email || "").toLowerCase().includes(q) ||
+          (r.enrollment_no || "").toLowerCase().includes(q) ||
+          (r.courses && r.courses.title && r.courses.title.toLowerCase().includes(q))
       );
     }
     setFilteredRegistrations(result);
