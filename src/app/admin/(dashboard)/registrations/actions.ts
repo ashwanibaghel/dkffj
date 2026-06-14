@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getCertificateIssuedTemplate } from "@/services/email/templates";
+import PDFDocument from "pdfkit";
+import path from "path";
 
 // 1. Fetch registrations list
 export async function getRegistrations(statusFilter?: string) {
@@ -15,7 +17,8 @@ export async function getRegistrations(statusFilter?: string) {
     .select(`
       *,
       courses (
-        title
+        title,
+        duration
       )
     `)
     .order("created_at", { ascending: false });
@@ -30,6 +33,24 @@ export async function getRegistrations(statusFilter?: string) {
     return [];
   }
   return data || [];
+}
+
+// 1b. Fetch student profile details (e.g. father's name from memberships)
+export async function getStudentProfile(userId: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("father_name")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching student profile:", error);
+    return null;
+  }
+  return data;
 }
 
 // 2. Approve or Reject Course Registration
@@ -85,8 +106,143 @@ export async function updateRegistrationStatus(id: string, newStatus: string, re
   return { success: true };
 }
 
+function generateCertificatePDF(
+  fullName: string,
+  fatherName: string,
+  enrollmentNo: string,
+  courseTitle: string,
+  certNo: string,
+  dateStr: string,
+  durationFrom: string,
+  durationTo: string,
+  grade: string,
+  venue: string,
+  performance: string,
+  verificationUrl: string,
+  qrCodeUrl: string
+): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({
+        size: "A4",
+        layout: "portrait",
+        margin: 0,
+      });
+
+      const buffers: Buffer[] = [];
+      doc.on("data", (chunk) => buffers.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(buffers)));
+      doc.on("error", (err) => reject(err));
+
+      const templatePath = path.join(process.cwd(), "public/images/certificate_template.jpg");
+
+      const drawOverlay = (qrBuffer?: Buffer) => {
+        // Draw template background
+        doc.image(templatePath, 0, 0, { width: 595.28, height: 841.89 });
+
+        // Draw QR code if available
+        if (qrBuffer) {
+          doc.image(qrBuffer, 462, 708, { width: 80, height: 80 });
+        } else {
+          doc.rect(462, 708, 80, 80).lineWidth(0.5).stroke("#cccccc");
+        }
+
+        // Student's Name (centered in the bubble)
+        doc.fillColor("#0F4C81")
+          .font("Times-Bold")
+          .fontSize(14)
+          .text(fullName, 230, 336, { width: 320, align: "center" });
+
+        // Father's Name (centered in the bubble)
+        doc.fillColor("#0F4C81")
+          .font("Times-Bold")
+          .fontSize(14)
+          .text(fatherName, 180, 377, { width: 370, align: "center" });
+
+        // Course Title (centered in the bubble)
+        doc.fillColor("#0F4C81")
+          .font("Times-Bold")
+          .fontSize(12)
+          .text(courseTitle, 265, 418, { width: 285, align: "center" });
+
+        // Conducted by our institution
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(11)
+          .text("DK Foundation of Freedom and Justice", 230, 459, { width: 320, align: "center" });
+
+        // Duration From and To
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(11)
+          .text(durationFrom, 195, 499, { width: 165, align: "center" });
+
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(11)
+          .text(durationTo, 395, 499, { width: 155, align: "center" });
+
+        // Grade/Percentage
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(11)
+          .text(grade, 165, 540, { width: 80, align: "center" });
+
+        // Training Venue
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(10)
+          .text(venue, 360, 540, { width: 190, align: "center" });
+
+        // Performance
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(11)
+          .text(performance, 405, 578, { width: 120, align: "left" });
+
+        // Certificate No
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(10)
+          .text(certNo, 145, 662, { width: 145, align: "center" });
+
+        // Date of Issue
+        doc.fillColor("#0F4C81")
+          .font("Helvetica-Bold")
+          .fontSize(10)
+          .text(dateStr, 390, 662, { width: 160, align: "center" });
+      };
+
+      // Fetch QR Code image in-memory with a timeout
+      fetch(qrCodeUrl, { signal: AbortSignal.timeout(4000) })
+        .then((res) => res.arrayBuffer())
+        .then((ab) => {
+          drawOverlay(Buffer.from(ab));
+          doc.end();
+        })
+        .catch((err) => {
+          console.error("QR code fetch failed, drawing PDF without QR:", err);
+          drawOverlay();
+          doc.end();
+        });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 // 3. Issue Course Certificate
-export async function issueCertificateForRegistration(registrationId: string) {
+export async function issueCertificateForRegistration(
+  registrationId: string,
+  certData: {
+    fatherName: string;
+    durationFrom: string;
+    durationTo: string;
+    grade: string;
+    venue: string;
+    performance: string;
+  }
+) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -108,8 +264,11 @@ export async function issueCertificateForRegistration(registrationId: string) {
       full_name, 
       email, 
       status, 
+      user_id,
+      created_at,
       courses (
-        title
+        title,
+        duration
       )
     `)
     .eq("id", registrationId)
@@ -123,7 +282,13 @@ export async function issueCertificateForRegistration(registrationId: string) {
     return { success: false, error: "Certificate can only be issued for APPROVED course registrations." };
   }
 
+  const fatherName = certData.fatherName || "N/A";
   const courseTitle = (reg.courses as any)?.title || "Selected Course";
+  const durationFrom = certData.durationFrom || new Date(reg.created_at).toLocaleDateString("en-IN");
+  const durationTo = certData.durationTo || new Date(reg.created_at).toLocaleDateString("en-IN");
+  const grade = certData.grade || "A";
+  const venue = certData.venue || "Online (DKFFJ Portal)";
+  const performance = certData.performance || "Excellent";
 
   try {
     // 1. Atomically generate Certificate Number
@@ -143,35 +308,23 @@ export async function issueCertificateForRegistration(registrationId: string) {
     // 2. Generate QR Code API URL
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
 
-    // 3. Create a beautiful simulated PDF certificate file
-    const certificateText = `
-      =======================================================
-               DK FOUNDATION OF FREEDOM AND JUSTICE
-      =======================================================
-      
-      CERTIFICATE OF COMPLETION AND EXCELLENCE
-      
-      This is to certify that
-      
-      Name: ${reg.full_name}
-      Enrollment No: ${reg.enrollment_no}
-      
-      has successfully completed all coursework, academic requirements
-      and practical examinations for the certificate program:
-      
-      Course: ${courseTitle}
-      
-      Certificate Number: ${certNo}
-      Date of Issue: ${new Date().toLocaleDateString("en-IN")}
-      
-      Verify Authenticity: ${verificationUrl}
-      
-      =======================================================
-       Registered under Ministry of Corporate Affairs, Govt of India
-      =======================================================
-    `;
-
-    const pdfBuffer = Buffer.from(certificateText);
+    // 3. Create a beautiful, verified PDF certificate file
+    const dateStr = new Date().toLocaleDateString("en-IN");
+    const pdfBuffer = await generateCertificatePDF(
+      reg.full_name,
+      fatherName,
+      reg.enrollment_no || "",
+      courseTitle,
+      certNo,
+      dateStr,
+      durationFrom,
+      durationTo,
+      grade,
+      venue,
+      performance,
+      verificationUrl,
+      qrCodeUrl
+    );
     const pdfPath = `certs/cert_${certNo}.pdf`;
 
     // Upload certificate PDF to public bucket

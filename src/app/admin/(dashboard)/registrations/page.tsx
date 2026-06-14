@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration } from "./actions";
+import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile } from "./actions";
 import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Check, X, FileText, Download, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
 
 export default function AdminRegistrationsPage() {
@@ -16,6 +16,15 @@ export default function AdminRegistrationsPage() {
   const [remarks, setRemarks] = useState<string>("");
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string>("");
+  const [issuingId, setIssuingId] = useState<string | null>(null);
+  const [certForm, setCertForm] = useState({
+    fatherName: "",
+    durationFrom: "",
+    durationTo: "",
+    grade: "A",
+    venue: "Online (DKFFJ Portal)",
+    performance: "Excellent"
+  });
 
   // Toast notification state
   const [toast, setToast] = useState<{ message: string; visible: boolean; type: 'success' | 'error' }>({
@@ -92,12 +101,79 @@ export default function AdminRegistrationsPage() {
     }
   };
 
-  const handleIssueCertificate = async (id: string) => {
+  const startIssuance = async (reg: any) => {
+    setIssuingId(reg.id);
+    
+    // Set default dates
+    const regDate = new Date(reg.created_at);
+    const fromDateStr = regDate.toISOString().split('T')[0]; // yyyy-mm-dd
+    
+    // Calculate end date based on course duration if available
+    const endDate = new Date(reg.created_at);
+    let months = 3;
+    const durationStr = reg.courses?.duration || "3 Months";
+    const match = durationStr.match(/(\d+)\s*(month|year)/i);
+    if (match) {
+      const val = parseInt(match[1]);
+      const unit = match[2].toLowerCase();
+      if (unit.startsWith("year")) {
+        months = val * 12;
+      } else {
+        months = val;
+      }
+    }
+    endDate.setMonth(endDate.getMonth() + months);
+    const toDateStr = endDate.toISOString().split('T')[0];
+    
+    setCertForm({
+      fatherName: "Loading...",
+      durationFrom: fromDateStr,
+      durationTo: toDateStr,
+      grade: "A",
+      venue: "Online (DKFFJ Portal)",
+      performance: "Excellent"
+    });
+    
+    try {
+      const profile = await getStudentProfile(reg.user_id);
+      setCertForm(prev => ({
+        ...prev,
+        fatherName: profile?.father_name || ""
+      }));
+    } catch (err) {
+      setCertForm(prev => ({
+        ...prev,
+        fatherName: ""
+      }));
+    }
+  };
+
+  const submitIssuance = async (id: string) => {
     setActionLoading(true);
     setActionError("");
     try {
-      const res = await issueCertificateForRegistration(id);
+      // Format dates to DD/MM/YYYY for printing
+      const formatDateStr = (dStr: string) => {
+        if (!dStr) return "";
+        const parts = dStr.split('-');
+        if (parts.length === 3) {
+          return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        return dStr;
+      };
+
+      const payload = {
+        fatherName: certForm.fatherName,
+        durationFrom: formatDateStr(certForm.durationFrom),
+        durationTo: formatDateStr(certForm.durationTo),
+        grade: certForm.grade,
+        venue: certForm.venue,
+        performance: certForm.performance
+      };
+
+      const res = await issueCertificateForRegistration(id, payload);
       if (res.success) {
+        setIssuingId(null);
         setExpandedId(null);
         await fetchData(); // Refresh
         showToast(`Certificate issued successfully! Serial: ${res.certNo}`, 'success');
@@ -267,7 +343,7 @@ export default function AdminRegistrationsPage() {
                       </div>
                     )}
 
-                    {reg.status === "APPROVED" && (
+                    {reg.status === "APPROVED" && issuingId !== reg.id && (
                       <div className="p-4 bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-4">
                         <div className="text-xs">
                           <span className="font-bold text-slate-800 block">Course Completed?</span>
@@ -275,13 +351,102 @@ export default function AdminRegistrationsPage() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => handleIssueCertificate(reg.id)}
+                          onClick={() => startIssuance(reg)}
                           disabled={actionLoading}
                           className="px-5 py-2.5 bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm shrink-0"
                         >
                           {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                           <Award className="w-4 h-4" /> Issue Graduation Certificate
                         </button>
+                      </div>
+                    )}
+
+                    {reg.status === "APPROVED" && issuingId === reg.id && (
+                      <div className="space-y-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-left">
+                        <div className="flex items-center gap-2 border-b pb-3 mb-3">
+                          <Award className="w-5 h-5 text-[#0F4C81]" />
+                          <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Configure Certificate Credentials</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold">
+                          <div>
+                            <label className="block text-slate-500 mb-1">Father's Name</label>
+                            <input
+                              type="text"
+                              value={certForm.fatherName}
+                              onChange={(e) => setCertForm({ ...certForm, fatherName: e.target.value })}
+                              placeholder="Student's Father Name"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-500 mb-1">Grade / Percentage</label>
+                            <input
+                              type="text"
+                              value={certForm.grade}
+                              onChange={(e) => setCertForm({ ...certForm, grade: e.target.value })}
+                              placeholder="e.g. A+, A, Outstanding"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-500 mb-1">Duration From</label>
+                            <input
+                              type="date"
+                              value={certForm.durationFrom}
+                              onChange={(e) => setCertForm({ ...certForm, durationFrom: e.target.value })}
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-500 mb-1">Duration To</label>
+                            <input
+                              type="date"
+                              value={certForm.durationTo}
+                              onChange={(e) => setCertForm({ ...certForm, durationTo: e.target.value })}
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-500 mb-1">Training Venue</label>
+                            <input
+                              type="text"
+                              value={certForm.venue}
+                              onChange={(e) => setCertForm({ ...certForm, venue: e.target.value })}
+                              placeholder="e.g. Online (DKFFJ Portal)"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-500 mb-1">Performance/Conduct Rating</label>
+                            <input
+                              type="text"
+                              value={certForm.performance}
+                              onChange={(e) => setCertForm({ ...certForm, performance: e.target.value })}
+                              placeholder="e.g. Excellent, Very Good"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 border-t pt-4 mt-4">
+                          <button
+                            type="button"
+                            onClick={() => setIssuingId(null)}
+                            className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-650 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => submitIssuance(reg.id)}
+                            disabled={actionLoading}
+                            className="px-5 py-2.5 bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                          >
+                            {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                            <Award className="w-4 h-4" /> Generate & Dispatch Certificate
+                          </button>
+                        </div>
                       </div>
                     )}
 
