@@ -17,6 +17,26 @@ export default function AdminRegistrationsPage() {
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string>("");
 
+  // Toast notification state
+  const [toast, setToast] = useState<{ message: string; visible: boolean; type: 'success' | 'error' }>({
+    message: "",
+    visible: false,
+    type: 'success'
+  });
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, visible: true, type });
+  };
+
+  useEffect(() => {
+    if (toast.visible) {
+      const timer = setTimeout(() => {
+        setToast((prev) => ({ ...prev, visible: false }));
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.visible]);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -61,7 +81,7 @@ export default function AdminRegistrationsPage() {
         setRemarks("");
         setExpandedId(null);
         await fetchData(); // Refresh
-        alert(`Enrollment registration ${newStatus.toLowerCase()} successfully!`);
+        showToast(`Enrollment registration ${newStatus.toLowerCase()} successfully!`, 'success');
       } else {
         setActionError(res.error || "Failed to update enrollment status.");
       }
@@ -80,7 +100,7 @@ export default function AdminRegistrationsPage() {
       if (res.success) {
         setExpandedId(null);
         await fetchData(); // Refresh
-        alert(`Certificate issued successfully! Serial: ${res.certNo}`);
+        showToast(`Certificate issued successfully! Serial: ${res.certNo}`, 'success');
       } else {
         setActionError(res.error || "Failed to issue certificate.");
       }
@@ -286,6 +306,17 @@ export default function AdminRegistrationsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+      {/* Toast Notification */}
+      {toast.visible && (
+        <div className={`fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 ease-out flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold ${
+          toast.type === 'success' 
+            ? 'bg-emerald-500 text-white border-emerald-600' 
+            : 'bg-rose-500 text-white border-rose-600'
+        }`}>
+          {toast.type === 'success' ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
+          <span>{toast.message}</span>
         </div>
       )}
     </div>
