@@ -141,18 +141,23 @@ function generateCertificatePDF(
         // Draw template background
         doc.image(templatePath, 0, 0, { width: 595.28, height: 841.89 });
 
+        // 1. Mask the placeholder student photo area in the background template
+        doc.fillColor("#ffffff").rect(445, 130, 105, 135).fill();
+
         // Draw photo if available
         if (photoBuffer) {
           doc.image(photoBuffer, 445, 130, { width: 105, height: 135 });
-        } else {
-          doc.rect(445, 130, 105, 135).lineWidth(0.5).stroke("#cccccc");
         }
+        
+        // Draw a clean neat border around the photo box
+        doc.rect(445, 130, 105, 135).lineWidth(0.5).stroke("#cccccc");
+
+        // 2. Mask the template's placeholder QR code
+        doc.fillColor("#ffffff").rect(462, 708, 80, 80).fill();
 
         // Draw QR code if available
         if (qrBuffer) {
           doc.image(qrBuffer, 462, 708, { width: 80, height: 80 });
-        } else {
-          doc.rect(462, 708, 80, 80).lineWidth(0.5).stroke("#cccccc");
         }
 
         // Student's Name (centered in the bubble)
@@ -206,7 +211,7 @@ function generateCertificatePDF(
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(performance, 405, 537, { width: 120, align: "left" });
+          .text(performance, 405, 537, { width: 120, align: "center" });
 
         // Mask placeholders on the background template (x, y, w, h)
         doc.fillColor("#ffffff").rect(170, 574, 110, 15).fill();
