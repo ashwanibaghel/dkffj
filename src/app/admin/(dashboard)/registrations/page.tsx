@@ -126,7 +126,7 @@ export default function AdminRegistrationsPage() {
     const toDateStr = endDate.toISOString().split('T')[0];
     
     setCertForm({
-      fatherName: "Loading...",
+      fatherName: reg.father_name || "Loading...",
       durationFrom: fromDateStr,
       durationTo: toDateStr,
       grade: "A",
@@ -134,17 +134,19 @@ export default function AdminRegistrationsPage() {
       performance: "Excellent"
     });
     
-    try {
-      const profile = await getStudentProfile(reg.user_id);
-      setCertForm(prev => ({
-        ...prev,
-        fatherName: profile?.father_name || ""
-      }));
-    } catch (err) {
-      setCertForm(prev => ({
-        ...prev,
-        fatherName: ""
-      }));
+    if (!reg.father_name) {
+      try {
+        const profile = await getStudentProfile(reg.user_id);
+        setCertForm(prev => ({
+          ...prev,
+          fatherName: profile?.father_name || ""
+        }));
+      } catch (err) {
+        setCertForm(prev => ({
+          ...prev,
+          fatherName: ""
+        }));
+      }
     }
   };
 

@@ -119,7 +119,8 @@ function generateCertificatePDF(
   venue: string,
   performance: string,
   verificationUrl: string,
-  qrCodeUrl: string
+  qrCodeUrl: string,
+  photoUrl?: string | null
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     try {
@@ -136,9 +137,16 @@ function generateCertificatePDF(
 
       const templatePath = path.join(process.cwd(), "public/images/certificate_template.jpg");
 
-      const drawOverlay = (qrBuffer?: Buffer) => {
+      const drawOverlay = (qrBuffer?: Buffer, photoBuffer?: Buffer) => {
         // Draw template background
         doc.image(templatePath, 0, 0, { width: 595.28, height: 841.89 });
+
+        // Draw photo if available
+        if (photoBuffer) {
+          doc.image(photoBuffer, 445, 130, { width: 105, height: 135 });
+        } else {
+          doc.rect(445, 130, 105, 135).lineWidth(0.5).stroke("#cccccc");
+        }
 
         // Draw QR code if available
         if (qrBuffer) {
@@ -151,77 +159,100 @@ function generateCertificatePDF(
         doc.fillColor("#0F4C81")
           .font("Times-Bold")
           .fontSize(14)
-          .text(fullName, 230, 336, { width: 320, align: "center" });
+          .text(fullName, 230, 295, { width: 320, align: "center" });
 
         // Father's Name (centered in the bubble)
         doc.fillColor("#0F4C81")
           .font("Times-Bold")
           .fontSize(14)
-          .text(fatherName, 180, 377, { width: 370, align: "center" });
+          .text(fatherName, 180, 336, { width: 370, align: "center" });
 
         // Course Title (centered in the bubble)
         doc.fillColor("#0F4C81")
           .font("Times-Bold")
           .fontSize(12)
-          .text(courseTitle, 265, 418, { width: 285, align: "center" });
+          .text(courseTitle, 265, 377, { width: 285, align: "center" });
 
         // Conducted by our institution
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text("DK Foundation of Freedom and Justice", 230, 459, { width: 320, align: "center" });
+          .text("DK Foundation of Freedom and Justice", 230, 418, { width: 320, align: "center" });
 
         // Duration From and To
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(durationFrom, 195, 499, { width: 165, align: "center" });
+          .text(durationFrom, 195, 458, { width: 165, align: "center" });
 
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(durationTo, 395, 499, { width: 155, align: "center" });
+          .text(durationTo, 395, 458, { width: 155, align: "center" });
 
         // Grade/Percentage
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(grade, 165, 540, { width: 80, align: "center" });
+          .text(grade, 165, 499, { width: 80, align: "center" });
 
         // Training Venue
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(10)
-          .text(venue, 360, 540, { width: 190, align: "center" });
+          .text(venue, 360, 499, { width: 190, align: "center" });
 
         // Performance
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(11)
-          .text(performance, 405, 578, { width: 120, align: "left" });
+          .text(performance, 405, 537, { width: 120, align: "left" });
+
+        // Mask placeholders on the background template (x, y, w, h)
+        doc.fillColor("#ffffff").rect(170, 574, 110, 15).fill();
+        doc.fillColor("#ffffff").rect(420, 574, 110, 15).fill();
 
         // Certificate No
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(10)
-          .text(certNo, 145, 662, { width: 145, align: "center" });
+          .text(certNo, 170, 576, { width: 110, align: "left" });
 
         // Date of Issue
         doc.fillColor("#0F4C81")
           .font("Helvetica-Bold")
           .fontSize(10)
-          .text(dateStr, 390, 662, { width: 160, align: "center" });
+          .text(dateStr, 420, 576, { width: 110, align: "left" });
       };
 
-      // Fetch QR Code image in-memory with a timeout
-      fetch(qrCodeUrl, { signal: AbortSignal.timeout(4000) })
+      const fetchQr = fetch(qrCodeUrl, { signal: AbortSignal.timeout(4000) })
         .then((res) => res.arrayBuffer())
-        .then((ab) => {
-          drawOverlay(Buffer.from(ab));
+        .then((ab) => Buffer.from(ab))
+        .catch((err) => {
+          console.error("QR fetch failed:", err);
+          return null;
+        });
+
+      const fetchPhoto = photoUrl
+        ? fetch(photoUrl, { signal: AbortSignal.timeout(6000) })
+            .then((res) => {
+              if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+              return res.arrayBuffer();
+            })
+            .then((ab) => Buffer.from(ab))
+            .catch((err) => {
+              console.error("Photo fetch failed:", err);
+              return null;
+            })
+        : Promise.resolve(null);
+
+      Promise.all([fetchQr, fetchPhoto])
+        .then(([qrBuffer, photoBuffer]) => {
+          drawOverlay(qrBuffer || undefined, photoBuffer || undefined);
           doc.end();
         })
         .catch((err) => {
-          console.error("QR code fetch failed, drawing PDF without QR:", err);
+          console.error("Promise.all inside pdf gen failed:", err);
           drawOverlay();
           doc.end();
         });
@@ -266,6 +297,8 @@ export async function issueCertificateForRegistration(
       status, 
       user_id,
       created_at,
+      father_name,
+      photo_url,
       courses (
         title,
         duration
@@ -282,7 +315,7 @@ export async function issueCertificateForRegistration(
     return { success: false, error: "Certificate can only be issued for APPROVED course registrations." };
   }
 
-  const fatherName = certData.fatherName || "N/A";
+  const fatherName = certData.fatherName || reg.father_name || "N/A";
   const courseTitle = (reg.courses as any)?.title || "Selected Course";
   const durationFrom = certData.durationFrom || new Date(reg.created_at).toLocaleDateString("en-IN");
   const durationTo = certData.durationTo || new Date(reg.created_at).toLocaleDateString("en-IN");
@@ -291,16 +324,10 @@ export async function issueCertificateForRegistration(
   const performance = certData.performance || "Excellent";
 
   try {
-    // 1. Atomically generate Certificate Number
-    const { data: certNo, error: rpcError } = await supabase.rpc("generate_next_number", {
-      p_key: "certificate",
-      p_prefix: "DKCERT"
-    });
-
-    if (rpcError || !certNo) {
-      console.error("Failed to generate certificate number:", rpcError);
-      throw new Error("Failed to generate certificate serial number.");
-    }
+    // 1. Generate Certificate Number based on enrollment suffix (for 100% consistency)
+    const certNo = reg.enrollment_no
+      ? reg.enrollment_no.replace("DKE", "DKCERT")
+      : ("DKCERT-" + Math.random().toString(36).substring(2, 9).toUpperCase());
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const verificationUrl = `${appUrl}/verify/${certNo}`;
@@ -323,7 +350,8 @@ export async function issueCertificateForRegistration(
       venue,
       performance,
       verificationUrl,
-      qrCodeUrl
+      qrCodeUrl,
+      reg.photo_url
     );
     const pdfPath = `certs/cert_${certNo}.pdf`;
 

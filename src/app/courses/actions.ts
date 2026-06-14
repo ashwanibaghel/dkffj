@@ -37,9 +37,11 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const otpCode = formData.get("otpCode") as string;
+  const fatherName = formData.get("fatherName") as string;
+  const photo = formData.get("photo") as File | null;
 
-  if (!courseId || !fullName || !mobile || !email) {
-    return { success: false, error: "Please fill in all registration fields." };
+  if (!courseId || !fullName || !mobile || !email || !fatherName || !photo || photo.size === 0) {
+    return { success: false, error: "Please fill in all registration fields and upload your profile photo." };
   }
 
   // 1. Get/Create User account
@@ -93,6 +95,29 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     userId = authData.user.id;
   }
 
+  // Upload Profile Photo to Supabase Storage
+  let photoUrl = "";
+  try {
+    const photoExt = photo.name.split(".").pop() || "jpg";
+    const photoName = `course_photos/photo_${userId}_${Date.now()}.${photoExt}`;
+    const photoBuffer = Buffer.from(await photo.arrayBuffer());
+
+    const { data: photoUpload, error: photoErr } = await supabase.storage
+      .from("photos")
+      .upload(photoName, photoBuffer, { contentType: photo.type, upsert: true });
+
+    if (photoErr) {
+      console.error("Photo upload error:", photoErr);
+      throw new Error(`Profile photo upload failed: ${photoErr.message}`);
+    }
+
+    const { data: photoUrlData } = supabase.storage.from("photos").getPublicUrl(photoName);
+    photoUrl = photoUrlData.publicUrl;
+  } catch (err: any) {
+    console.error("Profile photo upload pipeline error:", err);
+    return { success: false, error: err.message || "Failed to upload profile photo." };
+  }
+
   // 2. Fetch course fee details
   const { data: course, error: courseError } = await supabase
     .from("courses")
@@ -128,6 +153,8 @@ export async function registerForCourse(prevData: any, formData: FormData) {
         full_name: fullName,
         mobile,
         email,
+        father_name: fatherName,
+        photo_url: photoUrl,
         status: "PENDING"
       })
       .select("id")

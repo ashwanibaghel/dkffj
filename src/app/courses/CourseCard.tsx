@@ -33,6 +33,8 @@ export default function CourseCard({ course }: { course: Course }) {
   const [mobile, setMobile] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [fatherName, setFatherName] = useState<string>("");
+  const [photo, setPhoto] = useState<File | null>(null);
 
   // OTP Verification states
   const [otpCode, setOtpCode] = useState<string>("");
@@ -72,6 +74,8 @@ export default function CourseCard({ course }: { course: Course }) {
       setSignInEmail("");
       setSignInPassword("");
       setForgotEmail("");
+      setFatherName("");
+      setPhoto(null);
       setErrorMsg("");
       setSuccessMsg("");
     }
@@ -186,8 +190,8 @@ export default function CourseCard({ course }: { course: Course }) {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!fullName || !mobile || !email) {
-      setErrorMsg("All registration fields are required.");
+    if (!fullName || !mobile || !email || !fatherName || !photo) {
+      setErrorMsg("All registration fields, including Father's Name and Profile Photo, are required.");
       return;
     }
 
@@ -227,6 +231,10 @@ export default function CourseCard({ course }: { course: Course }) {
       formData.append("fullName", fullName);
       formData.append("mobile", mobile);
       formData.append("email", email);
+      formData.append("fatherName", fatherName);
+      if (photo) {
+        formData.append("photo", photo);
+      }
       if (!isLoggedIn) {
         formData.append("password", password);
         formData.append("otpCode", otpCode);
@@ -524,6 +532,29 @@ export default function CourseCard({ course }: { course: Course }) {
                     disabled={isLoggedIn}
                     placeholder="Your official name"
                     className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Father's Name *</label>
+                  <input
+                    type="text"
+                    value={fatherName}
+                    onChange={(e) => setFatherName(e.target.value)}
+                    required
+                    placeholder="Your father's name"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Profile Photo (Passport size) *</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                    required
+                    className="w-full px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
                   />
                 </div>
 

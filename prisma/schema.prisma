@@ -102,6 +102,8 @@ model course_registrations {
   full_name                                     String            @db.VarChar(255)
   mobile                                        String            @db.VarChar(15)
   email                                         String            @db.VarChar(255)
+  father_name                                   String?           @db.VarChar(255)
+  photo_url                                     String?
   status                                        enrollment_status @default(PENDING)
   approved_by                                   String?           @db.Uuid
   approved_at                                   DateTime?         @db.Timestamptz(6)
