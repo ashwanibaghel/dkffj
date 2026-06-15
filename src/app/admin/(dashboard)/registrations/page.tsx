@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile } from "./actions";
+import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile, updateCertificatePdfUrl } from "./actions";
+import { generateCertificatePDFClient } from "./CertificateGenerator";
+import { createClient } from "@/utils/supabase/client";
 import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Check, X, FileText, Download, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
 
 export default function AdminRegistrationsPage() {
@@ -175,6 +177,48 @@ export default function AdminRegistrationsPage() {
 
       const res = await issueCertificateForRegistration(id, payload);
       if (res.success) {
+        // Generate PDF client-side
+        try {
+          const supabase = createClient();
+          const pdfPath = `certs/cert_${res.certNo}.pdf`;
+
+          const pdfBlob = await generateCertificatePDFClient({
+            certNo: res.certNo!,
+            qrCodeUrl: res.qrCodeUrl!,
+            verificationUrl: res.verificationUrl!,
+            studentName: res.studentName!,
+            courseTitle: res.courseTitle!,
+            photoUrl: res.photoUrl,
+            fatherName: res.fatherName!,
+            enrollmentNo: res.enrollmentNo!,
+            durationFrom: res.durationFrom!,
+            durationTo: res.durationTo!,
+            grade: res.grade!,
+            venue: res.venue!,
+            performance: res.performance!,
+            dateStr: res.dateStr!
+          });
+
+          const { error: uploadError } = await supabase.storage
+            .from("certificates")
+            .upload(pdfPath, pdfBlob, { contentType: "application/pdf", upsert: true });
+
+          if (uploadError) {
+            throw new Error(`Failed to upload certificate PDF: ${uploadError.message}`);
+          }
+
+          const { data: publicUrlRes } = supabase.storage.from("certificates").getPublicUrl(pdfPath);
+          const pdfUrl = publicUrlRes.publicUrl;
+
+          const updateRes = await updateCertificatePdfUrl(res.certNo!, pdfUrl);
+          if (!updateRes.success) {
+            throw new Error(updateRes.error || "Failed to update PDF URL in database");
+          }
+        } catch (pdfErr: any) {
+          console.error("Client side PDF generation/upload error:", pdfErr);
+          showToast("Certificate was created but PDF generation failed. Please check CORS or storage.", "error");
+        }
+
         setIssuingId(null);
         setExpandedId(null);
         await fetchData(); // Refresh

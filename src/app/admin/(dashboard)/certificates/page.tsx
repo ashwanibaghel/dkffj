@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getCertificates, toggleCertificateStatus } from "./actions";
+import { getCertificates, toggleCertificateStatus, getCertificateRegenerationData } from "./actions";
 import { Award, Search, Loader2, Download, AlertTriangle, ShieldCheck, QrCode } from "lucide-react";
+import { generateCertificatePDFClient } from "../registrations/CertificateGenerator";
 
 export default function AdminCertificatesPage() {
   const [certificates, setCertificates] = useState<any[]>([]);
@@ -10,6 +11,50 @@ export default function AdminCertificatesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [toggleLoading, setToggleLoading] = useState<string | null>(null);
+  const [downloadLoading, setDownloadLoading] = useState<string | null>(null);
+
+  const handleDownloadDynamic = async (cert: any) => {
+    setDownloadLoading(cert.id);
+    try {
+      const metaRes = await getCertificateRegenerationData(cert.registration_id);
+      if (!metaRes.success) {
+        alert(metaRes.error || "Failed to load certificate data.");
+        return;
+      }
+
+      const pdfBlob = await generateCertificatePDFClient({
+        certNo: cert.certificate_no,
+        qrCodeUrl: cert.qr_code_url,
+        verificationUrl: `${window.location.origin}/verify/${cert.certificate_no}`,
+        studentName: metaRes.studentName!,
+        courseTitle: metaRes.courseTitle!,
+        photoUrl: metaRes.photoUrl,
+        fatherName: metaRes.fatherName!,
+        enrollmentNo: metaRes.enrollmentNo!,
+        durationFrom: metaRes.durationFrom!,
+        durationTo: metaRes.durationTo!,
+        grade: metaRes.grade!,
+        venue: metaRes.venue!,
+        performance: metaRes.performance!,
+        dateStr: metaRes.dateStr!
+      });
+
+      // Trigger local browser download
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Certificate_${cert.certificate_no}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Error generating PDF: ${err.message || err}`);
+    } finally {
+      setDownloadLoading(null);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -156,14 +201,19 @@ export default function AdminCertificatesPage() {
                     )}
                   </button>
 
-                  <a
-                    href={cert.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-slate-50 border hover:bg-slate-100 text-[10px] font-bold text-slate-600 transition-colors inline-flex items-center gap-1"
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadDynamic(cert)}
+                    disabled={downloadLoading === cert.id}
+                    className="px-3 py-1.5 rounded-lg bg-slate-50 border hover:bg-slate-100 text-[10px] font-bold text-slate-600 transition-colors inline-flex items-center gap-1 cursor-pointer"
                   >
-                    <Download className="w-3.5 h-3.5 text-[#0F4C81]" /> PDF copy
-                  </a>
+                    {downloadLoading === cert.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Download className="w-3.5 h-3.5 text-[#0F4C81]" />
+                    )}
+                    PDF copy
+                  </button>
                 </div>
               </div>
 

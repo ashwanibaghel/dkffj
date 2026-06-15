@@ -343,39 +343,8 @@ export async function issueCertificateForRegistration(
     // 2. Generate QR Code API URL
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
 
-    // 3. Create a beautiful, verified PDF certificate file
-    const dateStr = new Date().toLocaleDateString("en-IN");
-    const pdfBuffer = await generateCertificatePDF(
-      reg.full_name,
-      fatherName,
-      reg.enrollment_no || "",
-      courseTitle,
-      certNo,
-      dateStr,
-      durationFrom,
-      durationTo,
-      grade,
-      venue,
-      performance,
-      verificationUrl,
-      qrCodeUrl,
-      reg.photo_url
-    );
-    const pdfPath = `certs/cert_${certNo}.pdf`;
-
-    // Upload certificate PDF to public bucket
-    const { error: uploadError } = await supabase.storage
-      .from("certificates")
-      .upload(pdfPath, pdfBuffer, { contentType: "application/pdf", upsert: true });
-
-    if (uploadError) {
-      console.error("PDF certificate upload failed:", uploadError);
-      throw new Error(`Failed to upload certificate PDF: ${uploadError.message}`);
-    }
-
-    // Get public URL for PDF certificate
-    const { data: publicUrlRes } = supabase.storage.from("certificates").getPublicUrl(pdfPath);
-    const pdfUrl = publicUrlRes.publicUrl;
+    // 3. Save certificate record in DB with temporary pdf_url (to be filled by client)
+    const tempPdfUrl = "";
 
     // 4. Save certificate record in DB
     const { error: dbError } = await supabase
@@ -385,7 +354,7 @@ export async function issueCertificateForRegistration(
         registration_id: registrationId,
         user_name: reg.full_name,
         course_name: courseTitle,
-        pdf_url: pdfUrl,
+        pdf_url: tempPdfUrl,
         qr_code_url: qrCodeUrl,
         status: "VALID"
       });
@@ -415,10 +384,53 @@ export async function issueCertificateForRegistration(
     const emailHtml = getCertificateIssuedTemplate(reg.full_name, courseTitle, certNo, verificationUrl);
     await sendTransactionalEmail(reg.email, emailSubject, emailHtml);
 
-    return { success: true, certNo, pdfUrl };
+    return {
+      success: true,
+      certNo,
+      qrCodeUrl,
+      verificationUrl,
+      studentName: reg.full_name,
+      courseTitle,
+      photoUrl: reg.photo_url,
+      fatherName,
+      enrollmentNo: reg.enrollment_no || "",
+      durationFrom,
+      durationTo,
+      grade,
+      venue,
+      performance,
+      dateStr: new Date().toLocaleDateString("en-IN")
+    };
 
   } catch (err: any) {
     console.error("Certificate generation error:", err);
     return { success: false, error: err.message || "An unexpected error occurred during certificate issue." };
   }
+}
+
+// 4. Update Certificate PDF URL after client-side generation
+export async function updateCertificatePdfUrl(certNo: string, pdfUrl: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Validate admin auth
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  const { error } = await supabase
+    .from("certificates")
+    .update({ pdf_url: pdfUrl })
+    .eq("certificate_no", certNo);
+
+  if (error) {
+    console.error("Database update error for certificate pdf_url:", error);
+    return { success: false, error: `Failed to update certificate PDF: ${error.message}` };
+  }
+
+  return { success: true };
 }
