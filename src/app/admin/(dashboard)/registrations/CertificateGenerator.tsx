@@ -218,29 +218,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           </h2>
         </div>
 
-        {/* Student's Photo (Absolute Top Right) */}
-        {photoSrc && (
-          <div
-            style={{
-              position: "absolute",
-              right: "20px",
-              top: "110px",
-              width: "115px",
-              height: "150px",
-              overflow: "hidden",
-              borderRadius: "8px",
-              border: "2px solid #c5a880",
-              backgroundColor: "#ffffff",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.06)"
-            }}
-          >
-            <img
-              src={photoSrc}
-              alt="Student Profile"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          </div>
-        )}
+
 
         {/* Helper Style for Pills (Redefined as traditional fill-in lines) */}
         <style>{`
@@ -273,28 +251,58 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         {/* Form Fields (Dynamic Rows) */}
         <div style={{ width: "100%", marginTop: "30px", display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          {/* Row 1: Student Name */}
-          <div className="cert-line">
-            <span style={{ minWidth: "190px" }}>This is to certify that Mr./Ms.</span>
-            <div className="cert-pill" style={{ flex: 1, textTransform: "uppercase" }}>
-              {data.studentName}
-            </div>
-          </div>
+          {/* Two-Column Section for Name/Father/Course on Left, Student Photo on Right */}
+          <div style={{ width: "90%", marginLeft: "5%", display: "flex", gap: "25px", alignItems: "flex-start" }}>
+            
+            {/* Left Column: Certification details */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
+              {/* Row 1: Student Name */}
+              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
+                <span style={{ minWidth: "190px" }}>This is to certify that Mr./Ms.</span>
+                <div className="cert-pill" style={{ flex: 1, textTransform: "uppercase" }}>
+                  {data.studentName}
+                </div>
+              </div>
 
-          {/* Row 2: Father Name */}
-          <div className="cert-line">
-            <span style={{ minWidth: "150px" }}>Son/Daughter of Mr.</span>
-            <div className="cert-pill" style={{ flex: 1 }}>
-              {data.fatherName}
-            </div>
-          </div>
+              {/* Row 2: Father Name */}
+              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
+                <span style={{ minWidth: "150px" }}>Son/Daughter of Mr.</span>
+                <div className="cert-pill" style={{ flex: 1 }}>
+                  {data.fatherName}
+                </div>
+              </div>
 
-          {/* Row 3: Course Title */}
-          <div className="cert-line">
-            <span style={{ minWidth: "205px" }}>has successfully completed the</span>
-            <div className="cert-pill" style={{ flex: 1 }}>
-              {data.courseTitle}
+              {/* Row 3: Course Title */}
+              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
+                <span style={{ minWidth: "205px" }}>has successfully completed the</span>
+                <div className="cert-pill" style={{ flex: 1 }}>
+                  {data.courseTitle}
+                </div>
+              </div>
             </div>
+
+            {/* Right Column: Student Photo */}
+            {photoSrc && (
+              <div
+                style={{
+                  width: "105px",
+                  height: "135px",
+                  overflow: "hidden",
+                  borderRadius: "6px",
+                  border: "2px solid #c5a880",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+                  flexShrink: 0,
+                  marginTop: "6px"
+                }}
+              >
+                <img
+                  src={photoSrc}
+                  alt="Student Profile"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Row 4: Institution */}
@@ -379,7 +387,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           marginTop: "15px"
         }}>
           {/* Signatory (Left) */}
-          <div style={{ width: "230px", textAlign: "center" }}>
+          <div style={{ width: "230px", textAlign: "center", flexShrink: 0 }}>
             <div style={{ height: "45px" }} />
             <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
             <p style={{
@@ -402,7 +410,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           </div>
 
           {/* High-Resolution Gold/Black Ribbon ISO 9001 Seal (Center) */}
-          <div style={{ width: "95px", height: "125px", marginTop: "-30px", zIndex: 10 }}>
+          <div style={{ width: "100px", height: "130px", marginTop: "-30px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
             <img
               src={isoSealSrc}
               alt="ISO 9001 Seal"
@@ -410,21 +418,23 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             />
           </div>
 
-          {/* Verification QR Code (Right) */}
-          <div style={{
-            width: "85px",
-            height: "85px",
-            border: "1px solid #cccccc",
-            padding: "2px",
-            backgroundColor: "#ffffff"
-          }}>
-            {qrSrc && (
-              <img
-                src={qrSrc}
-                alt="Verification QR"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            )}
+          {/* Verification QR Code (Right Column, matching 230px width for perfect centering) */}
+          <div style={{ width: "230px", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+            <div style={{
+              width: "85px",
+              height: "85px",
+              border: "1px solid #cccccc",
+              padding: "2px",
+              backgroundColor: "#ffffff"
+            }}>
+              {qrSrc && (
+                <img
+                  src={qrSrc}
+                  alt="Verification QR"
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                />
+              )}
+            </div>
           </div>
         </div>
 

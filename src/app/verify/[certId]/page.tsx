@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { verifyCertificate } from "../actions";
 import { ArrowLeft, CheckCircle, XCircle, Download, Award, ShieldAlert } from "lucide-react";
+import VerifyDownloadButton from "./VerifyDownloadButton";
 
 export const dynamic = "force-dynamic";
 
@@ -76,15 +77,8 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
                 </div>
               </div>
 
-              <div className="flex justify-center pt-2">
-                <a
-                  href={result.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full text-center py-3 rounded-xl bg-[#D62828] text-white hover:bg-[#b02020] text-xs font-bold uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(214,40,40,0.15)] flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" /> Download Certified Copy (PDF)
-                </a>
+              <div className="flex justify-center pt-2 w-full">
+                <VerifyDownloadButton cert={result} />
               </div>
             </div>
 
