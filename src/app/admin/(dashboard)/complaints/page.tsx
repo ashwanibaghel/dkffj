@@ -19,6 +19,26 @@ export default function AdminComplaintsPage() {
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string>("");
 
+  // Toast notification state
+  const [toast, setToast] = useState<{ message: string; visible: boolean; type: 'success' | 'error' }>({
+    message: "",
+    visible: false,
+    type: "success"
+  });
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, visible: true, type });
+  };
+
+  useEffect(() => {
+    if (toast.visible) {
+      const timer = setTimeout(() => {
+        setToast((prev) => ({ ...prev, visible: false }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.visible]);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -60,10 +80,10 @@ export default function AdminComplaintsPage() {
       if (res.success && res.signedUrl) {
         window.open(res.signedUrl, "_blank");
       } else {
-        alert(res.error || "Failed to generate file access token.");
+        showToast(res.error || "Failed to generate file access token.", "error");
       }
     } catch (err) {
-      alert("Error fetching document link.");
+      showToast("Error fetching document link.", "error");
     }
   };
 
@@ -76,12 +96,14 @@ export default function AdminComplaintsPage() {
         setRemarks("");
         setExpandedId(null);
         await fetchData(); // Refresh
-        alert("Grievance case status updated successfully!");
+        showToast("Grievance case status updated successfully!", "success");
       } else {
         setActionError(res.error || "Failed to update complaint status.");
+        showToast(res.error || "Failed to update complaint status.", "error");
       }
     } catch (err) {
       setActionError("Error updating case record.");
+      showToast("Error updating case record.", "error");
     } finally {
       setActionLoading(false);
     }
@@ -314,6 +336,27 @@ export default function AdminComplaintsPage() {
           })}
         </div>
       )}
+
+      {/* Toast Notification */}
+      <div
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl border text-xs font-bold transition-all duration-300 ease-out ${
+          toast.visible
+            ? "translate-y-0 opacity-100 scale-100 pointer-events-auto"
+            : "translate-y-8 opacity-0 scale-95 pointer-events-none"
+        } ${
+          toast.type === "success"
+            ? "bg-emerald-600 text-white border-emerald-500"
+            : "bg-rose-600 text-white border-rose-500"
+        }`}
+      >
+        {toast.type === "success" ? (
+          <CheckCircle className="w-4 h-4 shrink-0 text-emerald-100" />
+        ) : (
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-100" />
+        )}
+        <span>{toast.message}</span>
+      </div>
+
     </div>
   );
 }
