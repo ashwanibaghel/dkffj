@@ -208,26 +208,36 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           </div>
         </div>
 
-        {/* Crest Logo */}
-        <div style={{ marginTop: "12px" }}>
-          <img
-            src={logoSrc}
-            alt="Crest Logo"
-            style={{ width: "90px", height: "90px", objectFit: "contain" }}
-          />
-        </div>
+        {/* Combined Curved Title & Crest Logo Area */}
+        <div style={{
+          position: "relative",
+          width: "700px",
+          height: "230px",
+          marginTop: "10px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}>
+          {/* Curved Title SVG */}
+          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 2 }}>
+            <svg viewBox="0 0 700 230" width="700" height="230" style={{ overflow: "visible" }}>
+              <path id="text-curve" d="M 60,185 A 440,440 0 0,1 640,185" fill="none" />
+              <text fill="#0f4c81" style={{ fontSize: "50px", fontFamily: "'UnifrakturMaguntia', serif" }}>
+                <textPath href="#text-curve" startOffset="50%" textAnchor="middle">
+                  Certificate of Appreciation
+                </textPath>
+              </text>
+            </svg>
+          </div>
 
-        {/* Title */}
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
-          <h2 style={{
-            fontFamily: "'UnifrakturMaguntia', serif",
-            fontSize: "52px",
-            color: "#0f4c81", // Navy blue title
-            fontWeight: "normal",
-            margin: 0
-          }}>
-            Certificate of Appreciation
-          </h2>
+          {/* Crest Logo (perfectly centered and nestled under the arch curve) */}
+          <div style={{ position: "absolute", top: "105px", zIndex: 1 }}>
+            <img
+              src={logoSrc}
+              alt="Crest Logo"
+              style={{ width: "110px", height: "110px", objectFit: "contain" }}
+            />
+          </div>
         </div>
 
         {/* CSS for lines */}
@@ -259,13 +269,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         `}</style>
 
         {/* Form Fields (Dynamic Rows) */}
-        <div style={{ width: "100%", marginTop: "30px", display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ width: "100%", marginTop: "15px", display: "flex", flexDirection: "column", gap: "15px" }}>
           
           {/* Two-Column Section for Name/Father/Designation on Left, Student Photo on Right */}
           <div style={{ width: "90%", marginLeft: "5%", display: "flex", gap: "25px", alignItems: "flex-start" }}>
             
             {/* Left Column: Certification details */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "15px" }}>
               {/* Row 1: Student Name */}
               <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
                 <span style={{ minWidth: "290px", fontSize: "15px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
