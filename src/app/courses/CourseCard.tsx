@@ -15,6 +15,82 @@ interface Course {
   image_url: string | null;
 }
 
+const compressImage = (file: File, maxWidth = 1000, maxHeight = 1000, maxFileSizeKB = 600): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate aspect ratio
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file); // fallback
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        let quality = 0.85; // High starting quality (keeps image very clear)
+        const convertToBlob = (q: number): Promise<Blob | null> => {
+          return new Promise((res) => {
+            canvas.toBlob((blob) => res(blob), "image/jpeg", q);
+          });
+        };
+
+        const checkAndCompress = async () => {
+          let blob = await convertToBlob(quality);
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+
+          // If file is larger than limit, compress further but stop before it becomes blurry
+          while (blob.size > maxFileSizeKB * 1024 && quality > 0.4) {
+            quality -= 0.1;
+            blob = await convertToBlob(quality);
+            if (!blob) break;
+          }
+
+          if (blob) {
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        };
+
+        checkAndCompress();
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 export default function CourseCard({ course }: { course: Course }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -35,6 +111,55 @@ export default function CourseCard({ course }: { course: Course }) {
   const [password, setPassword] = useState<string>("");
   const [fatherName, setFatherName] = useState<string>("");
   const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState<boolean>(false);
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setPhoto(null);
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+        setPhotoPreview(null);
+      }
+      return;
+    }
+
+    // 1. Check max size limit of 3MB
+    if (file.size > 3 * 1024 * 1024) {
+      setErrorMsg("Maximum file size is 3 MB. Please choose a smaller photo.");
+      e.target.value = ""; // Clear file input
+      setPhoto(null);
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+        setPhotoPreview(null);
+      }
+      return;
+    }
+
+    setErrorMsg("");
+    setIsCompressing(true);
+
+    try {
+      // 2. Compress the image to target size (<600 KB) keeping max bounds at 1000px
+      const compressedFile = await compressImage(file, 1000, 1000, 600);
+      setPhoto(compressedFile);
+      
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+      }
+      const newPreviewUrl = URL.createObjectURL(compressedFile);
+      setPhotoPreview(newPreviewUrl);
+    } catch (err: any) {
+      console.error("Image compression error:", err);
+      // Fallback
+      setPhoto(file);
+      const newPreviewUrl = URL.createObjectURL(file);
+      setPhotoPreview(newPreviewUrl);
+    } finally {
+      setIsCompressing(false);
+    }
+  };
 
   // OTP Verification states
   const [otpCode, setOtpCode] = useState<string>("");
@@ -76,6 +201,10 @@ export default function CourseCard({ course }: { course: Course }) {
       setForgotEmail("");
       setFatherName("");
       setPhoto(null);
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+      }
+      setPhotoPreview(null);
       setErrorMsg("");
       setSuccessMsg("");
     }
@@ -552,10 +681,49 @@ export default function CourseCard({ course }: { course: Course }) {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                    required
+                    onChange={handlePhotoChange}
+                    required={!photo}
                     className="w-full px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
                   />
+                  {isCompressing && (
+                    <div className="text-[10px] text-blue-600 font-semibold mt-1 flex items-center gap-1">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Optimizing and compressing image...
+                    </div>
+                  )}
+                  {photoPreview && photo && (
+                    <div className="mt-2.5 flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200 relative">
+                      <img
+                        src={photoPreview}
+                        alt="Profile Preview"
+                        className="w-12 h-12 object-cover rounded-lg border border-slate-200"
+                      />
+                      <div className="flex-1">
+                        <div className="text-[10px] font-bold text-slate-700 truncate max-w-[180px]">{photo.name}</div>
+                        <div className="text-[9px] text-slate-500 font-medium mt-0.5">
+                          Size: <span className="font-bold text-[#0F4C81]">{(photo.size / 1024).toFixed(1)} KB</span> (Optimized)
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhoto(null);
+                          if (photoPreview) {
+                            URL.revokeObjectURL(photoPreview);
+                            setPhotoPreview(null);
+                          }
+                          const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+                          if (fileInput) fileInput.value = "";
+                        }}
+                        className="p-1 hover:bg-slate-200 rounded-full text-slate-550 hover:text-slate-800 transition-colors"
+                        title="Remove photo"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>

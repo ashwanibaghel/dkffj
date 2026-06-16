@@ -142,27 +142,24 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       return { success: false, error: "Please log in first or provide a password to register a new account." };
     }
 
-    // Sign up the user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName
-        }
+    // Sign up the user via database RPC to bypass SMTP rate limit
+    try {
+      const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
+        p_email: email,
+        p_password: password,
+        p_full_name: fullName
+      });
+
+      if (dbRegError || !createdUserId) {
+        console.error("Auth registration database error:", dbRegError);
+        return { success: false, error: `Account registration failed: ${dbRegError?.message || "Failed to create account"}` };
       }
-    });
 
-    if (authError) {
-      console.error("Auth registration error:", authError);
-      return { success: false, error: `Account registration failed: ${authError.message}` };
+      userId = createdUserId as string;
+    } catch (err: any) {
+      console.error("Auth registration exception:", err);
+      return { success: false, error: `Account registration failed: ${err.message || err}` };
     }
-
-    if (!authData.user) {
-      return { success: false, error: "Account creation failed. Please check your credentials." };
-    }
-
-    userId = authData.user.id;
   }
 
   // Extract Form Fields

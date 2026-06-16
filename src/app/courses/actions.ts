@@ -73,26 +73,23 @@ export async function registerForCourse(prevData: any, formData: FormData) {
       return { success: false, error: "Please verify your email address using OTP first before creating your account." };
     }
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName
-        }
+    try {
+      const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
+        p_email: email,
+        p_password: password,
+        p_full_name: fullName
+      });
+
+      if (dbRegError || !createdUserId) {
+        console.error("Auth academy registration database error:", dbRegError);
+        return { success: false, error: `Account registration failed: ${dbRegError?.message || "Failed to create account"}` };
       }
-    });
 
-    if (authError) {
-      console.error("Auth academy registration error:", authError);
-      return { success: false, error: `Account registration failed: ${authError.message}` };
+      userId = createdUserId as string;
+    } catch (err: any) {
+      console.error("Auth academy registration exception:", err);
+      return { success: false, error: `Account registration failed: ${err.message || err}` };
     }
-
-    if (!authData.user) {
-      return { success: false, error: "Account creation failed. Please check credentials." };
-    }
-
-    userId = authData.user.id;
   }
 
   // Upload Profile Photo to Supabase Storage
