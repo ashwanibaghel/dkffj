@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { getMemberships, getSignedDocumentUrl, updateMembershipStatus } from "./actions";
-import { Users, FileCheck, XCircle, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText } from "lucide-react";
+import { Users, FileCheck, XCircle, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award } from "lucide-react";
+import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<any[]>([]);
@@ -11,6 +12,7 @@ export default function AdminMembersPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // Administrative action states
   const [remarks, setRemarks] = useState<string>("");
@@ -82,6 +84,50 @@ export default function AdminMembersPage() {
       }
     } catch (err) {
       showToast("Error fetching document link.", "error");
+    }
+  };
+
+  const handleDownloadCertificate = async (member: any) => {
+    setDownloadingId(member.id);
+    try {
+      const appUrl = window.location.origin;
+      const certNo = member.membership_no || member.ack_no;
+      const verificationUrl = `${appUrl}/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      
+      const issueDateStr = member.approved_at 
+        ? new Date(member.approved_at).toLocaleDateString("en-IN")
+        : new Date(member.created_at).toLocaleDateString("en-IN");
+
+      // Generate the PDF
+      const pdfBlob = await generateMembershipPDFClient({
+        membershipNo: member.membership_no || "",
+        ackNo: member.ack_no,
+        fullName: member.full_name,
+        fatherName: member.father_name,
+        designation: member.designation,
+        workingArea: member.working_area,
+        photoUrl: member.photo_url,
+        issueDateStr,
+        qrCodeUrl,
+        verificationUrl
+      });
+
+      // Trigger local browser download
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Membership_Certificate_${certNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showToast("Certificate downloaded successfully!", "success");
+    } catch (err: any) {
+      console.error(err);
+      showToast(`Error generating certificate: ${err.message || err}`, "error");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -200,10 +246,28 @@ export default function AdminMembersPage() {
                         {member.membership_no || "NOT GENERATED"}
                       </span>
                     </div>
-                    <div className="self-center">
+                    <div className="self-center flex items-center gap-2">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(member.status)}`}>
                         {member.status}
                       </span>
+                      {member.status === "APPROVED" && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownloadCertificate(member);
+                          }}
+                          disabled={downloadingId === member.id}
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors inline-flex items-center justify-center cursor-pointer disabled:opacity-50 border border-slate-200"
+                          title="Download Certificate"
+                        >
+                          {downloadingId === member.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F4C81]" />
+                          ) : (
+                            <Download className="w-3.5 h-3.5 text-slate-600" />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="text-slate-400 shrink-0 ml-4">
@@ -286,6 +350,28 @@ export default function AdminMembersPage() {
                         </button>
                       </div>
                     </div>
+
+                    {/* Certificate Desk for APPROVED Members */}
+                    {member.status === "APPROVED" && (
+                      <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
+                          <Award className="w-4 h-4 text-emerald-600" /> Membership Certificate Desk
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadCertificate(member)}
+                          disabled={downloadingId === member.id}
+                          className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+                        >
+                          {downloadingId === member.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Download className="w-3.5 h-3.5" />
+                          )}
+                          Download Certificate (PDF)
+                        </button>
+                      </div>
+                    )}
 
                     {/* Action Desk */}
                     {member.status !== "APPROVED" && member.status !== "REJECTED" && (

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { generateCertificatePDFClient } from "@/app/admin/(dashboard)/registrations/CertificateGenerator";
+import { generateMembershipPDFClient } from "@/app/admin/(dashboard)/members/MembershipCertificateGenerator";
 import { CertificateDetails } from "../actions";
 
 export default function VerifyDownloadButton({ cert }: { cert: CertificateDetails }) {
@@ -11,28 +12,46 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const pdfBlob = await generateCertificatePDFClient({
-        certNo: cert.certificateNo,
-        qrCodeUrl: cert.qrCodeUrl,
-        verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`,
-        studentName: cert.userName,
-        courseTitle: cert.courseName,
-        photoUrl: cert.photoUrl,
-        fatherName: cert.fatherName || "N/A",
-        enrollmentNo: cert.enrollmentNo || "",
-        durationFrom: cert.durationFrom || cert.issueDate,
-        durationTo: cert.durationTo || cert.issueDate,
-        grade: cert.grade || "A",
-        venue: cert.venue || "Online (DKFFJ Portal)",
-        performance: cert.performance || "Excellent",
-        dateStr: cert.issueDate
-      });
+      let pdfBlob;
+      if (cert.certType === "membership") {
+        pdfBlob = await generateMembershipPDFClient({
+          membershipNo: cert.certificateNo,
+          ackNo: cert.ackNo || "",
+          fullName: cert.userName,
+          fatherName: cert.fatherName || "N/A",
+          designation: cert.designation || "Member",
+          workingArea: cert.workingArea || "Human Rights Officer",
+          photoUrl: cert.photoUrl,
+          issueDateStr: cert.issueDate,
+          qrCodeUrl: cert.qrCodeUrl,
+          verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`
+        });
+      } else {
+        pdfBlob = await generateCertificatePDFClient({
+          certNo: cert.certificateNo,
+          qrCodeUrl: cert.qrCodeUrl,
+          verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`,
+          studentName: cert.userName,
+          courseTitle: cert.courseName,
+          photoUrl: cert.photoUrl,
+          fatherName: cert.fatherName || "N/A",
+          enrollmentNo: cert.enrollmentNo || "",
+          durationFrom: cert.durationFrom || cert.issueDate,
+          durationTo: cert.durationTo || cert.issueDate,
+          grade: cert.grade || "A",
+          venue: cert.venue || "Online (DKFFJ Portal)",
+          performance: cert.performance || "Excellent",
+          dateStr: cert.issueDate
+        });
+      }
 
       // Trigger local browser download
       const url = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Certificate_${cert.certificateNo}.pdf`;
+      a.download = cert.certType === "membership"
+        ? `Membership_Certificate_${cert.certificateNo}.pdf`
+        : `Certificate_${cert.certificateNo}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

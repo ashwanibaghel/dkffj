@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export interface CertificateDetails {
   found: boolean;
+  certType: "course" | "membership";
   certificateNo: string;
   userName: string;
   courseName: string;
@@ -20,6 +21,9 @@ export interface CertificateDetails {
   grade?: string;
   venue?: string;
   performance?: string;
+  workingArea?: string;
+  designation?: string;
+  ackNo?: string;
 }
 
 export async function verifyCertificate(certificateNo: string): Promise<CertificateDetails | null> {
@@ -38,11 +42,57 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
 
   if (error) {
     console.error("Error verifying certificate:", error);
-    return { found: false, certificateNo: searchStr, userName: "", courseName: "", issueDate: "", status: "", pdfUrl: "", qrCodeUrl: "" };
+    return { found: false, certType: "course", certificateNo: searchStr, userName: "", courseName: "", issueDate: "", status: "", pdfUrl: "", qrCodeUrl: "" };
   }
 
   if (!cert) {
-    return { found: false, certificateNo: searchStr, userName: "", courseName: "", issueDate: "", status: "", pdfUrl: "", qrCodeUrl: "" };
+    // Attempt to search in memberships table
+    const { data: member, error: memberErr } = await supabase
+      .from("memberships")
+      .select("membership_no, ack_no, full_name, father_name, designation, working_area, photo_url, status, approved_at, created_at")
+      .or(`membership_no.eq.${searchStr},ack_no.eq.${searchStr}`)
+      .maybeSingle();
+
+    if (memberErr || !member) {
+      return {
+        found: false,
+        certType: "course",
+        certificateNo: searchStr,
+        userName: "",
+        courseName: "",
+        issueDate: "",
+        status: "",
+        pdfUrl: "",
+        qrCodeUrl: ""
+      };
+    }
+
+    const isApproved = member.status === "APPROVED";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const certNo = member.membership_no || member.ack_no;
+    const verificationUrl = `${appUrl}/verify/${certNo}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+    
+    const issueDate = member.approved_at 
+      ? new Date(member.approved_at).toLocaleDateString("en-IN")
+      : new Date(member.created_at).toLocaleDateString("en-IN");
+
+    return {
+      found: true,
+      certType: "membership",
+      certificateNo: certNo,
+      ackNo: member.ack_no,
+      userName: member.full_name,
+      fatherName: member.father_name,
+      courseName: "Membership / Certificate of Appreciation",
+      designation: member.designation,
+      workingArea: member.working_area,
+      photoUrl: member.photo_url,
+      issueDate,
+      status: isApproved ? "VALID" : member.status,
+      pdfUrl: "",
+      qrCodeUrl
+    };
   }
 
   // Fetch student registration metadata using registration_id
@@ -94,6 +144,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
 
   return {
     found: true,
+    certType: "course",
     certificateNo: cert.certificate_no,
     userName: cert.user_name,
     courseName: cert.course_name,
@@ -111,3 +162,4 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
     performance: cert.performance || "Excellent"
   };
 }
+

@@ -48,7 +48,11 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
                 Registry Verification Passed
               </span>
               <h2 className="text-xl font-bold font-serif mt-4 leading-snug">{result.userName}</h2>
-              <p className="text-xs text-sky-100/80 mt-1">Has successfully completed all academic prerequisites</p>
+              <p className="text-xs text-sky-100/80 mt-1">
+                {result.certType === "membership"
+                  ? "Is an officially registered member and officer of DKFFJ"
+                  : "Has successfully completed all academic prerequisites"}
+              </p>
             </div>
 
             {/* Details registry list */}
@@ -63,18 +67,41 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
               </div>
 
               <div className="border-b border-slate-100 pb-5 space-y-4 text-xs font-semibold text-slate-700">
-                <div className="flex justify-between items-center py-1.5">
-                  <span className="text-slate-400 text-[10px] uppercase tracking-wider">Course Name</span>
-                  <span className="text-slate-800 text-right font-bold">{result.courseName}</span>
-                </div>
-                <div className="flex justify-between items-center py-1.5">
-                  <span className="text-slate-400 text-[10px] uppercase tracking-wider">Certificate Serial</span>
-                  <span className="text-slate-800 font-mono font-bold">{result.certificateNo}</span>
-                </div>
-                <div className="flex justify-between items-center py-1.5">
-                  <span className="text-slate-400 text-[10px] uppercase tracking-wider">Date of Issue</span>
-                  <span className="text-slate-800">{result.issueDate}</span>
-                </div>
+                {result.certType === "membership" ? (
+                  <>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Designation</span>
+                      <span className="text-slate-800 text-right font-bold">{result.designation}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Working Area</span>
+                      <span className="text-slate-800 text-right font-bold">{result.workingArea}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Membership ID</span>
+                      <span className="text-slate-800 font-mono font-bold">{result.certificateNo}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Date of Joining</span>
+                      <span className="text-slate-800">{result.issueDate}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Course Name</span>
+                      <span className="text-slate-800 text-right font-bold">{result.courseName}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Certificate Serial</span>
+                      <span className="text-slate-800 font-mono font-bold">{result.certificateNo}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Date of Issue</span>
+                      <span className="text-slate-800">{result.issueDate}</span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex justify-center pt-2 w-full">
