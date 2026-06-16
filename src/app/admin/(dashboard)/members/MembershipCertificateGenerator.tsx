@@ -222,7 +222,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 2 }}>
             <svg viewBox="0 0 700 230" width="700" height="230" style={{ overflow: "visible" }}>
               <path id="text-curve" d="M 60,185 A 440,440 0 0,1 640,185" fill="none" />
-              <text fill="#0f4c81" style={{ fontSize: "50px", fontFamily: "'UnifrakturMaguntia', serif" }}>
+              <text fill="#0f4c81" style={{ fontSize: "50px", fontFamily: "'Algerian', 'UnifrakturMaguntia', serif" }}>
                 <textPath href="#text-curve" startOffset="50%" textAnchor="middle">
                   Certificate of Appreciation
                 </textPath>
