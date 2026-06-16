@@ -32,7 +32,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   // Fetch certificate details including registration_id
   const { data: cert, error } = await supabase
     .from("certificates")
-    .select("certificate_no, registration_id, user_name, course_name, issue_date, status, pdf_url, qr_code_url")
+    .select("certificate_no, registration_id, user_name, course_name, issue_date, status, pdf_url, qr_code_url, grade, performance, venue, duration_from, duration_to")
     .eq("certificate_no", searchStr)
     .maybeSingle();
 
@@ -64,8 +64,8 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   let fatherName = "N/A";
   let enrollmentNo = "";
   let photoUrl = null;
-  let fromDateStr = new Date(cert.issue_date).toLocaleDateString("en-IN");
-  let toDateStr = new Date(cert.issue_date).toLocaleDateString("en-IN");
+  let fromDateStr = cert.duration_from || new Date(cert.issue_date).toLocaleDateString("en-IN");
+  let toDateStr = cert.duration_to || new Date(cert.issue_date).toLocaleDateString("en-IN");
 
   if (reg) {
     fatherName = reg.father_name || "N/A";
@@ -106,8 +106,8 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
     photoUrl,
     durationFrom: fromDateStr,
     durationTo: toDateStr,
-    grade: "A",
-    venue: "Online (DKFFJ Portal)",
-    performance: "Excellent"
+    grade: cert.grade || "A",
+    venue: cert.venue || "Online (DKFFJ Portal)",
+    performance: cert.performance || "Excellent"
   };
 }

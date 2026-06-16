@@ -19,6 +19,14 @@ export async function getRegistrations(statusFilter?: string) {
       courses (
         title,
         duration
+      ),
+      certificates (
+        certificate_no,
+        issue_date,
+        grade,
+        performance,
+        venue,
+        pdf_url
       )
     `)
     .order("created_at", { ascending: false });
@@ -356,7 +364,12 @@ export async function issueCertificateForRegistration(
         course_name: courseTitle,
         pdf_url: tempPdfUrl,
         qr_code_url: qrCodeUrl,
-        status: "VALID"
+        status: "VALID",
+        grade,
+        performance,
+        venue,
+        duration_from: durationFrom,
+        duration_to: durationTo
       });
 
     if (dbError) {

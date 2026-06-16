@@ -310,9 +310,22 @@ export default function AdminRegistrationsPage() {
                   }`}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">{reg.full_name}</h4>
-                      <span className="text-[10px] text-slate-400 mt-0.5 block font-mono">Ref No: {reg.enrollment_no}</span>
+                    <div className="flex items-center gap-3">
+                      {reg.photo_url ? (
+                        <img
+                          src={reg.photo_url}
+                          alt={reg.full_name}
+                          className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shrink-0 uppercase">
+                          {reg.full_name ? reg.full_name.charAt(0) : "S"}
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-bold text-slate-800 text-sm">{reg.full_name}</h4>
+                        <span className="text-[10px] text-slate-400 mt-0.5 block font-mono">Ref No: {reg.enrollment_no}</span>
+                      </div>
                     </div>
                     <div>
                       <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Course Applied</span>
@@ -497,11 +510,50 @@ export default function AdminRegistrationsPage() {
                     )}
 
                     {reg.status === "COMPLETED" && (
-                      <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-xl text-xs flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-2 font-bold text-emerald-800">
-                          <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                          Course completed. Certificate has been generated and dispatched.
+                      <div className="p-4 bg-emerald-50/45 border border-emerald-100 rounded-xl text-xs space-y-3">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2 font-bold text-emerald-850">
+                            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                            Course completed. Certificate has been generated and dispatched.
+                          </div>
+                          {reg.certificates && reg.certificates[0] && reg.certificates[0].pdf_url && (
+                            <a
+                              href={reg.certificates[0].pdf_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
+                            >
+                              <Download className="w-3.5 h-3.5" /> Download Certificate
+                            </a>
+                          )}
                         </div>
+                        
+                        {reg.certificates && reg.certificates[0] && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2.5 border-t border-emerald-100/60 font-semibold text-slate-700">
+                            <div>
+                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Certificate No</span>
+                              <span className="text-slate-800 font-mono mt-0.5 block">{reg.certificates[0].certificate_no}</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Completion Date</span>
+                              <span className="text-slate-800 mt-0.5 block">
+                                {new Date(reg.certificates[0].issue_date).toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric"
+                                })}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Grade Awarded</span>
+                              <span className="text-emerald-700 font-bold mt-0.5 block">{reg.certificates[0].grade || "A"}</span>
+                            </div>
+                            <div>
+                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Performance Rating</span>
+                              <span className="text-slate-800 mt-0.5 block">{reg.certificates[0].performance || "Excellent"}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 

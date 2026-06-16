@@ -17,8 +17,11 @@ import {
   BookOpen,
   Image as ImageIcon,
   Menu,
-  X
+  X,
+  Bell,
+  AlertCircle
 } from "lucide-react";
+import { getAdminNotifications, AdminNotification } from "./actions";
 
 interface AdminNavWrapperProps {
   profile: {
@@ -36,11 +39,55 @@ export default function AdminNavWrapper({
 }: AdminNavWrapperProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [loadingNotifs, setLoadingNotifs] = useState(true);
 
   // Close sidebar on route change (for mobile viewports)
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
+
+  // Load Admin Notifications
+  useEffect(() => {
+    async function loadNotifications() {
+      try {
+        const data = await getAdminNotifications();
+        setNotifications(data);
+      } catch (err) {
+        console.error("Failed to load notifications:", err);
+      } finally {
+        setLoadingNotifs(false);
+      }
+    }
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 30000); // Poll every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  // Close notification dropdown when clicking outside
+  useEffect(() => {
+    if (!isNotifOpen) return;
+    const handleClose = () => setIsNotifOpen(false);
+    window.addEventListener("click", handleClose);
+    return () => window.removeEventListener("click", handleClose);
+  }, [isNotifOpen]);
+
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    return date.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  };
+
 
   const navItems = [
     { href: "/admin", label: "Dashboard Home", icon: LayoutDashboard },
@@ -91,7 +138,88 @@ export default function AdminNavWrapper({
           </Link>
         </div>
         
-        <div className="flex items-center gap-3 text-xs font-semibold">
+        <div className="flex items-center gap-4 text-xs font-semibold">
+          {/* Notification Bell Dropdown */}
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsNotifOpen(!isNotifOpen);
+              }}
+              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer relative flex items-center justify-center"
+              aria-label="Admin Notifications"
+            >
+              <Bell className="w-5 h-5" />
+              {notifications.length > 0 && (
+                <span className="absolute top-0 right-0 w-4.5 h-4.5 bg-[#D62828] text-white rounded-full flex items-center justify-center text-[9px] font-extrabold border border-slate-900 animate-pulse">
+                  {notifications.length}
+                </span>
+              )}
+            </button>
+
+            {isNotifOpen && (
+              <div 
+                onClick={(e) => e.stopPropagation()} 
+                className="absolute right-0 mt-2.5 w-80 bg-slate-900 border border-slate-850 rounded-xl shadow-2xl overflow-hidden z-50 text-slate-200"
+              >
+                <div className="px-4 py-3 border-b border-slate-850 flex items-center justify-between">
+                  <span className="font-bold text-[10px] uppercase tracking-wider text-slate-400">System Action Items</span>
+                  <span className="text-[8px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-bold uppercase">
+                    {notifications.length} Pending
+                  </span>
+                </div>
+                
+                <div className="max-h-80 overflow-y-auto divide-y divide-slate-850/60">
+                  {loadingNotifs ? (
+                    <div className="p-6 text-center text-xs text-slate-500 italic">Loading notifications...</div>
+                  ) : notifications.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-slate-500 italic">No new action items.</div>
+                  ) : (
+                    notifications.map((notif) => {
+                      let Icon = Bell;
+                      let iconColor = "text-sky-450 bg-sky-500/10";
+                      
+                      if (notif.type === "registration") {
+                        Icon = GraduationCap;
+                        iconColor = "text-purple-400 bg-purple-500/10";
+                      } else if (notif.type === "membership") {
+                        Icon = Users;
+                        iconColor = "text-blue-400 bg-blue-500/10";
+                      } else if (notif.type === "payment") {
+                        Icon = CreditCard;
+                        iconColor = "text-emerald-400 bg-emerald-500/10";
+                      }
+
+                      return (
+                        <Link
+                          key={notif.id}
+                          href={notif.link}
+                          onClick={() => setIsNotifOpen(false)}
+                          className="flex gap-3 p-3.5 hover:bg-slate-800/40 transition-colors text-left border-b border-slate-850/30"
+                        >
+                          <div className={`w-8 h-8 rounded-lg ${iconColor} flex items-center justify-center shrink-0`}>
+                            <Icon className="w-4.5 h-4.5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-bold text-xs text-white truncate">{notif.title}</span>
+                              <span className="text-[9px] text-slate-500 shrink-0 font-medium">
+                                {formatTimeAgo(notif.created_at)}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed break-words">
+                              {notif.description}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           <span className="text-slate-400 hidden sm:inline-block">
             Signed in as: <strong className="text-white font-bold">{profile.full_name || email}</strong>
           </span>
