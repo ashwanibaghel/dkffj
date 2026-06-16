@@ -22,6 +22,23 @@ export interface TrackingResult {
     certificate_no: string;
     pdf_url: string;
   } | null;
+  memberDetails?: {
+    father_name: string;
+    gender: string;
+    dob: string;
+    mobile: string;
+    whatsapp: string;
+    email: string;
+    address: string;
+    district: string;
+    state: string;
+    pincode: string;
+    education: string;
+    profession: string;
+    working_area: string;
+    designation: string;
+    photo_url: string;
+  } | null;
 }
 
 export async function getTrackingDetails(type: string, trackingNumber: string): Promise<TrackingResult | null> {
@@ -40,6 +57,21 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
         ack_no, 
         membership_no, 
         full_name, 
+        father_name,
+        gender,
+        dob,
+        mobile,
+        whatsapp,
+        email,
+        address,
+        district,
+        state,
+        pincode,
+        education,
+        profession,
+        working_area,
+        designation,
+        photo_url,
         status, 
         created_at,
         remarks,
@@ -79,6 +111,23 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
       date: new Date(membership.created_at).toLocaleDateString("en-IN"),
       details: membership.remarks || undefined,
       timeline,
+      memberDetails: {
+        father_name: membership.father_name,
+        gender: membership.gender,
+        dob: new Date(membership.dob).toLocaleDateString("en-IN"),
+        mobile: membership.mobile,
+        whatsapp: membership.whatsapp,
+        email: membership.email,
+        address: membership.address,
+        district: membership.district,
+        state: membership.state,
+        pincode: membership.pincode,
+        education: membership.education,
+        profession: membership.profession,
+        working_area: membership.working_area,
+        designation: membership.designation,
+        photo_url: membership.photo_url,
+      }
     };
   }
 

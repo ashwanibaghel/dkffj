@@ -206,6 +206,63 @@ function TrackPageContent() {
                     </div>
                   )}
 
+                  {/* Membership Details Card */}
+                  {result.type === "membership" && result.memberDetails && (
+                    <div className="mb-8 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                      <div className="bg-[#0F4C81]/5 px-5 py-3.5 border-b border-slate-200/60 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-[#0F4C81] uppercase tracking-wider">Official Membership Card Details</span>
+                        {result.status === "APPROVED" && (
+                          <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                            Active ID Card
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-5 flex flex-col md:flex-row gap-6">
+                        {/* Profile Photo */}
+                        <div className="flex flex-col items-center shrink-0">
+                          <img
+                            src={result.memberDetails.photo_url || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300"}
+                            alt={result.name}
+                            className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm"
+                          />
+                          <span className="text-[10px] text-slate-400 font-bold uppercase mt-2">Verified Photo</span>
+                        </div>
+                        
+                        {/* Profile Details Grid */}
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700 text-left">
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Full Name</span>
+                            <span className="text-slate-900 mt-0.5 block">{result.name}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Father's Name</span>
+                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.father_name}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">DOB & Gender</span>
+                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.dob} ({result.memberDetails.gender})</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Designation / Role</span>
+                            <span className="text-amber-800 font-extrabold mt-0.5 block uppercase tracking-wide">{result.memberDetails.designation || "Human Rights Officer"}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Email & Mobile</span>
+                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.email} / {result.memberDetails.mobile}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Working Area</span>
+                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.working_area || "N/A"}</span>
+                          </div>
+                          <div className="sm:col-span-2">
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Official Address</span>
+                            <span className="text-slate-850 mt-0.5 block leading-relaxed">{result.memberDetails.address}, {result.memberDetails.district}, {result.memberDetails.state} - {result.memberDetails.pincode}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Certificate Download Card */}
                   {result.certificate && (
                     <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
