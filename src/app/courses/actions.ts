@@ -99,7 +99,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   let photoUrl = "";
   try {
     const photoExt = photo.name.split(".").pop() || "jpg";
-    const photoName = `course_photos/photo_${userId}_${Date.now()}.${photoExt}`;
+    const photoName = `${userId}/photo_course_${Date.now()}.${photoExt}`;
     const photoBuffer = Buffer.from(await photo.arrayBuffer());
 
     const { data: photoUpload, error: photoErr } = await supabase.storage
