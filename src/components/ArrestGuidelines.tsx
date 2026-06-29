@@ -49,12 +49,12 @@ export default function ArrestGuidelines() {
             onClick={() => setActiveStep(idx)}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 snap-center shrink-0 cursor-pointer w-[200px] md:w-full
               ${activeStep === idx 
-                ? "bg-[#0F4C81]/10 border border-[#0F4C81]/25 text-[#0F4C81]" 
+                ? "bg-[#001C55]/10 border border-[#001C55]/25 text-[#001C55]" 
                 : "bg-slate-50 border border-transparent text-slate-500 hover:bg-slate-100/80 hover:text-slate-800"
               }`}
           >
             <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded transition-colors
-              ${activeStep === idx ? "bg-[#0F4C81] text-white" : "bg-slate-200 text-slate-600"}`}
+              ${activeStep === idx ? "bg-[#001C55] text-white" : "bg-slate-200 text-slate-600"}`}
             >
               {g.step}
             </span>
@@ -69,8 +69,8 @@ export default function ArrestGuidelines() {
       <div className="flex-1 flex flex-col justify-between py-1">
         <div key={activeStep} className="flex flex-col gap-3 min-h-[140px] animate-fadeIn transition-opacity duration-300">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#D62828] animate-pulse"></span>
-            <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-widest font-mono">Mandatory Clause {guidelines[activeStep].step}</span>
+            <span className="w-2 h-2 rounded-full bg-[#C00000] animate-pulse"></span>
+            <span className="text-[10px] text-[#C00000] font-bold uppercase tracking-widest font-mono">Mandatory Clause {guidelines[activeStep].step}</span>
           </div>
           <h4 className="text-base font-bold text-slate-800 font-serif">
             {guidelines[activeStep].title}
@@ -92,7 +92,7 @@ export default function ArrestGuidelines() {
                 type="button"
                 onClick={() => setActiveStep(idx)}
                 className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  activeStep === idx ? "w-6 bg-[#0F4C81]" : "bg-slate-200 hover:bg-slate-300"
+                  activeStep === idx ? "w-6 bg-[#001C55]" : "bg-slate-200 hover:bg-slate-300"
                 }`}
                 aria-label={`Go to step ${idx + 1}`}
               ></button>

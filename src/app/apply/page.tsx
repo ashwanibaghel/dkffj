@@ -223,22 +223,22 @@ export default function ApplyPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
       {/* Visual meshes background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[15%] left-[5%] w-[600px] h-[600px] rounded-full bg-[#0F4C81]/[0.02] blur-[120px]"></div>
-        <div className="absolute bottom-[10%] right-[5%] w-[600px] h-[500px] rounded-full bg-[#D62828]/[0.01] blur-[120px]"></div>
+        <div className="absolute top-[15%] left-[5%] w-[600px] h-[600px] rounded-full bg-[#001C55]/[0.02] blur-[120px]"></div>
+        <div className="absolute bottom-[10%] right-[5%] w-[600px] h-[500px] rounded-full bg-[#C00000]/[0.01] blur-[120px]"></div>
       </div>
 
       <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md z-10 sticky top-0">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#0F4C81]/10 to-[#D62828]/5 border border-slate-200 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center">
               <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ Logo" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[#0F4C81] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[8px] text-[#D62828] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
+              <span className="text-[#001C55] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+              <span className="text-[8px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
             </div>
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#0F4C81] transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#001C55] transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Cancel Application
           </Link>
         </div>
@@ -247,7 +247,7 @@ export default function ApplyPage() {
       <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-12 z-10">
         {/* Progress Tracker header */}
         <div className="mb-10 text-center">
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-serif text-[#0F4C81]">NGO Membership Enrollment</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-serif text-[#001C55]">NGO Membership Enrollment</h1>
           <p className="text-slate-500 text-xs sm:text-sm mt-2">Become a certified member & human rights advocate in DKFFJ.</p>
 
           <div className="flex items-center justify-center gap-2 mt-8">
@@ -256,7 +256,7 @@ export default function ApplyPage() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all border ${
                     step === i
-                      ? "bg-[#0F4C81] text-white border-[#0F4C81] scale-110 shadow-sm"
+                      ? "bg-[#001C55] text-white border-[#001C55] scale-110 shadow-sm"
                       : step > i
                       ? "bg-emerald-500 text-white border-emerald-500"
                       : "bg-white text-slate-400 border-slate-200"
@@ -306,7 +306,7 @@ export default function ApplyPage() {
                     onChange={(e) => setFullName(e.target.value)}
                     required
                     disabled={isLoggedIn}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81] disabled:bg-slate-50"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] disabled:bg-slate-50"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -318,7 +318,7 @@ export default function ApplyPage() {
                     value={fatherName}
                     onChange={(e) => setFatherName(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                     placeholder="Enter father's or spouse's name"
                   />
                 </div>
@@ -329,7 +329,7 @@ export default function ApplyPage() {
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81] bg-white"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white"
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -343,7 +343,7 @@ export default function ApplyPage() {
                       value={dob}
                       onChange={(e) => setDob(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                     />
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export default function ApplyPage() {
                       value={mobile}
                       onChange={(e) => setMobile(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. 9876543210"
                     />
                   </div>
@@ -366,7 +366,7 @@ export default function ApplyPage() {
                       type="tel"
                       value={whatsapp}
                       onChange={(e) => setWhatsapp(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="Same as mobile if blank"
                     />
                   </div>
@@ -380,7 +380,7 @@ export default function ApplyPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={isLoggedIn}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81] disabled:bg-slate-50"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] disabled:bg-slate-50"
                     placeholder="e.g. name@domain.com"
                   />
                 </div>
@@ -402,7 +402,7 @@ export default function ApplyPage() {
                       type="button"
                       onClick={handleSendOtp}
                       disabled={sendingOtp}
-                      className="px-6 py-3 rounded-lg bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-[0_4px_12px_rgba(15,76,129,0.15)] disabled:opacity-50"
+                      className="px-6 py-3 rounded-lg bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-[0_4px_12px_rgba(0, 28, 85,0.15)] disabled:opacity-50"
                     >
                       {sendingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                       Send OTP Code
@@ -416,7 +416,7 @@ export default function ApplyPage() {
                         type="button"
                         onClick={handleSendOtp}
                         disabled={sendingOtp}
-                        className="text-[10px] font-bold text-[#D62828] hover:underline uppercase tracking-wider disabled:opacity-50"
+                        className="text-[10px] font-bold text-[#C00000] hover:underline uppercase tracking-wider disabled:opacity-50"
                       >
                         Resend OTP
                       </button>
@@ -428,7 +428,7 @@ export default function ApplyPage() {
                         maxLength={6}
                         value={otpCode}
                         onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                        className="w-full text-center tracking-[12px] text-lg font-bold px-3 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                        className="w-full text-center tracking-[12px] text-lg font-bold px-3 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="000000"
                       />
                       <button
@@ -457,7 +457,7 @@ export default function ApplyPage() {
                     onChange={(e) => setAddress(e.target.value)}
                     required
                     rows={2}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                     placeholder="House/Street details"
                   />
                 </div>
@@ -470,7 +470,7 @@ export default function ApplyPage() {
                       value={state}
                       onChange={(e) => setState(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. Delhi"
                     />
                   </div>
@@ -481,7 +481,7 @@ export default function ApplyPage() {
                       value={district}
                       onChange={(e) => setDistrict(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. New Delhi"
                     />
                   </div>
@@ -493,7 +493,7 @@ export default function ApplyPage() {
                       onChange={(e) => setPincode(e.target.value)}
                       required
                       maxLength={6}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. 110001"
                     />
                   </div>
@@ -507,7 +507,7 @@ export default function ApplyPage() {
                       value={education}
                       onChange={(e) => setEducation(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. Graduate, LLB"
                     />
                   </div>
@@ -518,7 +518,7 @@ export default function ApplyPage() {
                       value={profession}
                       onChange={(e) => setProfession(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. Advocate, Teacher"
                     />
                   </div>
@@ -532,7 +532,7 @@ export default function ApplyPage() {
                       value={workingArea}
                       onChange={(e) => setWorkingArea(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. Local District, State Level"
                     />
                   </div>
@@ -543,7 +543,7 @@ export default function ApplyPage() {
                       value={designation}
                       onChange={(e) => setDesignation(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="e.g. Legal Officer, Volunteer"
                     />
                   </div>
@@ -558,7 +558,7 @@ export default function ApplyPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Photo */}
-                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#0F4C81]/30 transition-all flex flex-col items-center">
+                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Passport Photo *</span>
                     <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
                       <input
@@ -575,7 +575,7 @@ export default function ApplyPage() {
                   </div>
 
                   {/* Aadhaar */}
-                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#0F4C81]/30 transition-all flex flex-col items-center">
+                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Aadhaar Card *</span>
                     <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
                       <input
@@ -592,7 +592,7 @@ export default function ApplyPage() {
                   </div>
 
                   {/* Signature */}
-                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#0F4C81]/30 transition-all flex flex-col items-center">
+                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Specimen Signature *</span>
                     <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
                       <input
@@ -613,7 +613,7 @@ export default function ApplyPage() {
                 {!isLoggedIn && (
                   <div className="border-t pt-4 mt-4 space-y-3">
                     <div className="flex items-center gap-2 text-slate-600 mb-2">
-                      <Shield className="w-4 h-4 text-[#0F4C81] shrink-0" />
+                      <Shield className="w-4 h-4 text-[#001C55] shrink-0" />
                       <span className="text-xs font-semibold">Account Security Credentials</span>
                     </div>
                     <div className="p-3 rounded-lg bg-slate-50 border text-[11px] text-slate-500 mb-2 leading-relaxed">
@@ -627,7 +627,7 @@ export default function ApplyPage() {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
-                          className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                          className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                           placeholder="Min 8 chars: A-z, 0-9, @#$%"
                         />
                         <button
@@ -648,7 +648,7 @@ export default function ApplyPage() {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required
-                          className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                          className="w-full px-3.5 py-2.5 pr-10 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                           placeholder="Retype password"
                         />
                         <button
@@ -683,7 +683,7 @@ export default function ApplyPage() {
                 <button
                   type="button"
                   onClick={handleNextStep}
-                  className="px-5 py-2.5 bg-[#0F4C81] text-white rounded-lg text-xs font-bold text-white hover:bg-[#0c3c66] transition-colors flex items-center gap-1.5 shadow-sm"
+                  className="px-5 py-2.5 bg-[#001C55] text-white rounded-lg text-xs font-bold text-white hover:bg-[#001236] transition-colors flex items-center gap-1.5 shadow-sm"
                 >
                   Next Step <ArrowRight className="w-3.5 h-3.5" />
                 </button>
@@ -691,7 +691,7 @@ export default function ApplyPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-3 bg-[#D62828] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#b02020] transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(214,40,40,0.2)] disabled:opacity-50"
+                  className="px-6 py-3 bg-[#C00000] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#990000] transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(192, 0, 0,0.2)] disabled:opacity-50"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   Submit & Pay INR 1,000

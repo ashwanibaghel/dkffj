@@ -106,7 +106,7 @@ export default function GrievanceForm() {
               value={formData.name}
               onChange={handleChange}
               placeholder="Your Name"
-              className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none transition-all"
+              className="bg-slate-50 border border-slate-200 focus:border-[#001C55] focus:ring-1 focus:ring-[#001C55] text-xs px-4 py-3 rounded-lg outline-none transition-all"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -118,7 +118,7 @@ export default function GrievanceForm() {
               value={formData.mobile}
               onChange={handleChange}
               placeholder="Phone Number"
-              className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none transition-all"
+              className="bg-slate-50 border border-slate-200 focus:border-[#001C55] focus:ring-1 focus:ring-[#001C55] text-xs px-4 py-3 rounded-lg outline-none transition-all"
             />
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function GrievanceForm() {
               value={formData.email}
               onChange={handleChange}
               placeholder="email@example.com"
-              className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none transition-all"
+              className="bg-slate-50 border border-slate-200 focus:border-[#001C55] focus:ring-1 focus:ring-[#001C55] text-xs px-4 py-3 rounded-lg outline-none transition-all"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -142,7 +142,7 @@ export default function GrievanceForm() {
               required
               value={formData.type}
               onChange={handleChange}
-              className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none transition-all cursor-pointer"
+              className="bg-slate-50 border border-slate-200 focus:border-[#001C55] text-xs px-4 py-3 rounded-lg outline-none transition-all cursor-pointer"
             >
               <option value="General Legal Inquiry">General Legal Inquiry</option>
               <option value="Human Rights Infringement">Human Rights Infringement</option>
@@ -162,14 +162,14 @@ export default function GrievanceForm() {
             value={formData.details}
             onChange={handleChange}
             placeholder="State your problem clearly with landmarks, dates, and names of officers involved if applicable..."
-            className="bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3 rounded-lg outline-none resize-none transition-all h-28"
+            className="bg-slate-50 border border-slate-200 focus:border-[#001C55] focus:ring-1 focus:ring-[#001C55] text-xs px-4 py-3 rounded-lg outline-none resize-none transition-all h-28"
           ></textarea>
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-[#0F4C81] hover:bg-[#0c3e6b] disabled:bg-[#0F4C81]/70 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-lg mt-2 transition-all active:scale-95 shadow-[0_4px_12px_rgba(15,76,129,0.15)] flex items-center justify-center min-h-[48px] cursor-pointer"
+          className="bg-[#001C55] hover:bg-[#001236] disabled:bg-[#001C55]/70 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-lg mt-2 transition-all active:scale-95 shadow-[0_4px_12px_rgba(0, 28, 85,0.15)] flex items-center justify-center min-h-[48px] cursor-pointer"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

@@ -152,13 +152,13 @@ export default function AdminLeadersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#0F4C81]" /> Executive Council Registry
+            <Users className="w-5 h-5 text-[#001C55]" /> Executive Council Registry
           </h1>
           <p className="text-slate-500 text-[10px] mt-1 font-semibold">Manage profiles, contact cards, and website display for DKFFJ Board Leaders.</p>
         </div>
         <button 
           onClick={openAddModal}
-          className="px-4 py-2 bg-[#0F4C81] text-white hover:bg-[#0c3e6b] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+          className="px-4 py-2 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Add Council Member
         </button>
@@ -173,7 +173,7 @@ export default function AdminLeadersPage() {
 
       {loading ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
           <p className="text-slate-500">Loading council registry, please wait...</p>
         </div>
       ) : leaders.length === 0 ? (
@@ -210,7 +210,7 @@ export default function AdminLeadersPage() {
                           />
                         </div>
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0F4C81]/15 to-[#D62828]/5 border border-slate-200 text-[#0F4C81] font-bold text-[10px] flex items-center justify-center shrink-0 shadow-inner">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#001C55]/15 to-[#C00000]/5 border border-slate-200 text-[#001C55] font-bold text-[10px] flex items-center justify-center shrink-0 shadow-inner">
                           {(() => {
                             const nameParts = leader.name.trim().split(/\s+/);
                             return nameParts.length > 1 
@@ -221,7 +221,7 @@ export default function AdminLeadersPage() {
                       )}
                       <div>
                         <h4 className="font-bold text-slate-800">{leader.name}</h4>
-                        <span className="text-[10px] text-[#D62828] font-bold block mt-0.5">{leader.role}</span>
+                        <span className="text-[10px] text-[#C00000] font-bold block mt-0.5">{leader.role}</span>
                         <span className="text-[9px] text-slate-400 font-mono font-medium mt-0.5 block">ID: {leader.id}</span>
                       </div>
                     </td>
@@ -306,7 +306,7 @@ export default function AdminLeadersPage() {
                     disabled={editLeaderId !== null}
                     placeholder="e.g. 1000, 1020, or unique name" 
                     required
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81] disabled:bg-slate-100 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55] disabled:bg-slate-100 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div>
@@ -317,7 +317,7 @@ export default function AdminLeadersPage() {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Danish Khan" 
                     required
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
               </div>
@@ -331,7 +331,7 @@ export default function AdminLeadersPage() {
                     onChange={(e) => setRole(e.target.value)}
                     placeholder="e.g. Founder & Director" 
                     required
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
                 <div>
@@ -341,7 +341,7 @@ export default function AdminLeadersPage() {
                     value={photo} 
                     onChange={(e) => setPhoto(e.target.value)}
                     placeholder="e.g. /members/danish.jpg (optional)" 
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
               </div>
@@ -354,7 +354,7 @@ export default function AdminLeadersPage() {
                     value={location} 
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="e.g. Lucknow, UP" 
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
                 <div>
@@ -364,7 +364,7 @@ export default function AdminLeadersPage() {
                     value={mobile} 
                     onChange={(e) => setMobile(e.target.value)}
                     placeholder="e.g. +91 999999999" 
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
                 <div>
@@ -374,7 +374,7 @@ export default function AdminLeadersPage() {
                     value={education} 
                     onChange={(e) => setEducation(e.target.value)}
                     placeholder="e.g. B.Tech, LL.B." 
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
               </div>
@@ -386,7 +386,7 @@ export default function AdminLeadersPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Summarize leader achievements or credentials..." 
                   rows={2}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -432,7 +432,7 @@ export default function AdminLeadersPage() {
                 <button 
                   type="submit" 
                   disabled={submitLoading}
-                  className="px-5 py-2 bg-[#0F4C81] text-white hover:bg-[#0c3e6b] rounded-lg font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 bg-[#001C55] text-white hover:bg-[#001236] rounded-lg font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                 >
                   {submitLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Save Member

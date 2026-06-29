@@ -48,7 +48,7 @@ function PaymentMockPageContent() {
       <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden flex flex-col">
         
         {/* Header */}
-        <div className="bg-[#0F4C81] text-white p-5 text-center relative">
+        <div className="bg-[#001C55] text-white p-5 text-center relative">
           <div className="absolute top-4 left-4 inline-flex items-center gap-1 bg-amber-500 text-slate-950 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full tracking-wider shadow">
             <AlertTriangle className="w-2.5 h-2.5" /> Sandbox Testing
           </div>
@@ -64,7 +64,7 @@ function PaymentMockPageContent() {
           </div>
           <div className="text-right">
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Payable Amount</span>
-            <span className="text-base font-extrabold text-[#D62828]">INR {amount}.00</span>
+            <span className="text-base font-extrabold text-[#C00000]">INR {amount}.00</span>
           </div>
         </div>
 
@@ -88,7 +88,7 @@ function PaymentMockPageContent() {
                   onClick={() => setPaymentMethod("card")}
                   className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-[10px] font-bold ${
                     paymentMethod === "card"
-                      ? "border-[#0F4C81] bg-[#0F4C81]/5 text-[#0F4C81]"
+                      ? "border-[#001C55] bg-[#001C55]/5 text-[#001C55]"
                       : "border-slate-200 bg-white hover:bg-slate-50 text-slate-500"
                   }`}
                 >
@@ -99,7 +99,7 @@ function PaymentMockPageContent() {
                   onClick={() => setPaymentMethod("upi")}
                   className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-[10px] font-bold ${
                     paymentMethod === "upi"
-                      ? "border-[#0F4C81] bg-[#0F4C81]/5 text-[#0F4C81]"
+                      ? "border-[#001C55] bg-[#001C55]/5 text-[#001C55]"
                       : "border-slate-200 bg-white hover:bg-slate-50 text-slate-500"
                   }`}
                 >
@@ -110,7 +110,7 @@ function PaymentMockPageContent() {
                   onClick={() => setPaymentMethod("net")}
                   className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-[10px] font-bold ${
                     paymentMethod === "net"
-                      ? "border-[#0F4C81] bg-[#0F4C81]/5 text-[#0F4C81]"
+                      ? "border-[#001C55] bg-[#001C55]/5 text-[#001C55]"
                       : "border-slate-200 bg-white hover:bg-slate-50 text-slate-500"
                   }`}
                 >
@@ -158,7 +158,7 @@ function PaymentMockPageContent() {
                         ))}
                       </div>
                       <div className="absolute inset-0 flex items-center justify-center bg-white/95">
-                        <QrCode className="w-12 h-12 text-[#0F4C81]" />
+                        <QrCode className="w-12 h-12 text-[#001C55]" />
                       </div>
                     </div>
                     <span className="text-[10px] font-bold text-slate-500">Scan using any UPI App (GPay/PhonePe)</span>
@@ -185,7 +185,7 @@ function PaymentMockPageContent() {
             <button
               onClick={handlePay}
               disabled={loading}
-              className="mt-6 w-full py-3 rounded-lg bg-[#D62828] text-white hover:bg-[#b02020] text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(214,40,40,0.15)] disabled:opacity-50"
+              className="mt-6 w-full py-3 rounded-lg bg-[#C00000] text-white hover:bg-[#990000] text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(192, 0, 0,0.15)] disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -217,7 +217,7 @@ export default function PaymentMockPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#001C55]" />
       </div>
     }>
       <PaymentMockPageContent />

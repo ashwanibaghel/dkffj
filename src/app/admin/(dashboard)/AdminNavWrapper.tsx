@@ -128,12 +128,12 @@ export default function AdminNavWrapper({
           </button>
           
           <Link href="/admin" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#0F4C81] to-[#D62828] border border-slate-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#001C55] to-[#C00000] border border-slate-800 flex items-center justify-center">
               <img src="/logo.png" className="w-5 h-5 object-contain" alt="DKFFJ Logo" />
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-xs tracking-wider font-serif">DKFFJ Portal</span>
-              <span className="text-[7px] text-[#D62828] font-bold tracking-widest leading-none">ADMINISTRATION SHELL</span>
+              <span className="text-[7px] text-[#C00000] font-bold tracking-widest leading-none">ADMINISTRATION SHELL</span>
             </div>
           </Link>
         </div>
@@ -151,7 +151,7 @@ export default function AdminNavWrapper({
             >
               <Bell className="w-5 h-5" />
               {notifications.length > 0 && (
-                <span className="absolute top-0 right-0 w-4.5 h-4.5 bg-[#D62828] text-white rounded-full flex items-center justify-center text-[9px] font-extrabold border border-slate-900 animate-pulse">
+                <span className="absolute top-0 right-0 w-4.5 h-4.5 bg-[#C00000] text-white rounded-full flex items-center justify-center text-[9px] font-extrabold border border-slate-900 animate-pulse">
                   {notifications.length}
                 </span>
               )}
@@ -223,7 +223,7 @@ export default function AdminNavWrapper({
           <span className="text-slate-400 hidden sm:inline-block">
             Signed in as: <strong className="text-white font-bold">{profile.full_name || email}</strong>
           </span>
-          <span className="bg-[#D62828]/25 border border-[#D62828]/50 text-red-300 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase">
+          <span className="bg-[#C00000]/25 border border-[#C00000]/50 text-red-300 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase">
             {profile.role}
           </span>
         </div>
@@ -248,7 +248,7 @@ export default function AdminNavWrapper({
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold transition-all ${
                     isActive 
-                      ? "bg-[#0F4C81] text-white" 
+                      ? "bg-[#001C55] text-white" 
                       : "hover:bg-slate-800 hover:text-white"
                   }`}
                 >

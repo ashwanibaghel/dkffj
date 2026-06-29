@@ -101,13 +101,13 @@ export default function AdminDocumentsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#0F4C81]" /> Legal Documents Vault
+            <FileText className="w-5 h-5 text-[#001C55]" /> Legal Documents Vault
           </h1>
           <p className="text-slate-500 text-[10px] mt-1 font-semibold">Manage public legal downloads, certificates of incorporation, and tax filings.</p>
         </div>
         <button 
           onClick={openAddModal}
-          className="px-4 py-2 bg-[#0F4C81] text-white hover:bg-[#0c3e6b] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+          className="px-4 py-2 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Upload Document
         </button>
@@ -122,7 +122,7 @@ export default function AdminDocumentsPage() {
 
       {loading ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
           <p className="text-slate-500">Loading documents list, please wait...</p>
         </div>
       ) : documents.length === 0 ? (
@@ -138,7 +138,7 @@ export default function AdminDocumentsPage() {
             {documents.map((doc) => (
               <div key={doc.id} className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded bg-[#D62828]/5 border border-slate-250 flex items-center justify-center text-[#D62828] shrink-0">
+                  <div className="w-10 h-10 rounded bg-[#C00000]/5 border border-slate-250 flex items-center justify-center text-[#C00000] shrink-0">
                     {renderIcon(doc.category)}
                   </div>
                   <div>
@@ -162,7 +162,7 @@ export default function AdminDocumentsPage() {
                     href={doc.file_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="px-3 py-1.5 bg-[#0F4C81] text-white hover:bg-[#0c3c66] rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 shadow-sm"
+                    className="px-3 py-1.5 bg-[#001C55] text-white hover:bg-[#001236] rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 shadow-sm"
                   >
                     <Download className="w-3.5 h-3.5" /> Download
                   </a>
@@ -195,7 +195,7 @@ export default function AdminDocumentsPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. 12A Income Tax Exemption" 
                   required
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -207,7 +207,7 @@ export default function AdminDocumentsPage() {
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="e.g. /documents/1713277338.pdf" 
                   required
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -220,7 +220,7 @@ export default function AdminDocumentsPage() {
                     onChange={(e) => setSize(e.target.value)}
                     placeholder="e.g. PDF | 55 KB" 
                     required
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
                 <div>
@@ -228,7 +228,7 @@ export default function AdminDocumentsPage() {
                   <select 
                     value={category} 
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   >
                     <option value="registration">Registration</option>
                     <option value="tax">Tax Approvals</option>
@@ -248,7 +248,7 @@ export default function AdminDocumentsPage() {
                 <button 
                   type="submit" 
                   disabled={submitLoading}
-                  className="px-5 py-2 bg-[#0F4C81] text-white hover:bg-[#0c3e6b] rounded-lg font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 bg-[#001C55] text-white hover:bg-[#001236] rounded-lg font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                 >
                   {submitLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Save Document

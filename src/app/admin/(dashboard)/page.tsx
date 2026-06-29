@@ -106,7 +106,7 @@ export default async function AdminDashboardPage() {
               <Clock className="w-3 h-3" /> {pendingMembers || 0} Pending
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81]">
+          <div className="w-12 h-12 rounded-xl bg-[#001C55]/10 flex items-center justify-center text-[#001C55]">
             <Users className="w-6 h-6" />
           </div>
         </div>
@@ -155,7 +155,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
           <div>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Revenue</span>
-            <span className="text-lg sm:text-xl font-black text-[#D62828] mt-1 block">INR {totalRevenue.toLocaleString("en-IN")}</span>
+            <span className="text-lg sm:text-xl font-black text-[#C00000] mt-1 block">INR {totalRevenue.toLocaleString("en-IN")}</span>
             <span className="text-[10px] text-emerald-600 font-semibold mt-1 inline-flex items-center gap-1">
               <CheckCircle className="w-3 h-3" /> Fees Logged
             </span>
@@ -174,7 +174,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Recent Membership Enrollment Requests</h3>
-            <Link href="/admin/members" className="text-[10px] font-bold text-[#0F4C81] hover:underline uppercase tracking-wider flex items-center gap-0.5">
+            <Link href="/admin/members" className="text-[10px] font-bold text-[#001C55] hover:underline uppercase tracking-wider flex items-center gap-0.5">
               Manage all <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
@@ -204,7 +204,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Recent Grievance Logs</h3>
-            <Link href="/admin/complaints" className="text-[10px] font-bold text-[#0F4C81] hover:underline uppercase tracking-wider flex items-center gap-0.5">
+            <Link href="/admin/complaints" className="text-[10px] font-bold text-[#001C55] hover:underline uppercase tracking-wider flex items-center gap-0.5">
               Review cases <ArrowRight className="w-3 h-3" />
             </Link>
           </div>

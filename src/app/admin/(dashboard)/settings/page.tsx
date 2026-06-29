@@ -7,7 +7,7 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-          <Settings className="w-5 h-5 text-[#0F4C81]" /> Portal Configuration
+          <Settings className="w-5 h-5 text-[#001C55]" /> Portal Configuration
         </h1>
         <p className="text-slate-500 text-xs mt-1">Configure general portal rules, contact information, Resend keys, and fee pricing thresholds.</p>
       </div>

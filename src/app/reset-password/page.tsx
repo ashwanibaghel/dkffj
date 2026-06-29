@@ -95,7 +95,7 @@ export default function StudentResetPasswordPage() {
   if (verifyingSession) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#001C55]" />
         <span className="text-xs text-slate-400 mt-2 font-medium">Verifying reset session...</span>
       </div>
     );
@@ -106,8 +106,8 @@ export default function StudentResetPasswordPage() {
       
       {/* Mesh background glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[30%] left-[50%] -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[#0F4C81]/[0.08] blur-[120px]"></div>
-        <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[400px] rounded-full bg-[#D62828]/[0.03] blur-[120px]"></div>
+        <div className="absolute top-[30%] left-[50%] -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-[#001C55]/[0.08] blur-[120px]"></div>
+        <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[400px] rounded-full bg-[#C00000]/[0.03] blur-[120px]"></div>
       </div>
 
       <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10">
@@ -117,8 +117,8 @@ export default function StudentResetPasswordPage() {
           <div className="w-16 h-16 rounded-2xl bg-white/5 border border-slate-800 flex items-center justify-center mx-auto mb-4">
             <img src="/logo.png" className="w-11 h-11 object-contain" alt="DKFFJ Logo" />
           </div>
-          <h2 className="text-[#0F4C81] text-lg font-serif font-bold tracking-wider leading-tight">Reset Account Password</h2>
-          <p className="text-[9px] text-[#D62828] font-bold tracking-widest uppercase mt-0.5">DKFFJ Academy Portal</p>
+          <h2 className="text-[#001C55] text-lg font-serif font-bold tracking-wider leading-tight">Reset Account Password</h2>
+          <p className="text-[9px] text-[#C00000] font-bold tracking-widest uppercase mt-0.5">DKFFJ Academy Portal</p>
         </div>
 
         {errorMsg && (
@@ -148,7 +148,7 @@ export default function StudentResetPasswordPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F4C81] focus:border-[#0F4C81]"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] focus:border-[#001C55]"
                   placeholder="Min 8 chars: A-z, 0-9, @#$%"
                 />
                 <button
@@ -172,7 +172,7 @@ export default function StudentResetPasswordPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none focus:ring-1 focus:ring-[#0F4C81] focus:border-[#0F4C81]"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] focus:border-[#001C55]"
                   placeholder="Retype password"
                 />
                 <button
@@ -188,7 +188,7 @@ export default function StudentResetPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 mt-4 cursor-pointer"
+              className="w-full py-3 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 mt-4 cursor-pointer"
             >
               {loading ? (
                 <>

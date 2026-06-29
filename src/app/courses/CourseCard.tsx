@@ -396,20 +396,20 @@ export default function CourseCard({ course }: { course: Course }) {
             alt={course.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          <div className="absolute top-3 right-3 bg-[#0F4C81] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+          <div className="absolute top-3 right-3 bg-[#001C55] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
             {course.duration}
           </div>
         </div>
 
         <div className="p-5 flex-1 flex flex-col justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-800 font-serif leading-snug group-hover:text-[#0F4C81] transition-colors">{course.title}</h3>
+            <h3 className="text-base font-bold text-slate-800 font-serif leading-snug group-hover:text-[#001C55] transition-colors">{course.title}</h3>
             <p className="text-xs text-slate-500 line-clamp-3 mt-2 leading-relaxed">{course.description}</p>
             
             <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-3 border-slate-100 text-[11px] text-slate-600 font-medium">
               <div>
                 <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Fees</span>
-                <span className="text-sm font-extrabold text-[#D62828] mt-0.5 block">INR {Number(course.fees).toLocaleString("en-IN")}.00</span>
+                <span className="text-sm font-extrabold text-[#C00000] mt-0.5 block">INR {Number(course.fees).toLocaleString("en-IN")}.00</span>
               </div>
               <div>
                 <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Eligibility</span>
@@ -420,7 +420,7 @@ export default function CourseCard({ course }: { course: Course }) {
 
           <button
             onClick={() => setIsOpen(true)}
-            className="mt-5 w-full py-2.5 rounded-lg bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+            className="mt-5 w-full py-2.5 rounded-lg bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
           >
             Enroll in Course
           </button>
@@ -433,7 +433,7 @@ export default function CourseCard({ course }: { course: Course }) {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden my-8 flex flex-col relative animate-scaleUp">
             
             {/* Header */}
-            <div className="bg-[#0F4C81] text-white p-5 text-left">
+            <div className="bg-[#001C55] text-white p-5 text-left">
               <span className="text-[9px] font-bold text-sky-200 uppercase tracking-widest block">Course Registration</span>
               <h3 className="text-base font-bold font-serif mt-1 leading-snug">{course.title}</h3>
               <p className="text-[10px] text-slate-300 mt-1">Duration: {course.duration} | Fees: INR {Number(course.fees).toLocaleString("en-IN")}.00</p>
@@ -469,7 +469,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       onChange={(e) => setSignInEmail(e.target.value)}
                       required
                       placeholder="you@example.com"
-                      className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                      className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                     />
                   </div>
                 </div>
@@ -484,7 +484,7 @@ export default function CourseCard({ course }: { course: Course }) {
                         setErrorMsg("");
                         setSuccessMsg("");
                       }}
-                      className="text-[9px] text-[#0F4C81] hover:underline font-bold uppercase tracking-wider"
+                      className="text-[9px] text-[#001C55] hover:underline font-bold uppercase tracking-wider"
                     >
                       Forgot Password?
                     </button>
@@ -499,7 +499,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       onChange={(e) => setSignInPassword(e.target.value)}
                       required
                       placeholder="••••••••"
-                      className="w-full pl-9 pr-9 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                      className="w-full pl-9 pr-9 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                     />
                     <button
                       type="button"
@@ -515,7 +515,7 @@ export default function CourseCard({ course }: { course: Course }) {
                   <button
                     type="submit"
                     disabled={signInLoading}
-                    className="w-full py-2.5 bg-[#0F4C81] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#0c3c66] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 bg-[#001C55] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#001236] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     {signInLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                     Sign In
@@ -531,7 +531,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       setErrorMsg("");
                       setSuccessMsg("");
                     }}
-                    className="text-[#D62828] font-bold hover:underline"
+                    className="text-[#C00000] font-bold hover:underline"
                   >
                     Register and Enroll
                   </button>
@@ -595,7 +595,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       onChange={(e) => setForgotEmail(e.target.value)}
                       required
                       placeholder="you@example.com"
-                      className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                      className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                     />
                   </div>
                 </div>
@@ -604,7 +604,7 @@ export default function CourseCard({ course }: { course: Course }) {
                   <button
                     type="submit"
                     disabled={forgotLoading}
-                    className="w-full py-2.5 bg-[#0F4C81] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#0c3c66] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 bg-[#001C55] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#001236] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     {forgotLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                     Send Reset Link
@@ -641,7 +641,7 @@ export default function CourseCard({ course }: { course: Course }) {
 
                 {isLoggedIn && (
                   <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100 flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-full bg-[#0F4C81] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-[#001C55] text-white flex items-center justify-center font-bold text-xs shrink-0">
                       {fullName ? fullName.charAt(0).toUpperCase() : "S"}
                     </div>
                     <div>
@@ -660,7 +660,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     required
                     disabled={isLoggedIn}
                     placeholder="Your official name"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
                   />
                 </div>
 
@@ -672,7 +672,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     onChange={(e) => setFatherName(e.target.value)}
                     required
                     placeholder="Your father's name"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                   />
                 </div>
 
@@ -683,7 +683,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     accept="image/*"
                     onChange={handlePhotoChange}
                     required={!photo}
-                    className="w-full px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                    className="w-full px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                   />
                   {isCompressing && (
                     <div className="text-[10px] text-blue-600 font-semibold mt-1 flex items-center gap-1">
@@ -701,7 +701,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       <div className="flex-1">
                         <div className="text-[10px] font-bold text-slate-700 truncate max-w-[180px]">{photo.name}</div>
                         <div className="text-[9px] text-slate-500 font-medium mt-0.5">
-                          Size: <span className="font-bold text-[#0F4C81]">{(photo.size / 1024).toFixed(1)} KB</span> (Optimized)
+                          Size: <span className="font-bold text-[#001C55]">{(photo.size / 1024).toFixed(1)} KB</span> (Optimized)
                         </div>
                       </div>
                       <button
@@ -735,7 +735,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     required
                     disabled={!isLoggedIn && otpVerified}
                     placeholder="10-digit mobile number"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
                   />
                 </div>
 
@@ -749,14 +749,14 @@ export default function CourseCard({ course }: { course: Course }) {
                       required
                       disabled={isLoggedIn || otpVerified}
                       placeholder="e.g. you@example.com"
-                      className="w-full px-3 py-2 pr-28 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 disabled:bg-slate-50"
+                      className="w-full px-3 py-2 pr-28 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
                     />
                     {!isLoggedIn && !otpVerified && (
                       <button
                         type="button"
                         onClick={handleSendOtp}
                         disabled={otpLoading || !email || !mobile}
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-[#0F4C81] hover:bg-[#0c3c66] text-white text-[9px] font-bold uppercase tracking-wider rounded transition-colors disabled:opacity-50 cursor-pointer"
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-[#001C55] hover:bg-[#001236] text-white text-[9px] font-bold uppercase tracking-wider rounded transition-colors disabled:opacity-50 cursor-pointer"
                       >
                         {otpLoading ? <Loader2 className="w-3 h-3 animate-spin inline mr-1" /> : null}
                         {otpSent ? "Resend" : "Send OTP"}
@@ -781,7 +781,7 @@ export default function CourseCard({ course }: { course: Course }) {
                         onChange={(e) => setOtpCode(e.target.value)}
                         placeholder="e.g. 123456"
                         maxLength={6}
-                        className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                        className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                       />
                       <button
                         type="button"
@@ -811,7 +811,7 @@ export default function CourseCard({ course }: { course: Course }) {
                           onChange={(e) => setPassword(e.target.value)}
                           required
                           placeholder="Min 8 chars: A-z, 0-9, @#$%"
-                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                         />
                         <button
                           type="button"
@@ -832,7 +832,7 @@ export default function CourseCard({ course }: { course: Course }) {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required
                           placeholder="Retype password"
-                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15"
+                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                         />
                         <button
                           type="button"
@@ -858,7 +858,7 @@ export default function CourseCard({ course }: { course: Course }) {
                   <button
                     type="submit"
                     disabled={loading || (!isLoggedIn && !otpVerified)}
-                    className="px-5 py-2.5 bg-[#D62828] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#b02020] transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2.5 bg-[#C00000] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#990000] transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                   >
                     {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                     Pay INR {Number(course.fees).toLocaleString("en-IN")}
@@ -875,7 +875,7 @@ export default function CourseCard({ course }: { course: Course }) {
                         setErrorMsg("");
                         setSuccessMsg("");
                       }}
-                      className="text-[#0F4C81] font-bold hover:underline"
+                      className="text-[#001C55] font-bold hover:underline"
                     >
                       Sign In
                     </button>

@@ -127,13 +127,13 @@ export default function AdminCoursesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-[#0F4C81]" /> Academy Courses CMS
+            <BookOpen className="w-5 h-5 text-[#001C55]" /> Academy Courses CMS
           </h1>
           <p className="text-slate-500 text-xs mt-1">Manage active training courses, pricing fees, and study eligibility criteria.</p>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="self-start sm:self-center px-4 py-2 bg-[#0F4C81] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+          className="self-start sm:self-center px-4 py-2 bg-[#001C55] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Add New Course
         </button>
@@ -142,7 +142,7 @@ export default function AdminCoursesPage() {
       {/* Courses List */}
       {loading ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
           <p className="text-xs text-slate-500">Loading courses catalog...</p>
         </div>
       ) : courses.length === 0 ? (
@@ -220,7 +220,7 @@ export default function AdminCoursesPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden my-8 flex flex-col relative animate-scaleUp">
             
             {/* Modal Header */}
-            <div className="bg-[#0F4C81] text-white p-5 flex items-center justify-between">
+            <div className="bg-[#001C55] text-white p-5 flex items-center justify-between">
               <h3 className="text-sm font-serif font-bold tracking-wide">{modalTitle}</h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -247,7 +247,7 @@ export default function AdminCoursesPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                   placeholder="e.g. Human Rights Law & Advocacy"
-                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export default function AdminCoursesPage() {
                   required
                   rows={3}
                   placeholder="Provide brief course syllabus details..."
-                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -272,7 +272,7 @@ export default function AdminCoursesPage() {
                     onChange={(e) => setDuration(e.target.value)}
                     required
                     placeholder="e.g. 3 Months"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
                 <div>
@@ -283,7 +283,7 @@ export default function AdminCoursesPage() {
                     onChange={(e) => setFees(e.target.value)}
                     required
                     placeholder="e.g. 2500"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                   />
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function AdminCoursesPage() {
                   onChange={(e) => setEligibility(e.target.value)}
                   required
                   placeholder="e.g. Graduate in any stream, 10+2"
-                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -336,7 +336,7 @@ export default function AdminCoursesPage() {
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-5 py-2.5 bg-[#0F4C81] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#0c3c66] transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2.5 bg-[#001C55] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#001236] transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                 >
                   {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                   Save Course

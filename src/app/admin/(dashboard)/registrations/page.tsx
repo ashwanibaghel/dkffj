@@ -247,7 +247,7 @@ export default function AdminRegistrationsPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-          <GraduationCap className="w-5 h-5 text-[#0F4C81]" /> Academy Enrollments Review
+          <GraduationCap className="w-5 h-5 text-[#001C55]" /> Academy Enrollments Review
         </h1>
         <p className="text-slate-500 text-xs mt-1">Review student registrations, check payment ledger status, and issue graduation certificates.</p>
       </div>
@@ -263,7 +263,7 @@ export default function AdminRegistrationsPage() {
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 filter === f
-                  ? "bg-[#0F4C81] text-white border-[#0F4C81]"
+                  ? "bg-[#001C55] text-white border-[#001C55]"
                   : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
               }`}
             >
@@ -288,7 +288,7 @@ export default function AdminRegistrationsPage() {
       {/* Main List */}
       {loading ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
           <p className="text-xs text-slate-500">Loading registrations list...</p>
         </div>
       ) : filteredRegistrations.length === 0 ? (
@@ -378,7 +378,7 @@ export default function AdminRegistrationsPage() {
                           onChange={(e) => setRemarks(e.target.value)}
                           placeholder="Provide review remarks (optional)..."
                           rows={2}
-                          className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                          className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                         />
                         <div className="flex justify-end gap-2">
                           <button
@@ -412,7 +412,7 @@ export default function AdminRegistrationsPage() {
                           type="button"
                           onClick={() => startIssuance(reg)}
                           disabled={actionLoading}
-                          className="px-5 py-2.5 bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm shrink-0"
+                          className="px-5 py-2.5 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm shrink-0"
                         >
                           {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                           <Award className="w-4 h-4" /> Issue Graduation Certificate
@@ -423,7 +423,7 @@ export default function AdminRegistrationsPage() {
                     {reg.status === "APPROVED" && issuingId === reg.id && (
                       <div className="space-y-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-left">
                         <div className="flex items-center gap-2 border-b pb-3 mb-3">
-                          <Award className="w-5 h-5 text-[#0F4C81]" />
+                          <Award className="w-5 h-5 text-[#001C55]" />
                           <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Configure Certificate Credentials</span>
                         </div>
 
@@ -435,7 +435,7 @@ export default function AdminRegistrationsPage() {
                               value={certForm.fatherName}
                               onChange={(e) => setCertForm({ ...certForm, fatherName: e.target.value })}
                               placeholder="Student's Father Name"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
@@ -445,7 +445,7 @@ export default function AdminRegistrationsPage() {
                               value={certForm.grade}
                               onChange={(e) => setCertForm({ ...certForm, grade: e.target.value })}
                               placeholder="e.g. A+, A, Outstanding"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
@@ -454,7 +454,7 @@ export default function AdminRegistrationsPage() {
                               type="date"
                               value={certForm.durationFrom}
                               onChange={(e) => setCertForm({ ...certForm, durationFrom: e.target.value })}
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
@@ -463,7 +463,7 @@ export default function AdminRegistrationsPage() {
                               type="date"
                               value={certForm.durationTo}
                               onChange={(e) => setCertForm({ ...certForm, durationTo: e.target.value })}
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
@@ -473,7 +473,7 @@ export default function AdminRegistrationsPage() {
                               value={certForm.venue}
                               onChange={(e) => setCertForm({ ...certForm, venue: e.target.value })}
                               placeholder="e.g. Online (DKFFJ Portal)"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
@@ -483,7 +483,7 @@ export default function AdminRegistrationsPage() {
                               value={certForm.performance}
                               onChange={(e) => setCertForm({ ...certForm, performance: e.target.value })}
                               placeholder="e.g. Excellent, Very Good"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0F4C81]"
+                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                         </div>
@@ -500,7 +500,7 @@ export default function AdminRegistrationsPage() {
                             type="button"
                             onClick={() => submitIssuance(reg.id)}
                             disabled={actionLoading}
-                            className="px-5 py-2.5 bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                            className="px-5 py-2.5 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
                           >
                             {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                             <Award className="w-4 h-4" /> Generate & Dispatch Certificate

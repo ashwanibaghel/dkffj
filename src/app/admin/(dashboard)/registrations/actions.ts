@@ -172,54 +172,54 @@ function generateCertificatePDF(
         }
 
         // Student's Name (centered in the bubble)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Times-Bold")
           .fontSize(14)
           .text(fullName, 230, 295, { width: 320, align: "center" });
 
         // Father's Name (centered in the bubble)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Times-Bold")
           .fontSize(14)
           .text(fatherName, 180, 336, { width: 370, align: "center" });
 
         // Course Title (centered in the bubble)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Times-Bold")
           .fontSize(12)
           .text(courseTitle, 265, 377, { width: 285, align: "center" });
 
         // Conducted by our institution
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(11)
           .text("DK Foundation of Freedom and Justice", 230, 418, { width: 320, align: "center" });
 
         // Duration From and To (Row 5 - Y = 438)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(11)
           .text(durationFrom, 195, 438, { width: 165, align: "center" });
 
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(11)
           .text(durationTo, 395, 438, { width: 155, align: "center" });
 
         // Grade/Percentage (Row 6 - Y = 458)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(11)
           .text(grade, 165, 458, { width: 80, align: "center" });
 
         // Training Venue (Row 6 - Y = 458)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(10)
           .text(venue, 360, 458, { width: 190, align: "center" });
 
         // Performance (Row 7 - Y = 499)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(11)
           .text(performance, 405, 499, { width: 120, align: "center" });
@@ -229,13 +229,13 @@ function generateCertificatePDF(
         doc.fillColor("#ffffff").rect(420, 533, 110, 15).fill();
 
         // Certificate No (Row 8 - Y = 537)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(10)
           .text(certNo, 170, 535, { width: 110, align: "left" });
 
         // Date of Issue (Row 8 - Y = 537)
-        doc.fillColor("#0F4C81")
+        doc.fillColor("#001C55")
           .font("Helvetica-Bold")
           .fontSize(10)
           .text(dateStr, 420, 535, { width: 110, align: "left" });

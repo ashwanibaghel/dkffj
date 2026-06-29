@@ -25,19 +25,19 @@ export default function LeaderCard({ name, role, imageSrc, description, isPrimar
   };
 
   return (
-    <div className="relative bg-white/70 backdrop-blur-md border border-slate-200/50 rounded-3xl p-6 text-center flex flex-col items-center gap-5 hover:border-[#0F4C81]/30 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(15,76,129,0.08)] hover:-translate-y-2 group overflow-hidden">
+    <div className="relative bg-white/70 backdrop-blur-md border border-slate-200/50 rounded-3xl p-6 text-center flex flex-col items-center gap-5 hover:border-[#001C55]/30 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0, 28, 85,0.08)] hover:-translate-y-2 group overflow-hidden">
       
       {/* Decorative inner mesh glows visible on hover */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-        <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-[#0F4C81]/[0.03] blur-2xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-[#D62828]/[0.03] blur-2xl"></div>
+        <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-[#001C55]/[0.03] blur-2xl"></div>
+        <div className="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-[#C00000]/[0.03] blur-2xl"></div>
       </div>
 
       {/* Avatar Wrapper with Premium Glowing Outer Ring */}
       <div className={`relative w-24 h-24 rounded-full p-1 flex items-center justify-center transition-all duration-500 group-hover:scale-105 shadow-sm
         ${isPrimary 
-          ? "bg-gradient-to-br from-[#D62828] via-[#D62828]/50 to-[#0F4C81] shadow-[#D62828]/10" 
-          : "bg-gradient-to-br from-[#0F4C81] via-[#0F4C81]/30 to-[#0F4C81]/10 shadow-[#0F4C81]/5"
+          ? "bg-gradient-to-br from-[#C00000] via-[#C00000]/50 to-[#001C55] shadow-[#C00000]/10" 
+          : "bg-gradient-to-br from-[#001C55] via-[#001C55]/30 to-[#001C55]/10 shadow-[#001C55]/5"
         }`}
       >
         <div className="w-full h-full rounded-full overflow-hidden border-2 border-white bg-slate-50 flex items-center justify-center relative shadow-inner">
@@ -52,8 +52,8 @@ export default function LeaderCard({ name, role, imageSrc, description, isPrimar
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-slate-50 via-slate-100 to-slate-50 select-none">
               <span className={`text-2xl font-black font-serif tracking-widest bg-gradient-to-r bg-clip-text text-transparent
                 ${isPrimary 
-                  ? "from-[#D62828] to-[#0F4C81]" 
-                  : "from-[#0F4C81] to-[#3b82f6]"
+                  ? "from-[#C00000] to-[#001C55]" 
+                  : "from-[#001C55] to-[#3b82f6]"
                 }`}
               >
                 {getInitials(name)}
@@ -66,7 +66,7 @@ export default function LeaderCard({ name, role, imageSrc, description, isPrimar
       {/* Leader Information */}
       <div className="flex flex-col items-center gap-2.5 z-10">
         <div className="flex flex-col gap-0.5">
-          <h4 className="text-base font-bold text-slate-800 tracking-wide transition-colors duration-300 group-hover:text-[#0F4C81]">
+          <h4 className="text-base font-bold text-slate-800 tracking-wide transition-colors duration-300 group-hover:text-[#001C55]">
             {name}
           </h4>
           
@@ -74,8 +74,8 @@ export default function LeaderCard({ name, role, imageSrc, description, isPrimar
           <div className="flex justify-center mt-1">
             <span className={`text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border
               ${isPrimary 
-                ? "bg-[#D62828]/5 text-[#D62828] border-[#D62828]/15" 
-                : "bg-[#0F4C81]/5 text-[#0F4C81] border-[#0F4C81]/15"
+                ? "bg-[#C00000]/5 text-[#C00000] border-[#C00000]/15" 
+                : "bg-[#001C55]/5 text-[#001C55] border-[#001C55]/15"
               }`}
             >
               {role}
@@ -93,7 +93,7 @@ export default function LeaderCard({ name, role, imageSrc, description, isPrimar
         <a 
           href="#contact" 
           aria-label="Email Member"
-          className="p-2 rounded-xl bg-slate-100/80 hover:bg-[#0F4C81]/10 hover:text-[#0F4C81] text-slate-400 transition-all duration-300 hover:scale-110 active:scale-95"
+          className="p-2 rounded-xl bg-slate-100/80 hover:bg-[#001C55]/10 hover:text-[#001C55] text-slate-400 transition-all duration-300 hover:scale-110 active:scale-95"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -102,7 +102,7 @@ export default function LeaderCard({ name, role, imageSrc, description, isPrimar
         <a 
           href="#contact" 
           aria-label="Connect via LinkedIn"
-          className="p-2 rounded-xl bg-slate-100/80 hover:bg-[#0F4C81]/10 hover:text-[#0F4C81] text-slate-400 transition-all duration-300 hover:scale-110 active:scale-95"
+          className="p-2 rounded-xl bg-slate-100/80 hover:bg-[#001C55]/10 hover:text-[#001C55] text-slate-400 transition-all duration-300 hover:scale-110 active:scale-95"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />

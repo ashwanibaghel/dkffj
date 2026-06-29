@@ -36,21 +36,21 @@ export default function VerifySearchPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[#0F4C81]/[0.02] blur-[100px]"></div>
+        <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[#001C55]/[0.02] blur-[100px]"></div>
       </div>
 
       <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md z-10 sticky top-0">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#0F4C81]/10 to-[#D62828]/5 border border-slate-200 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center">
               <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ Logo" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[#0F4C81] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[8px] text-[#D62828] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
+              <span className="text-[#001C55] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+              <span className="text-[8px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
             </div>
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F4C81] hover:text-[#0F4C81]/80 transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#001C55] hover:text-[#001C55]/80 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
           </Link>
         </div>
@@ -58,8 +58,8 @@ export default function VerifySearchPage() {
 
       <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-12 z-10">
         <div className="text-center mb-10">
-          <Award className="w-12 h-12 text-[#0F4C81] mx-auto mb-3" />
-          <h1 className="text-3xl font-extrabold font-serif text-[#0F4C81]">Certificate Verification</h1>
+          <Award className="w-12 h-12 text-[#001C55] mx-auto mb-3" />
+          <h1 className="text-3xl font-extrabold font-serif text-[#001C55]">Certificate Verification</h1>
           <p className="text-slate-500 text-sm mt-2">Verify the authenticity of educational certificates issued by the DKFFJ Academy.</p>
         </div>
 
@@ -75,12 +75,12 @@ export default function VerifySearchPage() {
                   onChange={(e) => setCertNo(e.target.value)}
                   placeholder="e.g. DKCERT-2026-00001"
                   required
-                  className="w-full pl-4 pr-12 py-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/25 focus:border-[#0F4C81] transition-all bg-white"
+                  className="w-full pl-4 pr-12 py-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/25 focus:border-[#001C55] transition-all bg-white"
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="absolute right-1 top-1 bottom-1 px-4 rounded-md bg-[#0F4C81] text-white hover:bg-[#0c3c66] flex items-center justify-center disabled:opacity-50 transition-colors"
+                  className="absolute right-1 top-1 bottom-1 px-4 rounded-md bg-[#001C55] text-white hover:bg-[#001236] flex items-center justify-center disabled:opacity-50 transition-colors"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 </button>
@@ -93,7 +93,7 @@ export default function VerifySearchPage() {
         {/* Results output */}
         {loading && (
           <div className="text-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
             <p className="text-sm text-slate-500">Retrieving certificate registry data...</p>
           </div>
         )}
@@ -153,7 +153,7 @@ export default function VerifySearchPage() {
                       href={result.pdfUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-5 py-2.5 rounded-lg bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-sm"
+                      className="px-5 py-2.5 rounded-lg bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-sm"
                     >
                       <Download className="w-4 h-4" /> Download Certificate
                     </a>

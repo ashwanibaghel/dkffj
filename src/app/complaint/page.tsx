@@ -104,22 +104,22 @@ export default function ComplaintPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
       {/* Background radial effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[10%] right-[5%] w-[800px] h-[500px] rounded-full bg-[#D62828]/[0.015] blur-[120px]"></div>
-        <div className="absolute bottom-[20%] left-[5%] w-[600px] h-[600px] rounded-full bg-[#0F4C81]/[0.02] blur-[100px]"></div>
+        <div className="absolute top-[10%] right-[5%] w-[800px] h-[500px] rounded-full bg-[#C00000]/[0.015] blur-[120px]"></div>
+        <div className="absolute bottom-[20%] left-[5%] w-[600px] h-[600px] rounded-full bg-[#001C55]/[0.02] blur-[100px]"></div>
       </div>
 
       <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md z-10 sticky top-0">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#0F4C81]/10 to-[#D62828]/5 border border-slate-200 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center">
               <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ Logo" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[#0F4C81] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[8px] text-[#D62828] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
+              <span className="text-[#001C55] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+              <span className="text-[8px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
             </div>
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#0F4C81] transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#001C55] transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
           </Link>
         </div>
@@ -129,7 +129,7 @@ export default function ComplaintPage() {
         {!docketNo ? (
           <>
             <div className="mb-10 text-center">
-              <h1 className="text-2xl sm:text-3xl font-extrabold font-serif text-[#0F4C81]">Grievance Submission Portal</h1>
+              <h1 className="text-2xl sm:text-3xl font-extrabold font-serif text-[#001C55]">Grievance Submission Portal</h1>
               <p className="text-slate-500 text-xs sm:text-sm mt-2">File a human rights violation or legal grievance. All reports are handled confidentially.</p>
             </div>
 
@@ -154,7 +154,7 @@ export default function ComplaintPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="Enter full name"
                     />
                   </div>
@@ -166,7 +166,7 @@ export default function ComplaintPage() {
                       value={fatherName}
                       onChange={(e) => setFatherName(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="Enter father's name"
                     />
                   </div>
@@ -177,7 +177,7 @@ export default function ComplaintPage() {
                       <select
                         value={gender}
                         onChange={(e) => setGender(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81] bg-white"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white"
                       >
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -191,7 +191,7 @@ export default function ComplaintPage() {
                         value={mobile}
                         onChange={(e) => setMobile(e.target.value)}
                         required
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="10-digit mobile number"
                       />
                     </div>
@@ -201,7 +201,7 @@ export default function ComplaintPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="Optional"
                       />
                     </div>
@@ -219,7 +219,7 @@ export default function ComplaintPage() {
                       onChange={(e) => setAddress(e.target.value)}
                       required
                       rows={2}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="Enter details of where the incident occurred"
                     />
                   </div>
@@ -232,7 +232,7 @@ export default function ComplaintPage() {
                         value={state}
                         onChange={(e) => setState(e.target.value)}
                         required
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="e.g. Bihar"
                       />
                     </div>
@@ -243,7 +243,7 @@ export default function ComplaintPage() {
                         value={district}
                         onChange={(e) => setDistrict(e.target.value)}
                         required
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="e.g. Patna"
                       />
                     </div>
@@ -254,7 +254,7 @@ export default function ComplaintPage() {
                         value={policeStation}
                         onChange={(e) => setPoliceStation(e.target.value)}
                         required
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="Name of local Thana"
                       />
                     </div>
@@ -267,7 +267,7 @@ export default function ComplaintPage() {
                       onChange={(e) => setDetails(e.target.value)}
                       required
                       rows={4}
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                       placeholder="Please provide full details of your grievance, including date, time, and persons involved..."
                     />
                   </div>
@@ -289,7 +289,7 @@ export default function ComplaintPage() {
                         onChange={handleAddFile}
                         className="hidden"
                       />
-                      <Upload className="w-4 h-4 text-[#0F4C81]" /> Add Evidences
+                      <Upload className="w-4 h-4 text-[#001C55]" /> Add Evidences
                     </label>
                   </div>
 
@@ -298,14 +298,14 @@ export default function ComplaintPage() {
                       {fileInputs.map((file, idx) => (
                         <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-slate-200/80 bg-slate-50/50">
                           <div className="flex items-center gap-2 text-xs text-slate-600 font-semibold truncate max-w-[80%]">
-                            <FileText className="w-4 h-4 text-[#0F4C81] shrink-0" />
+                            <FileText className="w-4 h-4 text-[#001C55] shrink-0" />
                             <span className="truncate">{file.name}</span>
                             <span className="text-[10px] text-slate-400 font-normal">({(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
                           </div>
                           <button
                             type="button"
                             onClick={() => handleRemoveFile(idx)}
-                            className="text-slate-400 hover:text-[#D62828] transition-colors"
+                            className="text-slate-400 hover:text-[#C00000] transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -320,7 +320,7 @@ export default function ComplaintPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 bg-[#D62828] text-white hover:bg-[#b02020] text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(214,40,40,0.2)] disabled:opacity-50"
+                    className="w-full py-3 bg-[#C00000] text-white hover:bg-[#990000] text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(192, 0, 0,0.2)] disabled:opacity-50"
                   >
                     {loading ? (
                       <>
@@ -351,7 +351,7 @@ export default function ComplaintPage() {
 
             <div className="bg-slate-50 border border-dashed rounded-xl p-4 my-6">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Grievance Docket Number</span>
-              <span className="text-xl font-mono font-extrabold text-[#D62828] mt-1 block">{docketNo}</span>
+              <span className="text-xl font-mono font-extrabold text-[#C00000] mt-1 block">{docketNo}</span>
             </div>
 
             <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
@@ -361,7 +361,7 @@ export default function ComplaintPage() {
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href={`/track?type=complaint&id=${docketNo}`}
-                className="px-6 py-2.5 rounded-lg bg-[#0F4C81] text-white hover:bg-[#0c3c66] text-xs font-bold transition-all shadow-[0_4px_12px_rgba(15,76,129,0.15)]"
+                className="px-6 py-2.5 rounded-lg bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold transition-all shadow-[0_4px_12px_rgba(0, 28, 85,0.15)]"
               >
                 Track Status Now
               </Link>

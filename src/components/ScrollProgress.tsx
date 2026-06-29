@@ -57,7 +57,7 @@ export default function ScrollProgress() {
           cx="24"
           cy="24"
           r={radius}
-          className="stroke-[#0F4C81] transition-all duration-75"
+          className="stroke-[#001C55] transition-all duration-75"
           strokeWidth="2.5"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
@@ -68,7 +68,7 @@ export default function ScrollProgress() {
 
       {/* Up Arrow Icon */}
       <svg 
-        className="w-4 h-4 text-slate-600 group-hover:text-[#0F4C81] transition-colors relative z-10" 
+        className="w-4 h-4 text-slate-600 group-hover:text-[#001C55] transition-colors relative z-10" 
         fill="none" 
         viewBox="0 0 24 24" 
         stroke="currentColor" 

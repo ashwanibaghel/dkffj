@@ -168,7 +168,7 @@ export default function AdminMembersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#0F4C81]" /> NGO Membership Board
+            <Users className="w-5 h-5 text-[#001C55]" /> NGO Membership Board
           </h1>
           <p className="text-slate-500 text-xs mt-1">Review applicant profiles, specimen files, and issue membership certificates.</p>
         </div>
@@ -185,7 +185,7 @@ export default function AdminMembersPage() {
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 filter === f
-                  ? "bg-[#0F4C81] text-white border-[#0F4C81]"
+                  ? "bg-[#001C55] text-white border-[#001C55]"
                   : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
               }`}
             >
@@ -210,7 +210,7 @@ export default function AdminMembersPage() {
       {/* Main List */}
       {loading ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
           <p className="text-xs text-slate-500">Loading applicant profiles, please wait...</p>
         </div>
       ) : filteredMembers.length === 0 ? (
@@ -262,7 +262,7 @@ export default function AdminMembersPage() {
                           title="Download Certificate"
                         >
                           {downloadingId === member.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F4C81]" />
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#001C55]" />
                           ) : (
                             <Download className="w-3.5 h-3.5 text-slate-600" />
                           )}
@@ -318,7 +318,7 @@ export default function AdminMembersPage() {
                         </div>
                         <div>
                           <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Desired Designation</span>
-                          <span className="text-slate-800 mt-0.5 block text-[#0F4C81] font-bold">{member.designation}</span>
+                          <span className="text-slate-800 mt-0.5 block text-[#001C55] font-bold">{member.designation}</span>
                         </div>
                         <div>
                           <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Working Area</span>
@@ -331,7 +331,7 @@ export default function AdminMembersPage() {
                     {/* Private Documents Section */}
                     <div className="p-4 rounded-xl border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                        <FileText className="w-4 h-4 text-[#0F4C81]" /> Supporting Verification Assets
+                        <FileText className="w-4 h-4 text-[#001C55]" /> Supporting Verification Assets
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <button
@@ -384,7 +384,7 @@ export default function AdminMembersPage() {
                             onChange={(e) => setRemarks(e.target.value)}
                             placeholder="Add administrative review remarks (optional)..."
                             rows={2}
-                            className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                            className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                           />
                           <div className="flex justify-end gap-2">
                             <button

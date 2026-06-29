@@ -101,13 +101,36 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           left: 0,
           width: "100%",
           height: "100%",
-          opacity: 0.02,
           pointerEvents: "none",
-          backgroundImage: "url(\"data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyODAnIGhlaWdodD0nMTQwJz48dGV4dCB4PScyMCcgeT0nODAnIGZvbnQtZmFtaWx5PSdBcmlhbCwgc2Fucy1zZXJpZicgZm9udC13ZWlnaHQ9J2JvbGQnIGZvbnQtc2l6ZT0nOCcgZmlsbD0nYmxhY2snIHRyYW5zZm9ybT0ncm90YXRlKC0yNSAyMCA4MCknPkRLIEZPVU5EQVRJT04gT0YgRlJFRURPTSBBTkQgSlVTVElDRTwvdGV4dD48L3N2Zz4=\")",
-          backgroundRepeat: "repeat",
-          zIndex: 1
+          zIndex: 1,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          padding: "20px 0",
+          boxSizing: "border-box",
+          opacity: 0.07,
+          userSelect: "none"
         }}
-      />
+      >
+        {Array.from({ length: 75 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              fontFamily: "Arial, sans-serif",
+              fontWeight: "bold",
+              fontSize: "7px",
+              color: "#001C55",
+              whiteSpace: "nowrap",
+              letterSpacing: "1px",
+              width: "100%",
+              textAlign: "center"
+            }}
+          >
+            {"DK FOUNDATION OF FREEDOM AND JUSTICE   ".repeat(5)}
+          </div>
+        ))}
+      </div>
 
       {/* Vector Certificate Border Frame */}
       <svg
@@ -123,13 +146,13 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         }}
       >
         {/* Outer gold border line */}
-        <rect x="16" y="16" width="762" height="1091" fill="none" stroke="#c5a880" stroke-width="5" />
+        <rect x="16" y="16" width="762" height="1091" fill="none" stroke="#c5a880" strokeWidth="5" />
         
         {/* Inner thin red border line */}
-        <rect x="24" y="24" width="746" height="1075" fill="none" stroke="#a21e1e" stroke-width="2" />
+        <rect x="24" y="24" width="746" height="1075" fill="none" stroke="#a21e1e" strokeWidth="2" />
         
         {/* Gold dots border line */}
-        <rect x="30" y="30" width="734" height="1063" fill="none" stroke="#c5a880" stroke-width="1" stroke-dasharray="3,6" />
+        <rect x="30" y="30" width="734" height="1063" fill="none" stroke="#c5a880" strokeWidth="1" strokeDasharray="3,6" />
 
         {/* Symmetrical Vector Corner Ornaments (Top Left) */}
         <g transform="translate(35, 35)">
@@ -230,7 +253,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             border: none;
             border-bottom: 1.5px solid #c5a880;
             border-radius: 0;
-            color: #0f4c81;
+            color: #001C55;
             font-weight: bold;
             font-size: 16px;
             height: 28px;

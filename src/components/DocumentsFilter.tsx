@@ -74,7 +74,7 @@ export default function DocumentsFilter() {
             onClick={() => setSelectedCategory(cat.id)}
             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer
               ${selectedCategory === cat.id
-                ? "bg-[#0F4C81] text-white shadow-[0_4px_12px_rgba(15,76,129,0.2)]"
+                ? "bg-[#001C55] text-white shadow-[0_4px_12px_rgba(0, 28, 85,0.2)]"
                 : "bg-white text-slate-500 border border-slate-200 hover:text-slate-800 hover:border-slate-300"
               }`}
           >
@@ -91,10 +91,10 @@ export default function DocumentsFilter() {
             href={doc.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#0F4C81]/30 hover:shadow-md transition-all duration-300 group shadow-sm"
+            className="bg-white border border-slate-200/80 rounded-2xl p-6 flex justify-between items-center hover:border-[#001C55]/30 hover:shadow-md transition-all duration-300 group shadow-sm"
           >
             <div className="flex gap-4 items-center">
-              <div className="w-10 h-10 rounded-lg bg-[#0F4C81]/10 flex items-center justify-center text-[#0F4C81] transition-colors group-hover:bg-[#0F4C81] group-hover:text-white">
+              <div className="w-10 h-10 rounded-lg bg-[#001C55]/10 flex items-center justify-center text-[#001C55] transition-colors group-hover:bg-[#001C55] group-hover:text-white">
                 {renderIcon(doc.iconType)}
               </div>
               <div className="flex flex-col">
@@ -102,7 +102,7 @@ export default function DocumentsFilter() {
                 <span className="text-[9px] text-slate-400 mt-1 uppercase font-mono font-medium">{doc.size}</span>
               </div>
             </div>
-            <div className="text-slate-400 group-hover:text-[#0F4C81] transition-all duration-300 group-hover:translate-x-0.5">
+            <div className="text-slate-400 group-hover:text-[#001C55] transition-all duration-300 group-hover:translate-x-0.5">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
               </svg>

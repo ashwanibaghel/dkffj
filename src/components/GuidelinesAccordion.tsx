@@ -67,8 +67,8 @@ export default function GuidelinesAccordion() {
             key={item.id}
             className={`border rounded-2xl transition-all duration-300 ${
               isOpen
-                ? "bg-slate-50 border-[#0F4C81]/30 shadow-sm"
-                : "bg-white border-slate-100 hover:border-[#0F4C81]/20 hover:bg-slate-50/50"
+                ? "bg-slate-50 border-[#001C55]/30 shadow-sm"
+                : "bg-white border-slate-100 hover:border-[#001C55]/20 hover:bg-slate-50/50"
             }`}
           >
             {/* Header Accordion Button */}
@@ -80,8 +80,8 @@ export default function GuidelinesAccordion() {
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                     isOpen
-                      ? "bg-[#0F4C81] text-white"
-                      : "bg-[#0F4C81]/10 text-[#0F4C81]"
+                      ? "bg-[#001C55] text-white"
+                      : "bg-[#001C55]/10 text-[#001C55]"
                   }`}
                 >
                   <IconComponent className="w-5 h-5" />
@@ -98,7 +98,7 @@ export default function GuidelinesAccordion() {
               
               <ChevronDown
                 className={`w-5 h-5 text-slate-400 transition-transform duration-300 shrink-0 ${
-                  isOpen ? "rotate-180 text-[#0F4C81]" : ""
+                  isOpen ? "rotate-180 text-[#001C55]" : ""
                 }`}
               />
             </button>

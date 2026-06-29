@@ -72,21 +72,21 @@ function TrackPageContent() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
       {/* Radial mesh background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[#0F4C81]/[0.02] blur-[100px]"></div>
+        <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[#001C55]/[0.02] blur-[100px]"></div>
       </div>
 
       <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md z-10 sticky top-0">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#0F4C81]/10 to-[#D62828]/5 border border-slate-200 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center">
               <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ Logo" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[#0F4C81] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[8px] text-[#D62828] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
+              <span className="text-[#001C55] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+              <span className="text-[8px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
             </div>
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F4C81] hover:text-[#0F4C81]/80 transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#001C55] hover:text-[#001C55]/80 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
           </Link>
         </div>
@@ -94,7 +94,7 @@ function TrackPageContent() {
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-12 z-10">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-extrabold font-serif text-[#0F4C81]">Track Application Status</h1>
+          <h1 className="text-3xl font-extrabold font-serif text-[#001C55]">Track Application Status</h1>
           <p className="text-slate-500 text-sm mt-2">Enter your Acknowledgement, Docket, or Enrollment number to get real-time tracking details.</p>
         </div>
 
@@ -109,7 +109,7 @@ function TrackPageContent() {
                   onClick={() => setTrackingType("membership")}
                   className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
                     trackingType === "membership"
-                      ? "bg-[#0F4C81] text-white border-[#0F4C81] shadow-sm"
+                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
                       : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                   }`}
                 >
@@ -120,7 +120,7 @@ function TrackPageContent() {
                   onClick={() => setTrackingType("complaint")}
                   className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
                     trackingType === "complaint"
-                      ? "bg-[#0F4C81] text-white border-[#0F4C81] shadow-sm"
+                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
                       : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                   }`}
                 >
@@ -131,7 +131,7 @@ function TrackPageContent() {
                   onClick={() => setTrackingType("enrollment")}
                   className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
                     trackingType === "enrollment"
-                      ? "bg-[#0F4C81] text-white border-[#0F4C81] shadow-sm"
+                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
                       : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                   }`}
                 >
@@ -155,12 +155,12 @@ function TrackPageContent() {
                     trackingType === "membership" ? "e.g., ACK-2026-00001 or DKM-..." :
                     trackingType === "complaint" ? "e.g., DKC-2026-00001" : "e.g., DKE-2026-00001"
                   }
-                  className="w-full pl-4 pr-12 py-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/20 focus:border-[#0F4C81] transition-all bg-white"
+                  className="w-full pl-4 pr-12 py-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/20 focus:border-[#001C55] transition-all bg-white"
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="absolute right-1 top-1 bottom-1 px-4 rounded-md bg-[#0F4C81] text-white hover:bg-[#0c3c66] flex items-center justify-center disabled:opacity-50 transition-colors"
+                  className="absolute right-1 top-1 bottom-1 px-4 rounded-md bg-[#001C55] text-white hover:bg-[#001236] flex items-center justify-center disabled:opacity-50 transition-colors"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                 </button>
@@ -173,7 +173,7 @@ function TrackPageContent() {
         {/* Results Desk */}
         {loading && (
           <div className="text-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
             <p className="text-sm text-slate-500">Searching records, please wait...</p>
           </div>
         )}
@@ -209,8 +209,8 @@ function TrackPageContent() {
                   {/* Membership Details Card */}
                   {result.type === "membership" && result.memberDetails && (
                     <div className="mb-8 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
-                      <div className="bg-[#0F4C81]/5 px-5 py-3.5 border-b border-slate-200/60 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[#0F4C81] uppercase tracking-wider">Official Membership Card Details</span>
+                      <div className="bg-[#001C55]/5 px-5 py-3.5 border-b border-slate-200/60 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-[#001C55] uppercase tracking-wider">Official Membership Card Details</span>
                         {result.status === "APPROVED" && (
                           <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">
                             Active ID Card
@@ -301,13 +301,13 @@ function TrackPageContent() {
                       {result.timeline.map((log) => (
                         <div key={log.id} className="relative">
                           {/* Dot indicator */}
-                          <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-[#0F4C81] flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#0F4C81]"></div>
+                          <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-[#001C55] flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#001C55]"></div>
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-bold text-slate-800">
-                                Status changed to <span className="text-[#0F4C81] font-extrabold">{log.toStatus}</span>
+                                Status changed to <span className="text-[#001C55] font-extrabold">{log.toStatus}</span>
                               </span>
                               <span className="text-[10px] text-slate-400 font-semibold">{log.date}</span>
                             </div>
@@ -341,7 +341,7 @@ export default function TrackPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#001C55]" />
       </div>
     }>
       <TrackPageContent />

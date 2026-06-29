@@ -137,7 +137,7 @@ export async function updateMembershipStatus(id: string, newStatus: string, rema
   const emailSubject = `Membership Application ${actionText} - DKFFJ`;
   let emailHtml = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-      <div style="background-color: #0F4C81; padding: 20px; text-align: center;">
+      <div style="background-color: #001C55; padding: 20px; text-align: center;">
         <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DK Foundation of Freedom & Justice</h1>
       </div>
       <div style="padding: 24px; color: #334155;">
@@ -163,7 +163,7 @@ export async function updateMembershipStatus(id: string, newStatus: string, rema
 
   emailHtml += `
         <div style="margin-top: 24px;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/track?type=membership&id=${member.ack_no}" style="background-color: #0F4C81; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Track Application Details</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/track?type=membership&id=${member.ack_no}" style="background-color: #001C55; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Track Application Details</a>
         </div>
       </div>
       <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">

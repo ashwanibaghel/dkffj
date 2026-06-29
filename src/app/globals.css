@@ -3,8 +3,8 @@
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
-  --primary: #0f4c81;
-  --secondary: #d62828;
+  --primary: #001C55;
+  --secondary: #C00000;
   --font-jakarta: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
   --font-cinzel: Cinzel, Georgia, "Times New Roman", serif;
 }
@@ -27,11 +27,11 @@ body {
 
 /* Custom shadow/glow effects for premium light cards */
 .glow-primary {
-  box-shadow: 0 4px 20px rgba(15, 76, 129, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 28, 85, 0.05);
 }
 
 .glow-secondary {
-  box-shadow: 0 4px 20px rgba(214, 40, 40, 0.05);
+  box-shadow: 0 4px 20px rgba(192, 0, 0, 0.05);
 }
 
 /* Subtle image panning zoom for hero slider */

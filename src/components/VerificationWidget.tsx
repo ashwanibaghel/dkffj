@@ -89,19 +89,19 @@ export default function VerificationWidget() {
   };
 
   return (
-    <div className="w-full max-w-[420px] bg-white border border-slate-200/80 rounded-3xl p-6 shadow-[0_15px_40px_rgba(15,76,129,0.06)] transition-all">
+    <div className="w-full max-w-[420px] bg-white border border-slate-200/80 rounded-3xl p-6 shadow-[0_15px_40px_rgba(0, 28, 85,0.06)] transition-all">
       
       {/* Header */}
       <div className="flex flex-col mb-5 pb-4 border-b border-slate-100">
-        <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-widest mb-1">DKFFJ Verification Registry</span>
-        <h3 className="text-lg font-bold text-[#0F4C81] tracking-wide font-serif">
+        <span className="text-[10px] text-[#C00000] font-bold uppercase tracking-widest mb-1">DKFFJ Verification Registry</span>
+        <h3 className="text-lg font-bold text-[#001C55] tracking-wide font-serif">
           Verify Certificate
         </h3>
       </div>
 
       <div className="flex flex-col gap-4">
         <p className="text-[11px] text-slate-500 leading-relaxed">
-          Verify NGO member certificates or official coordinator designations. Try entering ID <code className="text-[#0F4C81] font-mono font-bold">1252</code> or <code className="text-[#0F4C81] font-mono font-bold">1238</code>.
+          Verify NGO member certificates or official coordinator designations. Try entering ID <code className="text-[#001C55] font-mono font-bold">1252</code> or <code className="text-[#001C55] font-mono font-bold">1238</code>.
         </p>
 
         <form onSubmit={handleSearch} className="flex gap-2">
@@ -110,11 +110,11 @@ export default function VerificationWidget() {
             placeholder="Certificate / Enrollment No."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-slate-800 rounded-xl px-4 py-3 text-xs transition-all outline-none"
+            className="flex-1 bg-slate-50 border border-slate-200 focus:border-[#001C55] focus:ring-1 focus:ring-[#001C55] text-slate-800 rounded-xl px-4 py-3 text-xs transition-all outline-none"
           />
           <button
             type="submit"
-            className="bg-[#0F4C81] hover:bg-[#0c3e6b] text-white font-bold px-6 py-3 rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center min-w-[80px] cursor-pointer"
+            className="bg-[#001C55] hover:bg-[#001236] text-white font-bold px-6 py-3 rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center min-w-[80px] cursor-pointer"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -133,13 +133,13 @@ export default function VerificationWidget() {
           )}
 
           {result && (
-            <div className="bg-slate-50 border border-[#0F4C81]/30 rounded-2xl p-4 shadow-inner relative overflow-hidden animate-fade-in">
+            <div className="bg-slate-50 border border-[#001C55]/30 rounded-2xl p-4 shadow-inner relative overflow-hidden animate-fade-in">
               <div className="absolute top-3 right-3 bg-emerald-50 border border-emerald-200 text-emerald-600 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                 Verified
               </div>
 
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-slate-200 border border-slate-300 rounded-full flex items-center justify-center font-bold text-sm text-[#0F4C81]">
+                <div className="w-10 h-10 bg-slate-200 border border-slate-300 rounded-full flex items-center justify-center font-bold text-sm text-[#001C55]">
                   {result.name.split(" ").map((n) => n[0]).join("")}
                 </div>
                 <div>
@@ -173,13 +173,13 @@ export default function VerificationWidget() {
         {/* Small trust indicators */}
         <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-4 mt-2 text-center text-[10px] font-semibold text-slate-500">
           <div className="flex items-center justify-center gap-1">
-            <span className="text-[#0F4C81]">✓</span> Official Records
+            <span className="text-[#001C55]">✓</span> Official Records
           </div>
           <div className="flex items-center justify-center gap-1 border-x border-slate-100">
-            <span className="text-[#0F4C81]">✓</span> QR Verified
+            <span className="text-[#001C55]">✓</span> QR Verified
           </div>
           <div className="flex items-center justify-center gap-1">
-            <span className="text-[#0F4C81]">✓</span> Instant Verification
+            <span className="text-[#001C55]">✓</span> Instant Verification
           </div>
         </div>
 

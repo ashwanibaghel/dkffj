@@ -41,9 +41,9 @@ export default function FAQSection() {
     <section className="py-20 px-6 bg-slate-50 border-t border-slate-200">
       <div className="max-w-4xl mx-auto w-full flex flex-col gap-12">
         <div className="text-center max-w-2xl mx-auto">
-          <span className="text-[10px] text-[#D62828] font-extrabold uppercase tracking-widest">Grievance Helpdesk</span>
+          <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest">Grievance Helpdesk</span>
           <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Frequently Asked Questions</h2>
-          <div className="h-1 w-16 bg-[#0F4C81] mx-auto mt-4 rounded-full"></div>
+          <div className="h-1 w-16 bg-[#001C55] mx-auto mt-4 rounded-full"></div>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -52,7 +52,7 @@ export default function FAQSection() {
             return (
               <div 
                 key={idx}
-                className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:border-[#0F4C81]/30"
+                className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:border-[#001C55]/30"
               >
                 <button
                   type="button"
@@ -63,7 +63,7 @@ export default function FAQSection() {
                     {faq.question}
                   </span>
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300
-                    ${isOpen ? "bg-[#0F4C81] text-white rotate-180" : "bg-slate-100 text-slate-500"}`}
+                    ${isOpen ? "bg-[#001C55] text-white rotate-180" : "bg-slate-100 text-slate-500"}`}
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />

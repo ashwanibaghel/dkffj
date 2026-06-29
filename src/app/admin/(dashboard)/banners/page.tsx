@@ -121,13 +121,13 @@ export default function AdminBannersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-            <ImageIcon className="w-5 h-5 text-[#0F4C81]" /> Slider Banners Manager
+            <ImageIcon className="w-5 h-5 text-[#001C55]" /> Slider Banners Manager
           </h1>
           <p className="text-slate-500 text-[10px] mt-1 font-semibold">Configure hero slider banners showing at the top of homepage.</p>
         </div>
         <button 
           onClick={openAddModal}
-          className="px-4 py-2 bg-[#0F4C81] text-white hover:bg-[#0c3e6b] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+          className="px-4 py-2 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Add Slider Banner
         </button>
@@ -142,7 +142,7 @@ export default function AdminBannersPage() {
 
       {loading ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <Loader2 className="w-8 h-8 animate-spin text-[#0F4C81] mx-auto mb-3" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
           <p className="text-slate-500">Loading slider banners, please wait...</p>
         </div>
       ) : banners.length === 0 ? (
@@ -237,7 +237,7 @@ export default function AdminBannersPage() {
                   onChange={(e) => setImageUrl(e.target.value)}
                   placeholder="/slider/your_image.png or full HTTP link" 
                   required
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -248,7 +248,7 @@ export default function AdminBannersPage() {
                   value={title} 
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Protecting Human Rights" 
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export default function AdminBannersPage() {
                   onChange={(e) => setSubtitle(e.target.value)}
                   placeholder="e.g. Securing Dignity, Liberty, and Equal Justice for all citizens of India." 
                   rows={2}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -270,7 +270,7 @@ export default function AdminBannersPage() {
                   value={linkUrl} 
                   onChange={(e) => setLinkUrl(e.target.value)}
                   placeholder="e.g. #about, #courses, or /courses" 
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0F4C81]"
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                 />
               </div>
 
@@ -300,7 +300,7 @@ export default function AdminBannersPage() {
                 <button 
                   type="submit" 
                   disabled={submitLoading}
-                  className="px-5 py-2 bg-[#0F4C81] text-white hover:bg-[#0c3e6b] rounded-lg font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 bg-[#001C55] text-white hover:bg-[#001236] rounded-lg font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                 >
                   {submitLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Save Banner

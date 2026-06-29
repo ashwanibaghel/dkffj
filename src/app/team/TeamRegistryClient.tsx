@@ -51,23 +51,23 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
       
       {/* Mesh Background Accents */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[#0F4C81]/[0.02] blur-[100px]"></div>
-        <div className="absolute bottom-10 left-10 w-[600px] h-[600px] rounded-full bg-[#D62828]/[0.01] blur-[120px]"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[#001C55]/[0.02] blur-[100px]"></div>
+        <div className="absolute bottom-10 left-10 w-[600px] h-[600px] rounded-full bg-[#C00000]/[0.01] blur-[120px]"></div>
       </div>
 
       {/* Mini-Header for Navigation */}
       <header className="border-b border-slate-200/60 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-[#0F4C81] transition-colors">
-            <ArrowLeft className="w-4 h-4 text-[#D62828]" />
+          <Link href="/" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600 hover:text-[#001C55] transition-colors">
+            <ArrowLeft className="w-4 h-4 text-[#C00000]" />
             Back to Home
           </Link>
           
           <div className="flex items-center gap-2">
             <img src="/logo.png" className="w-8 h-8 object-contain" alt="DKFFJ Logo" />
             <div className="flex flex-col text-left">
-              <span className="text-[#0F4C81] font-bold text-xs font-serif leading-tight">DK Foundation</span>
-              <span className="text-[7px] text-[#D62828] font-bold tracking-wider leading-none">REGISTRY PORTAL</span>
+              <span className="text-[#001C55] font-bold text-xs font-serif leading-tight">DK Foundation</span>
+              <span className="text-[7px] text-[#C00000] font-bold tracking-wider leading-none">REGISTRY PORTAL</span>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
         
         {/* Page Headings */}
         <div className="text-center max-w-3xl mx-auto mb-12 flex flex-col gap-3">
-          <div className="inline-flex items-center gap-1 bg-[#0F4C81]/10 text-[#0F4C81] rounded-full px-3 py-1 self-center text-[10px] font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1 bg-[#001C55]/10 text-[#001C55] rounded-full px-3 py-1 self-center text-[10px] font-bold uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5" /> Official Member Directory
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
@@ -87,7 +87,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
           <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed font-light">
             Verified list of national directors, state presidents, legal advisors, and human rights coordinators actively serving across 28+ States in India.
           </p>
-          <div className="h-1 w-16 bg-[#D62828] mx-auto mt-2 rounded-full"></div>
+          <div className="h-1 w-16 bg-[#C00000] mx-auto mt-2 rounded-full"></div>
         </div>
 
         {/* Filter Controls Bar */}
@@ -101,7 +101,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
               placeholder="Search by name, designation, state, qualification..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-11 py-3.5 rounded-xl outline-none transition-all placeholder-slate-400"
+              className="w-full bg-slate-50 border border-slate-200 focus:border-[#001C55] focus:ring-1 focus:ring-[#001C55] text-xs px-11 py-3.5 rounded-xl outline-none transition-all placeholder-slate-400"
             />
           </div>
 
@@ -110,7 +110,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
             <select
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-[#0F4C81] focus:ring-1 focus:ring-[#0F4C81] text-xs px-4 py-3.5 rounded-xl outline-none transition-all text-slate-700"
+              className="w-full bg-slate-50 border border-slate-200 focus:border-[#001C55] focus:ring-1 focus:ring-[#001C55] text-xs px-4 py-3.5 rounded-xl outline-none transition-all text-slate-700"
             >
               {statesList.map((state) => (
                 <option key={state} value={state}>
@@ -121,7 +121,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
           </div>
 
           {/* Status Counter */}
-          <div className="md:col-span-2 text-center md:text-right text-[11px] font-bold text-[#0F4C81]">
+          <div className="md:col-span-2 text-center md:text-right text-[11px] font-bold text-[#001C55]">
             Found: {filteredMembers.length} Members
           </div>
 
@@ -150,7 +150,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
               return (
                 <div 
                   key={member.id}
-                  className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_4px_15px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-[#0F4C81]/30 transition-all duration-300 flex flex-col justify-between h-full group"
+                  className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-[0_4px_15px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-[#001C55]/30 transition-all duration-300 flex flex-col justify-between h-full group"
                 >
                   <div>
                     {/* Top Row: Verification ID Code & Status Badge */}
@@ -171,21 +171,21 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
                     <div className="flex gap-4 items-start mb-5">
                       {/* Photo or Initials Fallback */}
                       {isOfficialLead ? (
-                        <div className="w-14 h-14 rounded-full overflow-hidden border border-[#0F4C81]/20 shadow-inner shrink-0 bg-slate-100">
+                        <div className="w-14 h-14 rounded-full overflow-hidden border border-[#001C55]/20 shadow-inner shrink-0 bg-slate-100">
                           <img src={member.photo} className="w-full h-full object-cover" alt={member.name} />
                         </div>
                       ) : (
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0F4C81]/15 to-[#D62828]/5 border border-slate-200 text-[#0F4C81] font-bold text-sm flex items-center justify-center shrink-0 shadow-inner">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001C55]/15 to-[#C00000]/5 border border-slate-200 text-[#001C55] font-bold text-sm flex items-center justify-center shrink-0 shadow-inner">
                           {initials}
                         </div>
                       )}
 
                       {/* Name & Designation */}
                       <div className="flex flex-col text-left">
-                        <h4 className="text-sm font-bold text-slate-800 tracking-wide font-serif leading-tight group-hover:text-[#0F4C81] transition-colors">
+                        <h4 className="text-sm font-bold text-slate-800 tracking-wide font-serif leading-tight group-hover:text-[#001C55] transition-colors">
                           {member.name}
                         </h4>
-                        <span className="text-[10px] text-[#D62828] font-bold uppercase tracking-wider mt-1 flex items-center gap-1">
+                        <span className="text-[10px] text-[#C00000] font-bold uppercase tracking-wider mt-1 flex items-center gap-1">
                           <Briefcase className="w-3 h-3" /> {member.role}
                         </span>
                       </div>
@@ -216,7 +216,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
                   {/* Mobile Contact Information */}
                   {member.mobile && (
                     <div className="border-t border-slate-100 mt-4 pt-3 flex items-center gap-2 text-[10px]">
-                      <Phone className="w-3 h-3 text-[#0F4C81] shrink-0" />
+                      <Phone className="w-3 h-3 text-[#001C55] shrink-0" />
                       <span className="text-slate-400 font-mono">Contact:</span>
                       <span className="font-mono font-bold text-slate-800">
                         {member.mobile.includes("hold") || member.mobile.includes("id") 

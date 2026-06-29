@@ -57,7 +57,7 @@ export default async function AdminPaymentsPage() {
       {/* Header */}
       <div>
         <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-          <CreditCard className="w-5 h-5 text-[#0F4C81]" /> Payments & Fee Ledger
+          <CreditCard className="w-5 h-5 text-[#001C55]" /> Payments & Fee Ledger
         </h1>
         <p className="text-slate-500 text-xs mt-1">Audit portal fee collections, track pending payments, and view transaction records.</p>
       </div>
@@ -125,7 +125,7 @@ export default async function AdminPaymentsPage() {
                       <td className="p-4 font-mono text-slate-900">{pay.transaction_id}</td>
                       <td className="p-4">{payerName}</td>
                       <td className="p-4 text-slate-500">{category}</td>
-                      <td className="p-4 text-[#D62828] font-bold">INR {Number(pay.amount)}</td>
+                      <td className="p-4 text-[#C00000] font-bold">INR {Number(pay.amount)}</td>
                       <td className="p-4">
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] border ${getStatusBadge(pay.status)}`}>
                           {pay.status}

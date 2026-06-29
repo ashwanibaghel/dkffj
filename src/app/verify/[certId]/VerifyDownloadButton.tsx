@@ -68,7 +68,7 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="w-full text-center py-3 rounded-xl bg-[#D62828] text-white hover:bg-[#b02020] text-xs font-bold uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(214,40,40,0.15)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+      className="w-full text-center py-3 rounded-xl bg-[#C00000] text-white hover:bg-[#990000] text-xs font-bold uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(192, 0, 0,0.15)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
     >
       {loading ? (
         <Loader2 className="w-4 h-4 animate-spin" />
