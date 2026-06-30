@@ -3,7 +3,7 @@ import "./globals.css";
 import ScrollProgress from "@/components/ScrollProgress";
 
 export const metadata: Metadata = {
-  title: "DK Foundation of Freedom and Justice",
+  title: "DK FOUNDATION OF FREEDOM AND JUSTICE | HUMAN RIGHTS PROTECTION | Regd By Ministry Of Corporate Affairs Govt. Of India",
   description: "Human Rights Protection organization registered by the Ministry of Corporate Affairs, Govt. of India.",
 };
 

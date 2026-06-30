@@ -63,6 +63,24 @@ export default function Home() {
         <div className="absolute top-[40%] left-[20%] -translate-x-1/2 -translate-y-1/2 w-[600px] h-[500px] rounded-full bg-[#C00000]/[0.015] blur-[120px]"></div>
       </div>
 
+      {/* Top Credentials Banner (Matches Old Design but Premium & Responsive) */}
+      <div className="bg-[#001C55] text-white py-5 px-6 border-b border-white/10 relative z-50 text-center shadow-sm">
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-1.5">
+          <div className="w-16 h-16 rounded-full bg-white p-1.5 flex items-center justify-center shadow-md">
+            <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
+          </div>
+          <h1 className="font-serif font-black text-lg sm:text-2xl tracking-wider text-white uppercase mt-1 leading-tight">
+            DK FOUNDATION OF FREEDOM AND JUSTICE
+          </h1>
+          <p className="text-xs sm:text-sm font-bold tracking-widest text-[#c5a880] uppercase">
+            HUMAN RIGHTS PROTECTION
+          </p>
+          <p className="text-[10px] sm:text-xs text-slate-300 font-medium tracking-wide">
+            Regd By Ministry Of Corporate Affairs Govt. Of India
+          </p>
+        </div>
+      </div>
+
       {/* Global Navigation Header */}
       <header className="border-b border-slate-200/60 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
