@@ -100,7 +100,7 @@ export default function Home() {
               Admin Portal
             </Link>
             <Link 
-              href="#contact" 
+              href="/donate" 
               className="bg-[#C00000] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#990000] active:scale-95 transition-all shadow-[0_4px_15px_rgba(192, 0, 0,0.2)]"
             >
               Donate Now

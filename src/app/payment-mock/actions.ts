@@ -5,6 +5,9 @@ import { createClient } from "@/utils/supabase/server";
 import { paymentServiceInstance } from "@/lib/payment/service";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getMembershipReceiptTemplate, getCourseRegistrationReceiptTemplate } from "@/services/email/templates";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function verifyAndCompletePayment(transactionId: string) {
   if (!transactionId) {
@@ -17,7 +20,7 @@ export async function verifyAndCompletePayment(transactionId: string) {
   // 1. Fetch payment record
   const { data: payment, error: fetchError } = await supabase
     .from("payments")
-    .select("id, amount, status, membership_id, registration_id")
+    .select("id, amount, status, membership_id, registration_id, donation_id")
     .eq("transaction_id", transactionId)
     .maybeSingle();
 
@@ -98,6 +101,63 @@ export async function verifyAndCompletePayment(transactionId: string) {
     };
   }
 
+  if (payment.donation_id) {
+    // Fetch donation details using Prisma to bypass RLS
+    const donation = await prisma.donations.findUnique({
+      where: { id: payment.donation_id }
+    });
+
+    if (!donation) {
+      return { success: false, error: "Donation record linked to payment was not found." };
+    }
+
+    // Update donation status to COMPLETED
+    try {
+      await prisma.donations.update({
+        where: { id: donation.id },
+        data: { status: "COMPLETED", transaction_id: transactionId }
+      });
+    } catch (err) {
+      console.error("Failed to update donation status via Prisma:", err);
+    }
+
+    // Send thank-you receipt email to donor
+    const subject = "Donation Successfully Received - Thank You! - DKFFJ";
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #001C55; padding: 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DK Foundation of Freedom & Justice</h1>
+        </div>
+        <div style="padding: 24px; color: #334155; text-align: left;">
+          <h2>Thank You for Your Generous Support!</h2>
+          <p>Dear <strong>${donation.donor_name}</strong>,</p>
+          <p>We have successfully received your donation of <strong>₹${donation.amount}</strong> towards <strong>${donation.purpose}</strong>.</p>
+          <p>Your contribution plays a vital role in enabling our social welfare, education, and human rights advocacy programs. We are deeply grateful for your support.</p>
+          <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <span style="font-size: 12px; color: #166534; font-weight: bold; display: block;">Donation Transaction Ref:</span>
+            <strong style="font-size: 16px; color: #15803d; display: block; margin-top: 5px; font-family: monospace;">${donation.order_id}</strong>
+          </div>
+          <p>You can track your donation status and download your official **Certificate of Appreciation** anytime using the button below:</p>
+          <div style="margin-top: 24px; text-align: center;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/track?type=donation&id=${donation.order_id}" style="background-color: #001C55; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Track Donation & Download Certificate</a>
+          </div>
+        </div>
+        <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+          &copy; ${new Date().getFullYear()} DK Foundation. All Rights Reserved.
+        </div>
+      </div>
+    `;
+    
+    await sendTransactionalEmail(donation.donor_email, subject, emailHtml);
+
+    return {
+      success: true,
+      type: "donation",
+      refId: donation.order_id,
+      message: "Donation payment verified successfully."
+    };
+  }
+
   if (payment.registration_id) {
     // Fetch course registration details
     const { data: registration, error: regError } = await supabase
@@ -169,6 +229,10 @@ async function getRedirectDetails(supabase: any, payment: any) {
   if (payment.registration_id) {
     const { data } = await supabase.from("course_registrations").select("enrollment_no").eq("id", payment.registration_id).maybeSingle();
     return { success: true, type: "enrollment", refId: data?.enrollment_no || "" };
+  }
+  if (payment.donation_id) {
+    const { data } = await supabase.from("donations").select("order_id").eq("id", payment.donation_id).maybeSingle();
+    return { success: true, type: "donation", refId: data?.order_id || "" };
   }
   return { success: false, error: "No reference details found." };
 }

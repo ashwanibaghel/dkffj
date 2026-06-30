@@ -19,7 +19,8 @@ import {
   Menu,
   X,
   Bell,
-  AlertCircle
+  AlertCircle,
+  Heart
 } from "lucide-react";
 import { getAdminNotifications, AdminNotification } from "./actions";
 
@@ -97,6 +98,7 @@ export default function AdminNavWrapper({
     { href: "/admin/registrations", label: "Enrollments Panel", icon: GraduationCap },
     { href: "/admin/certificates", label: "Certificates Registry", icon: FileCheck },
     { href: "/admin/payments", label: "Payments Ledger", icon: CreditCard },
+    { href: "/admin/donations", label: "Donations Desk", icon: Heart },
     { href: "/admin/documents", label: "Legal Downloads", icon: FileText },
     { href: "/admin/news", label: "News/Blogs Desk", icon: Newspaper },
     { href: "/admin/leaders", label: "Executive Council", icon: Users },

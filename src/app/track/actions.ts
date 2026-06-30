@@ -2,10 +2,13 @@
 
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export interface TrackingResult {
   found: boolean;
-  type: "membership" | "complaint" | "enrollment";
+  type: "membership" | "complaint" | "enrollment" | "donation";
   number: string;
   name: string;
   status: string;
@@ -294,6 +297,63 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
       details: enrollment.remarks || undefined,
       timeline,
       certificate,
+    };
+  }
+
+  if (type === "donation") {
+    let donation = null;
+    try {
+      donation = await prisma.donations.findUnique({
+        where: { order_id: searchStr }
+      });
+    } catch (error) {
+      console.error("Error fetching donation tracking via Prisma:", error);
+      return { found: false, type: "donation", number: searchStr, name: "", status: "", date: "", timeline: [] };
+    }
+
+    if (!donation) return { found: false, type: "donation", number: searchStr, name: "", status: "", date: "", timeline: [] };
+
+    const timeline = [
+      {
+        id: donation.id,
+        fromStatus: "INITIATED",
+        toStatus: donation.status,
+        remarks: donation.status === "COMPLETED" 
+          ? "Donation payment verified successfully. Certificate generated." 
+          : "Donation initiated. Awaiting payment gateway response.",
+        date: new Date(donation.created_at).toLocaleString("en-IN")
+      }
+    ];
+
+    return {
+      found: true,
+      type: "donation",
+      number: donation.order_id,
+      name: donation.donor_name,
+      status: donation.status,
+      date: new Date(donation.created_at).toLocaleDateString("en-IN"),
+      details: `Purpose: ${donation.purpose} | Amount: ₹${donation.amount}`,
+      timeline,
+      memberDetails: {
+        father_name: "N/A",
+        gender: "N/A",
+        dob: "N/A",
+        mobile: donation.donor_mobile,
+        whatsapp: "N/A",
+        email: donation.donor_email,
+        address: donation.donor_address,
+        district: "N/A",
+        state: "N/A",
+        pincode: "N/A",
+        education: "N/A",
+        profession: "N/A",
+        working_area: donation.purpose,
+        designation: "Donor",
+        photo_url: "",
+        approved_at: donation.created_at,
+        created_at: donation.created_at,
+        ack_no: donation.order_id,
+      }
     };
   }
 

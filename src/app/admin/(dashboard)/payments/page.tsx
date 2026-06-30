@@ -1,35 +1,44 @@
 import React from "react";
-import { cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
 import { CreditCard, IndianRupee, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPaymentsPage() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  // Fetch all payment transactions
-  const { data: payments, error } = await supabase
-    .from("payments")
-    .select(`
-      *,
-      memberships (
-        full_name,
-        ack_no
-      ),
-      course_registrations (
-        full_name,
-        enrollment_no,
-        courses (
-          title
-        )
-      )
-    `)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching payments ledger:", error);
+  // Fetch all payment transactions using Prisma to bypass RLS
+  let payments: any[] = [];
+  try {
+    payments = await prisma.payments.findMany({
+      orderBy: { created_at: "desc" },
+      include: {
+        memberships: {
+          select: {
+            full_name: true,
+            ack_no: true
+          }
+        },
+        course_registrations: {
+          include: {
+            courses: {
+              select: {
+                title: true
+              }
+            }
+          }
+        },
+        donations: {
+          select: {
+            donor_name: true,
+            order_id: true,
+            purpose: true
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching payments ledger via Prisma:", error);
   }
 
   const list = payments || [];
@@ -118,6 +127,9 @@ export default async function AdminPaymentsPage() {
                   } else if (pay.course_registrations) {
                     payerName = pay.course_registrations.full_name;
                     category = `Academy: ${pay.course_registrations.courses?.title || "Course Fee"}`;
+                  } else if (pay.donations) {
+                    payerName = pay.donations.donor_name;
+                    category = `Donation (${pay.donations.order_id}): ${pay.donations.purpose}`;
                   }
 
                   return (

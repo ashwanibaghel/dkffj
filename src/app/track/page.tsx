@@ -3,10 +3,11 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Clock, ShieldAlert, Award, Download, IdCard } from "lucide-react";
+import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Clock, ShieldAlert, Award, Download, IdCard, Heart } from "lucide-react";
 import { getTrackingDetails, TrackingResult } from "./actions";
 import { generateMembershipPDFClient } from "../admin/(dashboard)/members/MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "../admin/(dashboard)/members/MembershipIdCardGenerator";
+import { generateDonationPDFClient } from "../donate/DonationCertificateGenerator";
 
 function TrackPageContent() {
   const searchParams = useSearchParams();
@@ -18,11 +19,12 @@ function TrackPageContent() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [downloadingCert, setDownloadingCert] = useState<boolean>(false);
   const [downloadingIdCard, setDownloadingIdCard] = useState<boolean>(false);
+  const [downloadingDonation, setDownloadingDonation] = useState<boolean>(false);
 
   useEffect(() => {
     const type = searchParams.get("type");
     const id = searchParams.get("id");
-    if (type && ["membership", "complaint", "enrollment"].includes(type)) {
+    if (type && ["membership", "complaint", "enrollment", "donation"].includes(type)) {
       setTrackingType(type);
     }
     if (id) {
@@ -146,6 +148,46 @@ function TrackPageContent() {
     }
   };
 
+  const handleDownloadDonationCertificate = async (member: any) => {
+    setDownloadingDonation(true);
+    try {
+      const appUrl = window.location.origin;
+      const orderId = member.ack_no || result?.number || "";
+      const verificationUrl = `${appUrl}/verify/${orderId}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      
+      const issueDateStr = member.approved_at 
+        ? new Date(member.approved_at).toLocaleDateString("en-IN")
+        : new Date().toLocaleDateString("en-IN");
+
+      // Generate the PDF
+      const pdfBlob = await generateDonationPDFClient({
+        orderId,
+        fullName: result?.name || "",
+        amount: result?.details?.split("Amount: ₹")?.[1] || "1000",
+        purpose: member.working_area || "General Donation",
+        issueDateStr,
+        qrCodeUrl,
+        verificationUrl
+      });
+
+      // Trigger local browser download
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Donation_Certificate_${orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Error generating certificate: ${err.message || err}`);
+    } finally {
+      setDownloadingDonation(false);
+    }
+  };
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleSearch(trackingType, trackingNumber);
@@ -203,7 +245,7 @@ function TrackPageContent() {
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tracking Module</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button
                   type="button"
                   onClick={() => setTrackingType("membership")}
@@ -224,7 +266,7 @@ function TrackPageContent() {
                       : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
                   }`}
                 >
-                  Complaint (Grievance)
+                  Complaint
                 </button>
                 <button
                   type="button"
@@ -237,6 +279,17 @@ function TrackPageContent() {
                 >
                   Academy Course
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setTrackingType("donation")}
+                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
+                    trackingType === "donation"
+                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
+                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                  }`}
+                >
+                  Donation
+                </button>
               </div>
             </div>
 
@@ -245,6 +298,7 @@ function TrackPageContent() {
                 {trackingType === "membership" && "Acknowledgement / Membership No."}
                 {trackingType === "complaint" && "Grievance Docket No. (DKC-...)"}
                 {trackingType === "enrollment" && "Course Enrollment No. (DKE-...)"}
+                {trackingType === "donation" && "Donation Ref No. (DKD-...)"}
               </label>
               <div className="relative flex rounded-lg shadow-sm">
                 <input
@@ -253,7 +307,8 @@ function TrackPageContent() {
                   onChange={(e) => setTrackingNumber(e.target.value)}
                   placeholder={
                     trackingType === "membership" ? "e.g., ACK-2026-00001 or DKM-..." :
-                    trackingType === "complaint" ? "e.g., DKC-2026-00001" : "e.g., DKE-2026-00001"
+                    trackingType === "complaint" ? "e.g., DKC-2026-00001" :
+                    trackingType === "enrollment" ? "e.g., DKE-2026-00001" : "e.g., DKD-2026-00001"
                   }
                   className="w-full pl-4 pr-12 py-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/20 focus:border-[#001C55] transition-all bg-white"
                 />
@@ -363,6 +418,51 @@ function TrackPageContent() {
                     </div>
                   )}
 
+                  {/* Donation Details Card */}
+                  {result.type === "donation" && result.memberDetails && (
+                    <div className="mb-8 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                      <div className="bg-[#001C55]/5 px-5 py-3.5 border-b border-slate-200/60 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-[#001C55] uppercase tracking-wider">Donation Receipt Details</span>
+                        {result.status === "COMPLETED" && (
+                          <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                            Payment Successful
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-5 flex flex-col md:flex-row gap-6">
+                        {/* Heart Icon instead of photo */}
+                        <div className="flex flex-col items-center justify-center shrink-0 w-24 h-24 rounded-xl border bg-rose-50 border-rose-100 text-rose-500">
+                          <Heart className="w-10 h-10 fill-current" />
+                          <span className="text-[8px] text-rose-600 font-bold uppercase mt-1">Contributor</span>
+                        </div>
+                        
+                        {/* Profile Details Grid */}
+                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700 text-left">
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Donor Name</span>
+                            <span className="text-slate-900 mt-0.5 block">{result.name}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Donation Ref (Order ID)</span>
+                            <span className="text-slate-900 mt-0.5 block font-mono font-bold text-slate-800">{result.number}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Email & Mobile</span>
+                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.email} / {result.memberDetails.mobile}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Address</span>
+                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.address}</span>
+                          </div>
+                          <div className="sm:col-span-2">
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Purpose of Donation</span>
+                            <span className="text-[#001C55] font-extrabold mt-0.5 block uppercase tracking-wide">{result.memberDetails.working_area}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Membership Certificate & ID Card desk for APPROVED members */}
                   {result.type === "membership" && result.status === "APPROVED" && result.memberDetails && (
                     <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm text-left">
@@ -406,6 +506,37 @@ function TrackPageContent() {
                           ID Card (PDF)
                         </button>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Donation Certificate Appreciation download card for completed donations */}
+                  {result.type === "donation" && result.status === "COMPLETED" && result.memberDetails && (
+                    <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm text-left">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                          <Award className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Official Credential Generated
+                          </span>
+                          <h4 className="font-bold text-slate-800 text-sm mt-2 font-serif font-bold">Certificate of Appreciation</h4>
+                          <p className="text-slate-500 text-[11px] mt-0.5">Your official donation appreciation certificate is available for download.</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDownloadDonationCertificate(result.memberDetails)}
+                        disabled={downloadingDonation}
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg shrink-0 cursor-pointer disabled:opacity-50"
+                      >
+                        {downloadingDonation ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        Download Certificate
+                      </button>
                     </div>
                   )}
 
