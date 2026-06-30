@@ -74,20 +74,20 @@ export default function Home() {
       </div>
 
       {/* Top Credentials Banner — scrolls away naturally, NO sticky */}
-      <div className="bg-[#001C55] text-white border-b border-[#c5a880]/30 relative z-40">
+      <div className="bg-[#1565C0] text-white border-b border-white/20 relative z-40">
 
         {/* ── Top Nav Strip ── sits at the very top like a header bar */}
-        <div className="border-b border-white/10 px-6 py-2.5">
+        <div className="border-b border-white/20 px-6 py-2.5 bg-[#0D47A1]">
           <div className="max-w-7xl mx-auto flex flex-wrap justify-center items-center gap-x-7 gap-y-2">
-            <nav className="flex flex-wrap justify-center gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-200">
-              <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
-              <Link href="#about" className="hover:text-[#c5a880] transition-colors">About Us</Link>
-              <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
-              <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
-              <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
-              <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
-              <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
-              <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
+            <nav className="flex flex-wrap justify-center gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-white/90">
+              <Link href="/" className="hover:text-white transition-colors">Home</Link>
+              <Link href="#about" className="hover:text-white transition-colors">About Us</Link>
+              <Link href="#services" className="hover:text-white transition-colors">Services</Link>
+              <Link href="/courses" className="hover:text-white transition-colors">Academy</Link>
+              <Link href="#documents" className="hover:text-white transition-colors">Legals</Link>
+              <Link href="#news" className="hover:text-white transition-colors">News</Link>
+              <Link href="#video-gallery" className="hover:text-white transition-colors">Gallery</Link>
+              <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
             </nav>
             <Link href="/donate" className="ml-2 bg-[#C00000] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#990000] transition-colors shadow-md">
               Donate Now
@@ -98,16 +98,16 @@ export default function Home() {
         {/* ── Main Credentials (Logo + Name) ── */}
         <div className="text-center pt-8 pb-7 px-6">
           <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white p-2 flex items-center justify-center shadow-xl border-2 border-[#c5a880]/30">
+            <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white p-2 flex items-center justify-center shadow-2xl border-4 border-white/40">
               <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
             </div>
             <h1 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl tracking-wider text-white uppercase leading-tight mt-1">
               DK FOUNDATION OF FREEDOM AND JUSTICE
             </h1>
-            <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-[#c5a880] uppercase">
+            <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-yellow-200 uppercase">
               HUMAN RIGHTS PROTECTION
             </p>
-            <p className="text-[10px] sm:text-xs text-slate-300 font-medium tracking-wide">
+            <p className="text-[10px] sm:text-xs text-blue-100 font-medium tracking-wide">
               Regd By Ministry Of Corporate Affairs Govt. Of India
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function Home() {
           showStickyNav
             ? "opacity-100 translate-y-0 pointer-events-auto"
             : "opacity-0 -translate-y-4 pointer-events-none"
-        } bg-[#001C55]/97 backdrop-blur-md border-b border-[#c5a880]/20 shadow-lg`}
+        } bg-[#1565C0]/98 backdrop-blur-md border-b border-white/20 shadow-lg`}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo — only visible after scrolling (no double logo problem) */}
@@ -148,7 +148,7 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Link
               href="/admin/login"
-              className="border border-white/30 text-white hover:bg-white hover:text-[#001C55] text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all"
+              className="border border-white/40 text-white hover:bg-white hover:text-[#1565C0] text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all"
             >
               Admin
             </Link>
