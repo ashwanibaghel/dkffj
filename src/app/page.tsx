@@ -200,28 +200,60 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 2. Impact Statistics Bar */}
-        <section className="bg-white border-y border-sky-100 py-10 px-6">
-          <div className="max-w-7xl mx-auto w-full grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-            <div className="flex flex-col gap-1 border-r border-slate-100 last:border-none">
-              <span className="text-3xl font-extrabold text-[#1565C0]">15,000+</span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Registered Members</span>
-            </div>
-            <div className="flex flex-col gap-1 border-r border-slate-100 last:border-none">
-              <span className="text-3xl font-extrabold text-[#C00000]">4,500+</span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Complaints Resolved</span>
-            </div>
-            <div className="flex flex-col gap-1 border-r border-slate-100 last:border-none">
-              <span className="text-3xl font-extrabold text-slate-800">5,000+</span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Certificates Issued</span>
-            </div>
-            <div className="flex flex-col gap-1 border-r border-slate-100 last:border-none">
-              <span className="text-3xl font-extrabold text-slate-800">28+</span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">States Covered</span>
-            </div>
-            <div className="flex flex-col gap-1 last:border-none">
-              <span className="text-3xl font-extrabold text-[#1565C0]">120+</span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Awareness Camps</span>
+        {/* 2. Official Recognition & Registration Credentials Bar */}
+        <section className="bg-white border-y border-sky-100 py-8 px-6">
+          <div className="max-w-6xl mx-auto w-full">
+            <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-6">Officially Recognised & Registered By</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+              {/* MCA */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
+                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide">Section 8 Company</p>
+                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Ministry of Corporate Affairs</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">CIN: U88100UP2023NPL181342</p>
+                </div>
+              </div>
+
+              {/* NITI Aayog */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
+                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide">NITI Aayog</p>
+                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Govt. of India NGO Registry</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">ID: UP/2023/0343513</p>
+                </div>
+              </div>
+
+              {/* 12A */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
+                <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] font-black text-green-700 uppercase tracking-wide">12A Registered</p>
+                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Income Tax Exemption</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">Income Tax Act, 1961</p>
+                </div>
+              </div>
+
+              {/* 80G */}
+              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
+                <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div className="text-center">
+                  <p className="text-[11px] font-black text-amber-700 uppercase tracking-wide">80G Certified</p>
+                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Donations Tax Deductible</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">Income Tax Act, 1961</p>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
