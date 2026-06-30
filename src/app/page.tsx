@@ -208,7 +208,7 @@ export default function Home() {
 
               {/* MCA — links to MCA company search portal */}
               <a
-                href="https://www.mca.gov.in/content/mca/global/en/mca/master-data/MDS.html"
+                href="https://www.mca.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-[#1565C0]/30 hover:-translate-y-0.5 transition-all cursor-pointer group"
@@ -226,7 +226,7 @@ export default function Home() {
 
               {/* NITI Aayog — NGO Darpan portal */}
               <a
-                href="https://ngodarpan.gov.in/index.php/home/sdetail/61551/1"
+                href="https://ngodarpan.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-[#1565C0]/30 hover:-translate-y-0.5 transition-all cursor-pointer group"
@@ -244,7 +244,7 @@ export default function Home() {
 
               {/* 12A — Income Tax India portal */}
               <a
-                href="https://www.incometax.gov.in/iec/foportal/help/exemption-under-section-12a"
+                href="https://www.incometaxindia.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-green-200 hover:-translate-y-0.5 transition-all cursor-pointer group"
@@ -262,7 +262,7 @@ export default function Home() {
 
               {/* 80G — Income Tax India portal */}
               <a
-                href="https://www.incometax.gov.in/iec/foportal/help/80g-of-income-tax-act"
+                href="https://www.incometaxindia.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-amber-200 hover:-translate-y-0.5 transition-all cursor-pointer group"
