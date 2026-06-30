@@ -175,6 +175,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   const profession = formData.get("profession") as string;
   const workingArea = formData.get("workingArea") as string;
   const designation = formData.get("designation") as string;
+  const policeStation = formData.get("policeStation") as string;
 
   // Extract Upload Files
   const photo = formData.get("photo") as File;
@@ -268,6 +269,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
         profession,
         working_area: workingArea,
         designation,
+        police_station: policeStation,
         photo_url: photoUrl,
         aadhaar_url: aadhaarUrl,
         signature_url: signatureUrl,
