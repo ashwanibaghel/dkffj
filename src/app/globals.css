@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
+  --background: #f0f7ff;
   --foreground: #0f172a;
-  --primary: #001C55;
+  --primary: #1565C0;
   --secondary: #C00000;
   --font-jakarta: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
   --font-cinzel: Cinzel, Georgia, "Times New Roman", serif;
@@ -27,7 +27,7 @@ body {
 
 /* Custom shadow/glow effects for premium light cards */
 .glow-primary {
-  box-shadow: 0 4px 20px rgba(0, 28, 85, 0.05);
+  box-shadow: 0 4px 20px rgba(21, 101, 192, 0.08);
 }
 
 .glow-secondary {
