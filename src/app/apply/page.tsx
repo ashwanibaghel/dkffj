@@ -36,6 +36,30 @@ const PROFESSIONS = [
   "Service", "Business", "Private Sector", "Government Sector", "House Wife", "Retired", "Unemployed", "Student"
 ];
 
+const EDUCATION_OPTIONS = [
+  "High School (10th)",
+  "Intermediate (12th)",
+  "Diploma",
+  "B.A. (Bachelor of Arts)",
+  "B.Sc. (Bachelor of Science)",
+  "B.Com. (Bachelor of Commerce)",
+  "B.Tech. (Bachelor of Technology)",
+  "B.C.A. (Bachelor of Computer Applications)",
+  "B.B.A. (Bachelor of Business Administration)",
+  "LLB (Bachelor of Laws)",
+  "BA LLB (Integrated Law)",
+  "B.Ed. (Bachelor of Education)",
+  "M.A. (Master of Arts)",
+  "M.Sc. (Master of Science)",
+  "M.Com. (Master of Commerce)",
+  "M.Tech. (Master of Technology)",
+  "M.C.A. (Master of Computer Applications)",
+  "M.B.A. (Master of Business Administration)",
+  "LLM (Master of Laws)",
+  "Ph.D. (Doctor of Philosophy)",
+  "Other"
+];
+
 export default function ApplyPage() {
   const router = useRouter();
   const [step, setStep] = useState<number>(1);
@@ -69,6 +93,7 @@ export default function ApplyPage() {
   const [state, setState] = useState<string>("");
   const [pincode, setPincode] = useState<string>("");
   const [education, setEducation] = useState<string>("");
+  const [showEduDropdown, setShowEduDropdown] = useState<boolean>(false);
   const [profession, setProfession] = useState<string>("Service");
   const [workingArea, setWorkingArea] = useState<string>("");
   const [designation, setDesignation] = useState<string>("Member");
@@ -558,16 +583,53 @@ export default function ApplyPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t pt-4 mt-4">
-                  <div>
+                  <div className="relative">
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Highest Education *</label>
                     <input
                       type="text"
                       value={education}
-                      onChange={(e) => setEducation(e.target.value)}
+                      onChange={(e) => {
+                        setEducation(e.target.value);
+                        setShowEduDropdown(true);
+                      }}
+                      onFocus={() => setShowEduDropdown(true)}
                       required
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                      placeholder="e.g. Graduate, LLB"
+                      placeholder="Type or select education degree"
                     />
+                    {showEduDropdown && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-10" 
+                          onClick={() => setShowEduDropdown(false)} 
+                        />
+                        <div className="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-25 animate-fadeIn">
+                          {EDUCATION_OPTIONS.filter((opt) =>
+                            opt.toLowerCase().includes(education.toLowerCase())
+                          ).length > 0 ? (
+                            EDUCATION_OPTIONS.filter((opt) =>
+                              opt.toLowerCase().includes(education.toLowerCase())
+                            ).map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onClick={() => {
+                                  setEducation(opt);
+                                  setShowEduDropdown(false);
+                                }}
+                                className="w-full px-3.5 py-2.5 text-left text-xs text-slate-700 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0"
+                              >
+                                {opt}
+                              </button>
+                            ))
+                          ) : (
+                            <div className="px-3.5 py-2.5 text-xs text-slate-500 italic">
+                              No matches. Press Enter or click outside to use custom: &quot;{education}&quot;
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Profession *</label>
