@@ -48,9 +48,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
       id={`membership-idcard-render-container-${data.membershipNo || data.ackNo}`}
       style={{
         width: "1000px",
-        height: "500px",
+        height: "600px",
         boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
         borderRadius: "8px",
+        border: "3px solid #005b94", // ID Card Outer Border
         overflow: "hidden",
         backgroundColor: "#0076c0",
         color: "#ffffff",
@@ -73,17 +74,17 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
-          padding: "15px 20px 0 20px",
+          padding: "20px 20px 0 20px",
           position: "relative",
-          borderRight: "2px solid #005b94",
+          borderRight: "3px solid #005b94", // Thick divider matching border
           backgroundColor: "#0076c0",
           boxSizing: "border-box"
         }}
       >
-        <div style={{ fontSize: "24px", fontWeight: "bold", letterSpacing: "1px", marginBottom: "5px", fontFamily: "Arial, sans-serif" }}>IDENTITY CARD</div>
+        <div style={{ fontSize: "24px", fontWeight: "bold", letterSpacing: "1px", marginBottom: "8px", fontFamily: "Arial, sans-serif" }}>IDENTITY CARD</div>
         
         <img
-          style={{ width: "55px", height: "55px", marginBottom: "5px", objectFit: "contain" }}
+          style={{ width: "55px", height: "55px", marginBottom: "8px", objectFit: "contain" }}
           src={logoSrc}
           alt="Logo"
         />
@@ -96,7 +97,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           HUMAN RIGHTS PROTECTION
         </div>
         
-        <div style={{ fontSize: "8px", color: "#cbd5e1", marginBottom: "10px", fontFamily: "Arial, sans-serif" }}>
+        <div style={{ fontSize: "8px", color: "#cbd5e1", marginBottom: "12px", fontFamily: "Arial, sans-serif" }}>
           Regd. By Ministry of Corporate affairs Govt. of India
         </div>
         
@@ -140,7 +141,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           backgroundColor: "#e11d48",
           color: "#ffffff",
           textAlign: "center",
-          padding: "6px 10px",
+          padding: "8px 10px",
           fontSize: "11px",
           lineHeight: "1.3",
           fontWeight: "bold",
@@ -160,7 +161,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          paddingTop: "20px",
+          paddingTop: "25px",
           position: "relative",
           backgroundColor: "#0076c0",
           boxSizing: "border-box"
@@ -172,12 +173,12 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         </div>
         
         <img
-          style={{ width: "190px", height: "190px", marginBottom: "15px", objectFit: "contain" }}
+          style={{ width: "165px", height: "165px", marginBottom: "15px", objectFit: "contain" }}
           src={logoSrc}
           alt="Large Logo"
         />
         
-        <div style={{ fontSize: "28px", fontWeight: "bold", letterSpacing: "0.5px", marginBottom: "15px", fontFamily: "Arial, sans-serif", color: "#ffffff" }}>
+        <div style={{ fontSize: "28px", fontWeight: "bold", letterSpacing: "0.5px", marginBottom: "25px", fontFamily: "Arial, sans-serif", color: "#ffffff" }}>
           Mob. {data.mobileStr}
         </div>
         
@@ -186,7 +187,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           bottom: 0,
           left: 0,
           width: "100%",
-          height: "165px",
+          height: "185px", // Tall curved base dome
           backgroundColor: "#ffffff",
           borderTopLeftRadius: "50% 30px",
           borderTopRightRadius: "50% 30px",
@@ -274,10 +275,10 @@ export async function generateMembershipIdCardPDFClient(
             format: "a4" // 297mm x 210mm
           });
 
-          // Container is 1000px wide by 500px high (Aspect ratio: 2.0)
-          // Width on A4 Landscape is 297mm. Height scaled: 297 / 2 = 148.5mm.
-          // Center vertically: (210 - 148.5) / 2 = 30.75mm margins on top and bottom.
-          pdf.addImage(imgData, "JPEG", 0, 30.75, 297, 148.5, undefined, "FAST");
+          // Container is 1000px wide by 600px high (Aspect ratio: 1.667)
+          // Width on A4 Landscape is 297mm. Height scaled: 297 / 1.667 = 178.2mm.
+          // Center vertically: (210 - 178.2) / 2 = 15.9mm margins on top and bottom.
+          pdf.addImage(imgData, "JPEG", 0, 15.9, 297, 178.2, undefined, "FAST");
           const pdfBlob = pdf.output("blob");
 
           root.unmount();
