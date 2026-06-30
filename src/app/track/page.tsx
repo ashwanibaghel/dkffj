@@ -3,8 +3,10 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Clock, ShieldAlert, Award, Download } from "lucide-react";
+import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Clock, ShieldAlert, Award, Download, IdCard } from "lucide-react";
 import { getTrackingDetails, TrackingResult } from "./actions";
+import { generateMembershipPDFClient } from "../admin/(dashboard)/members/MembershipCertificateGenerator";
+import { generateMembershipIdCardPDFClient } from "../admin/(dashboard)/members/MembershipIdCardGenerator";
 
 function TrackPageContent() {
   const searchParams = useSearchParams();
@@ -14,6 +16,8 @@ function TrackPageContent() {
   const [searched, setSearched] = useState<boolean>(false);
   const [result, setResult] = useState<TrackingResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [downloadingCert, setDownloadingCert] = useState<boolean>(false);
+  const [downloadingIdCard, setDownloadingIdCard] = useState<boolean>(false);
 
   useEffect(() => {
     const type = searchParams.get("type");
@@ -43,6 +47,102 @@ function TrackPageContent() {
       setErrorMsg("Something went wrong while fetching details. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadCertificate = async (member: any) => {
+    setDownloadingCert(true);
+    try {
+      const appUrl = window.location.origin;
+      const certNo = member.membership_no || member.ack_no || result?.number;
+      const verificationUrl = `${appUrl}/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      
+      const issueDateStr = member.approved_at 
+        ? new Date(member.approved_at).toLocaleDateString("en-IN")
+        : (member.created_at ? new Date(member.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN"));
+
+      // Generate the PDF
+      const pdfBlob = await generateMembershipPDFClient({
+        membershipNo: member.membership_no || certNo || "",
+        ackNo: member.ack_no || certNo || "",
+        fullName: result?.name || "",
+        fatherName: member.father_name,
+        designation: member.designation,
+        workingArea: member.working_area,
+        photoUrl: member.photo_url,
+        issueDateStr,
+        qrCodeUrl,
+        verificationUrl
+      });
+
+      // Trigger local browser download
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Membership_Certificate_${certNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Error generating certificate: ${err.message || err}`);
+    } finally {
+      setDownloadingCert(false);
+    }
+  };
+
+  const handleDownloadIdCard = async (member: any) => {
+    setDownloadingIdCard(true);
+    try {
+      const appUrl = window.location.origin;
+      const certNo = member.membership_no || member.ack_no || result?.number;
+      const verificationUrl = `${appUrl}/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      
+      const issueDate = member.approved_at ? new Date(member.approved_at) : (member.created_at ? new Date(member.created_at) : new Date());
+      const issueDateStr = issueDate.toLocaleDateString("en-IN");
+      
+      const validFromStr = issueDate.toISOString().split("T")[0]; // YYYY-MM-DD
+      const validToDate = new Date(issueDate);
+      validToDate.setFullYear(validToDate.getFullYear() + 1);
+      validToDate.setDate(validToDate.getDate() - 1);
+      const validToStr = validToDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+      const pdfBlob = await generateMembershipIdCardPDFClient({
+        membershipNo: member.membership_no || certNo || "",
+        ackNo: member.ack_no || certNo || "",
+        fullName: result?.name || "",
+        fatherName: member.father_name,
+        designation: member.designation,
+        workingArea: member.working_area,
+        photoUrl: member.photo_url,
+        issueDateStr,
+        validFromStr,
+        validToStr,
+        addressStr: member.address || "",
+        districtStr: member.district || "",
+        stateStr: member.state || "",
+        pincodeStr: member.pincode || "",
+        mobileStr: member.mobile || "",
+        qrCodeUrl,
+        verificationUrl
+      });
+
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Membership_ID_Card_${certNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Error generating ID Card: ${err.message || err}`);
+    } finally {
+      setDownloadingIdCard(false);
     }
   };
 
@@ -259,6 +359,52 @@ function TrackPageContent() {
                             <span className="text-slate-850 mt-0.5 block leading-relaxed">{result.memberDetails.address}, {result.memberDetails.district}, {result.memberDetails.state} - {result.memberDetails.pincode}</span>
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Membership Certificate & ID Card desk for APPROVED members */}
+                  {result.type === "membership" && result.status === "APPROVED" && result.memberDetails && (
+                    <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm text-left">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                          <Award className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            Official Credentials Ready
+                          </span>
+                          <h4 className="font-bold text-slate-800 text-sm mt-2 font-serif">Download Membership Documents</h4>
+                          <p className="text-slate-500 text-[11px] mt-0.5">Your official membership ID card and certificate are ready for download.</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadCertificate(result.memberDetails)}
+                          disabled={downloadingCert || downloadingIdCard}
+                          className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50"
+                        >
+                          {downloadingCert ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Download className="w-3.5 h-3.5" />
+                          )}
+                          Certificate (PDF)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadIdCard(result.memberDetails)}
+                          disabled={downloadingCert || downloadingIdCard}
+                          className="px-4 py-2 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50"
+                        >
+                          {downloadingIdCard ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <IdCard className="w-3.5 h-3.5" />
+                          )}
+                          ID Card (PDF)
+                        </button>
                       </div>
                     </div>
                   )}

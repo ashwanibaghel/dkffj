@@ -38,6 +38,9 @@ export interface TrackingResult {
     working_area: string;
     designation: string;
     photo_url: string;
+    approved_at?: string | null;
+    created_at?: string;
+    ack_no?: string;
   } | null;
 }
 
@@ -74,6 +77,7 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
         photo_url,
         status, 
         created_at,
+        approved_at,
         remarks,
         status_logs (
           id,
@@ -127,6 +131,9 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
         working_area: membership.working_area,
         designation: membership.designation,
         photo_url: membership.photo_url,
+        approved_at: membership.approved_at,
+        created_at: membership.created_at,
+        ack_no: membership.ack_no,
       }
     };
   }
@@ -281,7 +288,7 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
       found: true,
       type: "enrollment",
       number: enrollment.enrollment_no,
-      name: `${enrollment.full_name} (${enrollment.courses?.title || "Unknown Course"})`,
+      name: `${enrollment.full_name} (${(enrollment.courses as any)?.title || (Array.isArray(enrollment.courses) && (enrollment.courses[0] as any)?.title) || "Unknown Course"})`,
       status: enrollment.status,
       date: new Date(enrollment.created_at).toLocaleDateString("en-IN"),
       details: enrollment.remarks || undefined,
