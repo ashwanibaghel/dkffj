@@ -176,3 +176,69 @@ export async function updateMembershipStatus(id: string, newStatus: string, rema
 
   return { success: true, membershipNo: generatedMembershipNo };
 }
+
+// 4. Update specific membership fields (Photo and Designation) by Admin
+export async function updateMembershipFields(formData: FormData) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Validate admin auth
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  const id = formData.get("id") as string;
+  const designation = formData.get("designation") as string;
+  const photo = formData.get("photo") as File | null;
+
+  if (!id || !designation) {
+    return { success: false, error: "Membership ID and designation are required." };
+  }
+
+  const updatePayload: any = {
+    designation,
+    updated_at: new Date().toISOString()
+  };
+
+  // If a new photo was uploaded, process and upload it to Supabase Storage
+  if (photo && photo.size > 0) {
+    // Get the user ID of the membership to store in their folder
+    const { data: memberData } = await supabase.from("memberships").select("user_id").eq("id", id).single();
+    if (!memberData) {
+      return { success: false, error: "Membership record not found." };
+    }
+    const memberUserId = memberData.user_id;
+
+    const photoExt = photo.name.split(".").pop();
+    const photoName = `${memberUserId}/photo_${Date.now()}.${photoExt}`;
+    const photoBuffer = Buffer.from(await photo.arrayBuffer());
+
+    const { error: uploadErr } = await supabase.storage
+      .from("photos")
+      .upload(photoName, photoBuffer, { contentType: photo.type, upsert: true });
+
+    if (uploadErr) {
+      console.error("Admin photo upload failed:", uploadErr);
+      return { success: false, error: `Photo upload failed: ${uploadErr.message}` };
+    }
+
+    const { data: photoUrlData } = supabase.storage.from("photos").getPublicUrl(photoName);
+    updatePayload.photo_url = photoUrlData.publicUrl;
+  }
+
+  const { error: updateErr } = await supabase
+    .from("memberships")
+    .update(updatePayload)
+    .eq("id", id);
+
+  if (updateErr) {
+    console.error("Admin membership fields update failed:", updateErr);
+    return { success: false, error: "Failed to update record in database." };
+  }
+
+  return { success: true };
+}

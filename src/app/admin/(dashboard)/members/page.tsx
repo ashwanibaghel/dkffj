@@ -1,10 +1,26 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus } from "./actions";
-import { Users, FileCheck, XCircle, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard } from "lucide-react";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields } from "./actions";
+import { Users, FileCheck, XCircle, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
+
+const DESIGNATIONS = [
+  "DIRECTOR", "ADD DIRECTOR", "National President", "PRESIDENT", "Secretary",
+  "Executive President", "Chief Executive Officer", "Deputy Executive President",
+  "Vice President", "Deputy Vice President", "General Secretary", "National Secretary",
+  "National Co-ordinator", "Chief Secretary", "Deputy Chief Secretary", "Joint Secretary",
+  "Chief Observer", "Deputy Chief Observer", "Chief Reporting Officer",
+  "Deputy Chief Reporting Officer", "Chief Co-ordinator", "Co-ordinator",
+  "Deputy Chief Co-ordinator", "Minority Welfare Secretary", "Women Empowerment Secretary",
+  "Social Welfare Secretary", "Consumer Welfare Secretary", "Human Welfare Secretary",
+  "Administrative Secretary", "Information Secretary", "Organising Secretary",
+  "Legal Advisor", "Social Media Activist", "Human Rights Activist", "Member",
+  "RTI Activist", "Nodal Officer", "Social Activist", "Brand Ambassador",
+  "Spokesperson", "Content Writer", "System Administrator", "General Counsel",
+  "IT Cell Incharge", "YouTube Media Partner", "Chartered Accountant", "Other"
+];
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<any[]>([]);
@@ -20,6 +36,56 @@ export default function AdminMembersPage() {
   const [remarks, setRemarks] = useState<string>("");
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string>("");
+
+  // Edit mode states
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDesignation, setEditDesignation] = useState<string>("");
+  const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
+  const [editPhotoPreview, setEditPhotoPreview] = useState<string>("");
+
+  const startEditing = (member: any) => {
+    setEditingId(member.id);
+    setEditDesignation(member.designation);
+    setEditPhotoFile(null);
+    setEditPhotoPreview(member.photo_url || "");
+  };
+
+  const handleEditPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditPhotoFile(file);
+      setEditPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveChanges = async (memberId: string) => {
+    setActionLoading(true);
+    setActionError("");
+    try {
+      const formData = new FormData();
+      formData.append("id", memberId);
+      formData.append("designation", editDesignation);
+      if (editPhotoFile) {
+        formData.append("photo", editPhotoFile);
+      }
+      
+      const res = await updateMembershipFields(formData);
+      if (res.success) {
+        setEditingId(null);
+        setEditPhotoFile(null);
+        await fetchData(); // Refresh data
+        showToast("Membership details updated successfully!", "success");
+      } else {
+        setActionError(res.error || "Failed to update membership details.");
+        showToast(res.error || "Failed to update membership details.", "error");
+      }
+    } catch (err: any) {
+      setActionError(err.message || "Error updating membership details.");
+      showToast("Error updating membership details.", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Toast notification state
   const [toast, setToast] = useState<{ message: string; visible: boolean; type: 'success' | 'error' }>({
@@ -353,15 +419,75 @@ export default function AdminMembersPage() {
                       </div>
                     )}
 
+                    {/* Expanded panel header with Edit Button */}
+                    <div className="flex justify-between items-center border-b pb-3 mb-2">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Application Review Details</span>
+                      {editingId === member.id ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingId(null);
+                              setEditPhotoFile(null);
+                            }}
+                            className="px-3 py-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 text-[10px] font-bold text-slate-600 transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSaveChanges(member.id)}
+                            disabled={actionLoading}
+                            className="px-3.5 py-1.5 bg-[#001C55] text-white rounded-lg hover:bg-[#001236] text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 shadow-sm disabled:opacity-50 cursor-pointer"
+                          >
+                            {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                            Save Changes
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => startEditing(member)}
+                          className="px-3 py-1.5 border border-[#001C55] hover:bg-[#001C55]/5 text-[#001C55] rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Edit className="w-3.5 h-3.5" /> Edit Profile
+                        </button>
+                      )}
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       
                       {/* Left Column: Personal Photo */}
                       <div className="flex flex-col items-center border border-slate-200/60 bg-white rounded-xl p-4 text-center">
-                        <img
-                          src={member.photo_url || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300"}
-                          alt={member.full_name}
-                          className="w-28 h-28 object-cover rounded-xl border"
-                        />
+                        <div className="relative group w-28 h-28">
+                          <img
+                            src={editingId === member.id ? editPhotoPreview : (member.photo_url || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300")}
+                            alt={member.full_name}
+                            className="w-28 h-28 object-cover rounded-xl border"
+                          />
+                          {editingId === member.id && (
+                            <label className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Upload className="w-5 h-5 text-white" />
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png"
+                                onChange={handleEditPhotoChange}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                        </div>
+                        {editingId === member.id && (
+                          <label className="mt-2 px-2.5 py-1 text-[10px] border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer font-bold text-slate-650 flex items-center gap-1">
+                            <Upload className="w-3 h-3 text-slate-500" /> Change Photo
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png"
+                              onChange={handleEditPhotoChange}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
                         <h4 className="font-bold text-slate-800 text-sm mt-3">{member.full_name}</h4>
                         <span className="text-[10px] text-slate-400 font-bold uppercase mt-1">Candidate Profile</span>
                       </div>
@@ -386,7 +512,19 @@ export default function AdminMembersPage() {
                         </div>
                         <div>
                           <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Desired Designation</span>
-                          <span className="text-slate-800 mt-0.5 block text-[#001C55] font-bold">{member.designation}</span>
+                          {editingId === member.id ? (
+                            <select
+                              value={editDesignation}
+                              onChange={(e) => setEditDesignation(e.target.value)}
+                              className="mt-1 w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white font-bold text-slate-700 cursor-pointer"
+                            >
+                              {DESIGNATIONS.map((d) => (
+                                <option key={d} value={d}>{d}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className="text-slate-800 mt-0.5 block text-[#001C55] font-bold">{member.designation}</span>
+                          )}
                         </div>
                         <div>
                           <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Working Area</span>
