@@ -47,422 +47,170 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
     <div
       id={`membership-idcard-render-container-${data.membershipNo || data.ackNo}`}
       style={{
-        width: "962px",
-        height: "600px",
-        position: "relative",
-        backgroundColor: "#f1f5f9",
-        boxSizing: "border-box",
+        width: "1000px",
+        height: "500px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+        borderRadius: "8px",
         overflow: "hidden",
+        backgroundColor: "#0076c0",
+        color: "#ffffff",
         display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0"
+        position: "relative",
+        boxSizing: "border-box"
       }}
     >
       {/* Google Fonts injection */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;600;700;800&family=Outfit:wght@500;600;700;800&family=Cinzel:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
       `}</style>
 
-      {/* ==================== LEFT CARD (FRONT SIDE) ==================== */}
+      {/* LEFT PANEL */}
       <div
         style={{
-          width: "480px",
-          height: "600px",
-          position: "relative",
-          backgroundColor: "#001C55", // Deep Logo Navy Blue
-          boxSizing: "border-box",
-          overflow: "hidden",
+          width: "50%",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: "15px 20px"
+          textAlign: "center",
+          padding: "15px 20px 0 20px",
+          position: "relative",
+          borderRight: "2px solid #005b94",
+          backgroundColor: "#0076c0",
+          boxSizing: "border-box"
         }}
       >
-        {/* Header Title */}
-        <h3 style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 800,
-          fontSize: "19px",
-          color: "#ffffff",
-          letterSpacing: "2.5px",
-          margin: "0 0 8px 0",
-          textTransform: "uppercase"
-        }}>
-          Identity Card
-        </h3>
-
-        {/* Circular Small Logo */}
-        <div style={{
-          width: "46px",
-          height: "46px",
-          borderRadius: "50%",
-          backgroundColor: "#ffffff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 2px 5px rgba(0,0,0,0.15)",
-          margin: "0 0 6px 0",
-          overflow: "hidden"
-        }}>
-          <img
-            src={logoSrc}
-            alt="Logo Small"
-            style={{ width: "42px", height: "42px", objectFit: "contain" }}
-          />
+        <div style={{ fontSize: "24px", fontWeight: "bold", letterSpacing: "1px", marginBottom: "5px", fontFamily: "Arial, sans-serif" }}>IDENTITY CARD</div>
+        
+        <img
+          style={{ width: "55px", height: "55px", marginBottom: "5px", objectFit: "contain" }}
+          src={logoSrc}
+          alt="Logo"
+        />
+        
+        <div style={{ fontSize: "16px", fontWeight: "bold", letterSpacing: "0.5px", fontFamily: "Arial, sans-serif" }}>
+          DK FOUNDATION OF FREEDOM AND JUSTICE
         </div>
-
-        {/* Organization Name */}
-        <h2 style={{
-          fontFamily: "'Cinzel', serif",
-          fontWeight: 800,
-          fontSize: "12px",
-          color: "#ffffff",
-          letterSpacing: "0.2px",
-          textAlign: "center",
-          margin: "0 0 2px 0",
-          textTransform: "uppercase"
-        }}>
-          DK Foundation of Freedom and Justice
-        </h2>
-
-        {/* Subtitle */}
-        <p style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 700,
-          fontSize: "9px",
-          color: "#ffffff",
-          letterSpacing: "1px",
-          textAlign: "center",
-          margin: "0 0 2px 0",
-          textTransform: "uppercase"
-        }}>
-          Human Rights Protection
-        </p>
-
-        {/* Regd Notice */}
-        <p style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: "6.5px",
-          color: "#dddddd",
-          textAlign: "center",
-          margin: "0 0 10px 0"
-        }}>
+        
+        <div style={{ fontSize: "11px", fontWeight: "bold", color: "#e0f2fe", marginTop: "2px", fontFamily: "Arial, sans-serif" }}>
+          HUMAN RIGHTS PROTECTION
+        </div>
+        
+        <div style={{ fontSize: "8px", color: "#cbd5e1", marginBottom: "10px", fontFamily: "Arial, sans-serif" }}>
           Regd. By Ministry of Corporate affairs Govt. of India
-        </p>
-
-        {/* Profile Photo Frame */}
-        <div style={{
-          width: "116px",
-          height: "142px",
-          borderRadius: "4px",
-          border: "3.5px solid #c5a880", // Gold-yellow frame
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-          margin: "0 0 12px 0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
-          <img
-            src={photoSrc}
-            alt="Member Photo"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
         </div>
-
-        {/* Member Name */}
-        <h1 style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 800,
-          fontSize: "18px",
-          color: "#ffffff",
-          textAlign: "center",
-          margin: "0 0 4px 0",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px"
-        }}>
+        
+        <img
+          style={{ width: "130px", height: "145px", border: "3px solid #ffffff", objectFit: "cover", marginBottom: "12px" }}
+          src={photoSrc}
+          alt={data.fullName}
+        />
+        
+        <div style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "6px", fontFamily: "Arial, sans-serif" }}>
           {data.fullName}
-        </h1>
-
-        {/* Designation */}
-        <p style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 700,
-          fontSize: "12px",
-          color: "#ffffff",
-          backgroundColor: "rgba(255,255,255,0.08)",
-          padding: "3px 14px",
-          borderRadius: "4px",
-          textAlign: "center",
-          margin: "0 0 10px 0",
-          textTransform: "uppercase",
-          letterSpacing: "1.5px"
-        }}>
-          {data.designation}
-        </p>
-
-        {/* Professional Specs: Work Area */}
-        <p style={{
-          fontFamily: "'Inter', sans-serif",
-          fontWeight: 700,
-          fontSize: "10px",
-          color: "#ffffff",
-          margin: "0 0 4px 0"
-        }}>
-          Work Area: <span style={{ color: "#c5a880" }}>{data.workingArea}</span>
-        </p>
-
-        {/* Validity Period */}
-        <p style={{
-          fontFamily: "'Inter', sans-serif",
-          fontWeight: 600,
-          fontSize: "8.5px",
-          color: "#dddddd",
-          margin: "0 0 8px 0"
-        }}>
-          Valid Till : <span style={{ fontFamily: "monospace", fontSize: "9px" }}>{data.validFromStr} to {data.validToStr}</span>
-        </p>
-
-        {/* Residential Address Block */}
-        <div style={{
-          width: "90%",
-          textAlign: "center",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: "8.5px",
-          color: "#ffffff",
-          lineHeight: "1.3",
-          margin: "0 0 8px 0",
-          opacity: 0.95
-        }}>
-          <span style={{ fontWeight: "bold" }}>Add:</span> {data.addressStr}
-          <br />
-          {data.districtStr}, {data.stateStr} {data.pincodeStr ? `- ${data.pincodeStr}` : ""}
         </div>
-
-        {/* Digital Signature Overlay */}
-        <div style={{
-          position: "absolute",
-          right: "35px",
-          bottom: "54px",
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center"
-        }}>
-          <span style={{
-            fontFamily: "'Great Vibes', cursive",
-            fontSize: "24px",
-            color: "#ffffff",
-            margin: "0",
-            lineHeight: "1",
-            transform: "rotate(-5deg)"
-          }}>
+        
+        <div style={{ fontSize: "16px", fontWeight: "bold", letterSpacing: "1px", marginBottom: "12px", fontFamily: "Arial, sans-serif" }}>
+          {data.designation}
+        </div>
+        
+        <div style={{ fontSize: "15px", marginBottom: "12px", fontFamily: "Arial, sans-serif" }}>
+          Work Area: <strong>{data.workingArea}</strong>
+        </div>
+        
+        <div style={{ fontSize: "15px", marginBottom: "12px", fontFamily: "Arial, sans-serif" }}>
+          Valid Till : <strong>{data.validFromStr} to {data.validToStr}</strong>
+        </div>
+        
+        <div style={{ fontSize: "15px", marginBottom: "12px", fontFamily: "Arial, sans-serif", lineHeight: "1.3" }}>
+          Add: <strong>{data.addressStr}<br />{data.districtStr} {data.stateStr} {data.pincodeStr ? `- ${data.pincodeStr}` : ""}</strong>
+        </div>
+        
+        <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", paddingRight: "40px", marginTop: "-5px" }}>
+          <span style={{ fontFamily: "'Great Vibes', cursive", fontSize: "24px", color: "#ffffff", transform: "rotate(-5deg)", display: "inline-block" }}>
             Wasim Qureshi
           </span>
-          <span style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: "6px",
-            color: "#c5a880",
-            fontWeight: "bold",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
-            marginTop: "1px",
-            borderTop: "0.5px solid rgba(255,255,255,0.3)",
-            paddingTop: "2px",
-            width: "70px"
-          }}>
-            Auth. Signatory
-          </span>
         </div>
-
-        {/* Footer Red Address Bar */}
+        
         <div style={{
           position: "absolute",
-          bottom: "0",
-          left: "0",
+          bottom: 0,
+          left: 0,
           width: "100%",
-          backgroundColor: "#C00000", // Logo Red
-          padding: "5px 15px",
-          boxSizing: "border-box",
+          backgroundColor: "#e11d48",
+          color: "#ffffff",
           textAlign: "center",
-          borderTop: "1px solid rgba(255,255,255,0.15)"
+          padding: "6px 10px",
+          fontSize: "11px",
+          lineHeight: "1.3",
+          fontWeight: "bold",
+          fontFamily: "Arial, sans-serif",
+          boxSizing: "border-box"
         }}>
-          <p style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontWeight: 700,
-            fontSize: "7.5px",
-            color: "#ffffff",
-            textTransform: "uppercase",
-            margin: "0 0 1px 0",
-            letterSpacing: "1px"
-          }}>
-            Head Office Address
-          </p>
-          <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: "7px",
-            color: "#ffffff",
-            margin: "0",
-            lineHeight: "1.2",
-            opacity: 0.95
-          }}>
-            117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
-          </p>
+          <span style={{ color: "#fef08a", display: "block", fontSize: "12px", marginBottom: "2px" }}>Head Office Address</span>
+          117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
         </div>
       </div>
 
-      {/* ==================== CENTER DIVIDER LINE ==================== */}
-      <div style={{
-        width: "2px",
-        height: "100%",
-        backgroundColor: "#111111",
-        zIndex: 5
-      }} />
-
-      {/* ==================== RIGHT CARD (BACK SIDE) ==================== */}
+      {/* RIGHT PANEL */}
       <div
         style={{
-          width: "480px",
-          height: "600px",
-          position: "relative",
-          backgroundColor: "#001C55", // Logo Navy Blue
-          boxSizing: "border-box",
-          overflow: "hidden",
+          width: "50%",
+          height: "100%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: "15px 20px"
+          paddingTop: "20px",
+          position: "relative",
+          backgroundColor: "#0076c0",
+          boxSizing: "border-box"
         }}
       >
-        {/* Upper Half Contents (Navy Background) */}
-        <h4 style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 700,
-          fontSize: "14px",
-          color: "#ffffff",
-          margin: "8px 0 2px 0",
-          letterSpacing: "1.5px",
-          textTransform: "uppercase"
-        }}>
-          Regd. No.
-        </h4>
-        <p style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 800,
-          fontSize: "18px",
-          color: "#ffffff",
-          margin: "0 0 15px 0",
-          letterSpacing: "0.5px"
-        }}>
+        <div style={{ fontSize: "20px", fontWeight: "bold", letterSpacing: "0.5px", textAlign: "center", marginBottom: "15px", fontFamily: "Arial, sans-serif", color: "#ffffff" }}>
+          Regd. No.<br />
           U88900UP2023NPL185611
-        </p>
-
-        {/* Large Central Circular Crest Logo */}
-        <div style={{
-          width: "180px",
-          height: "180px",
-          borderRadius: "50%",
-          backgroundColor: "#ffffff",
-          boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "0 0 18px 0",
-          overflow: "hidden",
-          border: "2px solid #ffffff",
-          zIndex: 2
-        }}>
-          <img
-            src={logoSrc}
-            alt="Crest Logo Large"
-            style={{ width: "172px", height: "172px", objectFit: "contain" }}
-          />
         </div>
-
-        {/* Contact Mobile */}
-        <h3 style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: 800,
-          fontSize: "17px",
-          color: "#ffffff",
-          margin: "0 0 10px 0",
-          letterSpacing: "0.5px",
-          zIndex: 2
-        }}>
+        
+        <img
+          style={{ width: "190px", height: "190px", marginBottom: "15px", objectFit: "contain" }}
+          src={logoSrc}
+          alt="Large Logo"
+        />
+        
+        <div style={{ fontSize: "28px", fontWeight: "bold", letterSpacing: "0.5px", marginBottom: "15px", fontFamily: "Arial, sans-serif", color: "#ffffff" }}>
           Mob. {data.mobileStr}
-        </h3>
-
-        {/* Smooth Curved Wave SVG dividing Blue and White areas */}
-        <svg
-          viewBox="0 0 480 250"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: "250px",
-            zIndex: 1,
-            pointerEvents: "none"
-          }}
-        >
-          <path d="M 0,40 Q 240,95 480,40 L 480,250 L 0,250 Z" fill="#ffffff" />
-        </svg>
-
-        {/* Lower Half Contents (White Background Area - Z-index: 2 to sit on top of SVG) */}
+        </div>
+        
         <div style={{
           position: "absolute",
-          bottom: "18px",
+          bottom: 0,
+          left: 0,
           width: "100%",
+          height: "165px",
+          backgroundColor: "#ffffff",
+          borderTopLeftRadius: "50% 30px",
+          borderTopRightRadius: "50% 30px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          zIndex: 2
+          justifyContent: "center",
+          color: "#000000",
+          paddingTop: "10px",
+          boxSizing: "border-box"
         }}>
-          {/* Verification QR Code */}
-          <div style={{
-            width: "115px",
-            height: "115px",
-            border: "1.5px solid #e2e8f0",
-            borderRadius: "6px",
-            padding: "4px",
-            backgroundColor: "#ffffff",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-            margin: "0 0 10px 0"
-          }}>
-            {qrSrc && (
-              <img
-                src={qrSrc}
-                alt="Verification QR Code"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            )}
+          {qrSrc && (
+            <img
+              style={{ width: "85px", height: "85px", marginBottom: "5px", objectFit: "contain" }}
+              src={qrSrc}
+              alt="QR Code"
+            />
+          )}
+          <div style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "4px", fontFamily: "Arial, sans-serif" }}>
+            ID NO.{data.membershipNo || data.ackNo}
           </div>
-
-          {/* ID Number */}
-          <h2 style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontWeight: 800,
-            fontSize: "17px",
-            color: "#0f172a",
-            margin: "0 0 2px 0",
-            letterSpacing: "0.5px",
-            textTransform: "uppercase"
-          }}>
-            ID NO. {data.membershipNo || data.ackNo}
-          </h2>
-
-          {/* Website Link */}
-          <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 700,
-            fontSize: "10.5px",
-            color: "#475569",
-            margin: "0"
-          }}>
-            Website : <span style={{ color: "#001C55" }}>www.dkffj.org</span>
-          </p>
+          <div style={{ fontSize: "15px", fontFamily: "Arial, sans-serif" }}>
+            Website : <span style={{ fontWeight: "bold" }}>www.dkffj.org</span>
+          </div>
         </div>
       </div>
     </div>
@@ -520,17 +268,16 @@ export async function generateMembershipIdCardPDFClient(
 
           const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
-          // CR80 is landscape ratio, so landscape A4 page fits perfectly side-by-side
           const pdf = new jsPDF({
             orientation: "landscape",
             unit: "mm",
             format: "a4" // 297mm x 210mm
           });
 
-          // Container is 962px wide by 600px high (Aspect ratio: 1.603)
-          // Width on A4 Landscape is 297mm. Height scaled: 297 / 1.603 = 185.2mm.
-          // Center vertically: (210 - 185.2) / 2 = 12.4mm margins on top and bottom.
-          pdf.addImage(imgData, "JPEG", 0, 12.4, 297, 185.2, undefined, "FAST");
+          // Container is 1000px wide by 500px high (Aspect ratio: 2.0)
+          // Width on A4 Landscape is 297mm. Height scaled: 297 / 2 = 148.5mm.
+          // Center vertically: (210 - 148.5) / 2 = 30.75mm margins on top and bottom.
+          pdf.addImage(imgData, "JPEG", 0, 30.75, 297, 148.5, undefined, "FAST");
           const pdfBlob = pdf.output("blob");
 
           root.unmount();
