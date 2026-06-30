@@ -129,16 +129,16 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center">
-        <section id="hero" className="relative min-h-[480px] md:min-h-[620px] flex items-center justify-center px-6 w-full overflow-hidden bg-slate-950">
+        <section id="hero" className="relative min-h-[480px] md:min-h-[620px] flex items-end pb-8 px-6 w-full overflow-hidden bg-slate-950">
           {/* Automatic Cross-fade Background Hero Images Slider */}
           <HeroSlider />
 
           {/* Content overlay on top of background */}
-          <div className="relative z-20 max-w-7xl mx-auto w-full flex items-center justify-center">
+          <div className="relative z-20 max-w-7xl mx-auto w-full flex justify-center">
             
             {/* Centered Welcome Buttons Panel */}
-            <div className="flex flex-col items-center gap-4 text-center">
-              <div className="bg-black/25 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex flex-col sm:flex-row justify-center items-center gap-4 shadow-xl">
+            <div className="flex flex-col items-center gap-4 text-center w-full">
+              <div className="bg-black/30 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row justify-center items-center gap-4 shadow-xl">
                 <Link 
                   href="/apply" 
                   className="bg-[#001C55] hover:bg-[#001236] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(0, 28, 85,0.3)] min-w-[180px] text-center"
