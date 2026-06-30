@@ -203,56 +203,80 @@ export default function Home() {
         {/* 2. Official Recognition & Registration Credentials Bar */}
         <section className="bg-white border-y border-sky-100 py-8 px-6">
           <div className="max-w-6xl mx-auto w-full">
-            <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-6">Officially Recognised & Registered By</p>
+            <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-6">Officially Recognised &amp; Registered By</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-              {/* MCA */}
-              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
-                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center">
+              {/* MCA — links to MCA company search portal */}
+              <a
+                href="https://www.mca.gov.in/content/mca/global/en/mca/master-data/MDS.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-[#1565C0]/30 hover:-translate-y-0.5 transition-all cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center group-hover:bg-[#1565C0]/20 transition-colors">
                   <svg className="w-5 h-5 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide">Section 8 Company</p>
+                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide group-hover:underline">Section 8 Company</p>
                   <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Ministry of Corporate Affairs</p>
                   <p className="text-[9px] text-slate-400 font-mono mt-0.5">CIN: U88100UP2023NPL181342</p>
+                  <p className="text-[8px] text-[#1565C0]/60 mt-1 flex items-center justify-center gap-0.5">Verify ↗</p>
                 </div>
-              </div>
+              </a>
 
-              {/* NITI Aayog */}
-              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
-                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center">
+              {/* NITI Aayog — NGO Darpan portal */}
+              <a
+                href="https://ngodarpan.gov.in/index.php/home/sdetail/61551/1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-[#1565C0]/30 hover:-translate-y-0.5 transition-all cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center group-hover:bg-[#1565C0]/20 transition-colors">
                   <svg className="w-5 h-5 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide">NITI Aayog</p>
+                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide group-hover:underline">NITI Aayog</p>
                   <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Govt. of India NGO Registry</p>
                   <p className="text-[9px] text-slate-400 font-mono mt-0.5">ID: UP/2023/0343513</p>
+                  <p className="text-[8px] text-[#1565C0]/60 mt-1">Verify ↗</p>
                 </div>
-              </div>
+              </a>
 
-              {/* 12A */}
-              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
-                <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+              {/* 12A — Income Tax India portal */}
+              <a
+                href="https://www.incometax.gov.in/iec/foportal/help/exemption-under-section-12a"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-green-200 hover:-translate-y-0.5 transition-all cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
                   <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-green-700 uppercase tracking-wide">12A Registered</p>
+                  <p className="text-[11px] font-black text-green-700 uppercase tracking-wide group-hover:underline">12A Registered</p>
                   <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Income Tax Exemption</p>
                   <p className="text-[9px] text-slate-400 font-mono mt-0.5">Income Tax Act, 1961</p>
+                  <p className="text-[8px] text-green-600/60 mt-1">Know More ↗</p>
                 </div>
-              </div>
+              </a>
 
-              {/* 80G */}
-              <div className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md transition-all">
-                <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+              {/* 80G — Income Tax India portal */}
+              <a
+                href="https://www.incometax.gov.in/iec/foportal/help/80g-of-income-tax-act"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-amber-200 hover:-translate-y-0.5 transition-all cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
                   <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-amber-700 uppercase tracking-wide">80G Certified</p>
+                  <p className="text-[11px] font-black text-amber-700 uppercase tracking-wide group-hover:underline">80G Certified</p>
                   <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Donations Tax Deductible</p>
                   <p className="text-[9px] text-slate-400 font-mono mt-0.5">Income Tax Act, 1961</p>
+                  <p className="text-[8px] text-amber-600/60 mt-1">Know More ↗</p>
                 </div>
-              </div>
+              </a>
 
             </div>
           </div>
