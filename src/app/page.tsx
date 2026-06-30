@@ -129,7 +129,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center">
-        <section id="hero" className="relative py-20 md:py-32 px-6 w-full overflow-hidden bg-slate-950">
+        <section id="hero" className="relative min-h-[480px] md:min-h-[620px] flex items-end pb-12 px-6 w-full overflow-hidden bg-slate-950">
           {/* Automatic Cross-fade Background Hero Images Slider */}
           <HeroSlider />
 
@@ -137,7 +137,7 @@ export default function Home() {
           <div className="relative z-20 max-w-7xl mx-auto w-full">
             
             {/* Left Hero Column */}
-            <div className="max-w-4xl flex flex-col gap-6 text-left min-h-[220px] justify-end">
+            <div className="max-w-4xl flex flex-col gap-6 text-left">
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 mt-4 relative z-30">
                 <Link 

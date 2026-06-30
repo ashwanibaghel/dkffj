@@ -57,7 +57,7 @@ export default function HeroSlider() {
         - Deep Slate on the left for maximum text contrast
         - Fades to semi-transparent in the center/right to make award/statue pictures extremely clear
       */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-900/30 z-10 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent z-10 pointer-events-none"></div>
 
       {/* Decorative glassmorphic top/bottom masks */}
       <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white/10 to-transparent z-10 pointer-events-none backdrop-blur-[2px]"></div>
