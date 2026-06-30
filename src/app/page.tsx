@@ -74,32 +74,43 @@ export default function Home() {
       </div>
 
       {/* Top Credentials Banner — scrolls away naturally, NO sticky */}
-      <div className="bg-[#001C55] text-white pt-8 pb-6 px-6 border-b border-[#c5a880]/30 relative z-40 text-center">
-        <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
-          <div className="w-16 h-16 rounded-full bg-white p-1.5 flex items-center justify-center shadow-lg">
-            <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
+      <div className="bg-[#001C55] text-white border-b border-[#c5a880]/30 relative z-40">
+
+        {/* ── Top Nav Strip ── sits at the very top like a header bar */}
+        <div className="border-b border-white/10 px-6 py-2.5">
+          <div className="max-w-7xl mx-auto flex flex-wrap justify-center items-center gap-x-7 gap-y-2">
+            <nav className="flex flex-wrap justify-center gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-200">
+              <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
+              <Link href="#about" className="hover:text-[#c5a880] transition-colors">About Us</Link>
+              <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
+              <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
+              <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
+              <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
+              <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
+              <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
+            </nav>
+            <Link href="/donate" className="ml-2 bg-[#C00000] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#990000] transition-colors shadow-md">
+              Donate Now
+            </Link>
           </div>
-          <h1 className="font-serif font-black text-2xl sm:text-3xl tracking-wider text-white uppercase leading-tight">
-            DK FOUNDATION OF FREEDOM AND JUSTICE
-          </h1>
-          <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-[#c5a880] uppercase">
-            HUMAN RIGHTS PROTECTION
-          </p>
-          <p className="text-[10px] sm:text-xs text-slate-300 font-medium tracking-wide">
-            Regd By Ministry Of Corporate Affairs Govt. Of India
-          </p>
-          {/* Nav links inside the banner — visible when at top of page */}
-          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-3 pt-3 border-t border-white/10 text-[11px] font-bold uppercase tracking-widest text-slate-200">
-            <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
-            <Link href="#about" className="hover:text-[#c5a880] transition-colors">About Us</Link>
-            <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
-            <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
-            <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
-            <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
-            <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
-            <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
-            <Link href="/donate" className="text-[#C00000] bg-white px-3 py-0.5 rounded font-black hover:bg-[#c5a880] hover:text-white transition-colors">Donate Now</Link>
-          </nav>
+        </div>
+
+        {/* ── Main Credentials (Logo + Name) ── */}
+        <div className="text-center pt-8 pb-7 px-6">
+          <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white p-2 flex items-center justify-center shadow-xl border-2 border-[#c5a880]/30">
+              <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
+            </div>
+            <h1 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl tracking-wider text-white uppercase leading-tight mt-1">
+              DK FOUNDATION OF FREEDOM AND JUSTICE
+            </h1>
+            <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-[#c5a880] uppercase">
+              HUMAN RIGHTS PROTECTION
+            </p>
+            <p className="text-[10px] sm:text-xs text-slate-300 font-medium tracking-wide">
+              Regd By Ministry Of Corporate Affairs Govt. Of India
+            </p>
+          </div>
         </div>
       </div>
 
