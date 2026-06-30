@@ -94,16 +94,22 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Global Navigation Header (Shrinks dynamically on scroll for space-saving UX) */}
-      <header className={`border-b border-slate-200/60 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm transition-all duration-500 ${showStickyLogo ? "h-20" : "h-24"}`}>
+      {/* Global Navigation Header (Overlay transparent style at top, sticky deep blue glass on scroll) */}
+      <header 
+        className={`w-full z-50 transition-all duration-500 border-b ${
+          showStickyLogo 
+            ? "sticky top-0 h-20 bg-[#001C55]/95 backdrop-blur-md border-[#001C55]/10 shadow-lg text-white" 
+            : "absolute h-24 bg-transparent border-white/10 text-white"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           
           {/* Left Header Brand Space (Cross-fades between static motto and active logo) */}
           <div className="relative w-64 h-14 flex items-center">
             {/* Motto / Small Badge (Visible when scrolled to top to keep layout balanced) */}
             <div className={`absolute left-0 transition-all duration-500 ease-in-out ${!showStickyLogo ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`}>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#001C55] block">DK FOUNDATION</span>
-              <span className="text-[8px] font-bold tracking-wider text-slate-400 block uppercase mt-0.5">HUMAN RIGHTS PROTECTION</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#c5a880] block">DK FOUNDATION</span>
+              <span className="text-[8px] font-bold tracking-wider text-slate-300 block uppercase mt-0.5">HUMAN RIGHTS PROTECTION</span>
             </div>
 
             {/* Main Interactive Logo & Details (Fades in dynamically on scroll) */}
@@ -111,34 +117,34 @@ export default function Home() {
               href="/" 
               className={`absolute left-0 flex items-center gap-3 group transition-all duration-500 ease-in-out ${showStickyLogo ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`}
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center transition-all group-hover:border-[#001C55]/30">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 flex items-center justify-center transition-all group-hover:border-white/40">
                 <img src="/logo.png" className="w-8 h-8 object-contain" alt="DKFFJ Logo" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[#001C55] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-                <span className="text-[8px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
-                <span className="text-[7px] text-slate-400 font-medium tracking-wide mt-0.5">Registered Government NGO</span>
+                <span className="text-white font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+                <span className="text-[8px] text-[#c5a880] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
+                <span className="text-[7px] text-slate-300 font-medium tracking-wide mt-0.5">Registered Government NGO</span>
               </div>
             </Link>
           </div>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider text-slate-600">
-            <Link href="/" className="text-[#001C55] hover:text-[#001C55] transition-colors">Home</Link>
-            <Link href="#about" className="hover:text-[#001C55] transition-colors">About Us</Link>
-            <Link href="#services" className="hover:text-[#001C55] transition-colors">Services</Link>
-            <Link href="/courses" className="hover:text-[#001C55] transition-colors">Academy</Link>
-            <Link href="#documents" className="hover:text-[#001C55] transition-colors">Legals</Link>
-            <Link href="#news" className="hover:text-[#001C55] transition-colors">News</Link>
-            <Link href="#video-gallery" className="hover:text-[#001C55] transition-colors">Gallery</Link>
-            <Link href="#contact" className="hover:text-[#001C55] transition-colors">Contact</Link>
+          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider">
+            <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
+            <Link href="#about" className="hover:text-[#c5a880] transition-colors">About Us</Link>
+            <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
+            <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
+            <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
+            <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
+            <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
+            <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
           </nav>
 
           {/* Action Button */}
           <div className="flex items-center gap-3">
             <Link 
               href="/admin/login" 
-              className="border border-[#001C55] text-[#001C55] hover:bg-[#001C55] hover:text-white text-xs font-bold px-4 py-2.5 rounded-lg active:scale-95 transition-all"
+              className="border border-white/20 text-white hover:bg-white hover:text-[#001C55] text-xs font-bold px-4 py-2.5 rounded-lg active:scale-95 transition-all"
             >
               Admin Portal
             </Link>
