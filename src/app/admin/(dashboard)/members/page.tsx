@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { getMemberships, getSignedDocumentUrl, updateMembershipStatus } from "./actions";
-import { Users, FileCheck, XCircle, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award } from "lucide-react";
+import { Users, FileCheck, XCircle, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
+import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<any[]>([]);
@@ -13,6 +14,7 @@ export default function AdminMembersPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [downloadingIdCardId, setDownloadingIdCardId] = useState<string | null>(null);
 
   // Administrative action states
   const [remarks, setRemarks] = useState<string>("");
@@ -128,6 +130,60 @@ export default function AdminMembersPage() {
       showToast(`Error generating certificate: ${err.message || err}`, "error");
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleDownloadIdCard = async (member: any) => {
+    setDownloadingIdCardId(member.id);
+    try {
+      const appUrl = window.location.origin;
+      const certNo = member.membership_no || member.ack_no;
+      const verificationUrl = `${appUrl}/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      
+      const issueDate = member.approved_at ? new Date(member.approved_at) : new Date(member.created_at);
+      const issueDateStr = issueDate.toLocaleDateString("en-IN");
+      
+      const validFromStr = issueDate.toISOString().split("T")[0]; // YYYY-MM-DD
+      const validToDate = new Date(issueDate);
+      validToDate.setFullYear(validToDate.getFullYear() + 1);
+      validToDate.setDate(validToDate.getDate() - 1);
+      const validToStr = validToDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+      const pdfBlob = await generateMembershipIdCardPDFClient({
+        membershipNo: member.membership_no || "",
+        ackNo: member.ack_no,
+        fullName: member.full_name,
+        fatherName: member.father_name,
+        designation: member.designation,
+        workingArea: member.working_area,
+        photoUrl: member.photo_url,
+        issueDateStr,
+        validFromStr,
+        validToStr,
+        addressStr: member.address || "",
+        districtStr: member.district || "",
+        stateStr: member.state || "",
+        pincodeStr: member.pincode || "",
+        mobileStr: member.mobile || "",
+        qrCodeUrl,
+        verificationUrl
+      });
+
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Membership_ID_Card_${certNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showToast("ID Card downloaded successfully!", "success");
+    } catch (err: any) {
+      console.error(err);
+      showToast(`Error generating ID Card: ${err.message || err}`, "error");
+    } finally {
+      setDownloadingIdCardId(null);
     }
   };
 
@@ -251,22 +307,34 @@ export default function AdminMembersPage() {
                         {member.status}
                       </span>
                       {member.status === "APPROVED" && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDownloadCertificate(member);
-                          }}
-                          disabled={downloadingId === member.id}
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors inline-flex items-center justify-center cursor-pointer disabled:opacity-50 border border-slate-200"
-                          title="Download Certificate"
-                        >
-                          {downloadingId === member.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#001C55]" />
-                          ) : (
-                            <Download className="w-3.5 h-3.5 text-slate-600" />
-                          )}
-                        </button>
+                        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadCertificate(member)}
+                            disabled={downloadingId === member.id || downloadingIdCardId === member.id}
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors inline-flex items-center justify-center cursor-pointer disabled:opacity-50 border border-slate-200"
+                            title="Download Certificate"
+                          >
+                            {downloadingId === member.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#001C55]" />
+                            ) : (
+                              <Download className="w-3.5 h-3.5 text-slate-600" />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadIdCard(member)}
+                            disabled={downloadingId === member.id || downloadingIdCardId === member.id}
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors inline-flex items-center justify-center cursor-pointer disabled:opacity-50 border border-slate-200"
+                            title="Download ID Card"
+                          >
+                            {downloadingIdCardId === member.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#001C55]" />
+                            ) : (
+                              <IdCard className="w-3.5 h-3.5 text-slate-600" />
+                            )}
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -355,21 +423,36 @@ export default function AdminMembersPage() {
                     {member.status === "APPROVED" && (
                       <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
-                          <Award className="w-4 h-4 text-emerald-600" /> Membership Certificate Desk
+                          <Award className="w-4 h-4 text-emerald-600" /> Membership Certificate & ID Desk
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleDownloadCertificate(member)}
-                          disabled={downloadingId === member.id}
-                          className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
-                        >
-                          {downloadingId === member.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Download className="w-3.5 h-3.5" />
-                          )}
-                          Download Certificate (PDF)
-                        </button>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadCertificate(member)}
+                            disabled={downloadingId === member.id || downloadingIdCardId === member.id}
+                            className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+                          >
+                            {downloadingId === member.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Download className="w-3.5 h-3.5" />
+                            )}
+                            Download Certificate (PDF)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadIdCard(member)}
+                            disabled={downloadingId === member.id || downloadingIdCardId === member.id}
+                            className="px-4 py-2 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+                          >
+                            {downloadingIdCardId === member.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <IdCard className="w-3.5 h-3.5" />
+                            )}
+                            Download ID Card (PDF)
+                          </button>
+                        </div>
                       </div>
                     )}
 
