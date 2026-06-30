@@ -137,26 +137,7 @@ export default function Home() {
           <div className="relative z-20 max-w-7xl mx-auto w-full">
             
             {/* Left Hero Column */}
-            <div className="max-w-4xl flex flex-col gap-6 text-left">
-              
-              {/* Trust Badge */}
-              <div className="inline-flex items-center gap-2 bg-black/40 border border-white/10 rounded-full px-3 py-1 self-start">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#C00000] animate-ping"></span>
-                <span className="text-[10px] text-sky-400 font-bold uppercase tracking-widest">MCA & NITI Aayog Approved Portal</span>
-              </div>
-
-              {/* Main Header with drop-shadows for high readability */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight font-serif drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                Protecting <span className="text-sky-400">Human Rights</span>, <br />
-                Empowering Citizens, <br />
-                Securing <span className="text-red-400">Justice</span>
-              </h1>
-
-              {/* Subtext description with drop-shadow for high legibility */}
-              <p className="text-slate-200 text-sm md:text-base leading-relaxed max-w-2xl font-light drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
-                DK Foundation of Freedom and Justice (DKFFJ) stands as India's premier human rights protection, legal aid, and public advocacy coalition. We help poor and marginalized citizens defend their constitutional rights through legal support, RTI awareness, and official welfare campaigns.
-              </p>
-
+            <div className="max-w-4xl flex flex-col gap-6 text-left min-h-[220px] justify-end">
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 mt-4 relative z-30">
                 <Link 
