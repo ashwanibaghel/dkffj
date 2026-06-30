@@ -7,6 +7,35 @@ import { createClient } from "@/utils/supabase/client";
 import { sendMembershipOtp, verifyMembershipOtp, submitMembershipApplication } from "./actions";
 import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, Shield, Eye, EyeOff } from "lucide-react";
 
+const DESIGNATIONS = [
+  "DIRECTOR", "ADD DIRECTOR", "National President", "PRESIDENT", "Secretary",
+  "Executive President", "Chief Executive Officer", "Deputy Executive President",
+  "Vice President", "Deputy Vice President", "General Secretary", "National Secretary",
+  "National Co-ordinator", "Chief Secretary", "Deputy Chief Secretary", "Joint Secretary",
+  "Chief Observer", "Deputy Chief Observer", "Chief Reporting Officer",
+  "Deputy Chief Reporting Officer", "Chief Co-ordinator", "Co-ordinator",
+  "Deputy Chief Co-ordinator", "Minority Welfare Secretary", "Women Empowerment Secretary",
+  "Social Welfare Secretary", "Consumer Welfare Secretary", "Human Welfare Secretary",
+  "Administrative Secretary", "Information Secretary", "Organising Secretary",
+  "Legal Advisor", "Social Media Activist", "Human Rights Activist", "Member",
+  "RTI Activist", "Nodal Officer", "Social Activist", "Brand Ambassador",
+  "Spokesperson", "Content Writer", "System Administrator", "General Counsel",
+  "IT Cell Incharge", "YouTube Media Partner", "Chartered Accountant", "Other"
+];
+
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana",
+  "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands",
+  "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir", "Ladakh",
+  "Lakshadweep", "Puducherry"
+];
+
+const PROFESSIONS = [
+  "Service", "Business", "Private Sector", "Government Sector", "House Wife", "Retired", "Unemployed", "Student"
+];
+
 export default function ApplyPage() {
   const router = useRouter();
   const [step, setStep] = useState<number>(1);
@@ -40,9 +69,15 @@ export default function ApplyPage() {
   const [state, setState] = useState<string>("");
   const [pincode, setPincode] = useState<string>("");
   const [education, setEducation] = useState<string>("");
-  const [profession, setProfession] = useState<string>("");
+  const [profession, setProfession] = useState<string>("Service");
   const [workingArea, setWorkingArea] = useState<string>("");
-  const [designation, setDesignation] = useState<string>("");
+  const [designation, setDesignation] = useState<string>("Member");
+  const [policeStation, setPoliceStation] = useState<string>("");
+
+  // Pledge Checkboxes
+  const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
+  const [agreePledge, setAgreePledge] = useState<boolean>(false);
+  const [declareCorrect, setDeclareCorrect] = useState<boolean>(false);
 
   // Documents
   const [photo, setPhoto] = useState<File | null>(null);
@@ -127,8 +162,8 @@ export default function ApplyPage() {
       }
       setStep(3);
     } else if (step === 3) {
-      if (!address || !district || !state || !pincode || !education || !profession || !workingArea || !designation) {
-        setErrorMsg("Please fill in all address and professional fields.");
+      if (!address || !district || !state || !pincode || !education || !profession || !workingArea || !designation || !policeStation) {
+        setErrorMsg("Please fill in all address, professional, and police station fields.");
         return;
       }
       setStep(4);
@@ -148,6 +183,11 @@ export default function ApplyPage() {
 
     if (!photo || !aadhaar || !signature) {
       setErrorMsg("All documents (Photo, Aadhaar Card, Signature) must be uploaded.");
+      return;
+    }
+
+    if (!agreeTerms || !agreePledge || !declareCorrect) {
+      setErrorMsg("You must read and agree to all terms, pledges, and declarations.");
       return;
     }
 
@@ -195,6 +235,7 @@ export default function ApplyPage() {
       formData.append("profession", profession);
       formData.append("workingArea", workingArea);
       formData.append("designation", designation);
+      formData.append("policeStation", policeStation);
       formData.append("photo", photo);
       formData.append("aadhaar", aadhaar);
       formData.append("signature", signature);
@@ -295,9 +336,23 @@ export default function ApplyPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Step 1: Personal Details */}
             {step === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-fadeIn">
                 <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-4">Step 1: Personal Profile</h3>
                 
+                {/* Formal Letter Introduction */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-800 text-xs leading-relaxed space-y-2.5 mb-6 shadow-inner font-sans">
+                  <div className="font-bold text-[#0F4C81]">To,</div>
+                  <div className="font-bold pl-3">The Director,</div>
+                  <div className="font-bold pl-3">DK Foundation of Freedom and Justice</div>
+                  <div className="font-bold border-y py-1.5 my-2 border-slate-200/80 uppercase text-[10px] tracking-wide text-slate-650">
+                    Subject: Application for Membership in DK Foundation of Freedom and Justice
+                  </div>
+                  <div className="font-bold">Dear Sir,</div>
+                  <p className="text-slate-600 italic text-[11px] leading-relaxed">
+                    I wish to join the DK Foundation of Freedom and Justice. Please find my personal, contact, and professional details below for your review.
+                  </p>
+                </div>
+
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name (as in Aadhaar) *</label>
                   <input
@@ -447,7 +502,7 @@ export default function ApplyPage() {
 
             {/* Step 3: Address & Profession */}
             {step === 3 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-fadeIn">
                 <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-4">Step 3: Residential & Professional Info</h3>
 
                 <div>
@@ -465,14 +520,17 @@ export default function ApplyPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="sm:col-span-1">
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">State *</label>
-                    <input
-                      type="text"
+                    <select
                       value={state}
                       onChange={(e) => setState(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
-                      placeholder="e.g. Delhi"
-                    />
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81] bg-white"
+                    >
+                      <option value="">Select State</option>
+                      {INDIAN_STATES.map((st) => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="sm:col-span-1">
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">District *</label>
@@ -513,18 +571,20 @@ export default function ApplyPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Profession *</label>
-                    <input
-                      type="text"
+                    <select
                       value={profession}
                       onChange={(e) => setProfession(e.target.value)}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
-                      placeholder="e.g. Advocate, Teacher"
-                    />
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81] bg-white"
+                    >
+                      {PROFESSIONS.map((prof) => (
+                        <option key={prof} value={prof}>{prof}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t pt-4 mt-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Working Area *</label>
                     <input
@@ -537,14 +597,27 @@ export default function ApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Designation (Desired) *</label>
-                    <input
-                      type="text"
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Please Enroll me As *</label>
+                    <select
                       value={designation}
                       onChange={(e) => setDesignation(e.target.value)}
                       required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81] bg-white"
+                    >
+                      {DESIGNATIONS.map((desg) => (
+                        <option key={desg} value={desg}>{desg}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Nearest Police Station *</label>
+                    <input
+                      type="text"
+                      value={policeStation}
+                      onChange={(e) => setPoliceStation(e.target.value)}
+                      required
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C81]/15 focus:border-[#0F4C81]"
-                      placeholder="e.g. Legal Officer, Volunteer"
+                      placeholder="Nearest police station name"
                     />
                   </div>
                 </div>
@@ -662,6 +735,71 @@ export default function ApplyPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Legal Declarations & Pledges */}
+                <div className="border-t pt-5 mt-5 space-y-4 text-xs font-sans text-left">
+                  <div className="flex items-center gap-2 text-slate-700 font-bold mb-2">
+                    <Shield className="w-4 h-4 text-[#0F4C81] shrink-0" />
+                    <span className="uppercase tracking-wider">Rules, Regulations & Pledge Declaration</span>
+                  </div>
+
+                  {/* Rules Container */}
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">1. Rules & Regulations of DKFFJ</label>
+                    <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl max-h-36 overflow-y-auto text-slate-600 leading-relaxed font-sans space-y-2.5">
+                      <p className="font-semibold text-slate-800 text-[11px]">I, the undersigned member, pledge to abide by the rules and regulations of DK Foundation of Freedom and Justice and adhere to the following:</p>
+                      <ul className="list-disc pl-4 space-y-1.5 text-[11px]">
+                        <li>(a) The above statements are correct.</li>
+                        <li>(b) I declare that I will never be involved in any criminal, economic, and social crimes and have never been punished for any crime. I will remain in society as a hardworking, dutiful, honest, and loyal social worker. Human rights protection and social service is the main goal of my life.</li>
+                        <li>(c) I will never request a refund or adjustment of the membership fee paid by me to DK Foundation of Freedom and Justice, nor shall I ever seek any action against DK Foundation. I will not ask for a refund of the fee.</li>
+                        <li>(d) If I do not fulfill the responsibilities given by DK Foundation on time, and DK Foundation cancels my nomination, I will accept it.</li>
+                        <li>(e) I undertake that I will always work as a strong worker for the objectives of DK Foundation of Freedom and Justice and follow the guidance and guidelines of the Honorable Director, CEO, and higher officials.</li>
+                        <li>(f) I will always strive for human upliftment.</li>
+                        <li>(g) I will accept the warning of the Honorable Director, CEO, National General Secretary, and National Secretary for opposing the objectives of DK Foundation of Freedom and Justice and the instructions of its office bearers as a disciplined member.</li>
+                      </ul>
+                    </div>
+                    <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+                      <input
+                        type="checkbox"
+                        checked={agreeTerms}
+                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#0F4C81] focus:ring-[#0F4C81]/25"
+                      />
+                      <span className="text-slate-600 font-bold leading-normal select-none text-[11px]">I have read and agree to all the Terms and Conditions / Rules & Regulations listed above. *</span>
+                    </label>
+                  </div>
+
+                  {/* Pledge Container */}
+                  <div className="space-y-2 pt-2">
+                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">2. Impartiality & Loyalty Pledge</label>
+                    <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-600 leading-relaxed font-sans space-y-2 text-[11px]">
+                      <p>I hereby pledge to uphold the constitution of India and sincerely follow and abide by the objectives and ideals of DK Foundation of Freedom and Justice. I declare that I am not a part of any organisation that will jeopardize the DK Foundation of Freedom and Justice's image of impartiality.</p>
+                      <p>I also affirm that I will sincerely render my services without any vested interest and any type of claims and work solely in the interest of the above said organisation. I will not violate any norms of the above said organisation and the governing body of DK Foundation of Freedom and Justice is at liberty and has liberty to terminate my post and membership from the organisation immediately without any notice. I shall have no claim whatsoever.</p>
+                    </div>
+                    <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+                      <input
+                        type="checkbox"
+                        checked={agreePledge}
+                        onChange={(e) => setAgreePledge(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#0F4C81] focus:ring-[#0F4C81]/25"
+                      />
+                      <span className="text-slate-600 font-bold leading-normal select-none text-[11px]">I solemnly pledge and agree to the declaration of impartiality and membership terms. *</span>
+                    </label>
+                  </div>
+
+                  {/* Truthfulness Declaration */}
+                  <div className="pt-2">
+                    <label className="flex items-start gap-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={declareCorrect}
+                        onChange={(e) => setDeclareCorrect(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#0F4C81] focus:ring-[#0F4C81]/25"
+                      />
+                      <span className="text-slate-600 font-bold leading-normal select-none text-[11px]">I hereby declare that the information provided by me in this application is true and correct. *</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             )}
 
