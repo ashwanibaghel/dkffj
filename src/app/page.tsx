@@ -54,7 +54,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative overflow-hidden pb-16 md:pb-0">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative pb-16 md:pb-0">
       
       {/* Light Geometric/Mesh Design Accents */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
