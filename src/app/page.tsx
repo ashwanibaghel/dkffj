@@ -34,6 +34,16 @@ export default function Home() {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [news, setNews] = useState<any[]>([]);
   const [showAllLeaders, setShowAllLeaders] = useState(false);
+  const [showStickyNav, setShowStickyNav] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show sticky nav only after credentials banner is fully scrolled away (~140px)
+      setShowStickyNav(window.scrollY > 130);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     async function loadCourses() {
@@ -63,63 +73,77 @@ export default function Home() {
         <div className="absolute top-[40%] left-[20%] -translate-x-1/2 -translate-y-1/2 w-[600px] h-[500px] rounded-full bg-[#C00000]/[0.015] blur-[120px]"></div>
       </div>
 
-      {/* Top Credentials Banner (Clean & Elegant, scrolls away naturally) */}
-      <div className="bg-[#001C55] text-white py-6 px-6 border-b border-white/10 relative z-40 text-center shadow-sm">
-        <div className="max-w-4xl mx-auto flex flex-col items-center gap-2">
-          <div className="w-14 h-14 rounded-full bg-white p-1 flex items-center justify-center shadow-md">
+      {/* Top Credentials Banner — scrolls away naturally, NO sticky */}
+      <div className="bg-[#001C55] text-white pt-8 pb-6 px-6 border-b border-[#c5a880]/30 relative z-40 text-center">
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-white p-1.5 flex items-center justify-center shadow-lg">
             <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
           </div>
-          <h1 className="font-serif font-black text-xl sm:text-2xl tracking-wider text-white uppercase mt-1 leading-tight">
+          <h1 className="font-serif font-black text-2xl sm:text-3xl tracking-wider text-white uppercase leading-tight">
             DK FOUNDATION OF FREEDOM AND JUSTICE
           </h1>
-          <p className="text-xs sm:text-sm font-bold tracking-widest text-[#c5a880] uppercase">
+          <p className="text-xs sm:text-sm font-bold tracking-[0.3em] text-[#c5a880] uppercase">
             HUMAN RIGHTS PROTECTION
           </p>
           <p className="text-[10px] sm:text-xs text-slate-300 font-medium tracking-wide">
             Regd By Ministry Of Corporate Affairs Govt. Of India
           </p>
+          {/* Nav links inside the banner — visible when at top of page */}
+          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-3 pt-3 border-t border-white/10 text-[11px] font-bold uppercase tracking-widest text-slate-200">
+            <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
+            <Link href="#about" className="hover:text-[#c5a880] transition-colors">About Us</Link>
+            <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
+            <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
+            <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
+            <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
+            <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
+            <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
+            <Link href="/donate" className="text-[#C00000] bg-white px-3 py-0.5 rounded font-black hover:bg-[#c5a880] hover:text-white transition-colors">Donate Now</Link>
+          </nav>
         </div>
       </div>
 
-      {/* Global Navigation Header (Sticky on scroll, matches standard clean design) */}
-      <header className="border-b border-slate-200/60 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm h-20">
-        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          
-          {/* Logo with Crest Icon (Always visible for balanced branding) */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center transition-all group-hover:border-[#001C55]/30">
-              <img src="/logo.png" className="w-8 h-8 object-contain" alt="DKFFJ Logo" />
+      {/* Sticky Nav — fixed, slides in ONLY after credentials banner scrolls away */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          showStickyNav
+            ? "opacity-100 translate-y-0 pointer-events-auto"
+            : "opacity-0 -translate-y-4 pointer-events-none"
+        } bg-[#001C55]/97 backdrop-blur-md border-b border-[#c5a880]/20 shadow-lg`}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          {/* Logo — only visible after scrolling (no double logo problem) */}
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center transition-all group-hover:bg-white/20">
+              <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[#001C55] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[8px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
-              <span className="text-[7px] text-slate-500 font-medium tracking-wide mt-0.5">Govt. of India Registered NGO</span>
+              <span className="text-white font-black text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+              <span className="text-[8px] text-[#c5a880] font-bold tracking-wider">OF FREEDOM AND JUSTICE</span>
             </div>
           </Link>
 
-          {/* Navigation Links (Dark slate text for readability on white background) */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider text-slate-600">
-            <Link href="/" className="text-[#001C55] hover:text-[#001C55] transition-colors">Home</Link>
-            <Link href="#about" className="hover:text-[#001C55] transition-colors">About Us</Link>
-            <Link href="#services" className="hover:text-[#001C55] transition-colors">Services</Link>
-            <Link href="/courses" className="hover:text-[#001C55] transition-colors">Academy</Link>
-            <Link href="#documents" className="hover:text-[#001C55] transition-colors">Legals</Link>
-            <Link href="#news" className="hover:text-[#001C55] transition-colors">News</Link>
-            <Link href="#video-gallery" className="hover:text-[#001C55] transition-colors">Gallery</Link>
-            <Link href="#contact" className="hover:text-[#001C55] transition-colors">Contact</Link>
+          <nav className="hidden md:flex items-center gap-5 text-[11px] font-bold uppercase tracking-wider text-slate-200">
+            <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
+            <Link href="#about" className="hover:text-[#c5a880] transition-colors">About</Link>
+            <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
+            <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
+            <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
+            <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
+            <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
+            <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
           </nav>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/admin/login" 
-              className="border border-[#001C55] text-[#001C55] hover:bg-[#001C55] hover:text-white text-xs font-bold px-4 py-2 rounded-lg active:scale-95 transition-all"
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin/login"
+              className="border border-white/30 text-white hover:bg-white hover:text-[#001C55] text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all"
             >
-              Admin Portal
+              Admin
             </Link>
-            <Link 
-              href="/donate" 
-              className="bg-[#C00000] text-white text-xs font-bold px-5 py-2.5 rounded-lg hover:bg-[#990000] active:scale-95 transition-all shadow-[0_4px_15px_rgba(192, 0, 0, 0.2)]"
+            <Link
+              href="/donate"
+              className="bg-[#C00000] text-white text-[11px] font-black px-4 py-1.5 rounded-lg hover:bg-[#990000] transition-all shadow-[0_4px_12px_rgba(192,0,0,0.35)]"
             >
               Donate Now
             </Link>
