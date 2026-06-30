@@ -34,6 +34,19 @@ export default function Home() {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [news, setNews] = useState<any[]>([]);
   const [showAllLeaders, setShowAllLeaders] = useState(false);
+  const [showStickyLogo, setShowStickyLogo] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 120) {
+        setShowStickyLogo(true);
+      } else {
+        setShowStickyLogo(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     async function loadCourses() {
@@ -87,13 +100,15 @@ export default function Home() {
           
           {/* Logo with Crest Icon */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center transition-all group-hover:border-[#001C55]/30">
-              <img src="/logo.png" className="w-9 h-9 object-contain" alt="DKFFJ Logo" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[#001C55] font-bold text-sm tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[9px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
-              <span className="text-[7px] text-slate-500 font-medium tracking-wide mt-0.5">Govt. of India Registered NGO</span>
+            <div className={`flex items-center gap-3 transition-all duration-700 ease-in-out ${showStickyLogo ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"}`}>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center transition-all group-hover:border-[#001C55]/30">
+                <img src="/logo.png" className="w-9 h-9 object-contain" alt="DKFFJ Logo" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[#001C55] font-bold text-sm tracking-wide font-serif leading-tight">DK Foundation</span>
+                <span className="text-[9px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
+                <span className="text-[7px] text-slate-500 font-medium tracking-wide mt-0.5">Govt. of India Registered NGO</span>
+              </div>
             </div>
           </Link>
 
