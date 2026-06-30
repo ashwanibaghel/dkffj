@@ -10,14 +10,25 @@ interface Banner {
   linkUrl: string;
 }
 
+const DEFAULT_BANNERS: Banner[] = [
+  {
+    imageUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200",
+    title: "Justice and Liberty",
+    subtitle: "Protecting human rights across the nation.",
+    linkUrl: ""
+  }
+];
+
 export default function HeroSlider() {
-  const [banners, setBanners] = useState<Banner[]>([]);
+  const [banners, setBanners] = useState<Banner[]>(DEFAULT_BANNERS);
   const [currentIdx, setCurrentIdx] = useState(0);
 
   useEffect(() => {
     async function loadBanners() {
       const data = await getHomeBanners();
-      setBanners(data as Banner[]);
+      if (data && data.length > 0) {
+        setBanners(data as Banner[]);
+      }
     }
     loadBanners();
   }, []);
@@ -29,10 +40,6 @@ export default function HeroSlider() {
     }, 6000); // 6 seconds per slide
     return () => clearInterval(timer);
   }, [banners]);
-
-  if (banners.length === 0) {
-    return <div className="absolute inset-0 w-full h-full bg-slate-950 z-0 animate-pulse"></div>;
-  }
 
   return (
     <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950">

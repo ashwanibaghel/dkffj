@@ -129,34 +129,33 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col justify-center">
-        <section id="hero" className="relative min-h-[480px] md:min-h-[620px] flex items-end pb-12 px-6 w-full overflow-hidden bg-slate-950">
+        <section id="hero" className="relative min-h-[480px] md:min-h-[620px] flex items-center justify-center px-6 w-full overflow-hidden bg-slate-950">
           {/* Automatic Cross-fade Background Hero Images Slider */}
           <HeroSlider />
 
           {/* Content overlay on top of background */}
-          <div className="relative z-20 max-w-7xl mx-auto w-full">
+          <div className="relative z-20 max-w-7xl mx-auto w-full flex items-center justify-center">
             
-            {/* Left Hero Column */}
-            <div className="max-w-4xl flex flex-col gap-6 text-left">
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 mt-4 relative z-30">
+            {/* Centered Welcome Buttons Panel */}
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="bg-black/25 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex flex-col sm:flex-row justify-center items-center gap-4 shadow-xl">
                 <Link 
                   href="/apply" 
-                  className="bg-[#001C55] hover:bg-[#001236] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(0, 28, 85,0.3)]"
+                  className="bg-[#001C55] hover:bg-[#001236] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(0, 28, 85,0.3)] min-w-[180px] text-center"
                 >
                   Join Membership
                 </Link>
                 
                 <Link 
                   href="/complaint" 
-                  className="bg-[#C00000] hover:bg-[#990000] text-white font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(192, 0, 0,0.3)]"
+                  className="bg-[#C00000] hover:bg-[#990000] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(192, 0, 0,0.3)] min-w-[180px] text-center"
                 >
                   File Complaint
                 </Link>
                 
                 <Link 
                   href="/courses" 
-                  className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/15 font-bold text-xs uppercase tracking-widest px-7 py-4 rounded-lg transition-all active:scale-95"
+                  className="bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm border border-white/20 font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 min-w-[180px] text-center"
                 >
                   Explore Courses
                 </Link>
