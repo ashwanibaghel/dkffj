@@ -155,7 +155,7 @@ export default function ComplaintPage() {
                       onChange={(e) => setName(e.target.value)}
                       required
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                      placeholder="Enter full name"
+                      placeholder="e.g. Mohan Lal Sharma"
                     />
                   </div>
 
@@ -167,7 +167,7 @@ export default function ComplaintPage() {
                       onChange={(e) => setFatherName(e.target.value)}
                       required
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                      placeholder="Enter father's name"
+                      placeholder="e.g. Shri Ram Sharma"
                     />
                   </div>
 
@@ -220,7 +220,7 @@ export default function ComplaintPage() {
                       required
                       rows={2}
                       className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                      placeholder="Enter details of where the incident occurred"
+                      placeholder="e.g. Gali No. 5, Rajendra Nagar, Lucknow"
                     />
                   </div>
 

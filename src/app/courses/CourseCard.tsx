@@ -468,7 +468,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       value={signInEmail}
                       onChange={(e) => setSignInEmail(e.target.value)}
                       required
-                      placeholder="you@example.com"
+                      placeholder="e.g. priya.sharma@gmail.com"
                       className="w-full pl-9 pr-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                     />
                   </div>
@@ -659,7 +659,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     onChange={(e) => setFullName(e.target.value)}
                     required
                     disabled={isLoggedIn}
-                    placeholder="Your official name"
+                    placeholder="e.g. Priya Devi Sharma"
                     className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
                   />
                 </div>
@@ -671,7 +671,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     value={fatherName}
                     onChange={(e) => setFatherName(e.target.value)}
                     required
-                    placeholder="Your father's name"
+                    placeholder="e.g. Shri Hari Shankar Sharma"
                     className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                   />
                 </div>
@@ -748,7 +748,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoggedIn || otpVerified}
-                      placeholder="e.g. you@example.com"
+                      placeholder="e.g. priya.sharma@gmail.com"
                       className="w-full px-3 py-2 pr-28 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
                     />
                     {!isLoggedIn && !otpVerified && (

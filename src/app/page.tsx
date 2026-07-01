@@ -696,18 +696,18 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Full Name *</label>
-                    <input type="text" required placeholder="Your Name" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
+                    <input type="text" required placeholder="e.g. Suresh Verma" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
                   </div>
                   <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Mobile No. *</label>
-                    <input type="text" required placeholder="Phone Number" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
+                    <input type="text" required placeholder="e.g. 9876543210" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Email Address</label>
-                    <input type="email" placeholder="email@example.com" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
+                    <input type="email" placeholder="e.g. suresh.verma@gmail.com" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
                   </div>
                   <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-[10px] font-bold uppercase text-slate-500">Grievance Type *</label>

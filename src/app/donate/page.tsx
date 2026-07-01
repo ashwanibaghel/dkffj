@@ -220,7 +220,7 @@ export default function DonatePage() {
                     type="text"
                     name="donorName"
                     required
-                    placeholder="e.g. John Doe"
+                    placeholder="e.g. Ramesh Kumar"
                     className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
                   />
                 </div>
@@ -230,7 +230,7 @@ export default function DonatePage() {
                     type="email"
                     name="donorEmail"
                     required
-                    placeholder="e.g. john@example.com"
+                    placeholder="e.g. ramesh.kumar@gmail.com"
                     className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
                   />
                 </div>
@@ -253,7 +253,7 @@ export default function DonatePage() {
                     type="text"
                     name="donorAddress"
                     required
-                    placeholder="e.g. City, State"
+                    placeholder="e.g. Kanpur, Uttar Pradesh"
                     className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
                   />
                 </div>
