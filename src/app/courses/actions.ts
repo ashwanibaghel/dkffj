@@ -165,14 +165,14 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     const registrationId = registration.id;
 
     // 5. Create pending payment record
-    const tempTxnId = "TXN-" + Math.random().toString(36).substring(2, 11).toUpperCase();
+    const tempTxnId = "CRS-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
 
     const { error: paymentError } = await supabase
       .from("payments")
       .insert({
         amount: fees,
         transaction_id: tempTxnId,
-        gateway: "MOCK_PAYMENT",
+        gateway: "PHONEPE",
         status: "PENDING",
         registration_id: registrationId
       });

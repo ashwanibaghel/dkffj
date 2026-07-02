@@ -287,14 +287,14 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
 
     // 4. Create Pending Payment Log
     const amount = 1000.0; // INR 1000 membership registration fee
-    const tempTxnId = "TXN-" + Math.random().toString(36).substring(2, 11).toUpperCase();
+    const tempTxnId = "MBR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
     
     const { error: paymentError } = await supabase
       .from("payments")
       .insert({
         amount,
         transaction_id: tempTxnId,
-        gateway: "MOCK_PAYMENT",
+        gateway: "PHONEPE",
         status: "PENDING",
         membership_id: membershipId
       });

@@ -2,6 +2,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { paymentServiceInstance } from "@/lib/payment/service";
 
 const prisma = new PrismaClient();
 
@@ -59,11 +60,17 @@ export async function submitDonation(formData: FormData): Promise<DonationSubmis
       },
     });
 
-    const redirectUrl = `/payment-mock?orderId=${orderId}&amount=${amount}&email=${encodeURIComponent(donorEmail)}&mobile=${encodeURIComponent(donorMobile)}`;
+    const checkoutUrl = await paymentServiceInstance.processPayment({
+      orderId,
+      amount,
+      currency: "INR",
+      customerEmail: donorEmail,
+      customerMobile: donorMobile,
+    });
 
     return {
       success: true,
-      redirectUrl,
+      redirectUrl: checkoutUrl,
     };
   } catch (err: any) {
     console.error("Donation creation error:", err);
