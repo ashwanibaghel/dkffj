@@ -17,12 +17,41 @@ import {
   getCourseRegistrationReceiptTemplate,
 } from "@/services/email/templates";
 import { PrismaClient } from "@prisma/client";
+import { createHmac } from "crypto";
 
 const prisma = new PrismaClient();
 
+/** Verify HMAC signature from PhonePe webhook */
+function verifyWebhookSignature(rawBody: string, authHeader: string | null): boolean {
+  const secret = process.env.PHONEPE_WEBHOOK_SECRET;
+  if (!secret) {
+    console.warn("PHONEPE_WEBHOOK_SECRET not set — skipping verification");
+    return true; // allow in dev if secret not configured
+  }
+  if (!authHeader) {
+    console.warn("No Authorization header from PhonePe webhook");
+    return false;
+  }
+  // PhonePe sends: Authorization: <hmac-sha256-hex>
+  const expectedSig = createHmac("sha256", secret)
+    .update(rawBody)
+    .digest("hex");
+  return authHeader === expectedSig;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => ({}));
+    const rawBody = await req.text();
+    
+    // Verify this request is genuinely from PhonePe
+    const authHeader = req.headers.get("authorization") || req.headers.get("x-verify");
+    if (!verifyWebhookSignature(rawBody, authHeader)) {
+      console.error("PhonePe webhook signature mismatch — rejected");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody || "{}");
+
     // PhonePe sends { merchantOrderId, orderId, state, ... } in callback body
     const merchantOrderId: string = body.merchantOrderId || body.orderId || "";
 
