@@ -36,9 +36,9 @@ function PaymentSuccessContent() {
           setStatus("success");
           // Determine type from orderId prefix
           if (orderId.startsWith("MBR")) setPaymentType("membership");
-          else if (orderId.startsWith("DON")) setPaymentType("donation");
+          else if (orderId.startsWith("DKD") || orderId.startsWith("DON")) setPaymentType("donation");
           else if (orderId.startsWith("CRS")) setPaymentType("enrollment");
-          else setPaymentType("payment");
+          else setPaymentType("donation"); // default fallback
           setRefId(orderId);
           clearInterval(timer);
         } else if (data.status === "FAILED" || data.status === "PAYMENT_ERROR") {
@@ -69,9 +69,9 @@ function PaymentSuccessContent() {
   const trackUrl =
     paymentType === "membership"
       ? `/track?type=membership&id=${refId}`
-      : paymentType === "donation"
-      ? `/track?type=donation&id=${refId}`
-      : `/track?type=enrollment&id=${refId}`;
+      : paymentType === "enrollment"
+      ? `/track?type=enrollment&id=${refId}`
+      : `/track?type=donation&id=${refId}`; // donation is default
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] via-white to-[#e8f4fd] flex items-center justify-center px-4">
