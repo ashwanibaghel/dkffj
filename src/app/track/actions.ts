@@ -355,7 +355,299 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
         ack_no: donation.order_id,
       }
     };
+    return {
+      success: true,
+      type: "donation",
+      refId: donation.order_id,
+      message: "Donation payment verified successfully."
+    };
   }
 
   return null;
+}
+
+export async function getSecureMembershipDetails(ackNo: string, contact: string): Promise<TrackingResult | null> {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const searchStr = ackNo.trim();
+  const contactStr = contact.trim();
+
+  if (!searchStr || !contactStr) return null;
+
+  const { data: membership, error } = await supabase
+    .from("memberships")
+    .select(`
+      id, 
+      ack_no, 
+      membership_no, 
+      full_name, 
+      father_name,
+      gender,
+      dob,
+      mobile,
+      whatsapp,
+      email,
+      address,
+      district,
+      state,
+      pincode,
+      education,
+      profession,
+      working_area,
+      designation,
+      photo_url,
+      status, 
+      created_at,
+      approved_at,
+      remarks,
+      status_logs (
+        id,
+        from_status,
+        to_status,
+        remarks,
+        created_at
+      )
+    `)
+    .or(`ack_no.eq.${searchStr},membership_no.eq.${searchStr}`)
+    .maybeSingle();
+
+  if (error || !membership) {
+    return { found: false, type: "membership", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  // Security check: Must match registered mobile or email
+  const matchMobile = membership.mobile && membership.mobile.trim() === contactStr;
+  const matchEmail = membership.email && membership.email.toLowerCase().trim() === contactStr.toLowerCase();
+
+  if (!matchMobile && !matchEmail) {
+    return { found: false, type: "membership", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  // Format timeline
+  const timeline = (membership.status_logs || []).map((log: any) => ({
+    id: log.id,
+    fromStatus: log.from_status,
+    toStatus: log.to_status,
+    remarks: log.remarks || "No remarks available.",
+    date: new Date(log.created_at).toLocaleString("en-IN"),
+  })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return {
+    found: true,
+    type: "membership",
+    number: membership.membership_no || membership.ack_no,
+    name: membership.full_name,
+    status: membership.status,
+    date: new Date(membership.created_at).toLocaleDateString("en-IN"),
+    details: membership.remarks || undefined,
+    timeline,
+    memberDetails: {
+      father_name: membership.father_name,
+      gender: membership.gender,
+      dob: new Date(membership.dob).toLocaleDateString("en-IN"),
+      mobile: membership.mobile,
+      whatsapp: membership.whatsapp,
+      email: membership.email,
+      address: membership.address,
+      district: membership.district,
+      state: membership.state,
+      pincode: membership.pincode,
+      education: membership.education,
+      profession: membership.profession,
+      working_area: membership.working_area,
+      designation: membership.designation,
+      photo_url: membership.photo_url,
+      approved_at: membership.approved_at ? new Date(membership.approved_at).toISOString() : null,
+      created_at: new Date(membership.created_at).toISOString(),
+      ack_no: membership.ack_no,
+    }
+  };
+}
+
+export async function getSecureComplaintDetails(complaintNo: string, contact: string): Promise<TrackingResult | null> {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const searchStr = complaintNo.trim();
+  const contactStr = contact.trim();
+
+  if (!searchStr || !contactStr) return null;
+
+  const { data: complaint, error } = await supabase
+    .from("complaints")
+    .select(`
+      id, 
+      complaint_no, 
+      name, 
+      mobile,
+      email,
+      status, 
+      created_at,
+      details,
+      status_logs (
+        id,
+        from_status,
+        to_status,
+        remarks,
+        created_at
+      )
+    `)
+    .eq("complaint_no", searchStr)
+    .maybeSingle();
+
+  if (error || !complaint) {
+    return { found: false, type: "complaint", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  // Security check: Must match registered mobile or email
+  const matchMobile = complaint.mobile && complaint.mobile.trim() === contactStr;
+  const matchEmail = complaint.email && complaint.email.toLowerCase().trim() === contactStr.toLowerCase();
+
+  if (!matchMobile && !matchEmail) {
+    return { found: false, type: "complaint", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  const timeline = (complaint.status_logs || []).map((log: any) => ({
+    id: log.id,
+    fromStatus: log.from_status,
+    toStatus: log.to_status,
+    remarks: log.remarks || "No remarks available.",
+    date: new Date(log.created_at).toLocaleString("en-IN"),
+  })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return {
+    found: true,
+    type: "complaint",
+    number: complaint.complaint_no,
+    name: complaint.name,
+    status: complaint.status,
+    date: new Date(complaint.created_at).toLocaleDateString("en-IN"),
+    details: complaint.details,
+    timeline,
+  };
+}
+
+export async function getSecureCourseDetails(enrollmentNo: string, email: string): Promise<TrackingResult | null> {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const searchStr = enrollmentNo.trim();
+  const emailStr = email.trim();
+
+  if (!searchStr || !emailStr) return null;
+
+  const { data: enrollment, error } = await supabase
+    .from("course_registrations")
+    .select(`
+      id, 
+      enrollment_no, 
+      full_name, 
+      email,
+      status, 
+      created_at,
+      remarks,
+      courses (
+        title
+      ),
+      status_logs (
+        id,
+        from_status,
+        to_status,
+        remarks,
+        created_at
+      )
+    `)
+    .eq("enrollment_no", searchStr)
+    .maybeSingle();
+
+  if (error || !enrollment) {
+    return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  // Security check: Must match registered email
+  if (enrollment.email.toLowerCase().trim() !== emailStr.toLowerCase()) {
+    return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  // Fetch the certificate details if status is APPROVED/COMPLETED
+  let certificate = null;
+  if (enrollment.status === "APPROVED" || enrollment.status === "COMPLETED") {
+    const { data: certData } = await supabase
+      .from("certificates")
+      .select("certificate_no, pdf_url")
+      .eq("registration_id", enrollment.id)
+      .eq("status", "VALID")
+      .maybeSingle();
+
+    if (certData) {
+      certificate = {
+        certificate_no: certData.certificate_no,
+        pdf_url: certData.pdf_url,
+      };
+    }
+  }
+
+  const timeline = (enrollment.status_logs || []).map((log: any) => ({
+    id: log.id,
+    fromStatus: log.from_status,
+    toStatus: log.to_status,
+    remarks: log.remarks || "No remarks available.",
+    date: new Date(log.created_at).toLocaleString("en-IN"),
+  })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  return {
+    found: true,
+    type: "enrollment",
+    number: enrollment.enrollment_no || "",
+    name: `${enrollment.full_name} (${(enrollment.courses as any)?.title || "Course"})`,
+    status: enrollment.status,
+    date: new Date(enrollment.created_at).toLocaleDateString("en-IN"),
+    details: enrollment.remarks || undefined,
+    timeline,
+    certificate,
+  };
+}
+
+export async function getCertificateVerificationDetails(certificateNo: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const searchStr = certificateNo.trim();
+
+  if (!searchStr) return null;
+
+  const { data: cert, error } = await supabase
+    .from("certificates")
+    .select(`
+      id,
+      certificate_no,
+      user_name,
+      course_name,
+      issue_date,
+      status,
+      pdf_url,
+      grade,
+      performance,
+      venue,
+      duration_from,
+      duration_to
+    `)
+    .eq("certificate_no", searchStr)
+    .maybeSingle();
+
+  if (error || !cert) {
+    return { found: false, certificate_no: searchStr };
+  }
+
+  return {
+    found: true,
+    certificate_no: cert.certificate_no,
+    user_name: cert.user_name,
+    course_name: cert.course_name,
+    issue_date: new Date(cert.issue_date).toLocaleDateString("en-IN"),
+    status: cert.status,
+    pdf_url: cert.pdf_url,
+    grade: cert.grade || "N/A",
+    performance: cert.performance || "N/A",
+    venue: cert.venue || "N/A",
+    duration_from: cert.duration_from || "N/A",
+    duration_to: cert.duration_to || "N/A"
+  };
 }

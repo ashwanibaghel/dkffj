@@ -1,627 +1,127 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Clock, ShieldAlert, Award, Download, IdCard, Heart } from "lucide-react";
-import { getTrackingDetails, TrackingResult } from "./actions";
-import { generateMembershipPDFClient } from "../admin/(dashboard)/members/MembershipCertificateGenerator";
-import { generateMembershipIdCardPDFClient } from "../admin/(dashboard)/members/MembershipIdCardGenerator";
-import { generateDonationPDFClient } from "../donate/DonationCertificateGenerator";
+import { ArrowLeft, UserCheck, FileText, GraduationCap, Award } from "lucide-react";
 
-function TrackPageContent() {
-  const searchParams = useSearchParams();
-  const [trackingType, setTrackingType] = useState<string>("membership");
-  const [trackingNumber, setTrackingNumber] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [searched, setSearched] = useState<boolean>(false);
-  const [result, setResult] = useState<TrackingResult | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string>("");
-  const [downloadingCert, setDownloadingCert] = useState<boolean>(false);
-  const [downloadingIdCard, setDownloadingIdCard] = useState<boolean>(false);
-  const [downloadingDonation, setDownloadingDonation] = useState<boolean>(false);
-
-  useEffect(() => {
-    const type = searchParams.get("type");
-    const id = searchParams.get("id");
-    if (type && ["membership", "complaint", "enrollment", "donation"].includes(type)) {
-      setTrackingType(type);
+export default function TrackPage() {
+  const cards = [
+    {
+      title: "Membership Status",
+      desc: "Track status of your membership application and download ID Card or Certificate.",
+      href: "/track/membership",
+      icon: UserCheck,
+      color: "from-sky-500 to-[#1565C0]",
+      badge: "Secure"
+    },
+    {
+      title: "Grievance Complaint",
+      desc: "Monitor real-time progress of filed grievances, investigations, and resolutions.",
+      href: "/track/complaint",
+      icon: FileText,
+      color: "from-blue-600 to-[#0D47A1]",
+      badge: "Secure"
+    },
+    {
+      title: "Academy Course Enrollment",
+      desc: "Check enrollment status, payments, and verify course completion credentials.",
+      href: "/track/course",
+      icon: GraduationCap,
+      color: "from-cyan-500 to-sky-600",
+      badge: "Secure"
+    },
+    {
+      title: "Certificate Verification",
+      desc: "Verify authenticity of official certificates issued by DK Foundation.",
+      href: "/track/certificate",
+      icon: Award,
+      color: "from-emerald-500 to-teal-600",
+      badge: "Public"
     }
-    if (id) {
-      setTrackingNumber(id);
-      handleSearch(type || "membership", id);
-    }
-  }, [searchParams]);
-
-  const handleSearch = async (type: string, number: string) => {
-    if (!number.trim()) {
-      setErrorMsg("Please enter a valid tracking number.");
-      return;
-    }
-    setLoading(true);
-    setErrorMsg("");
-    setSearched(true);
-    try {
-      const res = await getTrackingDetails(type, number);
-      setResult(res);
-    } catch (err) {
-      console.error(err);
-      setErrorMsg("Something went wrong while fetching details. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDownloadCertificate = async (member: any) => {
-    setDownloadingCert(true);
-    try {
-      const appUrl = window.location.origin;
-      const certNo = member.membership_no || member.ack_no || result?.number;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
-      
-      const issueDateStr = member.approved_at 
-        ? new Date(member.approved_at).toLocaleDateString("en-IN")
-        : (member.created_at ? new Date(member.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN"));
-
-      // Generate the PDF
-      const pdfBlob = await generateMembershipPDFClient({
-        membershipNo: member.membership_no || certNo || "",
-        ackNo: member.ack_no || certNo || "",
-        fullName: result?.name || "",
-        fatherName: member.father_name,
-        designation: member.designation,
-        workingArea: member.working_area,
-        photoUrl: member.photo_url,
-        issueDateStr,
-        qrCodeUrl,
-        verificationUrl
-      });
-
-      // Trigger local browser download
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Membership_Certificate_${certNo}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (err: any) {
-      console.error(err);
-      alert(`Error generating certificate: ${err.message || err}`);
-    } finally {
-      setDownloadingCert(false);
-    }
-  };
-
-  const handleDownloadIdCard = async (member: any) => {
-    setDownloadingIdCard(true);
-    try {
-      const appUrl = window.location.origin;
-      const certNo = member.membership_no || member.ack_no || result?.number;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
-      
-      const issueDate = member.approved_at ? new Date(member.approved_at) : (member.created_at ? new Date(member.created_at) : new Date());
-      const issueDateStr = issueDate.toLocaleDateString("en-IN");
-      
-      const validFromStr = issueDate.toISOString().split("T")[0]; // YYYY-MM-DD
-      const validToDate = new Date(issueDate);
-      validToDate.setFullYear(validToDate.getFullYear() + 1);
-      validToDate.setDate(validToDate.getDate() - 1);
-      const validToStr = validToDate.toISOString().split("T")[0]; // YYYY-MM-DD
-
-      const pdfBlob = await generateMembershipIdCardPDFClient({
-        membershipNo: member.membership_no || certNo || "",
-        ackNo: member.ack_no || certNo || "",
-        fullName: result?.name || "",
-        fatherName: member.father_name,
-        designation: member.designation,
-        workingArea: member.working_area,
-        photoUrl: member.photo_url,
-        issueDateStr,
-        validFromStr,
-        validToStr,
-        addressStr: member.address || "",
-        districtStr: member.district || "",
-        stateStr: member.state || "",
-        pincodeStr: member.pincode || "",
-        mobileStr: member.mobile || "",
-        qrCodeUrl,
-        verificationUrl
-      });
-
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Membership_ID_Card_${certNo}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (err: any) {
-      console.error(err);
-      alert(`Error generating ID Card: ${err.message || err}`);
-    } finally {
-      setDownloadingIdCard(false);
-    }
-  };
-
-  const handleDownloadDonationCertificate = async (member: any) => {
-    setDownloadingDonation(true);
-    try {
-      const appUrl = window.location.origin;
-      const orderId = member.ack_no || result?.number || "";
-      const verificationUrl = `${appUrl}/verify/${orderId}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
-      
-      const issueDateStr = member.approved_at 
-        ? new Date(member.approved_at).toLocaleDateString("en-IN")
-        : new Date().toLocaleDateString("en-IN");
-
-      // Generate the PDF
-      const pdfBlob = await generateDonationPDFClient({
-        orderId,
-        fullName: result?.name || "",
-        amount: result?.details?.split("Amount: ₹")?.[1] || "1000",
-        purpose: member.working_area || "General Donation",
-        issueDateStr,
-        qrCodeUrl,
-        verificationUrl
-      });
-
-      // Trigger local browser download
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Donation_Certificate_${orderId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (err: any) {
-      console.error(err);
-      alert(`Error generating certificate: ${err.message || err}`);
-    } finally {
-      setDownloadingDonation(false);
-    }
-  };
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSearch(trackingType, trackingNumber);
-  };
-
-  const getStatusColor = (status: string) => {
-    const s = status.toUpperCase();
-    if (["APPROVED", "RESOLVED", "COMPLETED", "VALID"].includes(s)) {
-      return "bg-emerald-500/10 text-emerald-700 border-emerald-500/20";
-    }
-    if (["PENDING", "SUBMITTED"].includes(s)) {
-      return "bg-amber-500/10 text-amber-700 border-amber-500/20";
-    }
-    if (["UNDER_REVIEW", "UNDER_INVESTIGATION", "IN_PROGRESS"].includes(s)) {
-      return "bg-sky-500/10 text-sky-700 border-sky-500/20";
-    }
-    if (["REJECTED", "CLOSED", "REVOKED"].includes(s)) {
-      return "bg-rose-500/10 text-rose-700 border-rose-500/20";
-    }
-    return "bg-slate-500/10 text-slate-700 border-slate-500/20";
-  };
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
-      {/* Radial mesh background decoration */}
+    <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] via-white to-[#e8f4fd] text-slate-900 flex flex-col font-sans relative">
+      {/* Radial mesh decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[#001C55]/[0.02] blur-[100px]"></div>
+        <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-[#1565C0]/[0.03] blur-[100px]"></div>
       </div>
 
-      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md z-10 sticky top-0">
+      <header className="border-b border-sky-100 bg-white/80 backdrop-blur-md z-10 sticky top-0">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#001C55]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1565C0]/10 to-[#1565C0]/5 border border-sky-100 flex items-center justify-center">
               <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ Logo" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[#001C55] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[8px] text-[#C00000] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
+              <span className="text-[#1565C0] font-bold text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+              <span className="text-[8px] text-[#001C55] font-bold tracking-wider leading-none">OF FREEDOM AND JUSTICE</span>
             </div>
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#001C55] hover:text-[#001C55]/80 transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1565C0] hover:text-[#0D47A1] transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
           </Link>
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-12 z-10">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-extrabold font-serif text-[#001C55]">Track Application Status</h1>
-          <p className="text-slate-500 text-sm mt-2">Enter your Acknowledgement, Docket, or Enrollment number to get real-time tracking details.</p>
+      <main className="flex-1 max-w-5xl w-full mx-auto px-6 py-16 z-10 flex flex-col justify-center">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest text-[#1565C0] bg-sky-50 border border-sky-100 uppercase">
+            Tracking Portal
+          </span>
+          <h1 className="text-4xl font-extrabold font-serif text-[#001C55] mt-4 tracking-tight">
+            What would you like to track?
+          </h1>
+          <p className="text-slate-500 text-sm mt-3 leading-relaxed">
+            Select a module below to track your application, query grievance updates, or verify official certificates.
+          </p>
         </div>
 
-        {/* Search Panel Card */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm mb-8">
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tracking Module</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setTrackingType("membership")}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
-                    trackingType === "membership"
-                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                  }`}
-                >
-                  Membership
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTrackingType("complaint")}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
-                    trackingType === "complaint"
-                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                  }`}
-                >
-                  Complaint
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTrackingType("enrollment")}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
-                    trackingType === "enrollment"
-                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                  }`}
-                >
-                  Academy Course
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTrackingType("donation")}
-                  className={`py-2.5 px-3 rounded-lg border text-xs font-semibold tracking-wide transition-all ${
-                    trackingType === "donation"
-                      ? "bg-[#001C55] text-white border-[#001C55] shadow-sm"
-                      : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                  }`}
-                >
-                  Donation
-                </button>
-              </div>
-            </div>
+        {/* Tiles Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {cards.map((card, idx) => {
+            const Icon = card.icon;
+            return (
+              <Link 
+                key={idx}
+                href={card.href}
+                className="group relative bg-white border border-sky-100 rounded-3xl p-8 hover:shadow-2xl hover:border-sky-300 transition-all duration-300 flex flex-col text-left overflow-hidden"
+              >
+                {/* Decorative background blur on hover */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-sky-50 to-transparent rounded-bl-full group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                {trackingType === "membership" && "Acknowledgement / Membership No."}
-                {trackingType === "complaint" && "Grievance Docket No. (DKC-...)"}
-                {trackingType === "enrollment" && "Course Enrollment No. (DKE-...)"}
-                {trackingType === "donation" && "Donation Ref No. (DKD-...)"}
-              </label>
-              <div className="relative flex rounded-lg shadow-sm">
-                <input
-                  type="text"
-                  value={trackingNumber}
-                  onChange={(e) => setTrackingNumber(e.target.value)}
-                  placeholder={
-                    trackingType === "membership" ? "e.g., ACK-2026-00001 or DKM-..." :
-                    trackingType === "complaint" ? "e.g., DKC-2026-00001" :
-                    trackingType === "enrollment" ? "e.g., DKE-2026-00001" : "e.g., DKD-2026-00001"
-                  }
-                  className="w-full pl-4 pr-12 py-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/20 focus:border-[#001C55] transition-all bg-white"
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="absolute right-1 top-1 bottom-1 px-4 rounded-md bg-[#001C55] text-white hover:bg-[#001236] flex items-center justify-center disabled:opacity-50 transition-colors"
-                >
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                </button>
-              </div>
-              {errorMsg && <p className="text-xs text-rose-600 mt-1.5 font-medium flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errorMsg}</p>}
-            </div>
-          </form>
-        </div>
-
-        {/* Results Desk */}
-        {loading && (
-          <div className="text-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
-            <p className="text-sm text-slate-500">Searching records, please wait...</p>
-          </div>
-        )}
-
-        {!loading && searched && result && (
-          <div className="space-y-6">
-            {result.found ? (
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                {/* Header detail */}
-                <div className="bg-slate-50/50 px-6 py-5 border-b border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      {result.type} Record Found
-                    </span>
-                    <h3 className="text-lg font-bold text-slate-800 mt-0.5">{result.name}</h3>
-                    <p className="text-xs text-slate-500 mt-1">Ref ID: <span className="font-semibold text-slate-700">{result.number}</span> | Registered on {result.date}</p>
+                <div className="flex items-start justify-between mb-6">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${card.color} text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="w-6 h-6" />
                   </div>
-                  <div className="self-start md:self-center">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(result.status)}`}>
-                      {result.status}
-                    </span>
-                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                    card.badge === "Secure" 
+                      ? "bg-amber-50 text-amber-700 border border-amber-100" 
+                      : "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                  }`}>
+                    {card.badge}
+                  </span>
                 </div>
 
-                <div className="p-6">
-                  {result.details && (
-                    <div className="mb-6 p-4 rounded-xl bg-slate-50 text-slate-600 border border-slate-200/50 text-xs leading-relaxed">
-                      <span className="font-bold text-slate-700 block mb-1">Details:</span>
-                      {result.details}
-                    </div>
-                  )}
-
-                  {/* Membership Details Card */}
-                  {result.type === "membership" && result.memberDetails && (
-                    <div className="mb-8 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
-                      <div className="bg-[#001C55]/5 px-5 py-3.5 border-b border-slate-200/60 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[#001C55] uppercase tracking-wider">Official Membership Card Details</span>
-                        {result.status === "APPROVED" && (
-                          <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">
-                            Active ID Card
-                          </span>
-                        )}
-                      </div>
-                      <div className="p-5 flex flex-col md:flex-row gap-6">
-                        {/* Profile Photo */}
-                        <div className="flex flex-col items-center shrink-0">
-                          <img
-                            src={result.memberDetails.photo_url || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300"}
-                            alt={result.name}
-                            className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm"
-                          />
-                          <span className="text-[10px] text-slate-400 font-bold uppercase mt-2">Verified Photo</span>
-                        </div>
-                        
-                        {/* Profile Details Grid */}
-                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700 text-left">
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Full Name</span>
-                            <span className="text-slate-900 mt-0.5 block">{result.name}</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Father's Name</span>
-                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.father_name}</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">DOB & Gender</span>
-                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.dob} ({result.memberDetails.gender})</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Designation / Role</span>
-                            <span className="text-amber-800 font-extrabold mt-0.5 block uppercase tracking-wide">{result.memberDetails.designation || "Human Rights Officer"}</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Email & Mobile</span>
-                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.email} / {result.memberDetails.mobile}</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Working Area</span>
-                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.working_area || "N/A"}</span>
-                          </div>
-                          <div className="sm:col-span-2">
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Official Address</span>
-                            <span className="text-slate-850 mt-0.5 block leading-relaxed">{result.memberDetails.address}, {result.memberDetails.district}, {result.memberDetails.state} - {result.memberDetails.pincode}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Donation Details Card */}
-                  {result.type === "donation" && result.memberDetails && (
-                    <div className="mb-8 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
-                      <div className="bg-[#001C55]/5 px-5 py-3.5 border-b border-slate-200/60 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[#001C55] uppercase tracking-wider">Donation Receipt Details</span>
-                        {result.status === "COMPLETED" && (
-                          <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">
-                            Payment Successful
-                          </span>
-                        )}
-                      </div>
-                      <div className="p-5 flex flex-col md:flex-row gap-6">
-                        {/* Heart Icon instead of photo */}
-                        <div className="flex flex-col items-center justify-center shrink-0 w-24 h-24 rounded-xl border bg-rose-50 border-rose-100 text-rose-500">
-                          <Heart className="w-10 h-10 fill-current" />
-                          <span className="text-[8px] text-rose-600 font-bold uppercase mt-1">Contributor</span>
-                        </div>
-                        
-                        {/* Profile Details Grid */}
-                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700 text-left">
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Donor Name</span>
-                            <span className="text-slate-900 mt-0.5 block">{result.name}</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Donation Ref (Order ID)</span>
-                            <span className="text-slate-900 mt-0.5 block font-mono font-bold text-slate-800">{result.number}</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Email & Mobile</span>
-                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.email} / {result.memberDetails.mobile}</span>
-                          </div>
-                          <div>
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Address</span>
-                            <span className="text-slate-850 mt-0.5 block">{result.memberDetails.address}</span>
-                          </div>
-                          <div className="sm:col-span-2">
-                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Purpose of Donation</span>
-                            <span className="text-[#001C55] font-extrabold mt-0.5 block uppercase tracking-wide">{result.memberDetails.working_area}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Membership Certificate & ID Card desk for APPROVED members */}
-                  {result.type === "membership" && result.status === "APPROVED" && result.memberDetails && (
-                    <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm text-left">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                          <Award className="w-6 h-6 text-emerald-600" />
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Official Credentials Ready
-                          </span>
-                          <h4 className="font-bold text-slate-800 text-sm mt-2 font-serif">Download Membership Documents</h4>
-                          <p className="text-slate-500 text-[11px] mt-0.5">Your official membership ID card and certificate are ready for download.</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleDownloadCertificate(result.memberDetails)}
-                          disabled={downloadingCert || downloadingIdCard}
-                          className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50"
-                        >
-                          {downloadingCert ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Download className="w-3.5 h-3.5" />
-                          )}
-                          Certificate (PDF)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDownloadIdCard(result.memberDetails)}
-                          disabled={downloadingCert || downloadingIdCard}
-                          className="px-4 py-2 bg-[#001C55] text-white hover:bg-[#001236] text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50"
-                        >
-                          {downloadingIdCard ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <IdCard className="w-3.5 h-3.5" />
-                          )}
-                          ID Card (PDF)
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Donation Certificate Appreciation download card for completed donations */}
-                  {result.type === "donation" && result.status === "COMPLETED" && result.memberDetails && (
-                    <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm text-left">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                          <Award className="w-6 h-6 text-emerald-600" />
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Official Credential Generated
-                          </span>
-                          <h4 className="font-bold text-slate-800 text-sm mt-2 font-serif font-bold">Certificate of Appreciation</h4>
-                          <p className="text-slate-500 text-[11px] mt-0.5">Your official donation appreciation certificate is available for download.</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleDownloadDonationCertificate(result.memberDetails)}
-                        disabled={downloadingDonation}
-                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg shrink-0 cursor-pointer disabled:opacity-50"
-                      >
-                        {downloadingDonation ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        Download Certificate
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Certificate Download Card */}
-                  {result.certificate && (
-                    <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                          <Award className="w-6 h-6 text-emerald-600" />
-                        </div>
-                        <div className="text-xs text-left">
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 border border-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Official Credential Generated
-                          </span>
-                          <h4 className="font-bold text-slate-800 text-sm mt-2 font-serif">Certificate No: {result.certificate.certificate_no}</h4>
-                          <p className="text-slate-500 text-[11px] mt-0.5">Your graduation certificate is available for download as a verified PDF.</p>
-                        </div>
-                      </div>
-                      <a
-                        href={result.certificate.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg shrink-0 cursor-pointer"
-                      >
-                        <Download className="w-4 h-4" /> Download Certificate
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Timeline */}
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-6">Status Log Timeline</h4>
-                  {result.timeline.length === 0 ? (
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-sky-50 text-sky-800 border border-sky-100 text-xs">
-                      <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />
-                      <span>Record registered. Verification is under process. No timeline updates yet.</span>
-                    </div>
-                  ) : (
-                    <div className="relative pl-6 border-l-2 border-slate-100 space-y-8 ml-3">
-                      {result.timeline.map((log) => (
-                        <div key={log.id} className="relative">
-                          {/* Dot indicator */}
-                          <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-[#001C55] flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#001C55]"></div>
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-slate-800">
-                                Status changed to <span className="text-[#001C55] font-extrabold">{log.toStatus}</span>
-                              </span>
-                              <span className="text-[10px] text-slate-400 font-semibold">{log.date}</span>
-                            </div>
-                            <p className="text-xs text-slate-500 mt-1.5 italic bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                              &ldquo;{log.remarks}&rdquo;
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center">
-                <ShieldAlert className="w-12 h-12 text-rose-500 mx-auto mb-3" />
-                <h3 className="text-lg font-bold text-rose-900">Record Not Found</h3>
-                <p className="text-rose-700/80 text-sm mt-1 max-w-md mx-auto">
-                  We could not find any active {trackingType} records matching &ldquo;{trackingNumber}&rdquo;. Please make sure you have entered the number correctly and selected the correct category above.
+                <h3 className="text-xl font-bold text-slate-800 group-hover:text-[#1565C0] transition-colors font-serif">
+                  {card.title}
+                </h3>
+                <p className="text-slate-500 text-xs mt-2.5 leading-relaxed flex-1 font-medium">
+                  {card.desc}
                 </p>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-    </div>
-  );
-}
 
-export default function TrackPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#001C55]" />
-      </div>
-    }>
-      <TrackPageContent />
-    </Suspense>
+                <div className="mt-6 pt-4 border-t border-slate-50 flex items-center gap-1.5 text-xs font-bold text-[#1565C0] group-hover:translate-x-1.5 transition-transform duration-300">
+                  Proceed to Track <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </main>
+
+      <footer className="py-8 border-t border-sky-50 text-center text-[10px] text-slate-400 bg-white/50 backdrop-blur-sm z-10">
+        &copy; {new Date().getFullYear()} DK Foundation of Freedom & Justice. All Rights Reserved. • Secured Verification Portal
+      </footer>
+    </div>
   );
 }

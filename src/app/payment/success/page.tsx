@@ -68,10 +68,10 @@ function PaymentSuccessContent() {
 
   const trackUrl =
     paymentType === "membership"
-      ? `/track?type=membership&id=${refId}`
+      ? `/track/membership?id=${refId}`
       : paymentType === "enrollment"
-      ? `/track?type=enrollment&id=${refId}`
-      : `/track?type=donation&id=${refId}`; // donation is default
+      ? `/track/course?id=${refId}`
+      : `/track`; // default fallback to portal
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] via-white to-[#e8f4fd] flex items-center justify-center px-4">
