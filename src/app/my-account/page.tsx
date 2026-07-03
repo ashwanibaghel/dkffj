@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   User, CreditCard, Award, FileText, ClipboardList, Bell, 
-  Download, IdCard, Loader2, LogOut, ArrowRight, UserCheck, 
+  Download, IdCard, Loader2, LogOut, ArrowRight, ArrowLeft, UserCheck, 
   CheckCircle2, Clock, ShieldAlert, Edit2, Key, Mail 
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
