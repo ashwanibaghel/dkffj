@@ -486,21 +486,44 @@ export default function MyAccountPage() {
                 <div className="space-y-4">
                   {/* Memberships */}
                   {memberships.map((member) => (
-                    <div key={member.id} className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div>
-                        <span className="text-[9px] font-bold text-[#1565C0] uppercase tracking-wider bg-sky-50 px-2 py-0.5 rounded border border-sky-100">Membership Application</span>
-                        <h4 className="font-bold text-slate-800 text-sm mt-2">{member.designation || "Executive Member"}</h4>
-                        <p className="text-slate-500 text-xs mt-0.5">Ref ID: <span className="font-semibold">{member.ack_no}</span></p>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
+                    <div key={member.id} className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-100">
+                        <div>
+                          <span className="text-[9px] font-bold text-[#1565C0] uppercase tracking-wider bg-sky-50 px-2 py-0.5 rounded border border-sky-100">
+                            Membership Application
+                          </span>
+                          <h4 className="font-bold text-slate-800 text-sm mt-1">{member.designation || "Executive Member"}</h4>
+                        </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] border font-bold uppercase ${getStatusBadge(member.status)}`}>
                           {member.status}
                         </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[11px] font-semibold text-slate-650">
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Application Number</span>
+                          <span className="text-slate-900 mt-0.5 block">{member.ack_no}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Membership No</span>
+                          <span className="text-slate-900 mt-0.5 block">{member.membership_no || "Awaiting Approval"}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Created Date</span>
+                          <span className="text-slate-900 mt-0.5 block">{new Date(member.created_at).toLocaleDateString("en-IN")}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Last Updated</span>
+                          <span className="text-slate-950 mt-0.5 block">{new Date(member.updated_at || member.created_at).toLocaleDateString("en-IN")}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex justify-end">
                         <Link
                           href={`/track/membership?id=${member.ack_no}`}
-                          className="px-3 py-1.5 border border-sky-100 text-[#1565C0] hover:text-[#0D47A1] hover:bg-slate-50 text-[10px] font-bold rounded-lg transition-all"
+                          className="px-4 py-1.5 border border-sky-100 text-[#1565C0] hover:bg-slate-50 text-[10px] font-bold rounded-lg transition-all"
                         >
-                          Track Log
+                          Track Full Progress Log
                         </Link>
                       </div>
                     </div>
@@ -508,21 +531,44 @@ export default function MyAccountPage() {
 
                   {/* Course Enrollments */}
                   {courses.map((reg) => (
-                    <div key={reg.id} className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div>
-                        <span className="text-[9px] font-bold text-cyan-700 uppercase tracking-wider bg-cyan-50 px-2 py-0.5 rounded border border-cyan-100">Academy Course</span>
-                        <h4 className="font-bold text-slate-800 text-sm mt-2">{reg.courses?.title || "Selected Course"}</h4>
-                        <p className="text-slate-500 text-xs mt-0.5">Enrollment: <span className="font-semibold">{reg.enrollment_no || "PENDING VERIFICATION"}</span></p>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
+                    <div key={reg.id} className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-100">
+                        <div>
+                          <span className="text-[9px] font-bold text-cyan-700 uppercase tracking-wider bg-cyan-50 px-2 py-0.5 rounded border border-cyan-100">
+                            Academy Course
+                          </span>
+                          <h4 className="font-bold text-slate-800 text-sm mt-1">{reg.courses?.title || "Selected Course"}</h4>
+                        </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] border font-bold uppercase ${getStatusBadge(reg.status)}`}>
                           {reg.status}
                         </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-[11px] font-semibold text-slate-650">
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Enrollment ID</span>
+                          <span className="text-slate-900 mt-0.5 block">{reg.enrollment_no || "Pending Verification"}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Course Title</span>
+                          <span className="text-slate-900 mt-0.5 block truncate max-w-[120px]">{reg.courses?.title || "Academy Course"}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Created Date</span>
+                          <span className="text-slate-900 mt-0.5 block">{new Date(reg.created_at).toLocaleDateString("en-IN")}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Last Updated</span>
+                          <span className="text-slate-950 mt-0.5 block">{new Date(reg.updated_at || reg.created_at).toLocaleDateString("en-IN")}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex justify-end">
                         <Link
                           href={`/track/course?id=${reg.enrollment_no || ""}`}
-                          className="px-3 py-1.5 border border-sky-100 text-[#1565C0] hover:text-[#0D47A1] hover:bg-slate-50 text-[10px] font-bold rounded-lg transition-all"
+                          className="px-4 py-1.5 border border-sky-100 text-[#1565C0] hover:bg-slate-50 text-[10px] font-bold rounded-lg transition-all"
                         >
-                          Track Log
+                          Track Full Progress Log
                         </Link>
                       </div>
                     </div>
@@ -530,21 +576,40 @@ export default function MyAccountPage() {
 
                   {/* Grievances */}
                   {complaints.map((comp) => (
-                    <div key={comp.id} className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div>
-                        <span className="text-[9px] font-bold text-purple-700 uppercase tracking-wider bg-purple-50 px-2 py-0.5 rounded border border-purple-100">Grievance Complaint</span>
-                        <h4 className="font-bold text-slate-800 text-sm mt-2 max-w-sm truncate">{comp.details}</h4>
-                        <p className="text-slate-500 text-xs mt-0.5">Docket No: <span className="font-semibold">{comp.complaint_no}</span></p>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
+                    <div key={comp.id} className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm space-y-4">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-100">
+                        <div>
+                          <span className="text-[9px] font-bold text-purple-700 uppercase tracking-wider bg-purple-50 px-2 py-0.5 rounded border border-purple-100">
+                            Grievance Complaint
+                          </span>
+                          <h4 className="font-bold text-slate-800 text-sm mt-1 max-w-md truncate">{comp.details}</h4>
+                        </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[9px] border font-bold uppercase ${getStatusBadge(comp.status)}`}>
                           {comp.status}
                         </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-[11px] font-semibold text-slate-650">
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Docket Number</span>
+                          <span className="text-slate-900 mt-0.5 block">{comp.complaint_no}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Created Date</span>
+                          <span className="text-slate-900 mt-0.5 block">{new Date(comp.created_at).toLocaleDateString("en-IN")}</span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] text-slate-400 block uppercase tracking-wider">Last Updated</span>
+                          <span className="text-slate-950 mt-0.5 block">{new Date(comp.updated_at || comp.created_at).toLocaleDateString("en-IN")}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex justify-end">
                         <Link
                           href={`/track/complaint?id=${comp.complaint_no}`}
-                          className="px-3 py-1.5 border border-sky-100 text-[#1565C0] hover:text-[#0D47A1] hover:bg-slate-50 text-[10px] font-bold rounded-lg transition-all"
+                          className="px-4 py-1.5 border border-sky-100 text-[#1565C0] hover:bg-slate-50 text-[10px] font-bold rounded-lg transition-all"
                         >
-                          Track Log
+                          Track Full Progress Log
                         </Link>
                       </div>
                     </div>
@@ -562,64 +627,89 @@ export default function MyAccountPage() {
                 <p className="text-slate-500 text-xs mt-0.5">Access and save all approved ID Cards, membership certificates, and graduation receipts.</p>
               </div>
 
-              {memberships.filter(m => m.status === "APPROVED").length === 0 && 
-               courses.filter(c => c.status === "APPROVED" || c.status === "COMPLETED").length === 0 ? (
+              {memberships.length === 0 && courses.length === 0 ? (
                 <div className="bg-white border border-sky-100 rounded-3xl p-12 text-center">
                   <Download className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <h4 className="text-slate-700 font-bold">No certificates available yet</h4>
+                  <h4 className="text-slate-700 font-bold">No records found</h4>
                   <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                    Your applications are currently processing. Verification credentials and download buttons will appear here once verified.
+                    You have not registered for memberships or courses yet. Download credentials will appear once you enroll.
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Membership certificates & ID card downloads */}
-                  {memberships
-                    .filter((m) => m.status === "APPROVED")
-                    .map((member) => (
+                  {memberships.map((member) => {
+                    const isApproved = member.status === "APPROVED";
+                    return (
                       <div key={member.id} className="bg-white border border-sky-100 rounded-2xl p-5 flex flex-col justify-between shadow-sm">
                         <div>
-                          <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">Approved Member</span>
-                          <h4 className="font-bold text-slate-800 text-sm mt-2">{member.designation}</h4>
+                          <div className="flex justify-between items-start gap-2">
+                            <span className="text-[8px] bg-sky-100 text-[#1565C0] border border-sky-200 px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                              Membership Card & Cert
+                            </span>
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-bold border uppercase ${
+                              isApproved ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-250"
+                            }`}>
+                              Status: {isApproved ? "Ready" : "Under Review"}
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-slate-800 text-sm mt-3">{member.designation || "Executive Member"}</h4>
                           <p className="text-[11px] text-slate-400 mt-0.5">Ack: {member.ack_no}</p>
                         </div>
                         <div className="flex gap-2 mt-4 pt-4 border-t border-slate-50 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadCertificate(member)}
-                            disabled={downloadingId !== null}
-                            className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1 disabled:opacity-50"
-                          >
-                            {downloadingId === member.id ? <Loader2 className="w-3 animate-spin" /> : <Download className="w-3 h-3" />}
-                            Certificate
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadIdCard(member)}
-                            disabled={downloadingId !== null}
-                            className="px-3.5 py-2 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1 disabled:opacity-50"
-                          >
-                            {downloadingId === member.id + "-card" ? <Loader2 className="w-3 animate-spin" /> : <IdCard className="w-3 h-3" />}
-                            ID Card
-                          </button>
+                          {isApproved ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleDownloadCertificate(member)}
+                                disabled={downloadingId !== null}
+                                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1 disabled:opacity-50"
+                              >
+                                {downloadingId === member.id ? <Loader2 className="w-3 animate-spin" /> : <Download className="w-3 h-3" />}
+                                Certificate
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDownloadIdCard(member)}
+                                disabled={downloadingId !== null}
+                                className="px-3.5 py-2 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1 disabled:opacity-50"
+                              >
+                                {downloadingId === member.id + "-card" ? <Loader2 className="w-3 animate-spin" /> : <IdCard className="w-3 h-3" />}
+                                ID Card
+                              </button>
+                            </>
+                          ) : (
+                            <p className="text-[10px] text-slate-450 italic font-medium">
+                              🟡 Documents will be available for download once approved.
+                            </p>
+                          )}
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
 
                   {/* Course graduation certificates */}
-                  {courses
-                    .filter((c) => (c.status === "APPROVED" || c.status === "COMPLETED") && c.certificates && c.certificates.length > 0)
-                    .map((reg) => {
-                      const cert = reg.certificates[0];
-                      if (!cert || cert.status !== "VALID") return null;
-                      return (
-                        <div key={reg.id} className="bg-white border border-sky-100 rounded-2xl p-5 flex flex-col justify-between shadow-sm">
-                          <div>
-                            <span className="text-[8px] bg-emerald-500 text-white px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">Course Completed</span>
-                            <h4 className="font-bold text-slate-800 text-sm mt-2">{reg.courses?.title || "Academy Course"}</h4>
-                            <p className="text-[11px] text-slate-400 mt-0.5">Cert No: {cert.certificate_no}</p>
+                  {courses.map((reg) => {
+                    const cert = reg.certificates?.[0];
+                    const isReady = (reg.status === "COMPLETED" || reg.status === "APPROVED") && cert && cert.status === "VALID";
+                    return (
+                      <div key={reg.id} className="bg-white border border-sky-100 rounded-2xl p-5 flex flex-col justify-between shadow-sm">
+                        <div>
+                          <div className="flex justify-between items-start gap-2">
+                            <span className="text-[8px] bg-cyan-100 text-cyan-800 border border-cyan-200 px-2 py-0.5 rounded font-extrabold uppercase tracking-wide">
+                              Course Graduation Certificate
+                            </span>
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-bold border uppercase ${
+                              isReady ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-705 border-amber-250"
+                            }`}>
+                              Status: {isReady ? "Ready" : "Under Review"}
+                            </span>
                           </div>
-                          <div className="mt-4 pt-4 border-t border-slate-50 shrink-0">
+                          <h4 className="font-bold text-slate-800 text-sm mt-3">{reg.courses?.title || "Academy Course"}</h4>
+                          <p className="text-[11px] text-slate-400 mt-0.5">Enrollment No: {reg.enrollment_no || "Pending Verification"}</p>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-slate-50 shrink-0">
+                          {isReady ? (
                             <a
                               href={cert.pdf_url}
                               target="_blank"
@@ -628,10 +718,15 @@ export default function MyAccountPage() {
                             >
                               <Download className="w-3 h-3" /> Download Certificate
                             </a>
-                          </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-450 italic font-medium">
+                              🟡 Certificate will be available for download after evaluation completion.
+                            </p>
+                          )}
                         </div>
-                      );
-                    })}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -58,6 +58,7 @@ export async function getAccountDetails(): Promise<AccountData> {
       photo_url,
       status,
       created_at,
+      updated_at,
       approved_at,
       status_logs (
         id,
@@ -80,6 +81,7 @@ export async function getAccountDetails(): Promise<AccountData> {
       email,
       status,
       created_at,
+      updated_at,
       courses (
         title
       ),
@@ -110,6 +112,7 @@ export async function getAccountDetails(): Promise<AccountData> {
       email,
       status,
       created_at,
+      updated_at,
       details,
       status_logs (
         id,
@@ -122,12 +125,13 @@ export async function getAccountDetails(): Promise<AccountData> {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  // 5. Get notifications
+  // 5. Get notifications (limited to top 20 recent logs)
   const { data: notifications } = await supabase
     .from("notifications")
     .select("id, type, subject, body, sent_at, success")
     .eq("user_id", user.id)
-    .order("sent_at", { ascending: false });
+    .order("sent_at", { ascending: false })
+    .limit(20);
 
   return {
     profile: profile ? {
