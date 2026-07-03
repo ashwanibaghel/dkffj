@@ -24,6 +24,7 @@ export default function MyAccountPage() {
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
   const [loginError, setLoginError] = useState<string>("");
   const [loginSuccessMsg, setLoginSuccessMsg] = useState<string>("");
+  const [authMode, setAuthMode] = useState<"password" | "magic">("password");
 
   // Edit Profile States
   const [editName, setEditName] = useState<string>("");
@@ -301,53 +302,100 @@ export default function MyAccountPage() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Registered Email Address</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-sky-100 text-xs bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-[#1565C0]"
-                placeholder="name@example.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Account Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-sky-100 text-xs bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-[#1565C0]"
-                placeholder="••••••••"
-              />
-            </div>
-
+          {/* Tabs Switcher */}
+          <div className="flex border border-sky-100 rounded-xl overflow-hidden mb-6 p-1 bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full py-3.5 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer"
+              type="button"
+              onClick={() => {
+                setAuthMode("password");
+                setLoginError("");
+                setLoginSuccessMsg("");
+              }}
+              className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${
+                authMode === "password" 
+                  ? "bg-[#1565C0] text-white shadow-sm" 
+                  : "hover:text-[#1565C0]"
+              }`}
             >
-              {loginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In to Account"}
+              Password Login
             </button>
-          </form>
-
-          <div className="relative my-6 text-center">
-            <span className="absolute inset-x-0 top-1/2 border-b border-sky-50 -z-10"></span>
-            <span className="bg-white px-3 text-[10px] text-slate-400 font-bold uppercase tracking-wider">or passwordless login</span>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("magic");
+                setLoginError("");
+                setLoginSuccessMsg("");
+              }}
+              className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${
+                authMode === "magic" 
+                  ? "bg-[#1565C0] text-white shadow-sm" 
+                  : "hover:text-[#1565C0]"
+              }`}
+            >
+              Magic Link OTP
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSendOTP}
-            disabled={loginLoading || !email}
-            className="w-full py-3 border border-sky-100 hover:bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-          >
-            <Mail className="w-4 h-4 text-[#1565C0]" /> Send Login Magic Link
-          </button>
+          {authMode === "password" ? (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Registered Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-sky-100 text-xs bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-[#1565C0]"
+                  placeholder="name@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Account Password</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-sky-100 text-xs bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-[#1565C0]"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full py-3.5 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer font-bold"
+              >
+                {loginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In to Account"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSendOTP} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Registered Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-sky-100 text-xs bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-[#1565C0]"
+                  placeholder="name@example.com"
+                />
+                <p className="text-[10px] text-slate-450 mt-2.5 font-medium leading-relaxed bg-slate-50 border border-slate-100 p-3 rounded-xl">
+                  ℹ️ We will send a secure single-use login link to this email. You do not need to enter any password.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loginLoading || !email || !email.includes("@")}
+                className="w-full py-3.5 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 cursor-pointer font-bold"
+              >
+                {loginLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Login Magic Link"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     );
