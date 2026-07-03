@@ -88,6 +88,8 @@ export default function Home() {
               <Link href="#news" className="hover:text-white transition-colors">News</Link>
               <Link href="#video-gallery" className="hover:text-white transition-colors">Gallery</Link>
               <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
+              <Link href="/track" className="hover:text-white transition-colors text-yellow-300 font-extrabold">Track Application</Link>
+              <Link href="/my-account" className="hover:text-white transition-colors text-yellow-300 font-extrabold">My Account</Link>
             </nav>
             <Link href="/donate" className="ml-2 bg-[#C00000] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#990000] transition-colors shadow-md">
               Donate Now
@@ -143,12 +145,20 @@ export default function Home() {
             <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
             <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
             <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
+            <Link href="/track" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">Track</Link>
+            <Link href="/my-account" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">My Account</Link>
           </nav>
 
           <div className="flex items-center gap-2">
             <Link
+              href="/my-account"
+              className="border border-white/60 bg-white/10 hover:bg-white hover:text-[#1565C0] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all"
+            >
+              My Account
+            </Link>
+            <Link
               href="/admin/login"
-              className="border border-white/40 text-white hover:bg-white hover:text-[#1565C0] text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all"
+              className="border border-white/30 text-white/80 hover:bg-white hover:text-[#1565C0] text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all"
             >
               Admin
             </Link>
@@ -171,31 +181,48 @@ export default function Home() {
           {/* Content overlay on top of background */}
           <div className="relative z-20 max-w-7xl mx-auto w-full flex justify-center">
             
-            {/* Centered Welcome Buttons Panel */}
-            <div className="flex flex-col items-center gap-4 text-center w-full">
-              <div className="bg-black/30 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row justify-center items-center gap-4 shadow-xl">
-                <Link 
-                  href="/apply" 
-                  className="bg-[#1565C0] hover:bg-[#0D47A1] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(0, 28, 85,0.3)] min-w-[180px] text-center"
-                >
-                  Join Membership
-                </Link>
-                
-                <Link 
-                  href="/complaint" 
-                  className="bg-[#C00000] hover:bg-[#990000] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(192, 0, 0,0.3)] min-w-[180px] text-center"
-                >
-                  File Complaint
-                </Link>
-                
-                <Link 
-                  href="/courses" 
-                  className="bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm border border-white/20 font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 min-w-[180px] text-center"
-                >
-                  Explore Courses
-                </Link>
-              </div>
-            </div>
+             {/* Centered Welcome Buttons Panel */}
+             <div className="flex flex-col items-center gap-6 text-center w-full">
+               <div className="bg-black/30 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row justify-center items-center gap-4 shadow-xl">
+                 <Link 
+                   href="/apply" 
+                   className="bg-[#1565C0] hover:bg-[#0D47A1] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(0, 28, 85,0.3)] min-w-[180px] text-center"
+                 >
+                   Join Membership
+                 </Link>
+                 
+                 <Link 
+                   href="/complaint" 
+                   className="bg-[#C00000] hover:bg-[#990000] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(192, 0, 0,0.3)] min-w-[180px] text-center"
+                 >
+                   File Complaint
+                 </Link>
+                 
+                 <Link 
+                   href="/courses" 
+                   className="bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm border border-white/20 font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 min-w-[180px] text-center"
+                 >
+                   Explore Courses
+                 </Link>
+               </div>
+
+               {/* Quick tracking & account shortcuts */}
+               <div className="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
+                 <Link
+                   href="/track"
+                   className="text-white hover:text-yellow-250 transition-colors uppercase tracking-widest font-black underline decoration-white/30 decoration-2 underline-offset-4"
+                 >
+                   Track Application
+                 </Link>
+                 <span className="text-white/40 text-sm">|</span>
+                 <Link
+                   href="/my-account"
+                   className="text-white hover:text-yellow-250 transition-colors uppercase tracking-widest font-black underline decoration-white/30 decoration-2 underline-offset-4"
+                 >
+                   My Account Portal
+                 </Link>
+               </div>
+             </div>
 
           </div>
         </section>
