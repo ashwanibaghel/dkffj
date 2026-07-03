@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
 
 // Interface for ID Card Data
@@ -222,6 +220,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
 export async function generateMembershipIdCardPDFClient(
   data: MembershipIdCardData
 ): Promise<Blob> {
+  const html2canvas = (await import("html2canvas")).default;
+  const { jsPDF } = await import("jspdf");
+
   let photoBase64 = "";
   if (data.photoUrl) {
     photoBase64 = await getBase64ImageFromUrl(data.photoUrl);
