@@ -204,7 +204,7 @@ export default function MyAccountPage() {
       validToDate.setDate(validToDate.getDate() - 1);
       const validToStr = validToDate.toISOString().split("T")[0];
 
-      const pdfBlob = await generateMembershipIdCardPDFClient({
+      const { pdfBlob, pngBlob } = await generateMembershipIdCardPDFClient({
         membershipNo: member.membership_no || certNo || "",
         ackNo: member.ack_no || certNo || "",
         fullName: member.full_name || "",
@@ -224,14 +224,25 @@ export default function MyAccountPage() {
         verificationUrl
       });
 
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Membership_ID_Card_${certNo}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      // 1. Download PDF
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+      const aPdf = document.createElement("a");
+      aPdf.href = pdfUrl;
+      aPdf.download = `Membership_ID_Card_${certNo}.pdf`;
+      document.body.appendChild(aPdf);
+      aPdf.click();
+      document.body.removeChild(aPdf);
+      window.URL.revokeObjectURL(pdfUrl);
+
+      // 2. Download PNG
+      const pngUrl = window.URL.createObjectURL(pngBlob);
+      const aPng = document.createElement("a");
+      aPng.href = pngUrl;
+      aPng.download = `Membership_ID_Card_${certNo}.png`;
+      document.body.appendChild(aPng);
+      aPng.click();
+      document.body.removeChild(aPng);
+      window.URL.revokeObjectURL(pngUrl);
     } catch (err: any) {
       alert(`Error generating ID Card: ${err.message}`);
     } finally {

@@ -84,28 +84,28 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          gap: "8px",
+          gap: "10px",
           padding: "20px 0",
           boxSizing: "border-box",
-          opacity: 0.07,
+          opacity: 0.09,
           userSelect: "none"
         }}
       >
-        {Array.from({ length: 75 }).map((_, i) => (
+        {Array.from({ length: 60 }).map((_, i) => (
           <div
             key={i}
             style={{
               fontFamily: "Arial, sans-serif",
               fontWeight: "bold",
-              fontSize: "7px",
+              fontSize: "9px",
               color: "#001C55",
               whiteSpace: "nowrap",
-              letterSpacing: "1px",
+              letterSpacing: "1.5px",
               width: "100%",
               textAlign: "center"
             }}
           >
-            {"DK FOUNDATION OF FREEDOM AND JUSTICE   ".repeat(5)}
+            {"DK FOUNDATION OF FREEDOM AND JUSTICE   ".repeat(4)}
           </div>
         ))}
       </div>

@@ -31,6 +31,11 @@ interface MembershipIdCardRendererProps {
   logoBase64?: string;
 }
 
+export interface GenerationResult {
+  pdfBlob: Blob;
+  pngBlob: Blob;
+}
+
 export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> = ({
   data,
   photoBase64,
@@ -45,19 +50,27 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
     <div
       id={`membership-idcard-render-container-${data.membershipNo || data.ackNo}`}
       style={{
-        width: "1000px",
-        height: "600px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-        borderRadius: "8px",
-        border: "3px solid #005b94", // ID Card Outer Border
-        overflow: "hidden",
-        backgroundColor: "#0076c0",
-        color: "#ffffff",
-        display: "flex",
-        position: "relative",
+        padding: "20px",
+        backgroundColor: "#f8fafc",
+        display: "inline-block",
         boxSizing: "border-box"
       }}
     >
+      <div
+        style={{
+          width: "1000px",
+          height: "600px",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+          borderRadius: "8px",
+          border: "3px solid #005b94", // ID Card Outer Border
+          overflow: "hidden",
+          backgroundColor: "#0076c0",
+          color: "#ffffff",
+          display: "flex",
+          position: "relative",
+          boxSizing: "border-box"
+        }}
+      >
       {/* Google Fonts injection */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
@@ -213,13 +226,14 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         </div>
       </div>
     </div>
+    </div>
   );
 };
 
 // Generates the Landscape ID Card PDF, returns the file blob
 export async function generateMembershipIdCardPDFClient(
   data: MembershipIdCardData
-): Promise<Blob> {
+): Promise<GenerationResult> {
   const html2canvas = (await import("html2canvas")).default;
   const { jsPDF } = await import("jspdf");
 
@@ -265,9 +279,21 @@ export async function generateMembershipIdCardPDFClient(
             useCORS: true,
             allowTaint: false,
             logging: false,
-            backgroundColor: "#f1f5f9"
+            backgroundColor: "#f8fafc"
           });
 
+          // 1. Get PNG blob
+          const pngBlob = await new Promise<Blob>((resBlob, rejBlob) => {
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resBlob(blob);
+              } else {
+                rejBlob(new Error("Failed to generate PNG blob"));
+              }
+            }, "image/png");
+          });
+
+          // 2. Get PDF blob
           const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
           const pdf = new jsPDF({
@@ -276,16 +302,16 @@ export async function generateMembershipIdCardPDFClient(
             format: "a4" // 297mm x 210mm
           });
 
-          // Container is 1000px wide by 600px high (Aspect ratio: 1.667)
-          // Width on A4 Landscape is 297mm. Height scaled: 297 / 1.667 = 178.2mm.
-          // Center vertically: (210 - 178.2) / 2 = 15.9mm margins on top and bottom.
-          pdf.addImage(imgData, "JPEG", 0, 15.9, 297, 178.2, undefined, "FAST");
+          // Outer wrapper is 1040px wide by 640px high (Aspect ratio: 1.625)
+          // Width on A4 Landscape is 273mm. Height scaled: 273 / 1.625 = 168mm.
+          // Center: x = (297 - 273) / 2 = 12mm. y = (210 - 168) / 2 = 21mm.
+          pdf.addImage(imgData, "JPEG", 12, 21, 273, 168, undefined, "FAST");
           const pdfBlob = pdf.output("blob");
 
           root.unmount();
           document.body.removeChild(container);
 
-          resolve(pdfBlob);
+          resolve({ pdfBlob, pngBlob });
         } catch (err) {
           try {
             root.unmount();

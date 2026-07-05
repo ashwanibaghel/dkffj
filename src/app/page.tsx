@@ -26,7 +26,9 @@ import {
   Gavel,
   Award,
   Globe2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Menu,
+  X
 } from "lucide-react";
 
 export default function Home() {
@@ -35,6 +37,7 @@ export default function Home() {
   const [news, setNews] = useState<any[]>([]);
   const [showAllLeaders, setShowAllLeaders] = useState(false);
   const [showStickyNav, setShowStickyNav] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,30 +80,56 @@ export default function Home() {
       <div className="bg-[#1565C0] text-white border-b border-white/20 relative z-40">
 
         {/* ── Top Nav Strip ── sits at the very top like a header bar */}
-        <div className="border-b border-white/20 px-6 py-2.5 bg-[#0D47A1]">
-          <div className="max-w-7xl mx-auto flex flex-wrap justify-center items-center gap-x-7 gap-y-2">
-            <nav className="flex flex-wrap justify-center gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-white/90">
-              <Link href="/" className="hover:text-white transition-colors">Home</Link>
-              <Link href="#about" className="hover:text-white transition-colors">About Us</Link>
-              <Link href="#services" className="hover:text-white transition-colors">Services</Link>
-              <Link href="/courses" className="hover:text-white transition-colors">Academy</Link>
-              <Link href="#documents" className="hover:text-white transition-colors">Legals</Link>
-              <Link href="#news" className="hover:text-white transition-colors">News</Link>
-              <Link href="#video-gallery" className="hover:text-white transition-colors">Gallery</Link>
-              <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
-              <Link href="/track" className="hover:text-white transition-colors text-yellow-300 font-extrabold">Track Application</Link>
-              <Link href="/my-account" className="hover:text-white transition-colors text-yellow-300 font-extrabold">My Account</Link>
-            </nav>
-            <Link href="/donate" className="ml-2 bg-[#C00000] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#990000] transition-colors shadow-md">
-              Donate Now
-            </Link>
+        {/* ── Top Nav Strip ── sits at the very top like a header bar */}
+        <div className="border-b border-white/20 px-4 sm:px-6 py-2.5 bg-[#0D47A1]">
+          <div className="max-w-7xl mx-auto flex justify-between items-center">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex w-full justify-between items-center">
+              <nav className="flex flex-wrap gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-white/90">
+                <Link href="/" className="hover:text-white transition-colors">Home</Link>
+                <Link href="#about" className="hover:text-white transition-colors">About Us</Link>
+                <Link href="#services" className="hover:text-white transition-colors">Services</Link>
+                <Link href="/courses" className="hover:text-white transition-colors">Academy</Link>
+                <Link href="#documents" className="hover:text-white transition-colors">Legals</Link>
+                <Link href="#news" className="hover:text-white transition-colors">News</Link>
+                <Link href="#video-gallery" className="hover:text-white transition-colors">Gallery</Link>
+                <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
+                <Link href="/track" className="hover:text-white transition-colors text-yellow-300 font-extrabold">Track Application</Link>
+                <Link href="/my-account" className="hover:text-white transition-colors text-yellow-300 font-extrabold">My Account</Link>
+              </nav>
+              <Link href="/apply" className="ml-2 bg-[#1565C0] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#0D47A1] transition-colors shadow-md">
+                Join Membership
+              </Link>
+              <Link href="/donate" className="ml-2 bg-[#C00000] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#990000] transition-colors shadow-md">
+                Donate Now
+              </Link>
+            </div>
+
+            {/* Mobile Header Bar */}
+            <div className="flex md:hidden w-full justify-between items-center">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-white focus:outline-none p-1 bg-white/10 rounded-md hover:bg-white/20 transition-all"
+                aria-label="Toggle Menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+              <div className="flex items-center gap-1.5">
+                <Link href="/apply" className="bg-[#1565C0] text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded shadow-md">
+                  Join Membership
+                </Link>
+                <Link href="/donate" className="bg-[#C00000] text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded shadow-md">
+                  Donate Now
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* ── Main Credentials (Logo + Name) ── */}
         <div className="text-center pt-8 pb-7 px-6">
           <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
-            <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white p-2 flex items-center justify-center shadow-2xl border-4 border-white/40">
+            <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white p-0.5 flex items-center justify-center shadow-2xl border-2 border-white/25">
               <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
             </div>
             <h1 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl tracking-wider text-white uppercase leading-tight mt-1">
@@ -125,16 +154,33 @@ export default function Home() {
         } bg-[#1565C0]/98 backdrop-blur-md border-b border-white/20 shadow-lg`}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Logo — only visible after scrolling (no double logo problem) */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center transition-all group-hover:bg-white/20">
-              <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-white font-black text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
-              <span className="text-[8px] text-[#c5a880] font-bold tracking-wider">OF FREEDOM AND JUSTICE</span>
-            </div>
-          </Link>
+          {/* Left section: Hamburger (on mobile) + Logo + Text */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex md:hidden text-white focus:outline-none p-1.5 bg-white/10 rounded-lg hover:bg-white/20 transition-all"
+              aria-label="Toggle Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            {/* Logo — only visible after scrolling (no double logo problem) */}
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center transition-all group-hover:bg-white/20">
+                <img src="/logo.png" className="w-7 h-7 object-contain" alt="DKFFJ" />
+              </div>
+              {/* Desktop Text */}
+              <div className="hidden md:flex flex-col">
+                <span className="text-white font-black text-xs tracking-wide font-serif leading-tight">DK Foundation</span>
+                <span className="text-[8px] text-[#c5a880] font-bold tracking-wider">OF FREEDOM AND JUSTICE</span>
+              </div>
+              {/* Mobile Text (DKFFJ) */}
+              <span className="flex md:hidden text-white font-black text-sm tracking-widest font-sans">
+                DKFFJ
+              </span>
+            </Link>
+          </div>
 
           <nav className="hidden md:flex items-center gap-5 text-[11px] font-bold uppercase tracking-wider text-slate-200">
             <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
@@ -149,7 +195,14 @@ export default function Home() {
             <Link href="/my-account" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">My Account</Link>
           </nav>
 
-          <div className="flex items-center gap-2">
+          {/* Desktop Right Buttons */}
+          <div className="hidden md:flex items-center gap-2">
+            <Link
+              href="/apply"
+              className="bg-[#1565C0] text-white text-[11px] font-black px-4 py-1.5 rounded-lg hover:bg-[#0D47A1] transition-all shadow-[0_4px_12px_rgba(21,101,192,0.35)]"
+            >
+              Join Membership
+            </Link>
             <Link
               href="/my-account"
               className="border border-white/60 bg-white/10 hover:bg-white hover:text-[#1565C0] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all"
@@ -167,6 +220,22 @@ export default function Home() {
               className="bg-[#C00000] text-white text-[11px] font-black px-4 py-1.5 rounded-lg hover:bg-[#990000] transition-all shadow-[0_4px_12px_rgba(192,0,0,0.35)]"
             >
               Donate Now
+            </Link>
+          </div>
+
+          {/* Mobile Right Buttons (Donate & Join, hamburger moved to left) */}
+          <div className="flex md:hidden items-center gap-1.5">
+            <Link
+              href="/apply"
+              className="bg-[#1565C0] text-white text-[10px] font-black px-3 py-1.5 rounded-lg hover:bg-[#0D47A1] transition-all shadow-[0_4px_12px_rgba(21,101,192,0.35)]"
+            >
+              Join
+            </Link>
+            <Link
+              href="/donate"
+              className="bg-[#C00000] text-white text-[10px] font-black px-3 py-1.5 rounded-lg hover:bg-[#990000] transition-all shadow-[0_4px_12px_rgba(192,0,0,0.35)]"
+            >
+              Donate
             </Link>
           </div>
         </div>
@@ -895,6 +964,137 @@ export default function Home() {
         >
           Verify Certificate
         </Link>
+      </div>
+
+      {/* Mobile Drawer Navigation Overlay */}
+      <div
+        className={`fixed inset-0 z-[100] md:hidden bg-slate-950/40 backdrop-blur-md transition-opacity duration-300 ${
+          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        <div
+          className={`absolute top-0 left-0 w-[280px] h-full bg-[#0D47A1] text-white shadow-2xl transition-transform duration-300 transform flex flex-col justify-between ${
+            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Menu Header */}
+          <div className="p-5 border-b border-white/10 flex justify-between items-center bg-[#0a3c8a]">
+            <span className="font-serif font-black text-sm tracking-widest text-white uppercase">
+              DK FOUNDATION
+            </span>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-white focus:outline-none p-1 bg-white/10 rounded-md hover:bg-white/20 transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Menu Links */}
+          <div className="flex-1 overflow-y-auto py-6 px-5 space-y-4">
+            <nav className="flex flex-col gap-3 text-sm font-bold uppercase tracking-wider text-white/95">
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                Home
+              </Link>
+              <Link
+                href="#about"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                About Us
+              </Link>
+              <Link
+                href="#services"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                Services
+              </Link>
+              <Link
+                href="/courses"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                Academy
+              </Link>
+              <Link
+                href="#documents"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                Legals
+              </Link>
+              <Link
+                href="#news"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                News
+              </Link>
+              <Link
+                href="#video-gallery"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                Gallery
+              </Link>
+              <Link
+                href="#contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
+              >
+                Contact
+              </Link>
+              <Link
+                href="/track"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg text-yellow-300 hover:bg-white/10 transition-all font-extrabold flex items-center justify-between"
+              >
+                <span>Track Application</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/my-account"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg text-yellow-300 hover:bg-white/10 transition-all font-extrabold flex items-center justify-between"
+              >
+                <span>My Account</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </nav>
+          </div>
+
+          {/* Menu Footer */}
+          <div className="p-5 pb-24 border-t border-white/10 bg-[#0a3c8a] space-y-2.5">
+            <Link
+              href="/apply"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block w-full text-center bg-[#1565C0] text-white text-xs font-black uppercase tracking-widest py-2.5 rounded-lg hover:bg-[#0D47A1] transition-colors shadow-md"
+            >
+              Join Membership
+            </Link>
+            <Link
+              href="/donate"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block w-full text-center bg-[#C00000] text-white text-xs font-black uppercase tracking-widest py-2.5 rounded-lg hover:bg-[#990000] transition-colors shadow-md"
+            >
+              Donate Now
+            </Link>
+            <Link
+              href="/admin/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block w-full text-center border border-white/20 text-white/80 text-xs font-bold py-2 rounded-lg hover:bg-white/10 transition-all"
+            >
+              Login
+            </Link>
+          </div>
+        </div>
       </div>
 
     </div>
