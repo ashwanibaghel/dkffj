@@ -79,16 +79,16 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         width: "794px",
         height: "1123px",
         position: "relative",
-        backgroundColor: "#fcf9f2", // Warm premium ivory background
-        fontFamily: "'Playfair Display', Georgia, serif",
+        backgroundColor: "#ffffff",
+        fontFamily: "'Poppins', sans-serif",
         boxSizing: "border-box",
         overflow: "hidden",
-        padding: "35px"
+        padding: "45px"
       }}
     >
       {/* Google Fonts injection */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Poppins:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&display=swap');
       `}</style>
 
       {/* Repeating security watermark pattern */}
@@ -104,23 +104,23 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
-          padding: "20px 0",
+          gap: "12px",
+          padding: "35px 0",
           boxSizing: "border-box",
-          opacity: 0.09,
+          opacity: 0.04,
           userSelect: "none"
         }}
       >
-        {Array.from({ length: 60 }).map((_, i) => (
+        {Array.from({ length: 50 }).map((_, i) => (
           <div
             key={i}
             style={{
               fontFamily: "Arial, sans-serif",
               fontWeight: "bold",
-              fontSize: "9px",
-              color: "#001C55",
+              fontSize: "8px",
+              color: "#cc0000",
               whiteSpace: "nowrap",
-              letterSpacing: "1.5px",
+              letterSpacing: "2px",
               width: "100%",
               textAlign: "center"
             }}
@@ -128,6 +128,35 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             {"DK FOUNDATION OF FREEDOM AND JUSTICE   ".repeat(4)}
           </div>
         ))}
+      </div>
+
+      {/* Centered Large watermark logo */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "360px",
+          height: "360px",
+          opacity: 0.06,
+          pointerEvents: "none",
+          zIndex: 2,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          userSelect: "none"
+        }}
+      >
+        <img
+          src={logoSrc}
+          alt="Watermark Logo"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain"
+          }}
+        />
       </div>
 
       {/* Vector Certificate Border Frame */}
@@ -143,295 +172,283 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           zIndex: 3
         }}
       >
-        {/* Outer gold border line */}
-        <rect x="16" y="16" width="762" height="1091" fill="none" stroke="#c5a880" strokeWidth="5" />
+        <defs>
+          <linearGradient id="goldBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#b8860b" />
+            <stop offset="30%" stopColor="#ffd700" />
+            <stop offset="70%" stopColor="#ffd700" />
+            <stop offset="100%" stopColor="#b8860b" />
+          </linearGradient>
+        </defs>
+        {/* Outer gold border line using the linear gradient */}
+        <rect x="15" y="15" width="764" height="1093" fill="none" stroke="url(#goldBorderGradient)" strokeWidth="20" />
         
         {/* Inner thin red border line */}
-        <rect x="24" y="24" width="746" height="1075" fill="none" stroke="#a21e1e" strokeWidth="2" />
+        <rect x="30" y="30" width="734" height="1063" fill="none" stroke="#cc0000" strokeWidth="3" />
         
-        {/* Gold dots border line */}
-        <rect x="30" y="30" width="734" height="1063" fill="none" stroke="#c5a880" strokeWidth="1" strokeDasharray="3,6" />
-
-        {/* Symmetrical Vector Corner Ornaments (Top Left) */}
-        <g transform="translate(35, 35)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
-        
-        {/* Corner Ornaments (Top Right) */}
-        <g transform="translate(759, 35) scale(-1, 1)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
-        
-        {/* Corner Ornaments (Bottom Left) */}
-        <g transform="translate(35, 1088) scale(1, -1)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
-        
-        {/* Corner Ornaments (Bottom Right) */}
-        <g transform="translate(759, 1088) scale(-1, -1)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
+        {/* Symmetrical Vector Corner Ornaments */}
+        <path d="M 65 25 L 25 25 L 25 65" fill="none" stroke="#cc0000" strokeWidth="6" />
+        <path d="M 729 25 L 769 25 L 769 65" fill="none" stroke="#cc0000" strokeWidth="6" />
+        <path d="M 25 1058 L 25 1098 L 65 1098" fill="none" stroke="#cc0000" strokeWidth="6" />
+        <path d="M 769 1058 L 769 1098 L 729 1098" fill="none" stroke="#cc0000" strokeWidth="6" />
       </svg>
 
       {/* Certificate Content wrapper */}
-      <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 15px" }}>
         
         {/* Top Header */}
-        <div style={{ marginTop: "25px", textAlign: "center" }}>
+        <div style={{ textAlign: "center", width: "100%", marginBottom: "15px" }}>
           <h1 style={{
-            fontFamily: "'Cinzel', serif",
+            fontFamily: "'Poppins', sans-serif",
             fontWeight: 800,
             fontSize: "24px",
-            color: "#a21e1e",
-            letterSpacing: "1px",
+            color: "#cc0000",
+            letterSpacing: "0.5px",
+            textTransform: "uppercase",
             margin: 0
           }}>
-            DK FOUNDATION OF FREEDOM AND JUSTICE
+            DK Foundation of Freedom and Justice
           </h1>
           <p style={{
-            fontFamily: "'Playfair Display', serif",
-            fontStyle: "italic",
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 600,
             fontSize: "12px",
-            color: "#333333",
+            color: "#333",
             margin: "4px 0 0 0"
           }}>
             (Under Section 8 of The Companies Act, 2013 Govt of India)
           </p>
           <p style={{
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 600,
-            fontSize: "10px",
-            color: "#555555",
-            letterSpacing: "0.5px",
-            margin: "2px 0 0 0"
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 700,
+            fontSize: "11px",
+            color: "#000",
+            margin: "3px 0 0 0"
           }}>
             CIN No. U88900UP2023NPL185611
           </p>
         </div>
 
-        {/* Crest Logo (Using transparent high-quality logo.png) */}
-        <div style={{ marginTop: "12px" }}>
-          <img
-            src={logoSrc}
-            alt="Crest Logo"
-            style={{ width: "90px", height: "90px", objectFit: "contain" }}
-          />
+        {/* Top Meta (Logo on Left, Student Photo on Right) */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          width: "100%",
+          marginBottom: "15px",
+          padding: "0 10px"
+        }}>
+          {/* Foundation Logo */}
+          <div style={{
+            width: "100px",
+            height: "100px",
+            borderRadius: "50%",
+            border: "2px dashed #cc0000",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#ffffff",
+            padding: "5px"
+          }}>
+            <img
+              src={logoSrc}
+              alt="Foundation Logo"
+              style={{ width: "85%", height: "85%", objectFit: "contain" }}
+            />
+          </div>
+
+          {/* Student's Photo */}
+          <div style={{
+            width: "110px",
+            height: "140px",
+            border: "1px solid #999",
+            borderRadius: "15px",
+            overflow: "hidden",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#fafafa"
+          }}>
+            {photoSrc ? (
+              <img
+                src={photoSrc}
+                alt="Student's Photo"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <span style={{ fontSize: "12px", color: "#888", fontWeight: 600 }}>Student Photo</span>
+            )}
+          </div>
         </div>
 
-        {/* Title */}
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
+        {/* Certificate Title */}
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
           <h2 style={{
-            fontFamily: "'UnifrakturMaguntia', serif",
-            fontSize: "52px",
-            color: "#a21e1e",
-            fontWeight: "normal",
+            fontFamily: "'Cinzel', serif",
+            color: "#cc0000",
+            fontSize: "38px",
+            fontWeight: 700,
+            textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
             margin: 0
           }}>
             Certificate Of Completion
           </h2>
         </div>
 
-
-
-        {/* Helper Style for Pills (Redefined as traditional fill-in lines) */}
+        {/* Helper Style for input fields and rows */}
         <style>{`
-          .cert-pill {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background-color: transparent;
-            border: none;
-            border-bottom: 1.5px solid #c5a880;
-            border-radius: 0;
-            color: #001C55;
-            font-weight: bold;
-            font-size: 16px;
-            height: 28px;
-            box-shadow: none;
-            padding: 0 10px;
-          }
-          .cert-line {
+          .cert-row {
             display: flex;
             align-items: center;
-            width: 90%;
-            margin-left: 5%;
-            font-size: 15px;
-            color: #222222;
-            font-style: italic;
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+            width: 100%;
+            margin-bottom: 20px;
+          }
+          .cert-input-line {
+            flex-grow: 1;
+            border-bottom: 2px solid #444;
+            height: 28px;
+            margin-left: 10px;
+            background-color: transparent;
+            color: #001C55;
+            font-weight: 700;
+            font-size: 17px;
+            padding: 0 10px;
+            display: inline-flex;
+            align-items: center;
+          }
+          .cert-inline-inputs {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            width: 100%;
+          }
+          .cert-inline-inputs .cert-row {
+            flex: 1;
           }
         `}</style>
 
-        {/* Form Fields (Dynamic Rows) */}
-        <div style={{ width: "100%", marginTop: "30px", display: "flex", flexDirection: "column", gap: "20px" }}>
+        {/* Form Content Body */}
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", padding: "0 10px" }}>
           
-          {/* Two-Column Section for Name/Father/Course on Left, Student Photo on Right */}
-          <div style={{ width: "90%", marginLeft: "5%", display: "flex", gap: "25px", alignItems: "flex-start" }}>
-            
-            {/* Left Column: Certification details */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
-              {/* Row 1: Student Name */}
-              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
-                <span style={{ minWidth: "190px" }}>This is to certify that Mr./Ms.</span>
-                <div className="cert-pill" style={{ flex: 1, textTransform: "uppercase" }}>
-                  {data.studentName}
-                </div>
-              </div>
-
-              {/* Row 2: Father Name */}
-              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
-                <span style={{ minWidth: "150px" }}>Son/Daughter of Mr.</span>
-                <div className="cert-pill" style={{ flex: 1 }}>
-                  {data.fatherName}
-                </div>
-              </div>
-
-              {/* Row 3: Course Title */}
-              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
-                <span style={{ minWidth: "205px" }}>has successfully completed the</span>
-                <div className="cert-pill" style={{ flex: 1 }}>
-                  {data.courseTitle}
-                </div>
-              </div>
+          <div className="cert-row">
+            This is to certify that Mr./Ms. 
+            <div className="cert-input-line" style={{ textTransform: "uppercase" }}>
+              {data.studentName}
             </div>
-
-            {/* Right Column: Student Photo */}
-            {photoSrc && (
-              <div
-                style={{
-                  width: "105px",
-                  height: "135px",
-                  overflow: "hidden",
-                  borderRadius: "6px",
-                  border: "2px solid #c5a880",
-                  backgroundColor: "#ffffff",
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
-                  flexShrink: 0,
-                  marginTop: "6px"
-                }}
-              >
-                <img
-                  src={photoSrc}
-                  alt="Student Profile"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </div>
-            )}
+          </div>
+          
+          <div className="cert-row">
+            Son/Daughter of Mr. 
+            <div className="cert-input-line">
+              {data.fatherName}
+            </div>
           </div>
 
-          {/* Row 4: Institution */}
-          <div className="cert-line">
-            <span style={{ minWidth: "185px" }}>Conducted by our institution</span>
-            <div className="cert-pill" style={{ flex: 1 }}>
+          <div className="cert-row">
+            has successfully completed the 
+            <div className="cert-input-line">
+              {data.courseTitle}
+            </div>
+          </div>
+
+          <div className="cert-row">
+            Conducted by our institution 
+            <div className="cert-input-line">
               DK Foundation of Freedom and Justice
             </div>
           </div>
 
-          {/* Row 5: Duration From / To */}
-          <div className="cert-line">
-            <span style={{ minWidth: "155px" }}>Course Duration: From</span>
-            <div className="cert-pill" style={{ width: "195px" }}>
-              {data.durationFrom}
+          <div className="cert-inline-inputs">
+            <div className="cert-row">
+              Course Duration: From 
+              <div className="cert-input-line">
+                {data.durationFrom}
+              </div>
             </div>
-            <span style={{ margin: "0 10px", textAlign: "center", minWidth: "25px" }}>to</span>
-            <div className="cert-pill" style={{ flex: 1 }}>
-              {data.durationTo}
-            </div>
-          </div>
-
-          {/* Row 6: Grade / Venue */}
-          <div className="cert-line">
-            <span style={{ minWidth: "135px" }}>Grade/Percentage:</span>
-            <div className="cert-pill" style={{ width: "105px" }}>
-              {data.grade}
-            </div>
-            <span style={{ margin: "0 10px 0 15px", minWidth: "110px" }}>Training Venue:</span>
-            <div className="cert-pill" style={{ flex: 1 }}>
-              {data.venue}
+            <div className="cert-row" style={{ flex: 0.8 }}>
+              to 
+              <div className="cert-input-line">
+                {data.durationTo}
+              </div>
             </div>
           </div>
 
-          {/* Row 7: Performance */}
-          <div className="cert-line">
-            <span style={{ minWidth: "410px" }}>During this period, his/her performance and conduct were found to be</span>
-            <div className="cert-pill" style={{ flex: 1 }}>
-              {data.performance}
+          <div className="cert-inline-inputs">
+            <div className="cert-row" style={{ flex: 0.8 }}>
+              Grade/Percentage: 
+              <div className="cert-input-line">
+                {data.grade}
+              </div>
             </div>
-            <span style={{ marginLeft: "5px" }}>.</span>
+            <div className="cert-row">
+              Training Venue: 
+              <div className="cert-input-line">
+                {data.venue}
+              </div>
+            </div>
           </div>
 
-          {/* Row 8: Wish Line */}
           <div style={{
-            textAlign: "center",
-            width: "100%",
-            fontSize: "15px",
             fontStyle: "italic",
-            color: "#222222",
-            marginTop: "5px"
+            fontSize: "14px",
+            color: "#444",
+            marginTop: "10px",
+            textAlign: "left",
+            lineHeight: "1.6",
+            fontWeight: 500
           }}>
+            During this period, his/her performance and conduct were found to be <span style={{ color: "#001C55", fontWeight: 700, fontStyle: "normal", borderBottom: "1.5px solid #444", padding: "0 5px" }}>{data.performance}</span>.
+            <br />
             We wish him/her every success in all future endeavors.
           </div>
         </div>
 
-        {/* Bottom Metadata Panel */}
+        {/* Certificate Metadata Info */}
         <div style={{
-          width: "90%",
           display: "flex",
           justifyContent: "space-between",
-          marginTop: "35px",
-          fontFamily: "Arial, sans-serif",
-          fontSize: "12px",
-          fontWeight: "bold",
-          color: "#333333"
+          width: "100%",
+          marginTop: "25px",
+          padding: "0 10px",
+          fontSize: "14px",
+          fontWeight: 700,
+          color: "#222"
         }}>
-          <div>
-            Certificate No: <span style={{ color: "#a21e1e", fontFamily: "monospace" }}>{data.certNo}</span>
-          </div>
-          <div>
-            Date of Issue: <span style={{ color: "#a21e1e" }}>{data.dateStr}</span>
-          </div>
+          <div>Certificate No: <span style={{ color: "#cc0000", fontFamily: "monospace" }}>{data.certNo}</span></div>
+          <div>Date of Issue: <span style={{ color: "#cc0000" }}>{data.dateStr}</span></div>
         </div>
 
-        {/* Signatures, Seal and QR Code Area */}
+        {/* Footer Section (Signature, Seal, QR Code) */}
         <div style={{
-          width: "90%",
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "15px"
+          alignItems: "center",
+          width: "100%",
+          marginTop: "auto",
+          padding: "0 10px 10px 10px"
         }}>
-          {/* Signatory (Left) */}
-          <div style={{ width: "230px", textAlign: "center", flexShrink: 0 }}>
-            <div style={{ height: "45px" }} />
-            <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
-            <p style={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: "10px",
-              fontWeight: "bold",
-              color: "#333333",
-              margin: 0
-            }}>
-              (Seal & Signature)
-            </p>
-            <p style={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: "9px",
-              color: "#555555",
-              margin: "2px 0 0 0"
-            }}>
-              Director / Authorized Signatory
-            </p>
+          {/* Signature Area */}
+          <div style={{
+            textAlign: "center",
+            width: "220px",
+            paddingTop: "40px",
+            position: "relative"
+          }}>
+            <div style={{ borderTop: "1px solid #333", width: "100%", marginBottom: "5px" }}></div>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: "#222" }}>(Seal & Signature)</span>
+            <br />
+            <span style={{ fontSize: "11px", color: "#555" }}>Director / Authorized Signatory</span>
           </div>
 
-          {/* High-Resolution Gold/Black Ribbon ISO 9001 Seal (Center) */}
-          <div style={{ width: "100px", height: "130px", marginTop: "-30px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          {/* ISO Seal */}
+          <div style={{
+            width: "90px",
+            height: "90px",
+            marginTop: "-15px"
+          }}>
             <img
               src={isoSealSrc}
               alt="ISO 9001 Seal"
@@ -439,90 +456,56 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             />
           </div>
 
-          {/* Verification QR Code (Right Column, matching 230px width for perfect centering) */}
-          <div style={{ width: "230px", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
-            <div style={{
-              width: "85px",
-              height: "85px",
-              border: "1px solid #cccccc",
-              padding: "2px",
-              backgroundColor: "#ffffff"
-            }}>
-              {qrSrc && (
-                <img
-                  src={qrSrc}
-                  alt="Verification QR"
-                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                />
-              )}
-            </div>
+          {/* QR Code */}
+          <div style={{
+            width: "95px",
+            height: "95px",
+            border: "2px solid #333",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#fff",
+            padding: "2px"
+          }}>
+            {qrSrc && (
+              <img
+                src={qrSrc}
+                alt="QR CODE"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            )}
           </div>
         </div>
 
-        {/* Footer Logo Band (Direct, high quality vector SVGs and clean PNGs) */}
+        {/* Gov Logos */}
         <div style={{
-          marginTop: "35px",
-          width: "90%",
+          width: "100%",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "space-around",
           alignItems: "center",
-          backgroundColor: "#fcfcfc",
-          padding: "8px 20px",
-          borderRadius: "8px",
-          border: "1px solid #e2dcd0"
+          borderTop: "1px solid #ccc",
+          paddingTop: "10px",
+          marginTop: "10px"
         }}>
-          {/* MCA Logo (High Res PNG) */}
-          <img
-            src={mcaSrc}
-            alt="Ministry of Corporate Affairs"
-            style={{ height: "42px", maxWidth: "150px", objectFit: "contain" }}
-          />
-          {/* NITI Aayog (High Res PNG) */}
-          <img
-            src={nitiSrc}
-            alt="NITI Aayog"
-            style={{ height: "40px", maxWidth: "90px", objectFit: "contain" }}
-          />
-          {/* NSDC (High Res PNG) */}
-          <img
-            src={nsdcSrc}
-            alt="NSDC"
-            style={{ height: "42px", maxWidth: "95px", objectFit: "contain" }}
-          />
-          {/* State Emblem of India (High Res PNG) */}
-          <img
-            src={emblemSrc}
-            alt="State Emblem of India"
-            style={{ height: "45px", maxWidth: "55px", objectFit: "contain" }}
-          />
-          {/* MSME Logo (High Res PNG) */}
-          <img
-            src={msmeSrc}
-            alt="Ministry of MSME"
-            style={{ height: "40px", maxWidth: "110px", objectFit: "contain" }}
-          />
+          <img src={mcaSrc} alt="MCA Govt of India" style={{ height: "30px", objectFit: "contain" }} />
+          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "28px", objectFit: "contain" }} />
+          <img src={nsdcSrc} alt="NSDC" style={{ height: "30px", objectFit: "contain" }} />
+          <img src={emblemSrc} alt="Emblem" style={{ height: "32px", objectFit: "contain" }} />
+          <img src={msmeSrc} alt="MSME Govt of India" style={{ height: "28px", objectFit: "contain" }} />
         </div>
 
-        {/* Verify Footer Link */}
-        <div style={{ marginTop: "15px", textAlign: "center" }}>
-          <p style={{
-            fontFamily: "Arial, sans-serif",
-            fontSize: "8.5px",
-            color: "#666666",
-            margin: 0
-          }}>
-            An Internationally Approved Certification Body by UK Acknowledging Company Ltd.
-          </p>
-          <p style={{
-            fontFamily: "Arial, sans-serif",
-            fontSize: "9px",
-            fontWeight: "bold",
-            color: "#a21e1e",
-            margin: "2px 0 0 0",
-            letterSpacing: "0.2px"
-          }}>
-            Verify this certificate online on www.dkffj.org
-          </p>
+        {/* Footer Verification text */}
+        <div style={{
+          fontSize: "11px",
+          color: "#cc0000",
+          fontWeight: "bold",
+          textAlign: "center",
+          marginTop: "10px",
+          lineHeight: "1.4"
+        }}>
+          An Internationally Approved Certification Body by UK Ackredetering Company Ltd.
+          <br />
+          Verify this certificate online on www.dkffj.org
         </div>
 
       </div>
@@ -593,7 +576,7 @@ export async function generateCertificatePDFClient(
             useCORS: true,
             allowTaint: false,
             logging: false,
-            backgroundColor: "#fcf9f2"
+            backgroundColor: "#ffffff"
           });
 
           const imgData = canvas.toDataURL("image/jpeg", 0.98);
