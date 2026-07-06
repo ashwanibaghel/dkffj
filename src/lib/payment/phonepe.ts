@@ -13,6 +13,21 @@ function getBase(): string {
   return process.env.PHONEPE_MODE === "PRODUCTION" ? PROD_BASE : UAT_BASE;
 }
 
+/** Get the correct HTTP Request URL based on environment to avoid double /pg/pg mapping errors in production */
+function getRequestUrl(endpoint: string): string {
+  const isProd = process.env.PHONEPE_MODE === "PRODUCTION";
+  if (isProd) {
+    // Strip '/pg' prefix from endpoint if we are in production, because production base URL already ends with '/pg'
+    // e.g. '/pg/v1/pay' -> '/v1/pay'
+    // e.g. '/pg/v1/status/...' -> '/v1/status/...'
+    const prodPath = endpoint.startsWith("/pg/") ? endpoint.substring(3) : endpoint;
+    return `${PROD_BASE}${prodPath}`;
+  } else {
+    // In Sandbox/UAT, we keep the endpoint prefix as is
+    return `${UAT_BASE}${endpoint}`;
+  }
+}
+
 /** Calculate X-VERIFY checksum header for PhonePe V1 security */
 function calculateChecksum(payloadStr: string, endpoint: string, saltKey: string, saltIndex: string): string {
   const data = payloadStr + endpoint + saltKey;
@@ -47,8 +62,9 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
   const payloadStr = JSON.stringify(payload);
   const base64Payload = Buffer.from(payloadStr).toString("base64");
   const xVerify = calculateChecksum(base64Payload, "/pg/v1/pay", saltKey, saltIndex);
+  const requestUrl = getRequestUrl("/pg/v1/pay");
 
-  const res = await fetch(`${getBase()}/pg/v1/pay`, {
+  const res = await fetch(requestUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -90,8 +106,9 @@ export async function verifyPhonePeOrder(merchantOrderId: string): Promise<{
 
   const endpoint = `/pg/v1/status/${merchantId}/${merchantOrderId}`;
   const xVerify = calculateChecksum("", endpoint, saltKey, saltIndex);
+  const requestUrl = getRequestUrl(endpoint);
 
-  const res = await fetch(`${getBase()}${endpoint}`, {
+  const res = await fetch(requestUrl, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
