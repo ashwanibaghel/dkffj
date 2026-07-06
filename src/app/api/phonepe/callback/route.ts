@@ -108,14 +108,21 @@ export async function processPaymentCompletion(merchantOrderId: string) {
     return;
   }
 
-  // 3. Mark payment as COMPLETED
-  await supabase
+  // 3. Mark payment as COMPLETED (optimistic concurrency lock)
+  const { data: updatedPayment } = await supabase
     .from("payments")
     .update({
       status: "COMPLETED",
       gateway_transaction_id: verifyResult.transactionId,
     })
-    .eq("id", payment.id);
+    .eq("id", payment.id)
+    .eq("status", "PENDING")
+    .select("id");
+
+  if (!updatedPayment || updatedPayment.length === 0) {
+    console.log("[PHONEPE CALLBACK] Payment already completed by another thread/process:", merchantOrderId);
+    return;
+  }
 
   // 4. Handle linked entity
 

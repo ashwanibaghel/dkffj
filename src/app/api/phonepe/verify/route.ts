@@ -84,18 +84,31 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const { isProductionMode } = await import("@/lib/payment/phonepe");
+    if (isBypass && isProductionMode()) {
+      console.warn(`[SECURITY WARNING] Bypass attempt blocked in PRODUCTION mode for email: ${customerEmail}`);
+      isBypass = false;
+    }
+
     if (isBypass) {
       console.log(`[PAYMENT BYPASS] Bypassing payment for orderId: ${orderId}, Email: ${customerEmail}`);
       const mockTxnId = "BYPASS-" + orderId;
 
-      // 1. Mark payment as COMPLETED
-      await supabase
+      // 1. Mark payment as COMPLETED (optimistic concurrency lock)
+      const { data: updatedPayment } = await supabase
         .from("payments")
         .update({
           status: "COMPLETED",
           gateway_transaction_id: mockTxnId,
         })
-        .eq("id", payment.id);
+        .eq("id", payment.id)
+        .eq("status", "PENDING")
+        .select("id");
+
+      if (!updatedPayment || updatedPayment.length === 0) {
+        console.log("[PAYMENT BYPASS] Payment already completed by another thread/process:", orderId);
+        return NextResponse.json({ success: true, status: "COMPLETED", orderId });
+      }
 
       // 2. Handle linked entities
       if (payment.membership_id) {

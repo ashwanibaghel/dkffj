@@ -9,7 +9,7 @@ import type { PaymentDetails, PaymentResponse, PaymentGateway } from "./service"
 const UAT_BASE = "https://api-preprod.phonepe.com/apis/pg-sandbox";
 const PROD_BASE = "https://api.phonepe.com/apis/pg";
 
-function isProductionMode(): boolean {
+export function isProductionMode(): boolean {
   const mode = (process.env.PHONEPE_MODE || "").trim().toUpperCase();
   return mode === "PRODUCTION";
 }
@@ -55,7 +55,7 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
   console.log(`[PHONEPE DEBUG] PHONEPE_MODE raw: "${process.env.PHONEPE_MODE}" | isProduction?: ${isProductionMode()}`);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
 
-  if (details.customerEmail.toLowerCase().includes("bypass")) {
+  if (!isProductionMode() && details.customerEmail.toLowerCase().includes("bypass")) {
     console.log(`[PAYMENT BYPASS] Email contains bypass - skipping PhonePe redirect generation`);
     return `${appUrl}/payment/success?orderId=${details.orderId}`;
   }
