@@ -1,8 +1,9 @@
 /**
- * PhonePe v2 Payment Gateway Integration
+ * PhonePe v1 Payment Gateway Integration
  * Supports both UAT (sandbox) and PRODUCTION modes via PHONEPE_MODE env var
  */
 
+import crypto from "crypto";
 import type { PaymentDetails, PaymentResponse, PaymentGateway } from "./service";
 
 const UAT_BASE = "https://api-preprod.phonepe.com/apis/pg-sandbox";
@@ -12,86 +13,64 @@ function getBase(): string {
   return process.env.PHONEPE_MODE === "PRODUCTION" ? PROD_BASE : UAT_BASE;
 }
 
-function getOAuthUrl(): string {
-  return process.env.PHONEPE_MODE === "PRODUCTION" 
-    ? "https://api.phonepe.com/apis/identity-manager/v1/oauth/token"
-    : "https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token";
-}
-
-/** Fetch a short-lived OAuth access token from PhonePe */
-async function getAccessToken(): Promise<string> {
-  const clientId = process.env.PHONEPE_CLIENT_ID;
-  const clientSecret = process.env.PHONEPE_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    throw new Error("PhonePe credentials missing: PHONEPE_CLIENT_ID / PHONEPE_CLIENT_SECRET");
-  }
-
-  const res = await fetch(getOAuthUrl(), {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      client_version: "1",
-      grant_type: "client_credentials",
-    }).toString(),
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("PhonePe OAuth error:", err);
-    throw new Error(`PhonePe token fetch failed: ${res.status}`);
-  }
-
-  const json = await res.json();
-  if (!json.access_token) {
-    throw new Error("PhonePe returned no access_token");
-  }
-  return json.access_token as string;
+/** Calculate X-VERIFY checksum header for PhonePe V1 security */
+function calculateChecksum(payloadStr: string, endpoint: string, saltKey: string, saltIndex: string): string {
+  const data = payloadStr + endpoint + saltKey;
+  const sha256 = crypto.createHash("sha256").update(data).digest("hex");
+  return `${sha256}###${saltIndex}`;
 }
 
 /** Create a PhonePe checkout order — returns the redirect URL */
 export async function createPhonePeOrder(details: PaymentDetails): Promise<string> {
-  const token = await getAccessToken();
+  const merchantId = process.env.PHONEPE_MERCHANT_ID || process.env.PHONEPE_CLIENT_ID;
+  const saltKey = process.env.PHONEPE_API_KEY;
+  const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
 
-  const body = {
-    merchantOrderId: details.orderId,
+  if (!merchantId || !saltKey) {
+    throw new Error("PhonePe credentials missing: PHONEPE_MERCHANT_ID / PHONEPE_CLIENT_ID or PHONEPE_API_KEY");
+  }
+
+  const payload = {
+    merchantId,
+    merchantTransactionId: details.orderId,
+    merchantUserId: "USER-" + details.orderId.split("-")[1] || "USER-SYSTEM",
     amount: Math.round(details.amount * 100), // convert ₹ to paise
-    expireAfter: 1200, // 20 minutes
-    paymentFlow: {
-      type: "PG_CHECKOUT",
-      message: "Payment to DK Foundation of Freedom & Justice",
-      merchantUrls: {
-        redirectUrl: `${appUrl}/payment/success?orderId=${details.orderId}`,
-      },
+    redirectUrl: `${appUrl}/payment/success?orderId=${details.orderId}`,
+    redirectMode: "REDIRECT",
+    callbackUrl: `${appUrl}/api/webhooks/phonepe`,
+    paymentInstrument: {
+      type: "PAY_PAGE",
     },
   };
 
-  const res = await fetch(`${getBase()}/checkout/v2/pay`, {
+  const payloadStr = JSON.stringify(payload);
+  const base64Payload = Buffer.from(payloadStr).toString("base64");
+  const xVerify = calculateChecksum(base64Payload, "/pg/v1/pay", saltKey, saltIndex);
+
+  const res = await fetch(`${getBase()}/pg/v1/pay`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `O-Bearer ${token}`,
+      "X-VERIFY": xVerify,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ request: base64Payload }),
     cache: "no-store",
   });
 
   if (!res.ok) {
     const err = await res.text();
-    console.error("PhonePe create order error:", err);
-    throw new Error(`PhonePe order creation failed: ${res.status}`);
+    console.error("PhonePe V1 pay error:", err);
+    throw new Error(`PhonePe V1 order creation failed: ${res.status}`);
   }
 
   const json = await res.json();
-  if (!json.redirectUrl) {
-    console.error("PhonePe response missing redirectUrl:", json);
-    throw new Error("PhonePe did not return a redirectUrl");
+  if (json.success && json.data?.instrumentResponse?.redirectInfo?.url) {
+    return json.data.instrumentResponse.redirectInfo.url as string;
   }
-  return json.redirectUrl as string;
+
+  console.error("PhonePe V1 response invalid:", json);
+  throw new Error(json.message || "PhonePe did not return redirect URL");
 }
 
 /** Verify payment status for a given merchant order ID */
@@ -101,39 +80,48 @@ export async function verifyPhonePeOrder(merchantOrderId: string): Promise<{
   transactionId: string;
   amount: number;
 }> {
-  const token = await getAccessToken();
+  const merchantId = process.env.PHONEPE_MERCHANT_ID || process.env.PHONEPE_CLIENT_ID;
+  const saltKey = process.env.PHONEPE_API_KEY;
+  const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
 
-  const res = await fetch(
-    `${getBase()}/checkout/v2/order/${merchantOrderId}/status`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `O-Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    }
-  );
+  if (!merchantId || !saltKey) {
+    throw new Error("PhonePe credentials missing: PHONEPE_MERCHANT_ID / PHONEPE_CLIENT_ID or PHONEPE_API_KEY");
+  }
+
+  const endpoint = `/pg/v1/status/${merchantId}/${merchantOrderId}`;
+  const xVerify = calculateChecksum("", endpoint, saltKey, saltIndex);
+
+  const res = await fetch(`${getBase()}${endpoint}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-VERIFY": xVerify,
+      "X-MERCHANT-ID": merchantId,
+    },
+    cache: "no-store",
+  });
 
   if (!res.ok) {
     const err = await res.text();
-    console.error("PhonePe status check error:", err);
+    console.error("PhonePe V1 status error:", err);
     return { success: false, state: "FAILED", transactionId: "", amount: 0 };
   }
 
   const json = await res.json();
-  const state: string = json.state || "FAILED";
-  const payDetails = json.paymentDetails?.[0] || {};
+  const success = json.success && json.code === "PAYMENT_SUCCESS";
+  const state = json.code || "FAILED";
+  const amount = json.data?.amount ? json.data.amount / 100 : 0; // paise → ₹
+  const transactionId = json.data?.transactionId || merchantOrderId;
 
   return {
-    success: state === "COMPLETED",
+    success,
     state,
-    transactionId: payDetails.transactionId || merchantOrderId,
-    amount: (json.amount || 0) / 100, // paise → ₹
+    transactionId,
+    amount,
   };
 }
 
-/** PaymentGateway implementation using PhonePe */
+/** PaymentGateway implementation using PhonePe V1 */
 export class PhonePeGateway implements PaymentGateway {
   async createOrder(details: PaymentDetails): Promise<string> {
     return createPhonePeOrder(details);
