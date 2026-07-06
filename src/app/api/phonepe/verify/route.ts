@@ -134,6 +134,38 @@ export async function GET(req: NextRequest) {
           "Payment Verified & Membership Submitted (Bypass Mode) - DKFFJ",
           emailHtml
         );
+
+        // Notify Admins (Bypass Mode)
+        try {
+          const { data: admins } = await supabase
+            .from("users")
+            .select("email")
+            .in("role", ["ADMIN", "SUPERADMIN"]);
+          const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+          const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+          const adminSubject = `[TEST MODE] New Membership Application Verified - ${customerName}`;
+          const adminHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+              <div style="background-color: #001C55; padding: 20px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DK Foundation - Admin Portal (TEST MODE)</h1>
+              </div>
+              <div style="padding: 24px; color: #334155;">
+                <h2>New Membership Application Verified via Bypass</h2>
+                <p>Hello Admin,</p>
+                <p>A new membership application fee of <strong>INR ${payment.amount}</strong> has been verified via bypass for candidate: <strong>${customerName}</strong>.</p>
+                <p><strong>Acknowledgement Number:</strong> ${ackOrEnrollmentNo}</p>
+                <div style="margin-top: 24px; text-align: center;">
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/members" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                </div>
+              </div>
+            </div>
+          `;
+          for (const adminEmail of adminRecipients) {
+            await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+          }
+        } catch (adminErr) {
+          console.error("Admin notification error (membership bypass):", adminErr);
+        }
       } else if (payment.donation_id) {
         const { PrismaClient } = await import("@prisma/client");
         const prismaLocal = new PrismaClient();
@@ -198,6 +230,38 @@ export async function GET(req: NextRequest) {
           "Course Enrollment Successful (Bypass Mode) - DKFFJ Academy",
           emailHtml
         );
+
+        // Notify Admins (Bypass Mode)
+        try {
+          const { data: admins } = await supabase
+            .from("users")
+            .select("email")
+            .in("role", ["ADMIN", "SUPERADMIN"]);
+          const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+          const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+          const adminSubject = `[TEST MODE] New Course Enrollment Verified - ${customerName}`;
+          const adminHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+              <div style="background-color: #001C55; padding: 20px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DKFFJ Academy - Admin Portal (TEST MODE)</h1>
+              </div>
+              <div style="padding: 24px; color: #334155;">
+                <h2>New Student Enrollment Verified via Bypass</h2>
+                <p>Hello Admin,</p>
+                <p>A new student enrollment fee of <strong>INR ${payment.amount}</strong> has been verified via bypass for: <strong>${customerName}</strong> for the course: <strong>${courseTitle}</strong>.</p>
+                <p><strong>Enrollment Number:</strong> ${ackOrEnrollmentNo}</p>
+                <div style="margin-top: 24px; text-align: center;">
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                </div>
+              </div>
+            </div>
+          `;
+          for (const adminEmail of adminRecipients) {
+            await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+          }
+        } catch (adminErr) {
+          console.error("Admin notification error (course bypass):", adminErr);
+        }
       }
 
       return NextResponse.json({ success: true, status: "COMPLETED", orderId });

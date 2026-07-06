@@ -157,6 +157,39 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         "Payment Verified & Membership Submitted - DKFFJ",
         emailHtml
       );
+
+      // Notify Admins
+      try {
+        const { data: admins } = await supabase
+          .from("users")
+          .select("email")
+          .in("role", ["ADMIN", "SUPERADMIN"]);
+        const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+        const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+        const adminSubject = `New Membership Fee Paid (Awaiting Review) - ${membership.full_name}`;
+        const adminHtml = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div style="background-color: #001C55; padding: 20px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DK Foundation - Admin Portal</h1>
+            </div>
+            <div style="padding: 24px; color: #334155;">
+              <h2>New Membership Application Paid & Awaiting Review</h2>
+              <p>Hello Admin,</p>
+              <p>A new membership application fee of <strong>INR ${payment.amount}</strong> has been verified for candidate: <strong>${membership.full_name}</strong>.</p>
+              <p><strong>Acknowledgement Number:</strong> ${membership.ack_no}</p>
+              <p>Please review the applicant's profile and documents from the admin dashboard to proceed with membership approval and ID card generation.</p>
+              <div style="margin-top: 24px; text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/members" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+              </div>
+            </div>
+          </div>
+        `;
+        for (const adminEmail of adminRecipients) {
+          await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+        }
+      } catch (adminErr) {
+        console.error("Admin notification error (membership):", adminErr);
+      }
     }
     return;
   }
@@ -242,6 +275,39 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         "Course Enrollment Successful - DKFFJ Academy",
         emailHtml
       );
+
+      // Notify Admins
+      try {
+        const { data: admins } = await supabase
+          .from("users")
+          .select("email")
+          .in("role", ["ADMIN", "SUPERADMIN"]);
+        const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+        const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+        const adminSubject = `New Course Enrollment Verified - ${registration.full_name}`;
+        const adminHtml = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div style="background-color: #001C55; padding: 20px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DKFFJ Academy - Admin Portal</h1>
+            </div>
+            <div style="padding: 24px; color: #334155;">
+              <h2>New Student Enrollment Confirmed</h2>
+              <p>Hello Admin,</p>
+              <p>A new student enrollment fee of <strong>INR ${payment.amount}</strong> has been verified for: <strong>${registration.full_name}</strong> for the course: <strong>${courseTitle}</strong>.</p>
+              <p><strong>Enrollment Number:</strong> ${registration.enrollment_no}</p>
+              <p>The student's enrollment has been approved. Please manage this registration from the academy admin panel.</p>
+              <div style="margin-top: 24px; text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+              </div>
+            </div>
+          </div>
+        `;
+        for (const adminEmail of adminRecipients) {
+          await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+        }
+      } catch (adminErr) {
+        console.error("Admin notification error (course):", adminErr);
+      }
     }
   }
 }
