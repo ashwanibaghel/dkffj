@@ -9,14 +9,18 @@ import type { PaymentDetails, PaymentResponse, PaymentGateway } from "./service"
 const UAT_BASE = "https://api-preprod.phonepe.com/apis/pg-sandbox";
 const PROD_BASE = "https://api.phonepe.com/apis/pg";
 
+function isProductionMode(): boolean {
+  const mode = (process.env.PHONEPE_MODE || "").trim().toUpperCase();
+  return mode === "PRODUCTION";
+}
+
 function getBase(): string {
-  return process.env.PHONEPE_MODE === "PRODUCTION" ? PROD_BASE : UAT_BASE;
+  return isProductionMode() ? PROD_BASE : UAT_BASE;
 }
 
 /** Get the correct HTTP Request URL based on environment to avoid mapping errors in production */
 function getRequestUrl(endpoint: string): string {
-  const isProd = process.env.PHONEPE_MODE === "PRODUCTION";
-  if (isProd) {
+  if (isProductionMode()) {
     // In Production: endpoint is '/pg/v1/pay' -> '/apis/hermes/pg/v1/pay'
     return `https://api.phonepe.com/apis/hermes${endpoint}`;
   } else {
@@ -29,7 +33,7 @@ function getRequestUrl(endpoint: string): string {
 function getMerchantId(): string {
   let mId = process.env.PHONEPE_MERCHANT_ID || process.env.PHONEPE_CLIENT_ID || "";
   mId = mId.trim();
-  if (process.env.PHONEPE_MODE === "PRODUCTION" && mId.includes("_")) {
+  if (isProductionMode() && mId.includes("_")) {
     // Fallback: strip UAT suffix (e.g. DKFOUNDONLINE_2607022226 -> DKFOUNDONLINE)
     mId = mId.split("_")[0];
   }
@@ -48,6 +52,7 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
   const merchantId = getMerchantId();
   const saltKey = process.env.PHONEPE_API_KEY;
   const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
+  console.log(`[PHONEPE DEBUG] PHONEPE_MODE raw: "${process.env.PHONEPE_MODE}" | isProduction?: ${isProductionMode()}`);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
 
   if (!merchantId || !saltKey) {
