@@ -25,13 +25,13 @@ export default function AdminSettingsPage() {
             </div>
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">MCA Registry ID</label>
-              <input type="text" className="w-full px-3 py-2 border rounded-lg text-xs bg-slate-55" disabled value="U85300DL2026NPL123456" />
+              <input type="text" className="w-full px-3 py-2 border rounded-lg text-xs bg-slate-55" disabled value="U88900UP2023NPL185611" />
             </div>
           </div>
 
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Registered Office Address</label>
-            <textarea className="w-full px-3 py-2 border rounded-lg text-xs bg-slate-55" disabled rows={2} value="123, Legal Enclave, Sector-9, Rohini, New Delhi, India - 110085" />
+            <textarea className="w-full px-3 py-2 border rounded-lg text-xs bg-slate-55" disabled rows={2} value="117/M/29-C Kakadeo M-Block, Madhuvan Appt. Road, Kanpur, UP - 208019" />
           </div>
         </div>
 

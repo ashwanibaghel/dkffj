@@ -315,7 +315,7 @@ export default function Home() {
                 <div className="text-center">
                   <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide group-hover:underline">Section 8 Company</p>
                   <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Ministry of Corporate Affairs</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">CIN: U88100UP2023NPL181342</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">CIN: U88900UP2023NPL185611</p>
                   <p className="text-[8px] text-[#1565C0]/60 mt-1 flex items-center justify-center gap-0.5">Verify ↗</p>
                 </div>
               </a>
@@ -333,7 +333,7 @@ export default function Home() {
                 <div className="text-center">
                   <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide group-hover:underline">NITI Aayog</p>
                   <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Govt. of India NGO Registry</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">ID: UP/2023/0343513</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">ID: UP/2023/0351342</p>
                   <p className="text-[8px] text-[#1565C0]/60 mt-1">Verify ↗</p>
                 </div>
               </a>
@@ -375,6 +375,76 @@ export default function Home() {
               </a>
 
             </div>
+
+            {/* Expandable Accreditations & Verification Table */}
+            <div className="mt-8 border border-sky-100/80 rounded-2xl bg-[#f0f7ff]/40 p-5 md:p-6 text-left">
+              <h4 className="text-xs font-black text-[#001C55] uppercase tracking-wider mb-4 flex items-center gap-1.5 font-serif">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#C00000]"></span> Legal Registrations &amp; Accreditations Directory
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3.5 text-[11px] text-slate-600 font-medium">
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">Section 8 Company:</span>
+                  <span className="font-semibold text-slate-800">DK Foundation of Freedom and Justice</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">Section 8 Licence No:</span>
+                  <span className="font-mono font-bold text-slate-700">146043</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">CIN:</span>
+                  <span className="font-mono font-bold text-[#001C55]">U88900UP2023NPL185611</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">PAN Number:</span>
+                  <span className="font-mono font-bold text-slate-700">AAKCD1596R</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">TAN Number:</span>
+                  <span className="font-mono font-bold text-slate-700">LKND10615D</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">Unique ID NITI Aayog:</span>
+                  <span className="font-mono font-bold text-slate-700">UP/2023/0351342</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">NGO ID (Ministry of Social Justice):</span>
+                  <span className="font-mono font-bold text-slate-700 font-sans">UP/00034249</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">ISO 9001:2015 Cert No:</span>
+                  <span className="font-mono font-bold text-slate-700">QCCI/23Q/DOE/2909</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">CSR Registration No:</span>
+                  <span className="font-mono font-bold text-slate-700">CSR00068100</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">12A Document ID No:</span>
+                  <span className="font-mono font-bold text-slate-700">AAKCD1596RE2024101</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">80G Document ID No:</span>
+                  <span className="font-mono font-bold text-slate-700">AAKCD1596RF2024101</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">MSME Registration No:</span>
+                  <span className="font-mono font-bold text-slate-700">UDYAM-UP-43-0117271</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">Ministry of Education ISBN:</span>
+                  <span className="font-mono font-bold text-slate-700 font-sans">28791/ISBN/2024/P</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">UN Affiliation Status:</span>
+                  <span className="font-bold text-[#C00000] tracking-wide">Under Process</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                  <span className="text-slate-400">Official Website:</span>
+                  <a href="https://www.dkffj.org" target="_blank" rel="noopener noreferrer" className="font-mono font-bold text-[#1565C0] hover:underline">www.dkffj.org</a>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
@@ -896,11 +966,11 @@ export default function Home() {
             <p className="leading-relaxed font-light text-slate-400">
               DK Foundation of Freedom and Justice is a constitutional rights protection organ registered under Section 8 of the Companies Act, 2013, Ministry of Corporate Affairs, Govt. of India.
             </p>
-            <div className="flex flex-col gap-1 mt-2 text-[10px] text-slate-400 font-semibold font-mono">
-              <span>CIN: U88100UP2023NPL181342</span>
+            <div className="flex flex-col gap-1 mt-2 text-[10px] text-slate-400 font-semibold font-mono font-sans">
+              <span>CIN: U88900UP2023NPL185611</span>
               <span className="text-[#1565C0]">✓ MCA Registered Section 8</span>
-              <span className="text-[#1565C0]">✓ NITI Aayog: UP/2023/0343513</span>
-              <span className="text-[#1565C0]">✓ IT Exemption: 12A & 80G</span>
+              <span className="text-[#1565C0]">✓ NITI Aayog: UP/2023/0351342</span>
+              <span className="text-[#1565C0]">✓ IT Exemption: 12A &amp; 80G</span>
             </div>
           </div>
 

@@ -133,6 +133,28 @@ export default function DonatePage() {
               <p className="text-slate-500 text-[10px] mt-0.5">Every donor receives a verified **Certificate of Appreciation** and tax deduction receipt upon successful transaction.</p>
             </div>
           </div>
+
+          {/* Direct Bank & UPI Details Card */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4 text-left">
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider border-b pb-2 flex items-center gap-1.5 font-serif">
+              <span className="w-2 h-2 rounded-full bg-[#1565C0]"></span> Direct Bank &amp; UPI Transfer
+            </h3>
+            <div className="space-y-3 text-xs text-slate-600">
+              <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
+                If you prefer to make a direct bank transfer or use manual UPI, please use the details below:
+              </p>
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 font-mono text-[11px] space-y-1.5">
+                <div><span className="text-slate-400 font-sans font-bold text-[10px] uppercase">Bank Name:</span> RBL Bank Ltd</div>
+                <div><span className="text-slate-400 font-sans font-bold text-[10px] uppercase">Account Name:</span> DK Foundation of Freedom and Justice</div>
+                <div><span className="text-slate-400 font-sans font-bold text-[10px] uppercase">Account No:</span> 409002090239</div>
+                <div><span className="text-slate-400 font-sans font-bold text-[10px] uppercase">IFSC Code:</span> RATN0000397</div>
+                <div className="border-t border-slate-200/60 pt-1.5 mt-1.5"><span className="text-slate-400 font-sans font-bold text-[10px] uppercase">UPI ID:</span> <span className="font-bold text-[#001C55]">DKFOUNDATIONOF@rbl</span></div>
+              </div>
+              <p className="text-[9px] text-[#C00000] font-bold">
+                * Note: Please share the payment screenshot with us for manual receipt generation.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Right Side: Form */}
