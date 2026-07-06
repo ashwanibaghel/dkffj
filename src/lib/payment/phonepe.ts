@@ -13,18 +13,15 @@ function getBase(): string {
   return process.env.PHONEPE_MODE === "PRODUCTION" ? PROD_BASE : UAT_BASE;
 }
 
-/** Get the correct HTTP Request URL based on environment to avoid double /pg/pg mapping errors in production */
+/** Get the correct HTTP Request URL based on environment to avoid mapping errors in production */
 function getRequestUrl(endpoint: string): string {
   const isProd = process.env.PHONEPE_MODE === "PRODUCTION";
   if (isProd) {
-    // Strip '/pg' prefix from endpoint if we are in production, because production base URL already ends with '/pg'
-    // e.g. '/pg/v1/pay' -> '/v1/pay'
-    // e.g. '/pg/v1/status/...' -> '/v1/status/...'
-    const prodPath = endpoint.startsWith("/pg/") ? endpoint.substring(3) : endpoint;
-    return `${PROD_BASE}${prodPath}`;
+    // In Production: endpoint is '/pg/v1/pay' -> '/apis/hermes/pg/v1/pay'
+    return `https://api.phonepe.com/apis/hermes${endpoint}`;
   } else {
-    // In Sandbox/UAT, we keep the endpoint prefix as is
-    return `${UAT_BASE}${endpoint}`;
+    // In Sandbox/UAT: endpoint is '/pg/v1/pay' -> '/apis/pg-sandbox/pg/v1/pay'
+    return `https://api-preprod.phonepe.com/apis/pg-sandbox${endpoint}`;
   }
 }
 
