@@ -12,6 +12,12 @@ function getBase(): string {
   return process.env.PHONEPE_MODE === "PRODUCTION" ? PROD_BASE : UAT_BASE;
 }
 
+function getOAuthUrl(): string {
+  return process.env.PHONEPE_MODE === "PRODUCTION" 
+    ? "https://api.phonepe.com/apis/identity-manager/v1/oauth/token"
+    : "https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token";
+}
+
 /** Fetch a short-lived OAuth access token from PhonePe */
 async function getAccessToken(): Promise<string> {
   const clientId = process.env.PHONEPE_CLIENT_ID;
@@ -21,7 +27,7 @@ async function getAccessToken(): Promise<string> {
     throw new Error("PhonePe credentials missing: PHONEPE_CLIENT_ID / PHONEPE_CLIENT_SECRET");
   }
 
-  const res = await fetch(`${getBase()}/v1/oauth/token`, {
+  const res = await fetch(getOAuthUrl(), {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
