@@ -25,6 +25,17 @@ function getRequestUrl(endpoint: string): string {
   }
 }
 
+/** Get merchant ID dynamically, stripping UAT suffix in production mode as a fallback safety measure */
+function getMerchantId(): string {
+  let mId = process.env.PHONEPE_MERCHANT_ID || process.env.PHONEPE_CLIENT_ID || "";
+  mId = mId.trim();
+  if (process.env.PHONEPE_MODE === "PRODUCTION" && mId.includes("_")) {
+    // Fallback: strip UAT suffix (e.g. DKFOUNDONLINE_2607022226 -> DKFOUNDONLINE)
+    mId = mId.split("_")[0];
+  }
+  return mId;
+}
+
 /** Calculate X-VERIFY checksum header for PhonePe V1 security */
 function calculateChecksum(payloadStr: string, endpoint: string, saltKey: string, saltIndex: string): string {
   const data = payloadStr + endpoint + saltKey;
@@ -34,7 +45,7 @@ function calculateChecksum(payloadStr: string, endpoint: string, saltKey: string
 
 /** Create a PhonePe checkout order — returns the redirect URL */
 export async function createPhonePeOrder(details: PaymentDetails): Promise<string> {
-  const merchantId = process.env.PHONEPE_MERCHANT_ID || process.env.PHONEPE_CLIENT_ID;
+  const merchantId = getMerchantId();
   const saltKey = process.env.PHONEPE_API_KEY;
   const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
@@ -93,7 +104,7 @@ export async function verifyPhonePeOrder(merchantOrderId: string): Promise<{
   transactionId: string;
   amount: number;
 }> {
-  const merchantId = process.env.PHONEPE_MERCHANT_ID || process.env.PHONEPE_CLIENT_ID;
+  const merchantId = getMerchantId();
   const saltKey = process.env.PHONEPE_API_KEY;
   const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
 
