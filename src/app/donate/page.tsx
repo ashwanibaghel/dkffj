@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Heart, Loader2, DollarSign, CheckCircle2, Shield } from "lucide-react";
 import { submitDonation } from "./actions";
+import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
 
 const PRESETS = [500, 1000, 2500, 5000, 10000];
 const PURPOSES = [
@@ -21,6 +22,17 @@ export default function DonatePage() {
   const [purpose, setPurpose] = useState<string>("General Donation");
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  const [country, setCountry] = useState<string>("India");
+  const [countryCode, setCountryCode] = useState<string>("+91");
+  const [mobile, setMobile] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [state, setState] = useState<string>("");
+  const [district, setDistrict] = useState<string>("");
+  const [pincode, setPincode] = useState<string>("");
+
+  const activeStateObj = indiaStatesDistricts.find((s) => s.state === state);
+  const districtsList = activeStateObj ? activeStateObj.districts : [];
 
   const getAmountValue = (): number => {
     if (selectedAmount === "custom") {
@@ -40,10 +52,31 @@ export default function DonatePage() {
       return;
     }
 
+    if (!mobile || !address || !state || !district || !pincode) {
+      setErrorMsg("Please fill in all address and mobile details.");
+      return;
+    }
+
+    if (country === "India" && !/^\d{10}$/.test(mobile)) {
+      setErrorMsg("Mobile number must be exactly 10 digits for India.");
+      return;
+    }
+
+    if (country === "India" && !/^\d{6}$/.test(pincode)) {
+      setErrorMsg("Pincode must be exactly 6 digits for India.");
+      return;
+    }
+
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     formData.set("amount", amount.toString());
     formData.set("purpose", purpose);
+    formData.set("donorMobile", countryCode + mobile);
+    
+    const fullAddress = country === "India"
+      ? `${address}, ${district}, ${state} - ${pincode}, India`
+      : `${address}, ${district}, ${state} - ${pincode}, ${country}`;
+    formData.set("donorAddress", fullAddress);
 
     try {
       const res = await submitDonation(formData);
@@ -260,22 +293,129 @@ export default function DonatePage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Mobile Number</span>
-                  <input
-                    type="tel"
-                    name="donorMobile"
-                    required
-                    placeholder="e.g. 9876543210"
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Country *</span>
+                  <select
+                    value={country}
+                    onChange={(e) => {
+                      setCountry(e.target.value);
+                      if (e.target.value === "India") {
+                        setCountryCode("+91");
+                      }
+                    }}
                     className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
-                  />
+                  >
+                    {countriesList.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Permanent Address</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Mobile Number *</span>
+                  <div className="flex gap-2">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="w-20 px-1 py-2.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white shrink-0"
+                    >
+                      <option value="+91">+91 (IN)</option>
+                      <option value="+1">+1 (US/CA)</option>
+                      <option value="+44">+44 (UK)</option>
+                      <option value="+61">+61 (AU)</option>
+                      <option value="+971">+971 (AE)</option>
+                      <option value="+92">+92 (PK)</option>
+                      <option value="+880">+880 (BD)</option>
+                      <option value="+977">+977 (NP)</option>
+                      <option value="+94">+94 (LK)</option>
+                      <option value="+65">+65 (SG)</option>
+                      <option value="+49">+49 (DE)</option>
+                    </select>
+                    <input
+                      type="tel"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      required
+                      placeholder={country === "India" ? "e.g. 9876543210" : "Enter mobile"}
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Permanent Address *</span>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  required
+                  placeholder="e.g. Makan No. 12, Shiv Colony"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">State *</span>
+                  {country === "India" ? (
+                    <select
+                      value={state}
+                      onChange={(e) => {
+                        setState(e.target.value);
+                        setDistrict("");
+                      }}
+                      required
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
+                    >
+                      <option value="">Select State</option>
+                      {indiaStatesDistricts.map((st) => (
+                        <option key={st.state} value={st.state}>{st.state}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      required
+                      placeholder="e.g. California"
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
+                    />
+                  )}
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">District *</span>
+                  {country === "India" ? (
+                    <select
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      required
+                      disabled={!state}
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white disabled:bg-slate-50"
+                    >
+                      <option value="">Select District</option>
+                      {districtsList.map((dist) => (
+                        <option key={dist} value={dist}>{dist}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      required
+                      placeholder="e.g. Los Angeles"
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
+                    />
+                  )}
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1.5">Pincode *</span>
                   <input
                     type="text"
-                    name="donorAddress"
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
                     required
-                    placeholder="e.g. Kanpur, Uttar Pradesh"
+                    placeholder={country === "India" ? "e.g. 208001" : "e.g. 90001"}
                     className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"
                   />
                 </div>
