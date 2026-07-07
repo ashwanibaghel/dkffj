@@ -320,7 +320,7 @@ export default function ApplyPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-12 z-10">
+      <main className="flex-1 max-w-2xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10">
         {/* Progress Tracker header */}
         <div className="mb-10 text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold font-serif text-[#001C55]">NGO Membership Enrollment</h1>
@@ -353,7 +353,7 @@ export default function ApplyPage() {
         </div>
 
         {/* Form Container */}
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-8 shadow-sm">
           {errorMsg && (
             <div className="mb-6 p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-100 text-xs font-medium flex items-start gap-2.5 animate-fadeIn">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />

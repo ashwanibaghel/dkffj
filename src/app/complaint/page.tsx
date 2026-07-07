@@ -137,7 +137,7 @@ export default function ComplaintPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-12 z-10">
+      <main className="flex-1 max-w-2xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 z-10">
         {!docketNo ? (
           <>
             <div className="mb-10 text-center">
@@ -145,7 +145,7 @@ export default function ComplaintPage() {
               <p className="text-slate-500 text-xs sm:text-sm mt-2">File a human rights violation or legal grievance. All reports are handled confidentially.</p>
             </div>
 
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div className="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-8 shadow-sm">
               {errorMsg && (
                 <div className="mb-6 p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-100 text-xs font-medium flex items-start gap-2.5 animate-fadeIn">
                   <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
