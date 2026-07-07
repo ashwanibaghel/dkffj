@@ -85,6 +85,7 @@ model complaints {
   mobile                String                  @db.VarChar(15)
   email                 String?                 @db.VarChar(255)
   address               String
+  country               String                  @default("India") @db.VarChar(100)
   state                 String                  @db.VarChar(100)
   district              String                  @db.VarChar(100)
   police_station        String                  @db.VarChar(100)
@@ -163,6 +164,7 @@ model memberships {
   whatsapp                             String            @db.VarChar(15)
   email                                String            @db.VarChar(255)
   address                              String
+  country                              String            @default("India") @db.VarChar(100)
   district                             String            @db.VarChar(100)
   state                                String            @db.VarChar(100)
   pincode                              String            @db.VarChar(10)

@@ -70,7 +70,16 @@ export async function GET() {
       // Ignored if constraint already exists
     }
 
-    return NextResponse.json({ success: true, message: "Database schema tables initialized successfully on target PostgreSQL instance." });
+    // 4. Add country column to memberships and complaints tables
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "memberships" ADD COLUMN IF NOT EXISTS "country" VARCHAR(100) NOT NULL DEFAULT 'India';
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "complaints" ADD COLUMN IF NOT EXISTS "country" VARCHAR(100) NOT NULL DEFAULT 'India';
+    `);
+
+    return NextResponse.json({ success: true, message: "Database schema tables and country columns initialized successfully on target PostgreSQL instance." });
   } catch (err: any) {
     console.error("Migration executor error:", err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
