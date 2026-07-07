@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export interface TrackingResult {
   found: boolean;
-  type: "membership" | "complaint" | "enrollment" | "donation";
+  type: "membership" | "complaint" | "enrollment" | "donation" | "appreciation";
   number: string;
   name: string;
   status: string;
@@ -604,6 +604,63 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
     timeline,
     certificate,
   };
+  if (type === "appreciation") {
+    const { data: app, error } = await supabase
+      .from("appreciation_applications")
+      .select(`
+        id,
+        application_no,
+        full_name,
+        social_work_field,
+        description,
+        status,
+        created_at,
+        remarks,
+        status_logs (
+          id,
+          from_status,
+          to_status,
+          remarks,
+          created_at
+        )
+      `)
+      .eq("application_no", searchStr)
+      .maybeSingle();
+
+    if (error || !app) {
+      return { found: false, type: "appreciation", number: searchStr, name: "", status: "", date: "", timeline: [] };
+    }
+
+    const timeline = (app.status_logs || []).map((log: any) => ({
+      id: log.id,
+      fromStatus: log.from_status,
+      toStatus: log.to_status,
+      remarks: log.remarks || "No remarks available.",
+      date: new Date(log.created_at).toLocaleString("en-IN"),
+    })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    let certificate = null;
+    if (app.status === "APPROVED") {
+      certificate = {
+        certificate_no: app.application_no,
+        pdf_url: `/track/appreciation/pdf?id=${app.application_no}`,
+      };
+    }
+
+    return {
+      found: true,
+      type: "appreciation",
+      number: app.application_no,
+      name: `${app.full_name} (${app.social_work_field})`,
+      status: app.status,
+      date: new Date(app.created_at).toLocaleDateString("en-IN"),
+      details: app.remarks || undefined,
+      timeline,
+      certificate
+    };
+  }
+
+  return null;
 }
 
 export async function getCertificateVerificationDetails(certificateNo: string) {
@@ -649,5 +706,106 @@ export async function getCertificateVerificationDetails(certificateNo: string) {
     venue: cert.venue || "N/A",
     duration_from: cert.duration_from || "N/A",
     duration_to: cert.duration_to || "N/A"
+  };
+}
+
+export async function getSecureAppreciationDetails(appNo: string, contact: string): Promise<TrackingResult | null> {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const searchStr = appNo.trim();
+  const contactStr = contact.trim();
+
+  if (!searchStr || !contactStr) return null;
+
+  const { data: app, error } = await supabase
+    .from("appreciation_applications")
+    .select(`
+      id,
+      application_no,
+      full_name,
+      email,
+      mobile,
+      address,
+      country,
+      state,
+      district,
+      pincode,
+      social_work_field,
+      description,
+      photo_url,
+      status,
+      created_at,
+      approved_at,
+      remarks,
+      status_logs (
+        id,
+        from_status,
+        to_status,
+        remarks,
+        created_at
+      )
+    `)
+    .eq("application_no", searchStr)
+    .maybeSingle();
+
+  if (error || !app) {
+    return { found: false, type: "appreciation", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  // Security check: Must match registered mobile or email
+  const matchMobile = app.mobile && app.mobile.trim() === contactStr;
+  const matchEmail = app.email && app.email.toLowerCase().trim() === contactStr.toLowerCase();
+
+  if (!matchMobile && !matchEmail) {
+    return { found: false, type: "appreciation", number: searchStr, name: "", status: "", date: "", timeline: [] };
+  }
+
+  // Format timeline
+  const timeline = (app.status_logs || []).map((log: any) => ({
+    id: log.id,
+    fromStatus: log.from_status,
+    toStatus: log.to_status,
+    remarks: log.remarks || "No remarks available.",
+    date: new Date(log.created_at).toLocaleString("en-IN"),
+  })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  let certificate = null;
+  if (app.status === "APPROVED") {
+    certificate = {
+      certificate_no: app.application_no,
+      pdf_url: `/track/appreciation/pdf?id=${app.application_no}`,
+    };
+  }
+
+  return {
+    found: true,
+    type: "appreciation",
+    number: app.application_no,
+    name: app.full_name,
+    status: app.status,
+    date: new Date(app.created_at).toLocaleDateString("en-IN"),
+    details: app.remarks || undefined,
+    timeline,
+    certificate,
+    memberDetails: {
+      father_name: "",
+      gender: "",
+      dob: "",
+      mobile: app.mobile,
+      whatsapp: "",
+      email: app.email,
+      address: app.address,
+      district: app.district,
+      state: app.state,
+      pincode: app.pincode,
+      education: "",
+      profession: "",
+      working_area: app.social_work_field,
+      designation: "Awardee",
+      photo_url: app.photo_url,
+      approved_at: app.approved_at,
+      created_at: app.created_at,
+      ack_no: app.application_no
+    }
   };
 }

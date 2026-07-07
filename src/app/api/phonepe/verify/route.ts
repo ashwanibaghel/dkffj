@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     // First check our DB — if already COMPLETED, return immediately
     const { data: payment } = await supabase
       .from("payments")
-      .select("id, amount, status, membership_id, registration_id, donation_id")
+      .select("id, amount, status, membership_id, registration_id, donation_id, appreciation_id")
       .eq("transaction_id", orderId)
       .maybeSingle();
 
@@ -79,6 +79,20 @@ export async function GET(req: NextRequest) {
         customerEmail = donation.donor_email;
         customerName = donation.donor_name;
         if (donation.donor_email.toLowerCase().includes("bypass")) {
+          isBypass = true;
+        }
+      }
+    } else if (payment.appreciation_id) {
+      const { data: app } = await supabase
+        .from("appreciation_applications")
+        .select("email, full_name, application_no")
+        .eq("id", payment.appreciation_id)
+        .maybeSingle();
+      if (app) {
+        customerEmail = app.email;
+        customerName = app.full_name;
+        ackOrEnrollmentNo = app.application_no;
+        if (app.email.toLowerCase().includes("bypass")) {
           isBypass = true;
         }
       }
@@ -261,6 +275,62 @@ export async function GET(req: NextRequest) {
           }
         } catch (adminErr) {
           console.error("Admin notification error (course bypass):", adminErr);
+        }
+      } else if (payment.appreciation_id) {
+        await supabase
+          .from("appreciation_applications")
+          .update({ status: "UNDER_REVIEW" })
+          .eq("id", payment.appreciation_id);
+
+        await supabase.from("status_logs").insert({
+          appreciation_id: payment.appreciation_id,
+          from_status: "PENDING",
+          to_status: "UNDER_REVIEW",
+          remarks: "Appreciation fee payment bypassed for testing. Forwarded to board review.",
+        });
+
+        const { getAppreciationReceiptTemplate } = await import("@/services/email/templates");
+        const emailHtml = getAppreciationReceiptTemplate(
+          customerName,
+          ackOrEnrollmentNo,
+          Number(payment.amount)
+        );
+        await sendTransactionalEmail(
+          customerEmail,
+          "Payment Verified & Appreciation Application Submitted (Bypass Mode) - DKFFJ",
+          emailHtml
+        );
+
+        // Notify Admins (Bypass Mode)
+        try {
+          const { data: admins } = await supabase
+            .from("users")
+            .select("email")
+            .in("role", ["ADMIN", "SUPERADMIN"]);
+          const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+          const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+          const adminSubject = `[TEST MODE] New Appreciation Application Verified - ${customerName}`;
+          const adminHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+              <div style="background-color: #001C55; padding: 20px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DK Foundation - Admin Portal (TEST MODE)</h1>
+              </div>
+              <div style="padding: 24px; color: #334155;">
+                <h2>New Appreciation Application Verified via Bypass</h2>
+                <p>Hello Admin,</p>
+                <p>An appreciation application fee of <strong>INR ${payment.amount}</strong> has been verified via bypass for: <strong>${customerName}</strong>.</p>
+                <p><strong>Application Number:</strong> ${ackOrEnrollmentNo}</p>
+                <div style="margin-top: 24px; text-align: center;">
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/appreciation" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                </div>
+              </div>
+            </div>
+          `;
+          for (const adminEmail of adminRecipients) {
+            await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+          }
+        } catch (adminErr) {
+          console.error("Admin notification error (appreciation bypass):", adminErr);
         }
       }
 

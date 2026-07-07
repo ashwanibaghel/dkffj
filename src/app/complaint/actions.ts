@@ -20,6 +20,7 @@ export async function submitComplaint(prevData: any, formData: FormData) {
   const name = formData.get("name") as string;
   const fatherName = formData.get("fatherName") as string;
   const gender = formData.get("gender") as string;
+  const country = (formData.get("country") as string) || "India";
   const mobile = formData.get("mobile") as string;
   const email = formData.get("email") as string || null;
   const address = formData.get("address") as string;
@@ -58,6 +59,7 @@ export async function submitComplaint(prevData: any, formData: FormData) {
         name,
         father_name: fatherName,
         gender,
+        country,
         mobile,
         email,
         address,

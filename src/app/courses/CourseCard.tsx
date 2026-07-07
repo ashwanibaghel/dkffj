@@ -106,6 +106,7 @@ export default function CourseCard({ course }: { course: Course }) {
 
   // Form inputs for registration
   const [fullName, setFullName] = useState<string>("");
+  const [countryCode, setCountryCode] = useState<string>("+91");
   const [mobile, setMobile] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -219,7 +220,8 @@ export default function CourseCard({ course }: { course: Course }) {
     }
     setOtpLoading(true);
     try {
-      const res = await sendCourseOtp(mobile, email);
+      const fullMobile = countryCode + mobile;
+      const res = await sendCourseOtp(fullMobile, email);
       if (res.success) {
         setOtpSent(true);
         setSuccessMsg(res.message || "OTP sent successfully.");
@@ -242,7 +244,8 @@ export default function CourseCard({ course }: { course: Course }) {
     }
     setOtpLoading(true);
     try {
-      const res = await verifyCourseOtp(mobile, email, otpCode);
+      const fullMobile = countryCode + mobile;
+      const res = await verifyCourseOtp(fullMobile, email, otpCode);
       if (res.success) {
         setOtpVerified(true);
         setSuccessMsg(res.message || "Email verified successfully!");
@@ -358,7 +361,7 @@ export default function CourseCard({ course }: { course: Course }) {
       const formData = new FormData();
       formData.append("courseId", course.id);
       formData.append("fullName", fullName);
-      formData.append("mobile", mobile);
+      formData.append("mobile", countryCode + mobile);
       formData.append("email", email);
       formData.append("fatherName", fatherName);
       if (photo) {
@@ -728,15 +731,35 @@ export default function CourseCard({ course }: { course: Course }) {
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile Number *</label>
-                  <input
-                    type="tel"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    required
-                    disabled={!isLoggedIn && otpVerified}
-                    placeholder="10-digit mobile number"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
-                  />
+                  <div className="flex gap-2">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      disabled={!isLoggedIn && otpVerified}
+                      className="w-20 px-1 py-2 border rounded-lg text-[10px] bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50 shrink-0"
+                    >
+                      <option value="+91">+91 (IN)</option>
+                      <option value="+1">+1 (US)</option>
+                      <option value="+44">+44 (UK)</option>
+                      <option value="+61">+61 (AU)</option>
+                      <option value="+971">+971 (AE)</option>
+                      <option value="+92">+92 (PK)</option>
+                      <option value="+880">+880 (BD)</option>
+                      <option value="+977">+977 (NP)</option>
+                      <option value="+94">+94 (LK)</option>
+                      <option value="+65">+65 (SG)</option>
+                      <option value="+49">+49 (DE)</option>
+                    </select>
+                    <input
+                      type="tel"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      required
+                      disabled={!isLoggedIn && otpVerified}
+                      placeholder="Mobile number"
+                      className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
+                    />
+                  </div>
                 </div>
 
                 <div>

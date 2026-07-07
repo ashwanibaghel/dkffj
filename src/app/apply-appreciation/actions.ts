@@ -3,11 +3,11 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { sendTransactionalEmail } from "@/services/email/service";
-import { getMembershipVerificationTemplate, getMembershipReceiptTemplate } from "@/services/email/templates";
+import { getAppreciationVerificationTemplate, getAppreciationReceiptTemplate } from "@/services/email/templates";
 import { paymentServiceInstance } from "@/lib/payment/service";
 
 // 1. Generate and Send OTP
-export async function sendMembershipOtp(mobile: string, email: string) {
+export async function sendAppreciationOtp(mobile: string, email: string) {
   if (!mobile || !email) {
     return { success: false, error: "Mobile number and Email are required." };
   }
@@ -36,17 +36,16 @@ export async function sendMembershipOtp(mobile: string, email: string) {
   }
 
   // Send Email with OTP
-  const subject = "Verification OTP - DKFFJ Portal";
-  const htmlContent = getMembershipVerificationTemplate(code);
+  const subject = "Verification OTP - DKFFJ Appreciation Application";
+  const htmlContent = getAppreciationVerificationTemplate(code);
   const emailRes = await sendTransactionalEmail(email, subject, htmlContent);
 
   if (!emailRes.success) {
     console.error("Resend email failed:", emailRes.error);
-    return { success: false, error: `Email delivery failed: ${emailRes.error}. If using a free Resend account, make sure RESEND_FROM_EMAIL environment variable is set to onboarding@resend.dev on Vercel.` };
+    return { success: false, error: `Email delivery failed: ${emailRes.error}.` };
   }
 
-  // Log to console for local developer debugging/testing
-  console.log(`[OTP SENT] To Mobile: ${mobile}, Email: ${email} -> CODE: ${code}`);
+  console.log(`[APPRECIATION OTP SENT] To Mobile: ${mobile}, Email: ${email} -> CODE: ${code}`);
 
   if (emailRes.mock) {
     return {
@@ -55,11 +54,11 @@ export async function sendMembershipOtp(mobile: string, email: string) {
     };
   }
 
-  return { success: true, message: "OTP sent successfully. Please check your email/mobile." };
+  return { success: true, message: "OTP sent successfully. Please check your email." };
 }
 
 // 2. Verify OTP
-export async function verifyMembershipOtp(mobile: string, code: string) {
+export async function verifyAppreciationOtp(mobile: string, code: string) {
   if (!mobile || !code) {
     return { success: false, error: "Mobile and OTP code are required." };
   }
@@ -103,8 +102,8 @@ export async function verifyMembershipOtp(mobile: string, code: string) {
   return { success: true, message: "OTP verified successfully." };
 }
 
-// 3. Submit Membership Application
-export async function submitMembershipApplication(prevData: any, formData: FormData) {
+// 3. Submit Appreciation Application
+export async function submitAppreciationApplication(prevData: any, formData: FormData) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -142,7 +141,6 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       return { success: false, error: "Please log in first or provide a password to register a new account." };
     }
 
-    // Sign up the user via database RPC to bypass SMTP rate limit
     try {
       const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
         p_email: email,
@@ -172,125 +170,107 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   const district = formData.get("district") as string;
   const state = formData.get("state") as string;
   const pincode = formData.get("pincode") as string;
-  const education = formData.get("education") as string;
-  const profession = formData.get("profession") as string;
-  const workingArea = formData.get("workingArea") as string;
-  const designation = formData.get("designation") as string;
-  const policeStation = formData.get("policeStation") as string;
+  const socialWorkField = formData.get("socialWorkField") as string;
+  const description = formData.get("description") as string;
 
   // Extract Upload Files
   const photo = formData.get("photo") as File;
-  const aadhaar = formData.get("aadhaar") as File;
-  const signature = formData.get("signature") as File;
+  const idProof = formData.get("idProof") as File;
+  const achievementProof = formData.get("achievementProof") as File;
 
-  if (!photo || photo.size === 0 || !aadhaar || aadhaar.size === 0 || !signature || signature.size === 0) {
-    return { success: false, error: "All required files (Photo, Aadhaar Card, Signature) must be uploaded." };
+  if (!photo || photo.size === 0 || !idProof || idProof.size === 0) {
+    return { success: false, error: "All required files (Photo, ID Proof) must be uploaded." };
   }
 
   try {
     // 1. Upload files to Supabase Storage
     const photoExt = photo.name.split(".").pop();
-    const aadhaarExt = aadhaar.name.split(".").pop();
-    const signatureExt = signature.name.split(".").pop();
-
+    const idProofExt = idProof.name.split(".").pop();
     const photoName = `${userId}/photo_${Date.now()}.${photoExt}`;
-    const aadhaarName = `${userId}/aadhaar_${Date.now()}.${aadhaarExt}`;
-    const signatureName = `${userId}/signature_${Date.now()}.${signatureExt}`;
+    const idProofName = `${userId}/idproof_${Date.now()}.${idProofExt}`;
 
-    // Convert Files to ArrayBuffers -> Buffers
     const photoBuffer = Buffer.from(await photo.arrayBuffer());
-    const aadhaarBuffer = Buffer.from(await aadhaar.arrayBuffer());
-    const signatureBuffer = Buffer.from(await signature.arrayBuffer());
+    const idProofBuffer = Buffer.from(await idProof.arrayBuffer());
 
     // Upload to 'photos' bucket (public)
-    const { data: photoUpload, error: photoErr } = await supabase.storage
+    const { error: photoErr } = await supabase.storage
       .from("photos")
       .upload(photoName, photoBuffer, { contentType: photo.type, upsert: true });
 
     if (photoErr) throw new Error(`Photo upload failed: ${photoErr.message}`);
 
-    // Get public URL for photo
     const { data: photoUrlData } = supabase.storage.from("photos").getPublicUrl(photoName);
     const photoUrl = photoUrlData.publicUrl;
 
-    // Upload to 'aadhaar' bucket (private)
-    const { error: aadhaarErr } = await supabase.storage
+    // Upload to 'aadhaar' bucket (private, secure for ID proofs)
+    const { error: idProofErr } = await supabase.storage
       .from("aadhaar")
-      .upload(aadhaarName, aadhaarBuffer, { contentType: aadhaar.type, upsert: true });
+      .upload(idProofName, idProofBuffer, { contentType: idProof.type, upsert: true });
 
-    if (aadhaarErr) throw new Error(`Aadhaar upload failed: ${aadhaarErr.message}`);
-    const aadhaarUrl = `aadhaar/${aadhaarName}`; // Save private storage path
+    if (idProofErr) throw new Error(`ID Proof upload failed: ${idProofErr.message}`);
+    const idProofUrl = `aadhaar/${idProofName}`;
 
-    // Upload to 'signatures' bucket (private)
-    const { error: signatureErr } = await supabase.storage
-      .from("signatures")
-      .upload(signatureName, signatureBuffer, { contentType: signature.type, upsert: true });
+    // Upload achievement proof if present
+    let achievementProofUrl: string | null = null;
+    if (achievementProof && achievementProof.size > 0) {
+      const achievementExt = achievementProof.name.split(".").pop();
+      const achievementName = `${userId}/achievement_${Date.now()}.${achievementExt}`;
+      const achievementBuffer = Buffer.from(await achievementProof.arrayBuffer());
 
-    if (signatureErr) throw new Error(`Signature upload failed: ${signatureErr.message}`);
-    const signatureUrl = `signatures/${signatureName}`; // Save private storage path
+      const { error: achievementErr } = await supabase.storage
+        .from("aadhaar") // Save securely in aadhaar private bucket
+        .upload(achievementName, achievementBuffer, { contentType: achievementProof.type, upsert: true });
 
-    // 2. Generate Acknowledgement Number using SQL Stored Procedure
-    const { data: ackNo, error: rpcError } = await supabase.rpc("generate_next_number", {
-      p_key: "membership_ack",
-      p_prefix: "ACK"
+      if (achievementErr) throw new Error(`Achievement Proof upload failed: ${achievementErr.message}`);
+      achievementProofUrl = `aadhaar/${achievementName}`;
+    }
+
+    // 2. Generate Application Number
+    const { data: appNo, error: rpcError } = await supabase.rpc("generate_next_number", {
+      p_key: "appreciation_app",
+      p_prefix: "DKA"
     });
 
-    if (rpcError) {
+    if (rpcError || !appNo) {
       console.error("RPC sequence generation error:", rpcError);
-      throw new Error("Failed to generate acknowledgement number.");
+      throw new Error("Failed to generate application number.");
     }
 
     // 3. Save application details to DB
-    const { data: membership, error: dbError } = await supabase
-      .from("memberships")
+    const { data: newApplication, error: insertError } = await supabase
+      .from("appreciation_applications")
+      .insert({
+        application_no: appNo,
+        user_id: userId,
+        full_name: fullName,
+        email,
+        mobile,
+        address,
+        country,
+        state,
+        district,
+        pincode,
+        social_work_field: socialWorkField,
+        description,
+        photo_url: photoUrl,
+        id_proof_url: idProofUrl,
+        achievement_proof_url: achievementProofUrl,
+        status: "PENDING"
+      })
       .select("id")
-      .eq("ack_no", ackNo)
-      .maybeSingle();
-
-    if (dbError) throw dbError;
-
-    // Insert new membership
-      const { data: newMembership, error: insertError } = await supabase
-        .from("memberships")
-        .insert({
-          ack_no: ackNo,
-          user_id: userId,
-          full_name: fullName,
-          father_name: fatherName,
-          gender,
-          dob,
-          mobile,
-          whatsapp,
-          email,
-          address,
-          country,
-          district,
-          state,
-          pincode,
-          education,
-          profession,
-          working_area: workingArea,
-          designation,
-          police_station: policeStation,
-          photo_url: photoUrl,
-          aadhaar_url: aadhaarUrl,
-          signature_url: signatureUrl,
-          status: "PENDING"
-        })
-        .select("id")
-        .single();
+      .single();
 
     if (insertError) {
       console.error("Database insert error:", insertError);
       throw new Error(`Database insert failed: ${insertError.message}`);
     }
 
-    const membershipId = newMembership.id;
+    const applicationId = newApplication.id;
 
     // 4. Create Pending Payment Log
-    const amount = Number(process.env.MEMBERSHIP_FEE || 1000.0);
-    const tempTxnId = "MBR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
-    
+    const amount = 1500; // Rs. 1500 application fee
+    const tempTxnId = "APR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+
     const { error: paymentError } = await supabase
       .from("payments")
       .insert({
@@ -298,7 +278,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
         transaction_id: tempTxnId,
         gateway: "PHONEPE",
         status: "PENDING",
-        membership_id: membershipId
+        appreciation_id: applicationId
       });
 
     if (paymentError) {
@@ -315,20 +295,20 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       customerMobile: mobile
     });
 
-    // 6. Send initial acknowledgement email receipt (pending payment verification)
-    const receiptSubject = "Membership Application Received (Awaiting Payment) - DKFFJ";
-    const receiptHtml = getMembershipReceiptTemplate(fullName, ackNo, amount);
+    // 6. Send initial receipt email
+    const receiptSubject = "Appreciation Application Received (Awaiting Payment) - DKFFJ";
+    const receiptHtml = getAppreciationReceiptTemplate(fullName, appNo, amount);
     await sendTransactionalEmail(email, receiptSubject, receiptHtml);
 
     return {
       success: true,
-      ackNo,
+      applicationNo: appNo,
       checkoutUrl,
-      message: "Application submitted. Redirecting to payment gateway..."
+      message: "Application submitted successfully. Redirecting to payment..."
     };
 
   } catch (err: any) {
-    console.error("Submission pipeline error:", err);
-    return { success: false, error: err.message || "An unexpected error occurred during submission." };
+    console.error("submitAppreciationApplication error:", err);
+    return { success: false, error: err.message || "An unexpected error occurred." };
   }
 }

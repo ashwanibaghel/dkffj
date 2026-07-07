@@ -94,7 +94,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   // 2. Fetch payment record from DB
   const { data: payment } = await supabase
     .from("payments")
-    .select("id, amount, status, membership_id, registration_id, donation_id")
+    .select("id, amount, status, membership_id, registration_id, donation_id, appreciation_id")
     .eq("transaction_id", merchantOrderId)
     .maybeSingle();
 
@@ -307,6 +307,74 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         }
       } catch (adminErr) {
         console.error("Admin notification error (course):", adminErr);
+      }
+    }
+  }
+
+  // --- Appreciation Application ---
+  if (payment.appreciation_id) {
+    const { data: app } = await supabase
+      .from("appreciation_applications")
+      .select("id, application_no, full_name, email, status")
+      .eq("id", payment.appreciation_id)
+      .single();
+
+    if (app) {
+      await supabase
+        .from("appreciation_applications")
+        .update({ status: "UNDER_REVIEW" })
+        .eq("id", app.id);
+
+      await supabase.from("status_logs").insert({
+        appreciation_id: app.id,
+        from_status: app.status,
+        to_status: "UNDER_REVIEW",
+        remarks: "Appreciation fee payment verified via PhonePe. Forwarded to board review.",
+      });
+
+      const { getAppreciationReceiptTemplate } = await import("@/services/email/templates");
+      const emailHtml = getAppreciationReceiptTemplate(
+        app.full_name,
+        app.application_no,
+        Number(payment.amount)
+      );
+      await sendTransactionalEmail(
+        app.email,
+        "Payment Verified & Appreciation Application Submitted - DKFFJ",
+        emailHtml
+      );
+
+      // Notify Admins
+      try {
+        const { data: admins } = await supabase
+          .from("users")
+          .select("email")
+          .in("role", ["ADMIN", "SUPERADMIN"]);
+        const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+        const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+        const adminSubject = `New Appreciation Application Paid (Awaiting Review) - ${app.full_name}`;
+        const adminHtml = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div style="background-color: #001C55; padding: 20px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DK Foundation - Admin Portal</h1>
+            </div>
+            <div style="padding: 24px; color: #334155;">
+              <h2>New Appreciation Application Awaiting Review</h2>
+              <p>Hello Admin,</p>
+              <p>An appreciation application fee of <strong>INR ${payment.amount}</strong> has been verified for candidate: <strong>${app.full_name}</strong>.</p>
+              <p><strong>Application Number:</strong> ${app.application_no}</p>
+              <p>Please review the applicant's profile and documents from the admin dashboard to proceed with certificate approval.</p>
+              <div style="margin-top: 24px; text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/appreciation" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+              </div>
+            </div>
+          </div>
+        `;
+        for (const adminEmail of adminRecipients) {
+          await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+        }
+      } catch (adminErr) {
+        console.error("Admin notification error (appreciation):", adminErr);
       }
     }
   }

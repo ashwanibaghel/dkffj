@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, UserCheck, FileText, GraduationCap, Award } from "lucide-react";
+import { ArrowLeft, UserCheck, FileText, GraduationCap, Award, FileCheck } from "lucide-react";
 
 export default function TrackPage() {
   const cards = [
@@ -23,6 +23,14 @@ export default function TrackPage() {
       badge: "Secure"
     },
     {
+      title: "Appreciation Application",
+      desc: "Check verification progress of social work appreciation request and download your Certificate.",
+      href: "/track/appreciation",
+      icon: Award,
+      color: "from-indigo-500 to-indigo-650",
+      badge: "Secure"
+    },
+    {
       title: "Academy Course Enrollment",
       desc: "Check enrollment status, payments, and verify course completion credentials.",
       href: "/track/course",
@@ -34,7 +42,7 @@ export default function TrackPage() {
       title: "Certificate Verification",
       desc: "Verify authenticity of official certificates issued by DK Foundation.",
       href: "/track/certificate",
-      icon: Award,
+      icon: FileCheck,
       color: "from-emerald-500 to-teal-600",
       badge: "Public"
     }

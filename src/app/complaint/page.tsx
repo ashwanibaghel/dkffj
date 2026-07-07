@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { submitComplaint } from "./actions";
 import { createClient } from "@/utils/supabase/client";
 import { ArrowLeft, Loader2, Check, AlertCircle, FileText, Upload, Plus, Trash2, HelpCircle } from "lucide-react";
+import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
 
 export default function ComplaintPage() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function ComplaintPage() {
   const [name, setName] = useState<string>("");
   const [fatherName, setFatherName] = useState<string>("");
   const [gender, setGender] = useState<string>("Male");
+  const [country, setCountry] = useState<string>("India");
+  const [countryCode, setCountryCode] = useState<string>("+91");
   const [mobile, setMobile] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [address, setAddress] = useState<string>("");
@@ -25,6 +28,9 @@ export default function ComplaintPage() {
   const [district, setDistrict] = useState<string>("");
   const [policeStation, setPoliceStation] = useState<string>("");
   const [details, setDetails] = useState<string>("");
+
+  const activeStateObj = indiaStatesDistricts.find((s) => s.state === state);
+  const districtsList = activeStateObj ? activeStateObj.districts : [];
 
   // Attachments state
   const [fileInputs, setFileInputs] = useState<File[]>([]);
@@ -63,6 +69,11 @@ export default function ComplaintPage() {
       return;
     }
 
+    if (country === "India" && !/^\d{10}$/.test(mobile)) {
+      setErrorMsg("Mobile number must be exactly 10 digits for India.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -70,7 +81,8 @@ export default function ComplaintPage() {
       formData.append("name", name);
       formData.append("fatherName", fatherName);
       formData.append("gender", gender);
-      formData.append("mobile", mobile);
+      formData.append("country", country);
+      formData.append("mobile", countryCode + mobile);
       formData.append("email", email);
       formData.append("address", address);
       formData.append("state", state);
@@ -148,6 +160,25 @@ export default function ComplaintPage() {
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b pb-2 mb-3">1. Grievant Information</h3>
                   
                   <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Country *</label>
+                    <select
+                      value={country}
+                      onChange={(e) => {
+                        setCountry(e.target.value);
+                        if (e.target.value === "India") {
+                          setCountryCode("+91");
+                        }
+                      }}
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white"
+                    >
+                      {countriesList.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name *</label>
                     <input
                       type="text"
@@ -186,14 +217,33 @@ export default function ComplaintPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mobile Number *</label>
-                      <input
-                        type="tel"
-                        value={mobile}
-                        onChange={(e) => setMobile(e.target.value)}
-                        required
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                        placeholder="10-digit mobile number"
-                      />
+                      <div className="flex gap-2">
+                        <select
+                          value={countryCode}
+                          onChange={(e) => setCountryCode(e.target.value)}
+                          className="w-20 px-1 py-2.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white shrink-0"
+                        >
+                          <option value="+91">+91 (IN)</option>
+                          <option value="+1">+1 (US/CA)</option>
+                          <option value="+44">+44 (UK)</option>
+                          <option value="+61">+61 (AU)</option>
+                          <option value="+971">+971 (AE)</option>
+                          <option value="+92">+92 (PK)</option>
+                          <option value="+880">+880 (BD)</option>
+                          <option value="+977">+977 (NP)</option>
+                          <option value="+94">+94 (LK)</option>
+                          <option value="+65">+65 (SG)</option>
+                          <option value="+49">+49 (DE)</option>
+                        </select>
+                        <input
+                          type="tel"
+                          value={mobile}
+                          onChange={(e) => setMobile(e.target.value)}
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
+                          placeholder={country === "India" ? "e.g. 9876543210" : "Enter mobile"}
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
@@ -227,25 +277,57 @@ export default function ComplaintPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">State *</label>
-                      <input
-                        type="text"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        required
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                        placeholder="e.g. Bihar"
-                      />
+                      {country === "India" ? (
+                        <select
+                          value={state}
+                          onChange={(e) => {
+                            setState(e.target.value);
+                            setDistrict(""); // Reset district
+                          }}
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white"
+                        >
+                          <option value="">Select State</option>
+                          {indiaStatesDistricts.map((st) => (
+                            <option key={st.state} value={st.state}>{st.state}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={state}
+                          onChange={(e) => setState(e.target.value)}
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
+                          placeholder="e.g. California"
+                        />
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">District *</label>
-                      <input
-                        type="text"
-                        value={district}
-                        onChange={(e) => setDistrict(e.target.value)}
-                        required
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                        placeholder="e.g. Patna"
-                      />
+                      {country === "India" ? (
+                        <select
+                          value={district}
+                          onChange={(e) => setDistrict(e.target.value)}
+                          required
+                          disabled={!state}
+                          className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white disabled:bg-slate-50"
+                        >
+                          <option value="">Select District</option>
+                          {districtsList.map((dist) => (
+                            <option key={dist} value={dist}>{dist}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={district}
+                          onChange={(e) => setDistrict(e.target.value)}
+                          required
+                          className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
+                          placeholder="e.g. Los Angeles"
+                        />
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Concerned Police Station *</label>
