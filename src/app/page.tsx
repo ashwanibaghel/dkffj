@@ -94,6 +94,7 @@ export default function Home() {
                 <Link href="#news" className="hover:text-white transition-colors">News</Link>
                 <Link href="#video-gallery" className="hover:text-white transition-colors">Gallery</Link>
                 <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
+                <Link href="/apply-appreciation" className="hover:text-white transition-colors text-yellow-300 font-extrabold">Apply Appreciation</Link>
                 <Link href="/track" className="hover:text-white transition-colors text-yellow-300 font-extrabold">Track Application</Link>
                 <Link href="/my-account" className="hover:text-white transition-colors text-yellow-300 font-extrabold">My Account</Link>
               </nav>
@@ -191,6 +192,7 @@ export default function Home() {
             <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
             <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
             <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
+            <Link href="/apply-appreciation" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">Appreciation</Link>
             <Link href="/track" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">Track</Link>
             <Link href="/my-account" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">My Account</Link>
           </nav>
@@ -1120,6 +1122,14 @@ export default function Home() {
                 className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
               >
                 Contact
+              </Link>
+              <Link
+                href="/apply-appreciation"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg text-yellow-300 hover:bg-white/10 transition-all font-extrabold flex items-center justify-between"
+              >
+                <span>Appreciation Certificate</span>
+                <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/track"
