@@ -202,8 +202,8 @@ export default function ComplaintPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                    <div className="sm:col-span-3">
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Gender *</label>
                       <select
                         value={gender}
@@ -215,7 +215,7 @@ export default function ComplaintPage() {
                         <option value="Other">Other</option>
                       </select>
                     </div>
-                    <div>
+                    <div className="sm:col-span-5">
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mobile Number *</label>
                       <div className="flex gap-2">
                         <select
@@ -245,7 +245,7 @@ export default function ComplaintPage() {
                         />
                       </div>
                     </div>
-                    <div>
+                    <div className="sm:col-span-4">
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
                       <input
                         type="email"
