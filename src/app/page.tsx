@@ -440,6 +440,193 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ══════════════════════════════════════════════════════════════ */}
+        {/* Constitutional & Administrative Authorities of India Section  */}
+        {/* ══════════════════════════════════════════════════════════════ */}
+        <section className="relative py-12 md:py-16 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-[#0A1A3A] via-[#0D2352] to-[#0A1A3A]">
+
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c5a880]/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c5a880]/60 to-transparent" />
+            {/* Ashoka Chakra watermark */}
+            <div className="absolute right-[-80px] top-1/2 -translate-y-1/2 w-[320px] h-[320px] opacity-[0.04] text-white">
+              <svg viewBox="0 0 100 100" fill="currentColor">
+                <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="2"/>
+                <circle cx="50" cy="50" r="5" />
+                {Array.from({length: 24}).map((_, i) => {
+                  const angle = (i * 15 * Math.PI) / 180;
+                  const x1 = 50 + 6 * Math.cos(angle);
+                  const y1 = 50 + 6 * Math.sin(angle);
+                  const x2 = 50 + 44 * Math.cos(angle);
+                  const y2 = 50 + 44 * Math.sin(angle);
+                  return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="1" stroke="currentColor" />;
+                })}
+              </svg>
+            </div>
+            <div className="absolute left-[-80px] top-1/2 -translate-y-1/2 w-[280px] h-[280px] opacity-[0.03] text-white">
+              <svg viewBox="0 0 100 100" fill="currentColor">
+                <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="2"/>
+                <circle cx="50" cy="50" r="5" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Section Heading */}
+          <div className="relative z-10 text-center mb-10">
+            {/* Tricolor top bar */}
+            <div className="flex justify-center gap-0 mb-5">
+              <div className="h-1 w-16 bg-[#FF9933] rounded-l-full" />
+              <div className="h-1 w-16 bg-white" />
+              <div className="h-1 w-16 bg-[#138808] rounded-r-full" />
+            </div>
+
+            <p className="text-[#c5a880] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.35em] mb-2">
+              Constitutional &amp; Administrative Authorities
+            </p>
+            <h2 className="text-white font-black text-xl sm:text-2xl md:text-3xl font-serif leading-tight">
+              भारत के संवैधानिक पदाधिकारी
+            </h2>
+            <p className="text-blue-200/70 text-xs sm:text-sm font-medium mt-2 tracking-wide">
+              We salute the Guardians of India's Constitution &amp; Democracy
+            </p>
+
+            {/* Divider */}
+            <div className="flex items-center justify-center gap-3 mt-5">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#c5a880]/50" />
+              <span className="text-[#c5a880] text-lg">✦</span>
+              <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#c5a880]/50" />
+            </div>
+          </div>
+
+          {/* Authority Cards Grid */}
+          <div className="relative z-10 max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+
+            {[
+              {
+                nameHindi: "श्रीमती द्रौपदी मुर्मू",
+                nameEng: "Smt. Draupadi Murmu",
+                titleHindi: "माननीय राष्ट्रपति",
+                titleEng: "Hon'ble President of India",
+                initials: "DM",
+                color: "#FF9933",
+                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Droupadi_Murmu_official_portrait_%282022%29.jpg/440px-Droupadi_Murmu_official_portrait_%282022%29.jpg",
+                badge: "🏛️",
+              },
+              {
+                nameHindi: "श्री नरेंद्र मोदी",
+                nameEng: "Shri Narendra Modi",
+                titleHindi: "माननीय प्रधानमंत्री",
+                titleEng: "Hon'ble Prime Minister of India",
+                initials: "NM",
+                color: "#138808",
+                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Narendra_Modi_in_2019.jpg/440px-Narendra_Modi_in_2019.jpg",
+                badge: "🇮🇳",
+              },
+              {
+                nameHindi: "जस्टिस सूर्य कांत",
+                nameEng: "Justice Surya Kant",
+                titleHindi: "माननीय मुख्य न्यायाधीश",
+                titleEng: "Chief Justice of India",
+                initials: "SK",
+                color: "#c5a880",
+                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Justice_Sanjiv_Khanna.jpg/440px-Justice_Sanjiv_Khanna.jpg",
+                badge: "⚖️",
+              },
+              {
+                nameHindi: "श्री अमित शाह",
+                nameEng: "Shri Amit Shah",
+                titleHindi: "माननीय गृह मंत्री",
+                titleEng: "Hon'ble Home Minister of India",
+                initials: "AS",
+                color: "#60a5fa",
+                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amit_Shah_2022.jpg/440px-Amit_Shah_2022.jpg",
+                badge: "🛡️",
+              },
+            ].map((person, idx) => (
+              <div
+                key={idx}
+                className="group relative bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center transition-all duration-500 hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+              >
+                {/* Top color accent bar */}
+                <div
+                  className="absolute top-0 left-6 right-6 h-0.5 rounded-full transition-all group-hover:left-2 group-hover:right-2"
+                  style={{ background: `linear-gradient(90deg, transparent, ${person.color}, transparent)` }}
+                />
+
+                {/* Photo frame */}
+                <div
+                  className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full mb-3 overflow-hidden ring-2 ring-offset-2 ring-offset-[#0D2352] transition-all group-hover:ring-4"
+                  style={{ ringColor: person.color }}
+                >
+                  {/* Outer gold ring */}
+                  <div
+                    className="absolute inset-0 rounded-full"
+                    style={{ boxShadow: `0 0 0 2px ${person.color}60, inset 0 0 0 1px rgba(255,255,255,0.1)` }}
+                  />
+                  <img
+                    src={person.imgUrl}
+                    alt={person.nameEng}
+                    className="w-full h-full object-cover object-top"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      target.style.display = "none";
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                  {/* Fallback initials */}
+                  <div
+                    className="absolute inset-0 items-center justify-center text-white font-black text-lg sm:text-2xl hidden"
+                    style={{ background: `linear-gradient(135deg, ${person.color}40, ${person.color}20)` }}
+                  >
+                    {person.initials}
+                  </div>
+                </div>
+
+                {/* Badge */}
+                <span className="text-base sm:text-xl mb-1 sm:mb-2">{person.badge}</span>
+
+                {/* Hindi Name */}
+                <h3 className="text-white font-extrabold text-[11px] sm:text-sm leading-tight mb-0.5 font-serif">
+                  {person.nameHindi}
+                </h3>
+
+                {/* English Name */}
+                <p className="text-blue-200/70 text-[9px] sm:text-[11px] font-semibold mb-2">
+                  {person.nameEng}
+                </p>
+
+                {/* Divider */}
+                <div
+                  className="w-8 h-px mb-2 rounded-full"
+                  style={{ background: `linear-gradient(90deg, transparent, ${person.color}, transparent)` }}
+                />
+
+                {/* Hindi Title */}
+                <p
+                  className="text-[10px] sm:text-xs font-bold mb-0.5"
+                  style={{ color: person.color }}
+                >
+                  {person.titleHindi}
+                </p>
+
+                {/* English Title */}
+                <p className="text-white/50 text-[8px] sm:text-[10px] font-medium leading-tight">
+                  {person.titleEng}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom Satyamev Jayate */}
+          <div className="relative z-10 text-center mt-8">
+            <p className="text-[#c5a880]/60 text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase">
+              सत्यमेव जयते &nbsp;•&nbsp; Satyameva Jayate
+            </p>
+          </div>
+        </section>
+
         {/* 2. Official Recognition & Registration Credentials Bar */}
         <section className="bg-white border-y border-sky-100 py-8 px-6">
           <div className="max-w-6xl mx-auto w-full">
