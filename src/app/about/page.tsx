@@ -49,7 +49,7 @@ export default function AboutPage() {
           <div className="md:col-span-5 bg-gradient-to-br from-[#1565C0] to-[#0A2E66] p-8 flex flex-col justify-center items-center text-center text-white relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08)_0%,transparent_70%)]"></div>
             <div className="w-40 h-40 rounded-full border-4 border-white/20 overflow-hidden shadow-2xl relative mb-6">
-              <img src="/leaders/1000.jpg" alt="Danish Khan" className="w-full h-full object-cover" />
+              <img src="/members/danish.jpg" alt="Danish Khan" className="w-full h-full object-cover" />
             </div>
             <h3 className="text-2xl font-serif font-black tracking-wide">DANISH KHAN</h3>
             <p className="text-xs text-yellow-300 font-extrabold uppercase tracking-widest mt-1">Founder &amp; National Director</p>
