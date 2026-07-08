@@ -236,7 +236,7 @@ export default function Home() {
         {/* ── Main Credentials (Logo + Name) ── */}
         <div className="text-center pt-8 pb-7 px-6">
           <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
-            <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white p-0.5 flex items-center justify-center shadow-2xl border-2 border-white/25">
+            <div className="w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 flex items-center justify-center filter drop-shadow-2xl">
               <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
             </div>
             <h1 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl tracking-wider text-white uppercase leading-tight mt-1">
@@ -412,6 +412,40 @@ export default function Home() {
 
           </div>
         </section>
+
+        {/* Dynamic Infinite Scrolling News Ticker Banner */}
+        <div className="bg-[#1565C0] border-y border-[#0D47A1] text-white flex items-center relative z-30 shadow-md">
+          {/* Static Title Tag */}
+          <div className="bg-[#C00000] px-4 py-3 font-extrabold text-[11px] uppercase tracking-wider flex items-center gap-2 shrink-0 select-none shadow-[4px_0_15px_rgba(0,0,0,0.15)] relative z-10 border-r border-[#990000]">
+            <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+            <span>Latest Updates</span>
+          </div>
+
+          {/* Marquee Content */}
+          <div className="flex-1 overflow-hidden py-3 text-xs sm:text-sm font-semibold tracking-wide flex items-center">
+            {news && news.length > 0 ? (
+              <div className="animate-marquee whitespace-nowrap">
+                {news.map((item) => (
+                  <span key={item.id} className="mx-8 inline-flex items-center gap-2">
+                    <span className="text-[#c5a880] font-black">✦</span>
+                    <span className="hover:text-yellow-250 transition-colors cursor-pointer">{item.title}</span>
+                  </span>
+                ))}
+                {/* Duplicate for infinite loop */}
+                {news.map((item) => (
+                  <span key={`dup-${item.id}`} className="mx-8 inline-flex items-center gap-2">
+                    <span className="text-[#c5a880] font-black">✦</span>
+                    <span className="hover:text-yellow-250 transition-colors cursor-pointer">{item.title}</span>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="px-4 text-slate-200 animate-pulse italic">
+                Loading official news updates...
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* 2. Official Recognition & Registration Credentials Bar */}
         <section className="bg-white border-y border-sky-100 py-8 px-6">
