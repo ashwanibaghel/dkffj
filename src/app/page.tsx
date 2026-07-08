@@ -237,7 +237,7 @@ export default function Home() {
         <div className="text-center pt-8 pb-7 px-6">
           <div className="max-w-4xl mx-auto flex flex-col items-center gap-3">
             <div className="w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 flex items-center justify-center filter drop-shadow-2xl">
-              <img src="/logo.png" className="w-full h-full object-contain" alt="DKFFJ Logo" />
+              <img src="/logo.png" className="w-full h-full object-contain" style={{ clipPath: "circle(48.5%)" }} alt="DKFFJ Logo" />
             </div>
             <h1 className="font-serif font-black text-2xl sm:text-3xl md:text-4xl tracking-wider text-white uppercase leading-tight mt-1">
               DK FOUNDATION OF FREEDOM AND JUSTICE
