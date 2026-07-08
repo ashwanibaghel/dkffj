@@ -510,7 +510,7 @@ export default function Home() {
                 titleEng: "Hon'ble President of India",
                 initials: "DM",
                 color: "#FF9933",
-                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Droupadi_Murmu_official_portrait_%282022%29.jpg/440px-Droupadi_Murmu_official_portrait_%282022%29.jpg",
+                imgUrl: "/authorities/president.svg",
                 badge: "🏛️",
               },
               {
@@ -520,7 +520,7 @@ export default function Home() {
                 titleEng: "Hon'ble Prime Minister of India",
                 initials: "NM",
                 color: "#138808",
-                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Narendra_Modi_in_2019.jpg/440px-Narendra_Modi_in_2019.jpg",
+                imgUrl: "/authorities/pm.svg",
                 badge: "🇮🇳",
               },
               {
@@ -530,7 +530,7 @@ export default function Home() {
                 titleEng: "Chief Justice of India",
                 initials: "SK",
                 color: "#c5a880",
-                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Justice_Sanjiv_Khanna.jpg/440px-Justice_Sanjiv_Khanna.jpg",
+                imgUrl: "/authorities/cji.svg",
                 badge: "⚖️",
               },
               {
@@ -540,7 +540,7 @@ export default function Home() {
                 titleEng: "Hon'ble Home Minister of India",
                 initials: "AS",
                 color: "#60a5fa",
-                imgUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amit_Shah_2022.jpg/440px-Amit_Shah_2022.jpg",
+                imgUrl: "/authorities/hm.svg",
                 badge: "🛡️",
               },
             ].map((person, idx) => (

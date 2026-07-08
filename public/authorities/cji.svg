@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#8B6914" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0a1628" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="face" cx="50%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#c89060"/>
+      <stop offset="100%" stop-color="#7a4e2d"/>
+    </radialGradient>
+    <clipPath id="circle"><circle cx="100" cy="100" r="100"/></clipPath>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg)" clip-path="url(#circle)"/>
+  <circle cx="100" cy="100" r="99" fill="none" stroke="#c5a880" stroke-width="2" opacity="0.5"/>
+  <!-- Judge robe / black coat body -->
+  <ellipse cx="100" cy="190" rx="68" ry="45" fill="#1a1a1a"/>
+  <ellipse cx="100" cy="178" rx="60" ry="36" fill="#222"/>
+  <!-- White court band / collar -->
+  <rect x="90" y="148" width="20" height="12" rx="3" fill="white"/>
+  <path d="M93 148 L93 160 M107 148 L107 160" stroke="#ddd" stroke-width="0.5"/>
+  <!-- Neck -->
+  <rect x="90" y="136" width="20" height="18" rx="6" fill="#b07840"/>
+  <!-- Head -->
+  <ellipse cx="100" cy="114" rx="30" ry="34" fill="url(#face)"/>
+  <!-- Hair - dark mostly bald with sides -->
+  <path d="M70 100 Q72 80 100 80 Q128 80 130 100" fill="#1a1a1a"/>
+  <path d="M70 100 Q68 110 70 118" fill="#1a1a1a"/>
+  <path d="M130 100 Q132 110 130 118" fill="#1a1a1a"/>
+  <!-- Glasses - judicial look -->
+  <circle cx="91" cy="112" r="9" fill="none" stroke="#2c2c2c" stroke-width="2"/>
+  <circle cx="109" cy="112" r="9" fill="none" stroke="#2c2c2c" stroke-width="2"/>
+  <line x1="100" y1="112" x2="100" y2="112" stroke="#2c2c2c" stroke-width="2"/>
+  <line x1="82" y1="112" x2="74" y2="110" stroke="#2c2c2c" stroke-width="2"/>
+  <line x1="118" y1="112" x2="126" y2="110" stroke="#2c2c2c" stroke-width="2"/>
+  <!-- Eyes through glasses -->
+  <ellipse cx="91" cy="112" rx="4" ry="3" fill="#2a1a0a"/>
+  <ellipse cx="109" cy="112" rx="4" ry="3" fill="#2a1a0a"/>
+  <circle cx="92" cy="111" r="1.2" fill="white"/>
+  <circle cx="110" cy="111" r="1.2" fill="white"/>
+  <!-- Eyebrows -->
+  <path d="M84 105 Q91 103 98 105" stroke="#444" stroke-width="1.5" fill="none"/>
+  <path d="M102 105 Q109 103 116 105" stroke="#444" stroke-width="1.5" fill="none"/>
+  <!-- Nose -->
+  <ellipse cx="100" cy="120" rx="2.5" ry="2" fill="#8a5c30"/>
+  <!-- Mouth -->
+  <path d="M93 128 Q100 132 107 128" stroke="#6b3c1c" stroke-width="1.5" fill="#b06060" opacity="0.7"/>
+  <!-- Ears -->
+  <ellipse cx="70" cy="114" rx="5" ry="7" fill="#b07840"/>
+  <ellipse cx="130" cy="114" rx="5" ry="7" fill="#b07840"/>
+</svg>

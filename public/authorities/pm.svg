@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FF8C00" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#0d1b2a" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="face" cx="50%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#c8956c"/>
+      <stop offset="100%" stop-color="#8b5e3c"/>
+    </radialGradient>
+    <clipPath id="circle"><circle cx="100" cy="100" r="100"/></clipPath>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg)" clip-path="url(#circle)"/>
+  <circle cx="100" cy="100" r="99" fill="none" stroke="#FF9933" stroke-width="2" opacity="0.4"/>
+  <!-- Jacket/Kurta body -->
+  <ellipse cx="100" cy="188" rx="65" ry="42" fill="#1a3a5c"/>
+  <ellipse cx="100" cy="178" rx="58" ry="34" fill="#1e4080"/>
+  <!-- Buttons on jacket -->
+  <circle cx="100" cy="158" r="2" fill="#FFD700"/>
+  <circle cx="100" cy="167" r="2" fill="#FFD700"/>
+  <circle cx="100" cy="176" r="2" fill="#FFD700"/>
+  <!-- Neck -->
+  <rect x="89" y="136" width="22" height="22" rx="7" fill="#c68642"/>
+  <!-- Collar -->
+  <path d="M89 148 L96 155 L100 158 L104 155 L111 148" fill="#1e4080"/>
+  <!-- Head -->
+  <ellipse cx="100" cy="114" rx="31" ry="35" fill="url(#face)"/>
+  <!-- Hair - white/silver wavy top -->
+  <ellipse cx="100" cy="82" rx="30" ry="16" fill="#e8e8e8"/>
+  <ellipse cx="100" cy="79" rx="26" ry="10" fill="#d4d4d4"/>
+  <!-- Beard - white/grey -->
+  <path d="M72 128 Q100 145 128 128 L125 150 Q100 162 75 150 Z" fill="#e0e0e0" opacity="0.9"/>
+  <path d="M80 125 Q100 138 120 125" stroke="#c8c8c8" stroke-width="1" fill="none"/>
+  <!-- Mustache -->
+  <path d="M87 120 Q100 116 113 120" stroke="#d0d0d0" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <ellipse cx="89" cy="111" rx="4.5" ry="3.5" fill="#1a1a1a"/>
+  <ellipse cx="111" cy="111" rx="4.5" ry="3.5" fill="#1a1a1a"/>
+  <circle cx="90" cy="110" r="1.5" fill="white"/>
+  <circle cx="112" cy="110" r="1.5" fill="white"/>
+  <!-- Eyebrows - thick -->
+  <path d="M84 106 Q89 103 94 106" stroke="#888" stroke-width="2" fill="none"/>
+  <path d="M106 106 Q111 103 116 106" stroke="#888" stroke-width="2" fill="none"/>
+  <!-- Nose -->
+  <ellipse cx="100" cy="117" rx="3" ry="2.5" fill="#a07050"/>
+  <!-- Mouth -->
+  <path d="M94 127 Q100 130 106 127" stroke="#8b4513" stroke-width="1.5" fill="#c07060" opacity="0.6"/>
+  <!-- Ears -->
+  <ellipse cx="69" cy="113" rx="5" ry="7" fill="#c08060"/>
+  <ellipse cx="131" cy="113" rx="5" ry="7" fill="#c08060"/>
+</svg>

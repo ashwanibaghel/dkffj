@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FF9933" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#1a1a2e" stop-opacity="1"/>
+    </radialGradient>
+    <radialGradient id="face" cx="50%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#d4956a"/>
+      <stop offset="100%" stop-color="#8b5e3c"/>
+    </radialGradient>
+    <clipPath id="circle"><circle cx="100" cy="100" r="100"/></clipPath>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg)" clip-path="url(#circle)"/>
+  <!-- Subtle pattern -->
+  <circle cx="100" cy="100" r="99" fill="none" stroke="#FF9933" stroke-width="2" opacity="0.4"/>
+  <!-- Body/torso -->
+  <ellipse cx="100" cy="185" rx="62" ry="40" fill="#8B4513" opacity="0.9"/>
+  <!-- Saree drape hint -->
+  <ellipse cx="100" cy="175" rx="58" ry="32" fill="#CC6600" opacity="0.7"/>
+  <ellipse cx="100" cy="168" rx="52" ry="24" fill="#FF8C00" opacity="0.5"/>
+  <!-- Neck -->
+  <rect x="88" y="135" width="24" height="22" rx="8" fill="#c68642"/>
+  <!-- Head -->
+  <ellipse cx="100" cy="115" rx="32" ry="36" fill="url(#face)"/>
+  <!-- Hair - bun style -->
+  <ellipse cx="100" cy="82" rx="28" ry="14" fill="#2c1810"/>
+  <ellipse cx="100" cy="78" rx="20" ry="10" fill="#1a0f08"/>
+  <circle cx="115" cy="80" r="5" fill="#CC0000"/>
+  <!-- Eyes -->
+  <ellipse cx="90" cy="112" rx="4.5" ry="3.5" fill="#1a0f08"/>
+  <ellipse cx="110" cy="112" rx="4.5" ry="3.5" fill="#1a0f08"/>
+  <circle cx="91" cy="111" r="1.5" fill="white"/>
+  <circle cx="111" cy="111" r="1.5" fill="white"/>
+  <!-- Eyebrows -->
+  <path d="M85 107 Q90 105 95 107" stroke="#1a0f08" stroke-width="1.5" fill="none"/>
+  <path d="M105 107 Q110 105 115 107" stroke="#1a0f08" stroke-width="1.5" fill="none"/>
+  <!-- Nose -->
+  <ellipse cx="100" cy="118" rx="2.5" ry="2" fill="#a0714f"/>
+  <!-- Nose stud -->
+  <circle cx="96" cy="118" r="1.2" fill="#FFD700"/>
+  <!-- Mouth -->
+  <path d="M93 126 Q100 130 107 126" stroke="#8b4513" stroke-width="1.5" fill="#c0706a"/>
+  <!-- Bindi -->
+  <circle cx="100" cy="100" r="3" fill="#CC0000"/>
+  <!-- Earrings -->
+  <circle cx="68" cy="114" r="4" fill="#FFD700"/>
+  <circle cx="68" cy="121" r="2.5" fill="#FF6600"/>
+  <circle cx="132" cy="114" r="4" fill="#FFD700"/>
+  <circle cx="132" cy="121" r="2.5" fill="#FF6600"/>
+  <!-- Necklace -->
+  <path d="M82 140 Q100 148 118 140" stroke="#FFD700" stroke-width="2.5" fill="none"/>
+</svg>
