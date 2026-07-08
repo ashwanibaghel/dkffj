@@ -25,6 +25,11 @@ export async function middleware(request: NextRequest) {
     return await createClient(request);
   }
 
+  // 1b. Allow load testing endpoints to bypass rate limiter
+  if (path.startsWith("/api/test-db-")) {
+    return await createClient(request);
+  }
+
   // 2. Extract Client IP
   const ip =
     request.ip ||
