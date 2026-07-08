@@ -81,28 +81,26 @@ export default function Home() {
       <div className="bg-[#1565C0] text-white border-b border-white/20 relative z-40">
 
         {/* ── Top Utility Social Bar ── */}
-        <div className="bg-[#0A2E66] border-b border-white/10 px-4 sm:px-6 py-2 text-xs">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            {/* Left: Contact Info */}
-            <div className="flex items-center gap-4 text-white/95 text-[11px] font-semibold tracking-wide">
-              <a 
-                href="https://wa.me/919871219033" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center gap-1.5 hover:text-green-400 transition-colors"
-              >
-                <svg className="w-4 h-4 fill-current text-green-400" viewBox="0 0 24 24">
-                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
-                </svg>
-                <span>WhatsApp Support: +91 98712 19033</span>
-              </a>
-              <span className="text-white/30 hidden sm:inline">|</span>
-              <span className="hidden sm:inline text-yellow-300">Govt. Registered NGO</span>
-            </div>
+        <div className="bg-[#0A2E66] border-b border-white/10 px-4 sm:px-6 py-1.5 text-xs">
+          <div className="max-w-7xl mx-auto flex flex-row justify-between items-center gap-2">
+            {/* Left: WhatsApp number — hidden on mobile, shown sm+ */}
+            <a
+              href="https://wa.me/919871219033"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1.5 text-white/90 text-[11px] font-semibold hover:text-green-400 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5 fill-current text-green-400 shrink-0" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
+              </svg>
+              <span>+91 98712 19033</span>
+            </a>
 
-            {/* Right: Social Icons Row */}
-            <div className="flex items-center gap-3">
-              <span className="text-white/60 text-[10px] uppercase font-bold tracking-wider hidden md:inline">Connect With Us:</span>
+            {/* Mobile left: Govt tag */}
+            <span className="sm:hidden text-yellow-300 text-[10px] font-bold tracking-wide">Govt. Registered NGO ✓</span>
+
+            {/* Right: Social Icons Row — always visible, compact */}
+            <div className="flex items-center gap-2">
               
               {/* WhatsApp Channel */}
               <a 
@@ -367,23 +365,21 @@ export default function Home() {
           {/* Content overlay on top of background */}
           <div className="relative z-20 max-w-7xl mx-auto w-full flex justify-center">
             
-             {/* Centered Welcome Buttons Panel */}
-             <div className="flex flex-col items-center gap-6 text-center w-full">
-               <div className="bg-black/30 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex flex-col sm:flex-row justify-center items-center gap-4 shadow-xl">
+             {/* CTA Buttons — hidden on mobile (bottom bar handles it), shown on desktop */}
+             <div className="hidden sm:flex flex-col items-center gap-6 text-center w-full">
+               <div className="bg-black/30 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex flex-row justify-center items-center gap-4 shadow-xl">
                  <Link 
                    href="/apply" 
-                   className="bg-[#1565C0] hover:bg-[#0D47A1] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(0, 28, 85,0.3)] min-w-[180px] text-center"
+                   className="bg-[#1565C0] hover:bg-[#0D47A1] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(0,28,85,0.3)] min-w-[180px] text-center"
                  >
                    Join Membership
                  </Link>
-                 
                  <Link 
                    href="/complaint" 
-                   className="bg-[#C00000] hover:bg-[#990000] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(192, 0, 0,0.3)] min-w-[180px] text-center"
+                   className="bg-[#C00000] hover:bg-[#990000] text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 shadow-[0_5px_15px_rgba(192,0,0,0.3)] min-w-[180px] text-center"
                  >
                    File Complaint
                  </Link>
-                 
                  <Link 
                    href="/courses" 
                    className="bg-white/15 hover:bg-white/25 text-white backdrop-blur-sm border border-white/20 font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-lg transition-all active:scale-95 min-w-[180px] text-center"
@@ -391,22 +387,11 @@ export default function Home() {
                    Explore Courses
                  </Link>
                </div>
-
-               {/* Quick tracking & account shortcuts */}
-               <div className="flex flex-wrap justify-center items-center gap-4 text-xs font-semibold">
-                 <Link
-                   href="/track"
-                   className="text-white hover:text-yellow-250 transition-colors uppercase tracking-widest font-black underline decoration-white/30 decoration-2 underline-offset-4"
-                 >
-                   Track Application
-                 </Link>
-                 <span className="text-white/40 text-sm">|</span>
-                 <Link
-                   href="/my-account"
-                   className="text-white hover:text-yellow-250 transition-colors uppercase tracking-widest font-black underline decoration-white/30 decoration-2 underline-offset-4"
-                 >
-                   My Account Portal
-                 </Link>
+               {/* Quick tracking & account shortcuts — desktop only */}
+               <div className="flex items-center gap-4 text-xs font-semibold">
+                 <Link href="/track" className="text-white uppercase tracking-widest font-black underline decoration-white/30 decoration-2 underline-offset-4">Track Application</Link>
+                 <span className="text-white/40">|</span>
+                 <Link href="/my-account" className="text-white uppercase tracking-widest font-black underline decoration-white/30 decoration-2 underline-offset-4">My Account Portal</Link>
                </div>
              </div>
 
@@ -414,15 +399,16 @@ export default function Home() {
         </section>
 
         {/* Dynamic Infinite Scrolling News Ticker Banner */}
-        <div className="bg-[#1565C0] border-y border-[#0D47A1] text-white flex items-center relative z-30 shadow-md">
+        <div className="bg-[#1565C0] border-y border-[#0D47A1] text-white flex items-center relative z-30 shadow-md h-9">
           {/* Static Title Tag */}
-          <div className="bg-[#C00000] px-4 py-3 font-extrabold text-[11px] uppercase tracking-wider flex items-center gap-2 shrink-0 select-none shadow-[4px_0_15px_rgba(0,0,0,0.15)] relative z-10 border-r border-[#990000]">
-            <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
-            <span>Latest Updates</span>
+          <div className="bg-[#C00000] px-3 py-2 font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1.5 shrink-0 select-none shadow-[4px_0_10px_rgba(0,0,0,0.15)] relative z-10 border-r border-[#990000] h-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+            <span className="hidden sm:inline">Latest Updates</span>
+            <span className="sm:hidden">News</span>
           </div>
 
           {/* Marquee Content */}
-          <div className="flex-1 overflow-hidden py-3 text-xs sm:text-sm font-semibold tracking-wide flex items-center">
+          <div className="flex-1 overflow-hidden text-[11px] sm:text-xs font-semibold tracking-wide flex items-center h-full">
             {news && news.length > 0 ? (
               <div className="animate-marquee whitespace-nowrap">
                 {news.map((item) => (
@@ -1518,18 +1504,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Floating Blinking WhatsApp Button */}
+      {/* Floating WhatsApp Button — icon only on mobile, with text on desktop */}
       <a 
         href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-20 md:bottom-6 right-6 z-[9999] flex items-center gap-2 bg-[#25D366] text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-[0_8px_30px_rgba(37,211,102,0.4)] hover:bg-[#20ba59] hover:scale-105 transition-all duration-300 group border border-white/20 animate-pulse"
-        style={{ animationDuration: "2s" }}
+        title="Join our WhatsApp Channel"
+        className="fixed bottom-20 md:bottom-8 right-4 md:right-6 z-[9999] flex items-center gap-2 bg-[#25D366] text-white shadow-[0_6px_24px_rgba(37,211,102,0.45)] hover:bg-[#20ba59] hover:scale-110 transition-all duration-300 border border-white/20 animate-pulse
+          w-12 h-12 rounded-full justify-center
+          md:w-auto md:h-auto md:rounded-full md:px-4 md:py-2.5"
+        style={{ animationDuration: "2.5s" }}
       >
-        <svg className="w-5 h-5 fill-current text-white" viewBox="0 0 24 24">
+        <svg className="w-6 h-6 md:w-5 md:h-5 fill-current text-white shrink-0" viewBox="0 0 24 24">
           <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
         </svg>
-        <span className="tracking-wider uppercase font-bold text-[10px]">Connect With Us</span>
+        <span className="hidden md:inline tracking-wider uppercase font-bold text-[10px]">Connect With Us</span>
       </a>
     </div>
   );
