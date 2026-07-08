@@ -180,10 +180,10 @@ export default function Home() {
             <div className="hidden md:flex w-full justify-between items-center">
               <nav className="flex flex-wrap gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-white/90 items-center">
                 <Link href="/" className="hover:text-white transition-colors">Home</Link>
-                <Link href="#about" className="hover:text-white transition-colors">About Us</Link>
+                <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
                 <Link href="#services" className="hover:text-white transition-colors">Services</Link>
                 <Link href="/courses" className="hover:text-white transition-colors">Academy</Link>
-                <Link href="#documents" className="hover:text-white transition-colors">Legals</Link>
+                <Link href="/documents" className="hover:text-white transition-colors">Legals</Link>
                 <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
                 
                 {/* Hover Dropdown */}
@@ -193,8 +193,8 @@ export default function Home() {
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                   <div className="absolute top-full left-0 mt-1.5 w-48 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
-                    <Link href="#news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
-                    <Link href="#video-gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
+                    <Link href="/news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
+                    <Link href="/gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
                     <Link href="/apply-appreciation" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Apply Appreciation</Link>
                     <Link href="/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track Application</Link>
                   </div>
@@ -291,10 +291,10 @@ export default function Home() {
 
           <nav className="hidden md:flex items-center gap-5 text-[11px] font-bold uppercase tracking-wider text-slate-200">
             <Link href="/" className="hover:text-[#c5a880] transition-colors">Home</Link>
-            <Link href="#about" className="hover:text-[#c5a880] transition-colors">About</Link>
+            <Link href="/about" className="hover:text-[#c5a880] transition-colors">About</Link>
             <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
             <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
-            <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
+            <Link href="/documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
             <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
             
             {/* Hover Dropdown */}
@@ -304,8 +304,8 @@ export default function Home() {
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               <div className="absolute top-full left-0 mt-1.5 w-48 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
-                <Link href="#news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
-                <Link href="#video-gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
+                <Link href="/news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
+                <Link href="/gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
                 <Link href="/apply-appreciation" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Appreciation</Link>
                 <Link href="/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track</Link>
               </div>
@@ -1128,10 +1128,10 @@ export default function Home() {
           <div className="flex flex-col gap-3 text-left">
             <h5 className="font-bold text-slate-800 uppercase tracking-wider">Quick Links</h5>
             <div className="flex flex-col gap-2">
-              <Link href="#about" className="hover:text-[#1565C0] transition-colors">About Objectives</Link>
+              <Link href="/about" className="hover:text-[#1565C0] transition-colors">About Objectives</Link>
               <Link href="#services" className="hover:text-[#1565C0] transition-colors">Operations Details</Link>
-              <Link href="#courses" className="hover:text-[#1565C0] transition-colors">Academy Courses</Link>
-              <Link href="#documents" className="hover:text-[#1565C0] transition-colors">Downloadable Legals</Link>
+              <Link href="/courses" className="hover:text-[#1565C0] transition-colors">Academy Courses</Link>
+              <Link href="/documents" className="hover:text-[#1565C0] transition-colors">Downloadable Legals</Link>
               <Link href="/admin/login" className="hover:text-[#1565C0] transition-colors">Admin Portal</Link>
               <Link href="#verify-section" className="text-[#1565C0] font-bold hover:underline transition-all">Verify Registry Certificate</Link>
             </div>
@@ -1290,7 +1290,7 @@ export default function Home() {
                 Home
               </Link>
               <Link
-                href="#about"
+                href="/about"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
               >
@@ -1311,21 +1311,21 @@ export default function Home() {
                 Academy
               </Link>
               <Link
-                href="#documents"
+                href="/documents"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
               >
                 Legals
               </Link>
               <Link
-                href="#news"
+                href="/news"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
               >
                 News
               </Link>
               <Link
-                href="#video-gallery"
+                href="/gallery"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2.5 px-3 rounded-lg hover:bg-white/10 transition-all"
               >
