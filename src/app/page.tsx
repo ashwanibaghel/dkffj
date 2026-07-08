@@ -482,13 +482,13 @@ export default function Home() {
             </div>
 
             <p className="text-[#c5a880] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.35em] mb-2">
-              Constitutional &amp; Administrative Authorities
+              Constitutional &amp; Administrative Authorities of India
             </p>
-            <h2 className="text-white font-black text-xl sm:text-2xl md:text-3xl font-serif leading-tight">
-              भारत के संवैधानिक पदाधिकारी
+            <h2 className="text-white font-black text-2xl sm:text-3xl md:text-4xl leading-tight">
+              Guardians of India&apos;s Constitution &amp; Democracy
             </h2>
-            <p className="text-blue-200/70 text-xs sm:text-sm font-medium mt-2 tracking-wide">
-              We salute the Guardians of India's Constitution &amp; Democracy
+            <p className="text-blue-200/60 text-xs sm:text-sm font-medium mt-2 tracking-wide">
+              We respectfully acknowledge the highest constitutional offices of the Republic of India
             </p>
 
             {/* Divider */}
@@ -504,43 +504,35 @@ export default function Home() {
 
             {[
               {
-                nameHindi: "श्रीमती द्रौपदी मुर्मू",
-                nameEng: "Smt. Draupadi Murmu",
-                titleHindi: "माननीय राष्ट्रपति",
-                titleEng: "Hon'ble President of India",
+                name: "Smt. Droupadi Murmu",
+                title: "Hon'ble President of India",
                 initials: "DM",
                 color: "#FF9933",
-                imgUrl: "/authorities/president.svg",
+                imgUrl: "/authorities/dropadi murmu ji.jpeg",
                 badge: "🏛️",
               },
               {
-                nameHindi: "श्री नरेंद्र मोदी",
-                nameEng: "Shri Narendra Modi",
-                titleHindi: "माननीय प्रधानमंत्री",
-                titleEng: "Hon'ble Prime Minister of India",
+                name: "Shri Narendra Modi",
+                title: "Hon'ble Prime Minister of India",
                 initials: "NM",
                 color: "#138808",
-                imgUrl: "/authorities/pm.svg",
+                imgUrl: "/authorities/Narendra modi ji.jpeg",
                 badge: "🇮🇳",
               },
               {
-                nameHindi: "जस्टिस सूर्य कांत",
-                nameEng: "Justice Surya Kant",
-                titleHindi: "माननीय मुख्य न्यायाधीश",
-                titleEng: "Chief Justice of India",
+                name: "Justice Surya Kant",
+                title: "Chief Justice of India",
                 initials: "SK",
                 color: "#c5a880",
-                imgUrl: "/authorities/cji.svg",
+                imgUrl: "/authorities/CJI Surya kant ji.jpeg",
                 badge: "⚖️",
               },
               {
-                nameHindi: "श्री अमित शाह",
-                nameEng: "Shri Amit Shah",
-                titleHindi: "माननीय गृह मंत्री",
-                titleEng: "Hon'ble Home Minister of India",
+                name: "Shri Amit Shah",
+                title: "Hon'ble Home Minister of India",
                 initials: "AS",
                 color: "#60a5fa",
-                imgUrl: "/authorities/hm.svg",
+                imgUrl: "/authorities/Amit Shah ji.jpeg",
                 badge: "🛡️",
               },
             ].map((person, idx) => (
@@ -566,7 +558,7 @@ export default function Home() {
                   />
                   <img
                     src={person.imgUrl}
-                    alt={person.nameEng}
+                    alt={person.name}
                     className="w-full h-full object-cover object-top"
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
@@ -585,44 +577,34 @@ export default function Home() {
                 </div>
 
                 {/* Badge */}
-                <span className="text-base sm:text-xl mb-1 sm:mb-2">{person.badge}</span>
+                <span className="text-base sm:text-xl mb-2">{person.badge}</span>
 
-                {/* Hindi Name */}
-                <h3 className="text-white font-extrabold text-[11px] sm:text-sm leading-tight mb-0.5 font-serif">
-                  {person.nameHindi}
-                </h3>
-
-                {/* English Name */}
-                <p className="text-blue-200/70 text-[9px] sm:text-[11px] font-semibold mb-2">
-                  {person.nameEng}
+                {/* Title — shown first, bold colored */}
+                <p
+                  className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wide leading-snug mb-1"
+                  style={{ color: person.color }}
+                >
+                  {person.title}
                 </p>
 
                 {/* Divider */}
                 <div
-                  className="w-8 h-px mb-2 rounded-full"
+                  className="w-10 h-px mb-2 rounded-full"
                   style={{ background: `linear-gradient(90deg, transparent, ${person.color}, transparent)` }}
                 />
 
-                {/* Hindi Title */}
-                <p
-                  className="text-[10px] sm:text-xs font-bold mb-0.5"
-                  style={{ color: person.color }}
-                >
-                  {person.titleHindi}
-                </p>
-
-                {/* English Title */}
-                <p className="text-white/50 text-[8px] sm:text-[10px] font-medium leading-tight">
-                  {person.titleEng}
-                </p>
+                {/* Name — below title */}
+                <h3 className="text-white font-bold text-[11px] sm:text-sm leading-tight">
+                  {person.name}
+                </h3>
               </div>
             ))}
           </div>
 
-          {/* Bottom Satyamev Jayate */}
+          {/* Bottom Satyameva Jayate */}
           <div className="relative z-10 text-center mt-8">
             <p className="text-[#c5a880]/60 text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase">
-              सत्यमेव जयते &nbsp;•&nbsp; Satyameva Jayate
+              ✦ &nbsp; Satyameva Jayate &nbsp; ✦
             </p>
           </div>
         </section>
