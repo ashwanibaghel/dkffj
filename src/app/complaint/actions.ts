@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getComplaintSubmittedTemplate } from "@/services/email/templates";
+import { sanitizeInput } from "@/lib/sanitize";
 
 export async function submitComplaint(prevData: any, formData: FormData) {
   const cookieStore = await cookies();
@@ -17,17 +18,17 @@ export async function submitComplaint(prevData: any, formData: FormData) {
   }
 
   // Extract Form Fields
-  const name = formData.get("name") as string;
-  const fatherName = formData.get("fatherName") as string;
-  const gender = formData.get("gender") as string;
-  const country = (formData.get("country") as string) || "India";
-  const mobile = formData.get("mobile") as string;
-  const email = formData.get("email") as string || null;
-  const address = formData.get("address") as string;
-  const state = formData.get("state") as string;
-  const district = formData.get("district") as string;
-  const policeStation = formData.get("policeStation") as string;
-  const details = formData.get("details") as string;
+  const name = sanitizeInput(formData.get("name") as string);
+  const fatherName = sanitizeInput(formData.get("fatherName") as string);
+  const gender = sanitizeInput(formData.get("gender") as string);
+  const country = sanitizeInput((formData.get("country") as string) || "India");
+  const mobile = sanitizeInput(formData.get("mobile") as string);
+  const email = sanitizeInput(formData.get("email") as string || null);
+  const address = sanitizeInput(formData.get("address") as string);
+  const state = sanitizeInput(formData.get("state") as string);
+  const district = sanitizeInput(formData.get("district") as string);
+  const policeStation = sanitizeInput(formData.get("policeStation") as string);
+  const details = sanitizeInput(formData.get("details") as string);
 
   // Validate fields
   if (!name || !fatherName || !mobile || !address || !state || !district || !policeStation || !details) {

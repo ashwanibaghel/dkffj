@@ -3,6 +3,7 @@
 import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { paymentServiceInstance } from "@/lib/payment/service";
+import { sanitizeInput } from "@/lib/sanitize";
 
 const prisma = new PrismaClient();
 
@@ -13,12 +14,12 @@ export interface DonationSubmissionResult {
 }
 
 export async function submitDonation(formData: FormData): Promise<DonationSubmissionResult> {
-  const donorName = formData.get("donorName") as string;
-  const donorEmail = formData.get("donorEmail") as string;
-  const donorMobile = formData.get("donorMobile") as string;
-  const donorAddress = formData.get("donorAddress") as string;
-  const amountStr = formData.get("amount") as string;
-  const purpose = formData.get("purpose") as string;
+  const donorName = sanitizeInput(formData.get("donorName") as string);
+  const donorEmail = sanitizeInput(formData.get("donorEmail") as string);
+  const donorMobile = sanitizeInput(formData.get("donorMobile") as string);
+  const donorAddress = sanitizeInput(formData.get("donorAddress") as string);
+  const amountStr = sanitizeInput(formData.get("amount") as string);
+  const purpose = sanitizeInput(formData.get("purpose") as string);
 
   if (!donorName || !donorEmail || !donorMobile || !donorAddress || !amountStr || !purpose) {
     return { success: false, error: "All fields are required." };

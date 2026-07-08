@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getMembershipVerificationTemplate, getMembershipReceiptTemplate } from "@/services/email/templates";
 import { paymentServiceInstance } from "@/lib/payment/service";
+import { sanitizeInput } from "@/lib/sanitize";
 
 // 1. Generate and Send OTP
 export async function sendMembershipOtp(mobile: string, email: string) {
@@ -109,11 +110,11 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   const supabase = createClient(cookieStore);
 
   // Extract authentication inputs
-  const email = formData.get("email") as string;
-  const mobile = formData.get("mobile") as string;
+  const email = sanitizeInput(formData.get("email") as string);
+  const mobile = sanitizeInput(formData.get("mobile") as string);
   const password = formData.get("password") as string;
-  const fullName = formData.get("fullName") as string;
-  const otpCode = formData.get("otpCode") as string;
+  const fullName = sanitizeInput(formData.get("fullName") as string);
+  const otpCode = sanitizeInput(formData.get("otpCode") as string);
 
   // Validate OTP was verified
   const now = new Date().toISOString();
@@ -163,20 +164,20 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   }
 
   // Extract Form Fields
-  const fatherName = formData.get("fatherName") as string;
-  const gender = formData.get("gender") as string;
-  const dob = formData.get("dob") as string;
-  const country = (formData.get("country") as string) || "India";
-  const whatsapp = formData.get("whatsapp") as string;
-  const address = formData.get("address") as string;
-  const district = formData.get("district") as string;
-  const state = formData.get("state") as string;
-  const pincode = formData.get("pincode") as string;
-  const education = formData.get("education") as string;
-  const profession = formData.get("profession") as string;
-  const workingArea = formData.get("workingArea") as string;
-  const designation = formData.get("designation") as string;
-  const policeStation = formData.get("policeStation") as string;
+  const fatherName = sanitizeInput(formData.get("fatherName") as string);
+  const gender = sanitizeInput(formData.get("gender") as string);
+  const dob = sanitizeInput(formData.get("dob") as string);
+  const country = sanitizeInput((formData.get("country") as string) || "India");
+  const whatsapp = sanitizeInput(formData.get("whatsapp") as string);
+  const address = sanitizeInput(formData.get("address") as string);
+  const district = sanitizeInput(formData.get("district") as string);
+  const state = sanitizeInput(formData.get("state") as string);
+  const pincode = sanitizeInput(formData.get("pincode") as string);
+  const education = sanitizeInput(formData.get("education") as string);
+  const profession = sanitizeInput(formData.get("profession") as string);
+  const workingArea = sanitizeInput(formData.get("workingArea") as string);
+  const designation = sanitizeInput(formData.get("designation") as string);
+  const policeStation = sanitizeInput(formData.get("policeStation") as string);
 
   // Extract Upload Files
   const photo = formData.get("photo") as File;
