@@ -9,6 +9,7 @@ import { getActiveCourses } from "@/app/courses/actions";
 import { getHomeLeaders, getHomeNews } from "@/app/actions/home";
 import DocumentsFilter from "@/components/DocumentsFilter";
 import CourseCard from "@/app/courses/CourseCard";
+import InquiryFormClient from "@/components/InquiryFormClient";
 import { 
   Shield, 
   FileText, 
@@ -1046,53 +1047,16 @@ export default function Home() {
         <section id="contact" className="py-12 md:py-24 px-6 bg-white border-t border-sky-100">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-16 items-start">
             
-            {/* Left Contact Form */}
+            {/* Left — Inquiry / Contact Form */}
             <div className="lg:col-span-7 bg-[#f0f7ff] p-8 md:p-10 rounded-3xl border border-sky-100/80 shadow-sm flex flex-col gap-6">
               <div>
-                <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest font-sans">Submit Grievance</span>
-                <h3 className="text-2xl font-bold font-serif text-slate-900 mt-1">File Public Complaint / Grievance</h3>
-                <p className="text-xs text-slate-500 mt-1">Provide clear inputs below. Our active human rights desk will review and assign support coordinators.</p>
+                <span className="text-[10px] text-[#1565C0] font-extrabold uppercase tracking-widest font-sans">Get In Touch</span>
+                <h3 className="text-2xl font-bold font-serif text-slate-900 mt-1">Contact / General Inquiry</h3>
+                <p className="text-xs text-slate-500 mt-1">Fill in the details below and our team will respond within 24–48 hours. You will also receive a confirmation on your email.</p>
               </div>
 
-              <form className="flex flex-col gap-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Full Name *</label>
-                    <input type="text" required placeholder="e.g. Suresh Verma" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
-                  </div>
-                  <div className="flex flex-col gap-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Mobile No. *</label>
-                    <input type="text" required placeholder="e.g. 9876543210" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Email Address</label>
-                    <input type="email" placeholder="e.g. suresh.verma@gmail.com" className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none" />
-                  </div>
-                  <div className="flex flex-col gap-1.5 text-left">
-                    <label className="text-[10px] font-bold uppercase text-slate-500">Grievance Type *</label>
-                    <select required className="bg-white border border-sky-100 focus:border-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none">
-                      <option>General Legal Inquiry</option>
-                      <option>Human Rights Infringement</option>
-                      <option>RTI Drafting Request</option>
-                      <option>Membership Query</option>
-                      <option>Grievance / Public complaint</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5 text-left">
-                  <label className="text-[10px] font-bold uppercase text-slate-500">Details / Complaint Text *</label>
-                  <textarea required rows={4} placeholder="State your problem clearly with landmarks, dates, and names of officials involved if applicable..." className="bg-white border border-sky-100 focus:border-[#1565C0] focus:ring-1 focus:ring-[#1565C0] text-xs px-4 py-3 rounded-lg outline-none resize-none"></textarea>
-                </div>
-
-                {/* Submitting Text Improved */}
-                <button type="submit" className="bg-[#1565C0] hover:bg-[#0D47A1] text-white font-bold text-xs uppercase tracking-widest py-4 rounded-lg mt-2 transition-all active:scale-95 shadow-[0_4px_12px_rgba(0, 28, 85,0.15)] cursor-pointer">
-                  Submit Complaint
-                </button>
-              </form>
+              {/* Dynamic Inquiry Form — saves to DB + sends emails */}
+              <InquiryFormClient />
             </div>
 
             {/* Right Contact Info Details */}
