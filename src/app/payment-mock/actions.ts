@@ -5,9 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { paymentServiceInstance } from "@/lib/payment/service";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getMembershipReceiptTemplate, getCourseRegistrationReceiptTemplate } from "@/services/email/templates";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function verifyAndCompletePayment(transactionId: string) {
   if (!transactionId) {

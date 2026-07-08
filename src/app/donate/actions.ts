@@ -1,11 +1,9 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { paymentServiceInstance } from "@/lib/payment/service";
 import { sanitizeInput } from "@/lib/sanitize";
-
-const prisma = new PrismaClient();
 
 export interface DonationSubmissionResult {
   success: boolean;

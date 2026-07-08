@@ -5,11 +5,9 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getMembershipReceiptTemplate, getCourseRegistrationReceiptTemplate } from "@/services/email/templates";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 import { verifyAdmin } from "../auth";
-
-const prisma = new PrismaClient();
 
 export async function manuallyApprovePayment(paymentId: string) {
   const isAdmin = await verifyAdmin();

@@ -70,8 +70,7 @@ export async function GET(req: NextRequest) {
         }
       }
     } else if (payment.donation_id) {
-      const { PrismaClient } = await import("@prisma/client");
-      const prismaLocal = new PrismaClient();
+      const prismaLocal = (await import("@/lib/prisma")).default;
       const donation = await prismaLocal.donations.findUnique({
         where: { id: payment.donation_id }
       });
@@ -181,8 +180,7 @@ export async function GET(req: NextRequest) {
           console.error("Admin notification error (membership bypass):", adminErr);
         }
       } else if (payment.donation_id) {
-        const { PrismaClient } = await import("@prisma/client");
-        const prismaLocal = new PrismaClient();
+        const prismaLocal = (await import("@/lib/prisma")).default;
         await prismaLocal.donations.update({
           where: { id: payment.donation_id },
           data: {

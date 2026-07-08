@@ -22,55 +22,40 @@ export default async function AdminDashboardPage() {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  // 1. Fetch Stats Aggregates
-  const { count: totalMembers } = await supabase
-    .from("memberships")
-    .select("*", { count: "exact", head: true });
+  // 1. Fetch Stats Aggregates & Recent Lists in Parallel (Promise.all)
+  const [
+    totalMembersRes,
+    pendingMembersRes,
+    totalComplaintsRes,
+    activeComplaintsRes,
+    totalCoursesRes,
+    totalEnrollmentsRes,
+    paymentDataRes,
+    recentComplaintsRes,
+    recentMembersRes
+  ] = await Promise.all([
+    supabase.from("memberships").select("*", { count: "exact", head: true }),
+    supabase.from("memberships").select("*", { count: "exact", head: true }).eq("status", "PENDING"),
+    supabase.from("complaints").select("*", { count: "exact", head: true }),
+    supabase.from("complaints").select("*", { count: "exact", head: true }).in("status", ["SUBMITTED", "UNDER_INVESTIGATION", "IN_PROGRESS"]),
+    supabase.from("courses").select("*", { count: "exact", head: true }).eq("is_active", true),
+    supabase.from("course_registrations").select("*", { count: "exact", head: true }),
+    supabase.from("payments").select("amount").eq("status", "COMPLETED"),
+    supabase.from("complaints").select("id, complaint_no, name, status, created_at").order("created_at", { ascending: false }).limit(5),
+    supabase.from("memberships").select("id, ack_no, membership_no, full_name, status, created_at").order("created_at", { ascending: false }).limit(5)
+  ]);
 
-  const { count: pendingMembers } = await supabase
-    .from("memberships")
-    .select("*", { count: "exact", head: true })
-    .eq("status", "PENDING");
+  const totalMembers = totalMembersRes.count || 0;
+  const pendingMembers = pendingMembersRes.count || 0;
+  const totalComplaints = totalComplaintsRes.count || 0;
+  const activeComplaints = activeComplaintsRes.count || 0;
+  const totalCourses = totalCoursesRes.count || 0;
+  const totalEnrollments = totalEnrollmentsRes.count || 0;
+  const paymentData = paymentDataRes.data || [];
+  const recentComplaints = recentComplaintsRes.data || [];
+  const recentMembers = recentMembersRes.data || [];
 
-  const { count: totalComplaints } = await supabase
-    .from("complaints")
-    .select("*", { count: "exact", head: true });
-
-  const { count: activeComplaints } = await supabase
-    .from("complaints")
-    .select("*", { count: "exact", head: true })
-    .in("status", ["SUBMITTED", "UNDER_INVESTIGATION", "IN_PROGRESS"]);
-
-  const { count: totalCourses } = await supabase
-    .from("courses")
-    .select("*", { count: "exact", head: true })
-    .eq("is_active", true);
-
-  const { count: totalEnrollments } = await supabase
-    .from("course_registrations")
-    .select("*", { count: "exact", head: true });
-
-  // 2. Fetch completed payment total
-  const { data: paymentData } = await supabase
-    .from("payments")
-    .select("amount")
-    .eq("status", "COMPLETED");
-  
-  const totalRevenue = paymentData?.reduce((acc, pay) => acc + Number(pay.amount), 0) || 0;
-
-  // 3. Fetch 5 Recent Complaints
-  const { data: recentComplaints } = await supabase
-    .from("complaints")
-    .select("id, complaint_no, name, status, created_at")
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  // 4. Fetch 5 Recent Memberships
-  const { data: recentMembers } = await supabase
-    .from("memberships")
-    .select("id, ack_no, membership_no, full_name, status, created_at")
-    .order("created_at", { ascending: false })
-    .limit(5);
+  const totalRevenue = paymentData.reduce((acc, pay) => acc + Number(pay.amount), 0);
 
   // 5. Fetch logs for Activity Timeline
   const [membersLogs, complaintsLogs, courseLogs, certLogs, payLogs] = await Promise.all([

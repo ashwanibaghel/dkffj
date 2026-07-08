@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 // Ensure this API route is dynamically processed and bypasses Vercel static cache
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const prisma = new PrismaClient();
 
   try {
     console.log("Starting DB connection inside temporary API route...");

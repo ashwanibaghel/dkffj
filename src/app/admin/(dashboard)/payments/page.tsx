@@ -1,9 +1,7 @@
 import React from "react";
 import { CreditCard, CheckCircle2, Clock } from "lucide-react";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import PaymentsTable from "./PaymentsTable";
-
-const prisma = new PrismaClient();
 
 export const dynamic = "force-dynamic";
 

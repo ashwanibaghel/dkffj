@@ -16,10 +16,8 @@ import {
   getMembershipReceiptTemplate,
   getCourseRegistrationReceiptTemplate,
 } from "@/services/email/templates";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { createHmac } from "crypto";
-
-const prisma = new PrismaClient();
 
 /** Verify HMAC signature from PhonePe webhook */
 function verifyWebhookSignature(rawBody: string, authHeader: string | null): boolean {
