@@ -79,6 +79,98 @@ export default function Home() {
       {/* Top Credentials Banner — scrolls away naturally, NO sticky */}
       <div className="bg-[#1565C0] text-white border-b border-white/20 relative z-40">
 
+        {/* ── Top Utility Social Bar ── */}
+        <div className="bg-[#0A2E66] border-b border-white/10 px-4 sm:px-6 py-2 text-xs">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            {/* Left: Contact Info */}
+            <div className="flex items-center gap-4 text-white/95 text-[11px] font-semibold tracking-wide">
+              <a 
+                href="https://wa.me/919871219033" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-1.5 hover:text-green-400 transition-colors"
+              >
+                <svg className="w-4 h-4 fill-current text-green-400" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
+                </svg>
+                <span>WhatsApp Support: +91 98712 19033</span>
+              </a>
+              <span className="text-white/30 hidden sm:inline">|</span>
+              <span className="hidden sm:inline text-yellow-300">Govt. Registered NGO</span>
+            </div>
+
+            {/* Right: Social Icons Row */}
+            <div className="flex items-center gap-3">
+              <span className="text-white/60 text-[10px] uppercase font-bold tracking-wider hidden md:inline">Connect With Us:</span>
+              
+              {/* WhatsApp Channel */}
+              <a 
+                href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="WhatsApp Channel"
+                className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-green-500 hover:text-white hover:scale-110 transition-all text-white/90"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
+                </svg>
+              </a>
+
+              {/* Telegram */}
+              <a 
+                href="https://t.me/dkfoundationoffreedom" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Telegram Channel"
+                className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0088cc] hover:text-white hover:scale-110 transition-all text-white/90"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.28-.02-.12.02-1.99 1.25-5.61 3.7-.53.37-1 .55-1.42.54-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.74-3.33 3.68-1.52 4.44-1.78 4.94-1.79.11 0 .36.03.52.16.14.11.18.27.2.42.02.13.01.27-.01.37z"/>
+                </svg>
+              </a>
+
+              {/* YouTube */}
+              <a 
+                href="https://www.youtube.com/@dkffjorg" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="YouTube Channel"
+                className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#FF0000] hover:text-white hover:scale-110 transition-all text-white/90"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </a>
+
+              {/* Instagram */}
+              <a 
+                href="https://www.instagram.com/dkffjorg?igsh=eDFlb3ZlbHM0Ymhi" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Instagram"
+                className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#E1306C] hover:text-white hover:scale-110 transition-all text-white/90"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                </svg>
+              </a>
+
+              {/* LinkedIn */}
+              <a 
+                href="https://www.linkedin.com/in/danish-khan-0134b687?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="LinkedIn"
+                className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0077B5] hover:text-white hover:scale-110 transition-all text-white/90"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
         {/* ── Top Nav Strip ── sits at the very top like a header bar */}
         {/* ── Top Nav Strip ── sits at the very top like a header bar */}
         <div className="border-b border-white/20 px-4 sm:px-6 py-2.5 bg-[#0D47A1]">
@@ -1148,6 +1240,73 @@ export default function Home() {
                 <ChevronRight className="w-4 h-4" />
               </Link>
             </nav>
+
+            {/* Social Links Grid in Mobile Drawer */}
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <span className="text-[10px] uppercase font-black tracking-widest text-white/50 block mb-3">Connect With Us</span>
+              <div className="grid grid-cols-5 gap-2">
+                
+                {/* WhatsApp Channel */}
+                <a 
+                  href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-green-500 hover:text-white transition-all text-white/90"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
+                  </svg>
+                </a>
+
+                {/* Telegram */}
+                <a 
+                  href="https://t.me/dkfoundationoffreedom" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#0088cc] hover:text-white transition-all text-white/90"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.28-.02-.12.02-1.99 1.25-5.61 3.7-.53.37-1 .55-1.42.54-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.74-3.33 3.68-1.52 4.44-1.78 4.94-1.79.11 0 .36.03.52.16.14.11.18.27.2.42.02.13.01.27-.01.37z"/>
+                  </svg>
+                </a>
+
+                {/* YouTube */}
+                <a 
+                  href="https://www.youtube.com/@dkffjorg" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#FF0000] hover:text-white transition-all text-white/90"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                </a>
+
+                {/* Instagram */}
+                <a 
+                  href="https://www.instagram.com/dkffjorg?igsh=eDFlb3ZlbHM0Ymhi" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#E1306C] hover:text-white transition-all text-white/90"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                  </svg>
+                </a>
+
+                {/* LinkedIn */}
+                <a 
+                  href="https://www.linkedin.com/in/danish-khan-0134b687?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#0077B5] hover:text-white transition-all text-white/90"
+                >
+                  <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Menu Footer */}
