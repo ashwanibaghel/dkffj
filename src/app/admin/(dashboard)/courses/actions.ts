@@ -2,9 +2,15 @@
 
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "../auth";
 
 // 1. Fetch all courses (active + inactive)
 export async function getAdminCourses() {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return [];
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 

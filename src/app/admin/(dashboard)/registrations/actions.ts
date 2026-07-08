@@ -6,9 +6,15 @@ import { sendTransactionalEmail } from "@/services/email/service";
 import { getCertificateIssuedTemplate } from "@/services/email/templates";
 import PDFDocument from "pdfkit";
 import path from "path";
+import { verifyAdmin } from "../auth";
 
 // 1. Fetch registrations list
 export async function getRegistrations(statusFilter?: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return [];
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -45,6 +51,11 @@ export async function getRegistrations(statusFilter?: string) {
 
 // 1b. Fetch student profile details (e.g. father's name from memberships)
 export async function getStudentProfile(userId: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return null;
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 

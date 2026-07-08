@@ -7,9 +7,16 @@ import { sendTransactionalEmail } from "@/services/email/service";
 import { getMembershipReceiptTemplate, getCourseRegistrationReceiptTemplate } from "@/services/email/templates";
 import { PrismaClient } from "@prisma/client";
 
+import { verifyAdmin } from "../auth";
+
 const prisma = new PrismaClient();
 
 export async function manuallyApprovePayment(paymentId: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Access Denied." };
+  }
+
   if (!paymentId) {
     return { success: false, error: "Payment ID is required." };
   }

@@ -2,10 +2,16 @@
 
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
 
 // 1. Fetch appreciation applications list
 export async function getAppreciationApplications(statusFilter?: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return [];
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
