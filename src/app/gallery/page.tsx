@@ -90,7 +90,7 @@ export default async function GalleryPage() {
       </div>
 
       {/* Header */}
-      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md z-10 sticky top-0 shadow-sm">
+      <header className="border-b border-slate-200/60 bg-white/90 backdrop-blur-md z-[60] sticky top-0 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#1565C0]/10 to-[#C00000]/5 border border-slate-200 flex items-center justify-center">

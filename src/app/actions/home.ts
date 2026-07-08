@@ -115,6 +115,65 @@ export async function getHomeNews() {
   ];
 }
 
+// 2b. Fetch ALL News for the dedicated /news page (no limit)
+export async function getAllNews() {
+  try {
+    const dbNews = await prisma.news.findMany({
+      where: {
+        is_published: true
+      },
+      orderBy: {
+        created_at: "desc"
+      }
+    });
+
+    if (dbNews.length > 0) {
+      return dbNews.map((n) => ({
+        id: n.id,
+        title: n.title,
+        content: n.content,
+        image_url: n.image_url || "",
+        category: n.category || "General",
+        date: new Date(n.created_at).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        })
+      }));
+    }
+  } catch (error) {
+    console.error("Error fetching all news from database:", error);
+  }
+
+  // Fallback to static news (all items)
+  return [
+    {
+      id: "1",
+      title: "डीके फाउंडेशन ऑफ फ़्रीडम एंड जस्टिस नियमावली",
+      content: "Foundation parameters defining executive operations, local RTI coordinator guidelines, and social relief camp registrations.",
+      image_url: "",
+      category: "Guidelines",
+      date: "September 2024"
+    },
+    {
+      id: "2",
+      title: "मानवधिकार हनन को रोकना देश के हर नागरिक का प्रथम कर्तव्य है",
+      content: "CEO Vipin Sharma's address to the legal advocacy cell on helping unjustly detained youth and lodging standard writs of Habeas Corpus.",
+      image_url: "",
+      category: "Address",
+      date: "August 2024"
+    },
+    {
+      id: "3",
+      title: "National Executive Meeting at Ajmer Guest House",
+      content: "Director Danish Khan and National President Wasim Qureshi finalize structural deployment parameters for standard member certificates.",
+      image_url: "",
+      category: "Meeting",
+      date: "June 2025"
+    }
+  ];
+}
+
 // 3. Fetch Official Documents for Homepage
 export async function getHomeDocuments() {
   try {
