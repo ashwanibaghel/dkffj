@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import fs from "fs";
 import path from "path";
+import prisma from "@/lib/prisma";
 import { ArrowLeft, PlayCircle, Image as ImageIcon, Video, Download } from "lucide-react";
 import GalleryTabsClient from "./GalleryTabsClient";
 
@@ -50,6 +51,36 @@ export default async function GalleryPage() {
     }
   ];
 
+  // 1. Fetch Dynamic Photos
+  let dbPhotos: any[] = [];
+  try {
+    dbPhotos = await prisma.galleryItem.findMany({
+      where: { isActive: true },
+      orderBy: { created_at: "desc" }
+    });
+  } catch (err) {
+    console.error("Error fetching db photos:", err);
+  }
+
+  const finalPhotos = dbPhotos.length > 0 
+    ? dbPhotos.map(p => p.imageUrl)
+    : photoFiles;
+
+  // 2. Fetch Dynamic Videos
+  let dbVideos: any[] = [];
+  try {
+    dbVideos = await prisma.videoItem.findMany({
+      where: { isActive: true },
+      orderBy: { created_at: "desc" }
+    });
+  } catch (err) {
+    console.error("Error fetching db videos:", err);
+  }
+
+  const finalVideos = dbVideos.length > 0
+    ? dbVideos.map(v => ({ id: v.youtubeId, title: v.title, duration: v.duration, date: v.date }))
+    : videosList;
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
       {/* Background decoration */}
@@ -90,7 +121,7 @@ export default async function GalleryPage() {
         </div>
 
         {/* Client-side layout with separate photo and video library tabs */}
-        <GalleryTabsClient photoUrls={photoFiles} videos={videosList} />
+        <GalleryTabsClient photoUrls={finalPhotos} videos={finalVideos} />
 
       </main>
 

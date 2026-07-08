@@ -105,6 +105,7 @@ export default function AdminNavWrapper({
     { href: "/admin/news", label: "News/Blogs Desk", icon: Newspaper },
     { href: "/admin/leaders", label: "Executive Council", icon: Users },
     { href: "/admin/banners", label: "Slider Banners", icon: ImageIcon },
+    { href: "/admin/gallery", label: "Media Gallery", icon: ImageIcon },
     { href: "/admin/settings", label: "Portal Settings", icon: Settings },
   ];
 

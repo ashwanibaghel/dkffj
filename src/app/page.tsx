@@ -899,12 +899,70 @@ export default function Home() {
         <section id="documents" className="py-12 md:py-24 px-6 bg-[#f0f7ff] border-t border-sky-100">
           <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
-              <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest">Official Downloads</span>
-              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Registration Documents & Tax Approvals</h2>
+              <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest">Official Credentials</span>
+              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Verified NGO Accreditation & Registrations</h2>
               <div className="h-1 w-16 bg-[#1565C0] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            <DocumentsFilter />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Card 1 */}
+              <div className="bg-white p-8 rounded-3xl border border-sky-100 shadow-sm flex flex-col justify-between gap-6 hover:shadow-md hover:border-[#1565C0]/20 transition-all duration-300">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#1565C0]">
+                    <Shield className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-base font-bold text-slate-800 font-serif">MCA Section 8 Registration</h4>
+                  <p className="text-slate-500 text-xs leading-relaxed font-light">
+                    Registered under the Ministry of Corporate Affairs, Government of India as a non-profit organization dedicated to legal defense.
+                  </p>
+                </div>
+                <div className="text-[10px] font-mono text-slate-400 font-bold bg-slate-50 py-1.5 px-3 rounded-lg self-start">
+                  CIN: U88900UP2023NPL185611
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-white p-8 rounded-3xl border border-sky-100 shadow-sm flex flex-col justify-between gap-6 hover:shadow-md hover:border-[#C00000]/15 transition-all duration-300">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-[#C00000]">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-base font-bold text-slate-800 font-serif">NITI Aayog Darpan Portal</h4>
+                  <p className="text-slate-500 text-xs leading-relaxed font-light">
+                    Listed on the NGO Darpan directory under NITI Aayog to collaborate with government ministries and developmental policies.
+                  </p>
+                </div>
+                <div className="text-[10px] font-mono text-slate-400 font-bold bg-slate-50 py-1.5 px-3 rounded-lg self-start">
+                  Unique ID: UP/2023/0351342
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white p-8 rounded-3xl border border-sky-100 shadow-sm flex flex-col justify-between gap-6 hover:shadow-md hover:border-[#1565C0]/20 transition-all duration-300">
+                <div className="space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#1565C0]">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-base font-bold text-slate-800 font-serif">Income Tax 12A & 80G</h4>
+                  <p className="text-slate-500 text-xs leading-relaxed font-light">
+                    Granted tax exemption certifications, providing tax savings and rebates for all contributions under the Income Tax Act.
+                  </p>
+                </div>
+                <div className="text-[10px] font-mono text-slate-400 font-bold bg-slate-50 py-1.5 px-3 rounded-lg self-start">
+                  Status: Approved Exempted
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center mt-4">
+              <Link
+                href="/documents"
+                className="bg-[#1565C0] hover:bg-[#0D47A1] text-white text-[11px] font-black uppercase tracking-widest px-6 py-3.5 rounded-xl transition-all shadow-[0_4px_12px_rgba(21,101,192,0.25)] flex items-center gap-1.5"
+              >
+                <span>View & Download Legal Certificates</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -953,45 +1011,46 @@ export default function Home() {
 
         {/* 9. Video Gallery Section */}
         <section id="video-gallery" className="py-12 md:py-24 px-6 bg-[#f0f7ff] border-t border-sky-100">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-12">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest font-sans">Press Briefings</span>
               <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Official Video Library</h2>
               <div className="h-1 w-16 bg-[#1565C0] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            {/* Video Gallery Carousel */}
-            <div className="flex overflow-x-auto md:grid md:grid-cols-2 gap-6 pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory scrollbar-thin">
-              <div className="w-[85vw] sm:w-[480px] md:w-full shrink-0 md:shrink snap-start flex flex-col gap-3 group">
-                <div className="rounded-2xl overflow-hidden border border-sky-100/80 shadow-md aspect-video bg-black relative">
-                  <iframe 
-                    className="w-full h-full"
-                    src="https://www.youtube.com/embed/hjLMgfZ_Wp4?si=AK0l6ivlxAr0QeMD" 
-                    title="DKFFJ Media Broadcast" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowFullScreen
-                  ></iframe>
+            <div className="max-w-4xl mx-auto w-full bg-white rounded-3xl overflow-hidden border border-sky-100 shadow-sm p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center">
+              <div className="w-full md:w-1/2 aspect-video bg-slate-950 rounded-2xl overflow-hidden relative group cursor-pointer shadow-md">
+                <img
+                  src="https://img.youtube.com/vi/hjLMgfZ_Wp4/hqdefault.jpg"
+                  alt="DKFFJ Media Coverage"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-all">
+                  <div className="w-14 h-14 rounded-full bg-[#C00000] hover:bg-[#990000] text-white flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110">
+                    <PlayCircle className="w-6 h-6 fill-current" />
+                  </div>
                 </div>
-                <h4 className="text-sm font-bold text-slate-800 font-serif px-1 mt-1 flex items-center gap-2">
-                  <PlayCircle className="w-4 h-4 text-[#C00000]" /> Media Coverage & Ground Report
-                </h4>
               </div>
 
-              <div className="w-[85vw] sm:w-[480px] md:w-full shrink-0 md:shrink snap-start flex flex-col gap-3 group">
-                <div className="rounded-2xl overflow-hidden border border-sky-100/80 shadow-md aspect-video bg-black relative">
-                  <iframe 
-                    className="w-full h-full"
-                    src="https://www.youtube.com/embed/dT87hA0fhbM?si=7xM2EQASk1OLY1R2" 
-                    title="DKFFJ Ground Report" 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowFullScreen
-                  ></iframe>
-                </div>
-                <h4 className="text-sm font-bold text-slate-800 font-serif px-1 mt-1 flex items-center gap-2">
-                  <PlayCircle className="w-4 h-4 text-[#C00000]" /> Executive Council Address
+              <div className="w-full md:w-1/2 space-y-4 text-left">
+                <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded text-[#C00000] bg-[#C00000]/10 uppercase tracking-wider">
+                  Featured Broadcast
+                </span>
+                <h4 className="text-lg font-bold text-slate-800 font-serif leading-snug">
+                  DKFFJ Media Broadcast & Press Grievance Address
                 </h4>
+                <p className="text-slate-500 text-xs leading-relaxed font-light">
+                  Watch official campaign news, RTI exposure briefings, and executive council addresses by Director Danish Khan regarding public grievances and constitution protection.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/gallery"
+                    className="bg-[#C00000] hover:bg-[#990000] text-white text-[11px] font-black uppercase tracking-widest px-5 py-3 rounded-xl transition-all shadow-[0_4px_12px_rgba(192,0,0,0.2)] inline-flex items-center gap-1.5"
+                  >
+                    <span>Enter Video Gallery Portal</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
