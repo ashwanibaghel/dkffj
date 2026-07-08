@@ -481,18 +481,12 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#138808] rounded-r-full" />
             </div>
 
-            <p className="text-[#c5a880] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.35em] mb-2">
-              Constitutional &amp; Administrative Authorities of India
-            </p>
-            <h2 className="text-white font-black text-2xl sm:text-3xl md:text-4xl leading-tight">
-              Guardians of India&apos;s Constitution &amp; Democracy
+            <h2 className="text-[#c5a880] text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-widest mb-4">
+              Constitutional and Administrative Authorities of India
             </h2>
-            <p className="text-blue-200/60 text-xs sm:text-sm font-medium mt-2 tracking-wide">
-              We respectfully acknowledge the highest constitutional offices of the Republic of India
-            </p>
 
             {/* Divider */}
-            <div className="flex items-center justify-center gap-3 mt-5">
+            <div className="flex items-center justify-center gap-3 mt-2">
               <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#c5a880]/50" />
               <span className="text-[#c5a880] text-lg">✦</span>
               <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#c5a880]/50" />
@@ -521,7 +515,7 @@ export default function Home() {
               },
               {
                 name: "Justice Surya Kant",
-                title: "Chief Justice of India",
+                title: "Hon'ble Chief Justice of India",
                 initials: "SK",
                 color: "#c5a880",
                 imgUrl: "/authorities/CJI Surya kant ji.jpeg",
