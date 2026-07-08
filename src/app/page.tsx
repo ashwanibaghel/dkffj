@@ -83,31 +83,36 @@ export default function Home() {
 
         {/* ── Top Utility Social Bar ── */}
         <div className="bg-[#0A2E66] border-b border-white/10 px-4 sm:px-6 py-1.5 text-xs">
-          <div className="max-w-7xl mx-auto flex flex-row justify-between items-center gap-2">
-            {/* Left: WhatsApp number — hidden on mobile, shown sm+ */}
-            <a
-              href="https://wa.me/919871219033"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-1.5 text-white/90 text-[11px] font-semibold hover:text-green-400 transition-colors"
-            >
-              <svg className="w-3.5 h-3.5 fill-current text-green-400 shrink-0" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
-              </svg>
-              <span>+91 98712 19033</span>
-            </a>
+          <div className="max-w-7xl mx-auto flex flex-row justify-between items-center">
 
-            {/* Mobile left: Govt tag */}
-            <span className="sm:hidden text-yellow-300 text-[10px] font-bold tracking-wide">Govt. Registered NGO ✓</span>
+            {/* LEFT — Desktop: WhatsApp + Govt tag | Mobile: just Govt tag */}
+            <div className="flex items-center gap-4 text-white/95 text-[11px] font-semibold tracking-wide">
+              <a
+                href="https://wa.me/919871219033"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 hover:text-green-400 transition-colors"
+              >
+                <svg className="w-4 h-4 fill-current text-green-400 shrink-0" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
+                </svg>
+                {/* Desktop: full text | Mobile: just number */}
+                <span className="hidden sm:inline">WhatsApp Support: +91 98712 19033</span>
+                <span className="sm:hidden text-[10px]">+91 98712 19033</span>
+              </a>
+              <span className="text-white/30 hidden sm:inline">|</span>
+              <span className="hidden sm:inline text-yellow-300">Govt. Registered NGO</span>
+            </div>
 
-            {/* Right: Social Icons Row — always visible, compact */}
-            <div className="flex items-center gap-2">
-              
+            {/* RIGHT — Desktop: "Connect With Us:" label + icons | Mobile: just icons */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-white/60 text-[10px] uppercase font-bold tracking-wider hidden md:inline">Connect With Us:</span>
+
               {/* WhatsApp Channel */}
-              <a 
-                href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g"
+                target="_blank"
+                rel="noopener noreferrer"
                 title="WhatsApp Channel"
                 className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-green-500 hover:text-white hover:scale-110 transition-all text-white/90"
               >
@@ -117,10 +122,10 @@ export default function Home() {
               </a>
 
               {/* Telegram */}
-              <a 
-                href="https://t.me/dkfoundationoffreedom" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://t.me/dkfoundationoffreedom"
+                target="_blank"
+                rel="noopener noreferrer"
                 title="Telegram Channel"
                 className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0088cc] hover:text-white hover:scale-110 transition-all text-white/90"
               >
@@ -130,10 +135,10 @@ export default function Home() {
               </a>
 
               {/* YouTube */}
-              <a 
-                href="https://www.youtube.com/@dkffjorg" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://www.youtube.com/@dkffjorg"
+                target="_blank"
+                rel="noopener noreferrer"
                 title="YouTube Channel"
                 className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#FF0000] hover:text-white hover:scale-110 transition-all text-white/90"
               >
@@ -143,10 +148,10 @@ export default function Home() {
               </a>
 
               {/* Instagram */}
-              <a 
-                href="https://www.instagram.com/dkffjorg?igsh=eDFlb3ZlbHM0Ymhi" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://www.instagram.com/dkffjorg?igsh=eDFlb3ZlbHM0Ymhi"
+                target="_blank"
+                rel="noopener noreferrer"
                 title="Instagram"
                 className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#E1306C] hover:text-white hover:scale-110 transition-all text-white/90"
               >
@@ -156,10 +161,10 @@ export default function Home() {
               </a>
 
               {/* LinkedIn */}
-              <a 
-                href="https://www.linkedin.com/in/danish-khan-0134b687?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://www.linkedin.com/in/danish-khan-0134b687?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+                target="_blank"
+                rel="noopener noreferrer"
                 title="LinkedIn"
                 className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0077B5] hover:text-white hover:scale-110 transition-all text-white/90"
               >
@@ -170,6 +175,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+
 
         {/* ── Top Nav Strip ── sits at the very top like a header bar */}
         {/* ── Top Nav Strip ── sits at the very top like a header bar */}
