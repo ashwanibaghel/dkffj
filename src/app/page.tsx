@@ -23,6 +23,7 @@ import {
   Clock,
   Briefcase,
   ChevronRight,
+  ChevronDown,
   Gavel,
   Award,
   Globe2,
@@ -177,25 +178,38 @@ export default function Home() {
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             {/* Desktop Navigation */}
             <div className="hidden md:flex w-full justify-between items-center">
-              <nav className="flex flex-wrap gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-white/90">
+              <nav className="flex flex-wrap gap-x-7 gap-y-1.5 text-[11px] font-bold uppercase tracking-widest text-white/90 items-center">
                 <Link href="/" className="hover:text-white transition-colors">Home</Link>
                 <Link href="#about" className="hover:text-white transition-colors">About Us</Link>
                 <Link href="#services" className="hover:text-white transition-colors">Services</Link>
                 <Link href="/courses" className="hover:text-white transition-colors">Academy</Link>
                 <Link href="#documents" className="hover:text-white transition-colors">Legals</Link>
-                <Link href="#news" className="hover:text-white transition-colors">News</Link>
-                <Link href="#video-gallery" className="hover:text-white transition-colors">Gallery</Link>
                 <Link href="#contact" className="hover:text-white transition-colors">Contact</Link>
-                <Link href="/apply-appreciation" className="hover:text-white transition-colors text-yellow-300 font-extrabold">Apply Appreciation</Link>
-                <Link href="/track" className="hover:text-white transition-colors text-yellow-300 font-extrabold">Track Application</Link>
+                
+                {/* Hover Dropdown */}
+                <div className="relative group">
+                  <button className="hover:text-white transition-colors flex items-center gap-1 uppercase">
+                    <span>More</span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                  <div className="absolute top-full left-0 mt-1.5 w-48 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
+                    <Link href="#news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
+                    <Link href="#video-gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
+                    <Link href="/apply-appreciation" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Apply Appreciation</Link>
+                    <Link href="/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track Application</Link>
+                  </div>
+                </div>
+
                 <Link href="/my-account" className="hover:text-white transition-colors text-yellow-300 font-extrabold">My Account</Link>
               </nav>
-              <Link href="/apply" className="ml-2 bg-[#1565C0] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#0D47A1] transition-colors shadow-md">
-                Join Membership
-              </Link>
-              <Link href="/donate" className="ml-2 bg-[#C00000] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded hover:bg-[#990000] transition-colors shadow-md">
-                Donate Now
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/apply" className="bg-[#1565C0] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded hover:bg-[#0D47A1] transition-colors shadow-md">
+                  Join Membership
+                </Link>
+                <Link href="/donate" className="bg-[#C00000] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded hover:bg-[#990000] transition-colors shadow-md">
+                  Donate Now
+                </Link>
+              </div>
             </div>
 
             {/* Mobile Header Bar */}
@@ -281,12 +295,21 @@ export default function Home() {
             <Link href="#services" className="hover:text-[#c5a880] transition-colors">Services</Link>
             <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy</Link>
             <Link href="#documents" className="hover:text-[#c5a880] transition-colors">Legals</Link>
-            <Link href="#news" className="hover:text-[#c5a880] transition-colors">News</Link>
-            <Link href="#video-gallery" className="hover:text-[#c5a880] transition-colors">Gallery</Link>
             <Link href="#contact" className="hover:text-[#c5a880] transition-colors">Contact</Link>
-            <Link href="/apply-appreciation" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">Appreciation</Link>
-            <Link href="/track" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">Track</Link>
-            <Link href="/my-account" className="hover:text-yellow-200 text-yellow-300 font-bold transition-colors">My Account</Link>
+            
+            {/* Hover Dropdown */}
+            <div className="relative group">
+              <button className="hover:text-[#c5a880] transition-colors flex items-center gap-1 uppercase">
+                <span>More</span>
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+              <div className="absolute top-full left-0 mt-1.5 w-48 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
+                <Link href="#news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
+                <Link href="#video-gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
+                <Link href="/apply-appreciation" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Appreciation</Link>
+                <Link href="/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track</Link>
+              </div>
+            </div>
           </nav>
 
           {/* Desktop Right Buttons */}
@@ -1091,13 +1114,79 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col gap-4 items-start md:items-end text-left md:text-right">
-            <h5 className="font-bold text-slate-800 uppercase tracking-wider">Social Handles</h5>
-            <div className="flex gap-4 text-[#1565C0]">
-              <a href="https://www.facebook.com/dkffjorg" target="_blank" className="hover:text-[#0D47A1] transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.325-.593 1.325-1.324v-21.35c0-.732-.595-1.325-1.325-1.325z"/></svg>
+            <h5 className="font-bold text-slate-800 uppercase tracking-wider">Contact & Socials</h5>
+            <div className="flex flex-col gap-1.5 text-slate-500 text-[11px] md:items-end font-medium">
+              <a 
+                href="https://wa.me/919871219033" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-[#1565C0] font-bold text-[#25D366] flex items-center gap-1 hover:underline"
+              >
+                <span>WhatsApp: +91 98712 19033</span>
               </a>
-              <a href="https://twitter.com/dkfofaj" target="_blank" className="hover:text-[#0D47A1] transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+              <span>Email: info@dkffj.org</span>
+              <span>Kanpur, Uttar Pradesh, India</span>
+            </div>
+            <div className="flex gap-2.5 mt-2">
+              {/* WhatsApp Channel */}
+              <a 
+                href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="WhatsApp Channel"
+                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-all text-slate-600"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
+                </svg>
+              </a>
+              {/* Telegram */}
+              <a 
+                href="https://t.me/dkfoundationoffreedom" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Telegram Channel"
+                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#0088cc] hover:text-white flex items-center justify-center transition-all text-slate-600"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.28-.02-.12.02-1.99 1.25-5.61 3.7-.53.37-1 .55-1.42.54-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.74-3.33 3.68-1.52 4.44-1.78 4.94-1.79.11 0 .36.03.52.16.14.11.18.27.2.42.02.13.01.27-.01.37z"/>
+                </svg>
+              </a>
+              {/* YouTube */}
+              <a 
+                href="https://www.youtube.com/@dkffjorg" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="YouTube Channel"
+                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#FF0000] hover:text-white flex items-center justify-center transition-all text-slate-600"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </a>
+              {/* Instagram */}
+              <a 
+                href="https://www.instagram.com/dkffjorg?igsh=eDFlb3ZlbHM0Ymhi" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Instagram"
+                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#E1306C] hover:text-white flex items-center justify-center transition-all text-slate-600"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                </svg>
+              </a>
+              {/* LinkedIn */}
+              <a 
+                href="https://www.linkedin.com/in/danish-khan-0134b687?utm_source=share_via&utm_content=profile&utm_medium=member_android" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="LinkedIn"
+                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#0077B5] hover:text-white flex items-center justify-center transition-all text-slate-600"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
               </a>
             </div>
             <span className="text-[10px] text-slate-400 mt-2 block">
@@ -1336,6 +1425,19 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Floating Blinking WhatsApp Button */}
+      <a 
+        href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-20 md:bottom-6 right-6 z-[9999] flex items-center gap-2 bg-[#25D366] text-white font-extrabold text-xs px-4 py-2.5 rounded-full shadow-[0_8px_30px_rgba(37,211,102,0.4)] hover:bg-[#20ba59] hover:scale-105 transition-all duration-300 group border border-white/20 animate-pulse"
+        style={{ animationDuration: "2s" }}
+      >
+        <svg className="w-5 h-5 fill-current text-white" viewBox="0 0 24 24">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.863-9.858.002-2.634-1.023-5.11-2.884-6.974C16.588 1.91 14.113.882 11.48.882c-5.443 0-9.863 4.42-9.866 9.86-.001 1.762.48 3.487 1.396 4.98L2.025 21.8l6.326-1.657c-1.554 1.056-1.748 1.01-1.704 1.011zm11.724-4.593c-.307-.154-1.82-.9-2.102-1.002-.281-.102-.486-.154-.69.154-.204.307-.79.997-.97 1.202-.178.204-.358.23-.665.077-2.586-1.293-3.69-1.92-5.168-4.445-.39-.667.39-.62 1.117-2.062.123-.246.062-.46-.03-.615-.093-.154-.79-1.9-.1.97-.246.307-.486.358-.69.358-.204-.002-.435-.003-.665-.003-.23 0-.603.086-.918.43-.314.342-1.202 1.176-1.202 2.87 0 1.691 1.233 3.326 1.403 3.557.17.23 2.424 3.7 5.87 5.18 2.052.88 2.886.96 3.91.81 1.21-.18 1.82-.74 2.08-1.4.26-.66.26-1.23.18-1.35-.08-.12-.3-.22-.61-.38z"/>
+        </svg>
+        <span className="tracking-wider uppercase font-bold text-[10px]">Connect With Us</span>
+      </a>
     </div>
   );
 }
