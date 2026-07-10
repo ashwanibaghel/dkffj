@@ -13,6 +13,41 @@ export interface AdminNotification {
   link: string;
 }
 
+type CourseRelation = {
+  title?: string | null;
+};
+
+type PendingRegistrationNotification = {
+  id: string;
+  full_name: string;
+  created_at: string;
+  courses?: CourseRelation | CourseRelation[] | null;
+};
+
+type PendingMembershipNotification = {
+  id: string;
+  full_name: string;
+  created_at: string;
+};
+
+type RecentPaymentNotification = {
+  id: string;
+  amount: number | string;
+  created_at: string;
+  memberships?: { full_name?: string | null } | { full_name?: string | null }[] | null;
+  course_registrations?: {
+    full_name?: string | null;
+    courses?: CourseRelation | CourseRelation[] | null;
+  } | {
+    full_name?: string | null;
+    courses?: CourseRelation | CourseRelation[] | null;
+  }[] | null;
+};
+
+function firstRelation<T>(value: T | T[] | null | undefined): T | undefined {
+  return Array.isArray(value) ? value[0] : value || undefined;
+}
+
 export async function getAdminNotifications(): Promise<AdminNotification[]> {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) {
@@ -86,12 +121,13 @@ export async function getAdminNotifications(): Promise<AdminNotification[]> {
 
   // Map registrations
   if (pendingRegs) {
-    pendingRegs.forEach((reg: any) => {
+    (pendingRegs as PendingRegistrationNotification[]).forEach((reg) => {
+      const course = firstRelation(reg.courses);
       notifications.push({
         id: reg.id,
         type: "registration",
         title: "New Course Application",
-        description: `${reg.full_name} applied for ${reg.courses?.title || "a course"}`,
+        description: `${reg.full_name} applied for ${course?.title || "a course"}`,
         created_at: reg.created_at,
         link: "/admin/registrations"
       });
@@ -100,7 +136,7 @@ export async function getAdminNotifications(): Promise<AdminNotification[]> {
 
   // Map memberships
   if (pendingMembers) {
-    pendingMembers.forEach((member: any) => {
+    (pendingMembers as PendingMembershipNotification[]).forEach((member) => {
       notifications.push({
         id: member.id,
         type: "membership",
@@ -114,16 +150,20 @@ export async function getAdminNotifications(): Promise<AdminNotification[]> {
 
   // Map payments
   if (recentPayments) {
-    recentPayments.forEach((payment: any) => {
+    (recentPayments as RecentPaymentNotification[]).forEach((payment) => {
       let payerName = "Unknown Student";
       let paymentDetails = "";
 
-      if (payment.memberships) {
-        payerName = payment.memberships.full_name;
+      const membership = firstRelation(payment.memberships);
+      const registration = firstRelation(payment.course_registrations);
+
+      if (membership) {
+        payerName = membership.full_name || payerName;
         paymentDetails = "for membership registration";
-      } else if (payment.course_registrations) {
-        payerName = payment.course_registrations.full_name;
-        paymentDetails = `for ${payment.course_registrations.courses?.title || "course"}`;
+      } else if (registration) {
+        const course = firstRelation(registration.courses);
+        payerName = registration.full_name || payerName;
+        paymentDetails = `for ${course?.title || "course"}`;
       }
 
       notifications.push({

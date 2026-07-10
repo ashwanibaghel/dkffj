@@ -9,6 +9,10 @@ import prisma from "@/lib/prisma";
 
 import { verifyAdmin } from "../auth";
 
+type RegistrationCourse = {
+  title?: string | null;
+};
+
 export async function manuallyApprovePayment(paymentId: string) {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) {
@@ -149,7 +153,7 @@ export async function manuallyApprovePayment(paymentId: string) {
 
         // Send email receipt
         const subject = "Course Enrollment Successful - DKFFJ Academy";
-        const courseTitle = (registration.courses as any)?.title || "Selected Course";
+        const courseTitle = (registration.courses as RegistrationCourse | null)?.title || "Selected Course";
         const emailHtml = getCourseRegistrationReceiptTemplate(
           registration.full_name,
           courseTitle,
@@ -162,8 +166,8 @@ export async function manuallyApprovePayment(paymentId: string) {
 
     revalidatePath("/admin/payments");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error manually approving payment:", error);
-    return { success: false, error: error.message || "Failed to process approval." };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to process approval." };
   }
 }

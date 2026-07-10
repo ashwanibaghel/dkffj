@@ -1,13 +1,37 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { getComplaints, updateComplaintStatus } from "./actions";
 import { getSignedDocumentUrl } from "../members/actions";
-import { ShieldAlert, Search, Loader2, AlertCircle, Eye, ChevronDown, ChevronUp, Clock, Gavel, CheckCircle } from "lucide-react";
+import { ShieldAlert, Search, Loader2, AlertCircle, Eye, ChevronDown, ChevronUp, Clock, Gavel, CheckCircle, FileText } from "lucide-react";
+
+type ComplaintAttachment = {
+  id: string;
+  file_url: string;
+  file_name: string;
+  file_size?: string | null;
+};
+
+type ComplaintRecord = {
+  id: string;
+  complaint_no: string;
+  name: string;
+  father_name: string;
+  gender: string;
+  mobile: string;
+  email?: string | null;
+  address: string;
+  state: string;
+  district: string;
+  police_station: string;
+  details: string;
+  status: string;
+  created_at: string;
+  complaint_attachments?: ComplaintAttachment[];
+};
 
 export default function AdminComplaintsPage() {
-  const [complaints, setComplaints] = useState<any[]>([]);
-  const [filteredComplaints, setFilteredMembers] = useState<any[]>([]);
+  const [complaints, setComplaints] = useState<ComplaintRecord[]>([]);
   const [filter, setFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -30,6 +54,18 @@ export default function AdminComplaintsPage() {
     setToast({ message, visible: true, type });
   };
 
+  async function fetchData() {
+    setLoading(true);
+    try {
+      const data = await getComplaints();
+      setComplaints(data as ComplaintRecord[]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (toast.visible) {
       const timer = setTimeout(() => {
@@ -40,23 +76,27 @@ export default function AdminComplaintsPage() {
   }, [toast.visible]);
 
   useEffect(() => {
-    fetchData();
+    const animationFrame = window.requestAnimationFrame(() => {
+      void fetchData();
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const data = await getComplaints();
-      setComplaints(data);
-      setFilteredMembers(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const statusFilters = ["ALL", "SUBMITTED", "UNDER_INVESTIGATION", "IN_PROGRESS", "RESOLVED", "CLOSED"];
 
-  useEffect(() => {
+  const statusCounts = useMemo(() => {
+    return complaints.reduce(
+      (acc, complaint) => {
+        acc.ALL += 1;
+        acc[complaint.status] = (acc[complaint.status] || 0) + 1;
+        return acc;
+      },
+      { ALL: 0 } as Record<string, number>
+    );
+  }, [complaints]);
+
+  const filteredComplaints = useMemo(() => {
     let result = complaints;
     if (filter !== "ALL") {
       result = result.filter((c) => c.status === filter);
@@ -70,7 +110,7 @@ export default function AdminComplaintsPage() {
           (c.email && c.email.toLowerCase().includes(q))
       );
     }
-    setFilteredMembers(result);
+    return result;
   }, [filter, searchQuery, complaints]);
 
   const handleOpenPrivateDoc = async (path: string) => {
@@ -82,7 +122,7 @@ export default function AdminComplaintsPage() {
       } else {
         showToast(res.error || "Failed to generate file access token.", "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Error fetching document link.", "error");
     }
   };
@@ -101,7 +141,7 @@ export default function AdminComplaintsPage() {
         setActionError(res.error || "Failed to update complaint status.");
         showToast(res.error || "Failed to update complaint status.", "error");
       }
-    } catch (err) {
+    } catch {
       setActionError("Error updating case record.");
       showToast("Error updating case record.", "error");
     } finally {
@@ -121,26 +161,58 @@ export default function AdminComplaintsPage() {
     <div className="space-y-6">
       
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+        <div>
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
           <ShieldAlert className="w-5 h-5 text-rose-500" /> Grievance Investigation Cell
         </h1>
-        <p className="text-slate-500 text-xs mt-1">Review public violations, access uploaded evidences, and log investigation findings.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Review public violations, access uploaded evidences, and log investigation findings.</p>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
+          <Clock className="w-3.5 h-3.5" />
+          <span>{filteredComplaints.length} visible of {complaints.length} cases</span>
+        </div>
+      </div>
+
+      {/* Status Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+        {statusFilters.map((status) => {
+          const isActive = filter === status;
+          const label = status === "ALL" ? "All" : status.replaceAll("_", " ");
+          const count = statusCounts[status] || 0;
+          return (
+            <button
+              key={status}
+              type="button"
+              onClick={() => setFilter(status)}
+              className={`text-left rounded-2xl border p-4 transition-all ${
+                isActive
+                  ? "bg-[#C00000] text-white border-[#C00000] shadow-lg shadow-red-950/10"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-rose-200 dark:hover:border-rose-500/40 hover:-translate-y-0.5"
+              }`}
+            >
+              <span className={`text-[10px] font-black uppercase tracking-[0.12em] ${isActive ? "text-red-100" : "text-slate-400 dark:text-slate-500"}`}>
+                {label}
+              </span>
+              <span className="block text-2xl font-black mt-2 tracking-tight">{count}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Control Panel */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm dark:shadow-none">
         
         {/* Filters */}
         <div className="flex flex-wrap gap-2">
-          {["ALL", "SUBMITTED", "UNDER_INVESTIGATION", "IN_PROGRESS", "RESOLVED", "CLOSED"].map((f) => (
+          {statusFilters.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 filter === f
                   ? "bg-[#001C55] text-white border-[#001C55]"
-                  : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
               {f === "ALL" ? "All Grievances" : f}
@@ -149,13 +221,13 @@ export default function AdminComplaintsPage() {
         </div>
 
         {/* Search */}
-        <div className="relative max-w-xs w-full">
+        <div className="relative max-w-md w-full">
           <input
             type="text"
-            placeholder="Search by name, Docket No..."
+            placeholder="Search docket, name, or email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:outline-none focus:bg-white"
+            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-rose-500/10 font-semibold"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
         </div>
@@ -163,18 +235,27 @@ export default function AdminComplaintsPage() {
 
       {/* Main List */}
       {loading ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
+        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
           <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
-          <p className="text-xs text-slate-500">Loading cases registry, please wait...</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Loading cases registry, please wait...</p>
         </div>
       ) : filteredComplaints.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <p className="text-xs text-slate-500">No active grievances match the selected criteria.</p>
+        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+          <p className="text-xs text-slate-500 dark:text-slate-400">No active grievances match the selected criteria.</p>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm divide-y divide-slate-100">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
+          <div className="hidden lg:grid grid-cols-[minmax(220px,1.2fr)_minmax(190px,0.9fr)_minmax(230px,1.1fr)_minmax(150px,0.7fr)_90px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">
+            <span>Docket</span>
+            <span>Contact</span>
+            <span>Location</span>
+            <span>Status</span>
+            <span className="text-right">Evidence</span>
+          </div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {filteredComplaints.map((complaint) => {
             const isExpanded = expandedId === complaint.id;
+            const attachmentCount = complaint.complaint_attachments?.length || 0;
             return (
               <div key={complaint.id} className="transition-all">
                 
@@ -186,28 +267,39 @@ export default function AdminComplaintsPage() {
                       setNewStatus(complaint.status);
                     }
                   }}
-                  className={`p-4 flex items-center justify-between text-xs font-semibold cursor-pointer hover:bg-slate-50/50 transition-colors ${
-                    isExpanded ? "bg-slate-50/50 border-b border-slate-100" : ""
+                  className={`p-4 lg:px-5 lg:py-3 flex items-center justify-between text-xs font-semibold cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors ${
+                    isExpanded ? "bg-rose-50/40 dark:bg-rose-500/5 border-b border-slate-100 dark:border-slate-800" : ""
                   }`}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">Docket: {complaint.complaint_no}</h4>
-                      <span className="text-[10px] text-slate-400 mt-0.5 block">By: {complaint.name}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(220px,1.2fr)_minmax(190px,0.9fr)_minmax(230px,1.1fr)_minmax(150px,0.7fr)_90px] gap-4 flex-1 items-center">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 flex items-center justify-center shrink-0">
+                        <Gavel className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm truncate">Docket: {complaint.complaint_no}</h4>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block truncate">By: {complaint.name}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Contact</span>
-                      <span className="text-slate-650 block mt-0.5">{complaint.mobile}</span>
-                      <span className="text-slate-650 block mt-0.5">{complaint.email || "No Email"}</span>
+                    <div className="min-w-0">
+                      <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Contact</span>
+                      <span className="text-slate-700 dark:text-slate-300 block mt-0.5">{complaint.mobile}</span>
+                      <span className="text-slate-500 dark:text-slate-400 block mt-0.5 truncate">{complaint.email || "No Email"}</span>
                     </div>
-                    <div>
-                      <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Occurrence Location</span>
-                      <span className="text-slate-650 block mt-0.5 truncate">{complaint.district}, {complaint.state}</span>
-                      <span className="text-slate-650 block mt-0.5 truncate">Thana: {complaint.police_station}</span>
+                    <div className="min-w-0">
+                      <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Occurrence Location</span>
+                      <span className="text-slate-700 dark:text-slate-300 block mt-0.5 truncate">{complaint.district}, {complaint.state}</span>
+                      <span className="text-slate-500 dark:text-slate-400 block mt-0.5 truncate">Thana: {complaint.police_station}</span>
                     </div>
                     <div className="self-center">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(complaint.status)}`}>
                         {complaint.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-start lg:justify-end gap-2 text-slate-500 dark:text-slate-400">
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-black">
+                        <FileText className="w-3.5 h-3.5" />
+                        {attachmentCount}
                       </span>
                     </div>
                   </div>
@@ -245,7 +337,7 @@ export default function AdminComplaintsPage() {
                               <td className="text-slate-800">{complaint.name} ({complaint.gender})</td>
                             </tr>
                             <tr className="border-b border-slate-100 py-1.5 flex justify-between">
-                              <td className="text-slate-400">Father's Name:</td>
+                              <td className="text-slate-400">Father&apos;s Name:</td>
                               <td className="text-slate-800">{complaint.father_name}</td>
                             </tr>
                             <tr className="border-b border-slate-100 py-1.5 flex justify-between">
@@ -267,7 +359,7 @@ export default function AdminComplaintsPage() {
                           <p className="text-xs text-slate-450 italic p-3 bg-white border border-slate-100 rounded-lg">No evidence files uploaded by grievant.</p>
                         ) : (
                           <div className="space-y-2">
-                            {complaint.complaint_attachments.map((file: any) => (
+                            {complaint.complaint_attachments.map((file: ComplaintAttachment) => (
                               <div key={file.id} className="p-3 bg-white border border-slate-200/80 rounded-xl flex items-center justify-between text-xs shadow-sm">
                                 <span className="font-semibold text-slate-700 truncate max-w-[70%]">{file.file_name} <span className="text-[9px] text-slate-400 font-normal">({file.file_size})</span></span>
                                 <button
@@ -334,6 +426,7 @@ export default function AdminComplaintsPage() {
               </div>
             );
           })}
+          </div>
         </div>
       )}
 

@@ -34,9 +34,9 @@ export async function addGalleryItem(payload: { imageUrl: string; title?: string
 
     revalidatePath("/gallery");
     return { success: true, item };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error adding gallery item:", error);
-    return { success: false, error: error.message || "Failed to add photo" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to add photo" };
   }
 }
 
@@ -51,9 +51,9 @@ export async function deleteGalleryItem(id: string) {
 
     revalidatePath("/gallery");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting gallery item:", error);
-    return { success: false, error: error.message || "Failed to delete photo" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete photo" };
   }
 }
 
@@ -91,9 +91,9 @@ export async function addVideoItem(payload: { youtubeId: string; title: string; 
 
     revalidatePath("/gallery");
     return { success: true, item };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error adding video item:", error);
-    return { success: false, error: error.message || "Failed to add video" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to add video" };
   }
 }
 
@@ -108,8 +108,8 @@ export async function deleteVideoItem(id: string) {
 
     revalidatePath("/gallery");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting video item:", error);
-    return { success: false, error: error.message || "Failed to delete video" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete video" };
   }
 }

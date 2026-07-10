@@ -1,14 +1,53 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile, updateCertificatePdfUrl } from "./actions";
 import { generateCertificatePDFClient } from "./CertificateGenerator";
 import { createClient } from "@/utils/supabase/client";
-import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Check, X, FileText, Download, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
+import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Download, CheckCircle, ChevronUp, ChevronDown, BookOpen } from "lucide-react";
+
+type CourseInfo = {
+  title?: string | null;
+  duration?: string | null;
+};
+
+type CertificateInfo = {
+  certificate_no: string;
+  issue_date: string;
+  grade?: string | null;
+  performance?: string | null;
+  venue?: string | null;
+  pdf_url?: string | null;
+};
+
+type RegistrationRecord = {
+  id: string;
+  user_id: string;
+  enrollment_no?: string | null;
+  full_name: string;
+  mobile: string;
+  email: string;
+  father_name?: string | null;
+  photo_url?: string | null;
+  status: string;
+  remarks?: string | null;
+  created_at: string;
+  courses?: CourseInfo | null;
+  certificates?: CertificateInfo[];
+};
+
+type CertFormState = {
+  fatherName: string;
+  durationFrom: string;
+  durationTo: string;
+  grade: string;
+  venue: string;
+  performance: string;
+};
 
 export default function AdminRegistrationsPage() {
-  const [registrations, setRegistrations] = useState<any[]>([]);
-  const [filteredRegistrations, setFilteredRegistrations] = useState<any[]>([]);
+  const [registrations, setRegistrations] = useState<RegistrationRecord[]>([]);
   const [filter, setFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -19,7 +58,7 @@ export default function AdminRegistrationsPage() {
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string>("");
   const [issuingId, setIssuingId] = useState<string | null>(null);
-  const [certForm, setCertForm] = useState({
+  const [certForm, setCertForm] = useState<CertFormState>({
     fatherName: "",
     durationFrom: "",
     durationTo: "",
@@ -39,6 +78,18 @@ export default function AdminRegistrationsPage() {
     setToast({ message, visible: true, type });
   };
 
+  async function fetchData() {
+    setLoading(true);
+    try {
+      const data = await getRegistrations();
+      setRegistrations(data as RegistrationRecord[]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (toast.visible) {
       const timer = setTimeout(() => {
@@ -49,23 +100,27 @@ export default function AdminRegistrationsPage() {
   }, [toast.visible]);
 
   useEffect(() => {
-    fetchData();
+    const animationFrame = window.requestAnimationFrame(() => {
+      void fetchData();
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const data = await getRegistrations();
-      setRegistrations(data);
-      setFilteredRegistrations(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const statusFilters = ["ALL", "PENDING", "APPROVED", "COMPLETED", "REJECTED"];
 
-  useEffect(() => {
+  const statusCounts = useMemo(() => {
+    return registrations.reduce(
+      (acc, registration) => {
+        acc.ALL += 1;
+        acc[registration.status] = (acc[registration.status] || 0) + 1;
+        return acc;
+      },
+      { ALL: 0 } as Record<string, number>
+    );
+  }, [registrations]);
+
+  const filteredRegistrations = useMemo(() => {
     let result = registrations;
     if (filter !== "ALL") {
       result = result.filter((r) => r.status === filter);
@@ -80,7 +135,7 @@ export default function AdminRegistrationsPage() {
           (r.courses && r.courses.title && r.courses.title.toLowerCase().includes(q))
       );
     }
-    setFilteredRegistrations(result);
+    return result;
   }, [filter, searchQuery, registrations]);
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
@@ -96,14 +151,14 @@ export default function AdminRegistrationsPage() {
       } else {
         setActionError(res.error || "Failed to update enrollment status.");
       }
-    } catch (err) {
+    } catch {
       setActionError("Error updating registration status.");
     } finally {
       setActionLoading(false);
     }
   };
 
-  const startIssuance = async (reg: any) => {
+  const startIssuance = async (reg: RegistrationRecord) => {
     setIssuingId(reg.id);
     
     // Set default dates
@@ -143,7 +198,7 @@ export default function AdminRegistrationsPage() {
           ...prev,
           fatherName: profile?.father_name || ""
         }));
-      } catch (err) {
+      } catch {
         setCertForm(prev => ({
           ...prev,
           fatherName: ""
@@ -214,7 +269,7 @@ export default function AdminRegistrationsPage() {
           if (!updateRes.success) {
             throw new Error(updateRes.error || "Failed to update PDF URL in database");
           }
-        } catch (pdfErr: any) {
+        } catch (pdfErr: unknown) {
           console.error("Client side PDF generation/upload error:", pdfErr);
           showToast("Certificate was created but PDF generation failed. Please check CORS or storage.", "error");
         }
@@ -226,7 +281,7 @@ export default function AdminRegistrationsPage() {
       } else {
         setActionError(res.error || "Failed to issue certificate.");
       }
-    } catch (err) {
+    } catch {
       setActionError("Error executing certificate generation.");
     } finally {
       setActionLoading(false);
@@ -245,26 +300,58 @@ export default function AdminRegistrationsPage() {
     <div className="space-y-6">
       
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-          <GraduationCap className="w-5 h-5 text-[#001C55]" /> Academy Enrollments Review
-        </h1>
-        <p className="text-slate-500 text-xs mt-1">Review student registrations, check payment ledger status, and issue graduation certificates.</p>
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+            <GraduationCap className="w-5 h-5 text-[#001C55] dark:text-blue-400" /> Academy Enrollments Review
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Review student registrations, check payment ledger status, and issue graduation certificates.</p>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
+          <Clock className="w-3.5 h-3.5" />
+          <span>{filteredRegistrations.length} visible of {registrations.length} enrollments</span>
+        </div>
+      </div>
+
+      {/* Status Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {statusFilters.map((status) => {
+          const isActive = filter === status;
+          const label = status === "ALL" ? "All" : status.replace("_", " ");
+          const count = statusCounts[status] || 0;
+          return (
+            <button
+              key={status}
+              type="button"
+              onClick={() => setFilter(status)}
+              className={`text-left rounded-2xl border p-4 transition-all ${
+                isActive
+                  ? "bg-[#001C55] text-white border-[#001C55] shadow-lg shadow-blue-950/10"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-500/40 hover:-translate-y-0.5"
+              }`}
+            >
+              <span className={`text-[10px] font-black uppercase tracking-[0.14em] ${isActive ? "text-blue-100" : "text-slate-400 dark:text-slate-500"}`}>
+                {label}
+              </span>
+              <span className="block text-2xl font-black mt-2 tracking-tight">{count}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Control Panel */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm dark:shadow-none">
         
         {/* Filters */}
         <div className="flex flex-wrap gap-2">
-          {["ALL", "PENDING", "APPROVED", "COMPLETED", "REJECTED"].map((f) => (
+          {statusFilters.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 filter === f
                   ? "bg-[#001C55] text-white border-[#001C55]"
-                  : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
               {f === "ALL" ? "All Registrations" : f}
@@ -273,13 +360,13 @@ export default function AdminRegistrationsPage() {
         </div>
 
         {/* Search */}
-        <div className="relative max-w-xs w-full">
+        <div className="relative max-w-md w-full">
           <input
             type="text"
-            placeholder="Search by student, course, enrollment..."
+            placeholder="Search student, course, enrollment..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:outline-none focus:bg-white"
+            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 font-semibold"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
         </div>
@@ -287,58 +374,77 @@ export default function AdminRegistrationsPage() {
 
       {/* Main List */}
       {loading ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
+        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
           <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
-          <p className="text-xs text-slate-500">Loading registrations list...</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Loading registrations list...</p>
         </div>
       ) : filteredRegistrations.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <p className="text-xs text-slate-500">No matching registrations found.</p>
+        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+          <p className="text-xs text-slate-500 dark:text-slate-400">No matching registrations found.</p>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm divide-y divide-slate-100">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
+          <div className="hidden lg:grid grid-cols-[minmax(250px,1.25fr)_minmax(230px,1fr)_minmax(210px,0.95fr)_minmax(150px,0.7fr)_90px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">
+            <span>Student</span>
+            <span>Course</span>
+            <span>Contact</span>
+            <span>Status</span>
+            <span className="text-right">Credential</span>
+          </div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {filteredRegistrations.map((reg) => {
             const isExpanded = expandedId === reg.id;
+            const cert = reg.certificates?.[0];
             return (
               <div key={reg.id} className="transition-all">
                 
                 {/* Header view */}
                 <div
                   onClick={() => setExpandedId(isExpanded ? null : reg.id)}
-                  className={`p-4 flex items-center justify-between text-xs font-semibold cursor-pointer hover:bg-slate-50/50 transition-colors ${
-                    isExpanded ? "bg-slate-50/50 border-b border-slate-100" : ""
+                  className={`p-4 lg:px-5 lg:py-3 flex items-center justify-between text-xs font-semibold cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors ${
+                    isExpanded ? "bg-blue-50/40 dark:bg-blue-500/5 border-b border-slate-100 dark:border-slate-800" : ""
                   }`}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                    <div className="flex items-center gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(250px,1.25fr)_minmax(230px,1fr)_minmax(210px,0.95fr)_minmax(150px,0.7fr)_90px] gap-4 flex-1 items-center">
+                    <div className="flex items-center gap-3 min-w-0">
                       {reg.photo_url ? (
-                        <img
+                        <Image
                           src={reg.photo_url}
                           alt={reg.full_name}
-                          className="w-10 h-10 rounded-full object-cover border border-slate-200 shrink-0"
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                          unoptimized
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm shrink-0 uppercase">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center font-bold text-sm shrink-0 uppercase">
                           {reg.full_name ? reg.full_name.charAt(0) : "S"}
                         </div>
                       )}
-                      <div>
-                        <h4 className="font-bold text-slate-800 text-sm">{reg.full_name}</h4>
-                        <span className="text-[10px] text-slate-400 mt-0.5 block font-mono">Ref No: {reg.enrollment_no}</span>
+                      <div className="min-w-0">
+                        <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm truncate">{reg.full_name}</h4>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block font-mono">Ref No: {reg.enrollment_no || "PENDING"}</span>
                       </div>
                     </div>
-                    <div>
-                      <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Course Applied</span>
-                      <span className="text-slate-800 font-bold mt-0.5 block">{reg.courses?.title || "Unknown Course"}</span>
+                    <div className="min-w-0">
+                      <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Course Applied</span>
+                      <span className="text-slate-800 dark:text-slate-200 font-bold mt-0.5 block truncate">{reg.courses?.title || "Unknown Course"}</span>
+                      <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">{reg.courses?.duration || "Duration not set"}</span>
                     </div>
-                    <div>
-                      <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Contact Info</span>
-                      <span className="text-slate-650 block mt-0.5">{reg.email}</span>
-                      <span className="text-slate-650 block mt-0.5">{reg.mobile}</span>
+                    <div className="min-w-0">
+                      <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Contact Info</span>
+                      <span className="text-slate-700 dark:text-slate-300 block mt-0.5 truncate">{reg.email}</span>
+                      <span className="text-slate-500 dark:text-slate-400 block mt-0.5">{reg.mobile}</span>
                     </div>
                     <div className="self-center">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(reg.status)}`}>
                         {reg.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-start lg:justify-end gap-2 text-slate-500 dark:text-slate-400">
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2 py-1 text-[10px] font-black">
+                        <BookOpen className="w-3.5 h-3.5" />
+                        {cert?.certificate_no ? "Issued" : "Open"}
                       </span>
                     </div>
                   </div>
@@ -349,43 +455,43 @@ export default function AdminRegistrationsPage() {
 
                 {/* Expanded Review panel */}
                 {isExpanded && (
-                  <div className="p-6 bg-slate-50/20 border-b border-slate-100 space-y-4">
+                  <div className="p-4 lg:p-6 bg-slate-50/60 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 space-y-4">
                     {actionError && (
-                      <div className="p-3 bg-rose-50 border border-rose-100 text-[11px] text-rose-800 font-semibold rounded-lg flex items-center gap-2">
+                      <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-[11px] text-rose-800 dark:text-rose-200 font-semibold rounded-lg flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                         <span>{actionError}</span>
                       </div>
                     )}
 
-                    <div className="p-4 bg-white border rounded-xl grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
+                    <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
                       <div>
-                        <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Student Profile</span>
-                        <span className="text-slate-850 mt-1 block">{reg.full_name}</span>
-                        <span className="text-slate-500 mt-0.5 block">{reg.email} | {reg.mobile}</span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Student Profile</span>
+                        <span className="text-slate-900 dark:text-slate-100 mt-1 block">{reg.full_name}</span>
+                        <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">{reg.email} | {reg.mobile}</span>
                       </div>
                       <div>
-                        <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Registration Date</span>
-                        <span className="text-slate-850 mt-1 block">{new Date(reg.created_at).toLocaleString("en-IN")}</span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Registration Date</span>
+                        <span className="text-slate-900 dark:text-slate-100 mt-1 block">{new Date(reg.created_at).toLocaleString("en-IN")}</span>
                       </div>
                     </div>
 
                     {/* Action Desk */}
                     {reg.status === "PENDING" && (
-                      <div className="space-y-3 bg-white p-4 rounded-xl border">
-                        <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Enrollment Application Review</span>
+                      <div className="space-y-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Enrollment Application Review</span>
                         <textarea
                           value={remarks}
                           onChange={(e) => setRemarks(e.target.value)}
                           placeholder="Provide review remarks (optional)..."
                           rows={2}
-                          className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
+                          className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg text-xs bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#001C55]"
                         />
                         <div className="flex justify-end gap-2">
                           <button
                             type="button"
                             onClick={() => handleUpdateStatus(reg.id, "REJECTED")}
                             disabled={actionLoading}
-                            className="px-4 py-2 border border-rose-250 hover:bg-rose-50 text-xs font-bold text-rose-600 rounded-lg transition-colors cursor-pointer"
+                            className="px-4 py-2 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-500/10 text-xs font-bold text-rose-600 dark:text-rose-300 rounded-lg transition-colors cursor-pointer"
                           >
                             Reject Enrollment
                           </button>
@@ -403,10 +509,10 @@ export default function AdminRegistrationsPage() {
                     )}
 
                     {reg.status === "APPROVED" && issuingId !== reg.id && (
-                      <div className="p-4 bg-white border border-slate-200 rounded-xl flex items-center justify-between gap-4">
+                      <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="text-xs">
-                          <span className="font-bold text-slate-800 block">Course Completed?</span>
-                          <span className="text-slate-500 mt-0.5 block">You can now generate the graduation certificate and dispatch it to the student's email.</span>
+                          <span className="font-bold text-slate-800 dark:text-slate-100 block">Course Completed?</span>
+                          <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">You can now generate the graduation certificate and dispatch it to the student&apos;s email.</span>
                         </div>
                         <button
                           type="button"
@@ -421,78 +527,78 @@ export default function AdminRegistrationsPage() {
                     )}
 
                     {reg.status === "APPROVED" && issuingId === reg.id && (
-                      <div className="space-y-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-left">
-                        <div className="flex items-center gap-2 border-b pb-3 mb-3">
-                          <Award className="w-5 h-5 text-[#001C55]" />
-                          <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Configure Certificate Credentials</span>
+                      <div className="space-y-4 bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none text-left">
+                        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 mb-3">
+                          <Award className="w-5 h-5 text-[#001C55] dark:text-blue-400" />
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Configure Certificate Credentials</span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold">
                           <div>
-                            <label className="block text-slate-500 mb-1">Father's Name</label>
+                            <label className="block text-slate-500 dark:text-slate-400 mb-1">Father&apos;s Name</label>
                             <input
                               type="text"
                               value={certForm.fatherName}
                               onChange={(e) => setCertForm({ ...certForm, fatherName: e.target.value })}
                               placeholder="Student's Father Name"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
+                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
-                            <label className="block text-slate-500 mb-1">Grade / Percentage</label>
+                            <label className="block text-slate-500 dark:text-slate-400 mb-1">Grade / Percentage</label>
                             <input
                               type="text"
                               value={certForm.grade}
                               onChange={(e) => setCertForm({ ...certForm, grade: e.target.value })}
                               placeholder="e.g. A+, A, Outstanding"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
+                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
-                            <label className="block text-slate-500 mb-1">Duration From</label>
+                            <label className="block text-slate-500 dark:text-slate-400 mb-1">Duration From</label>
                             <input
                               type="date"
                               value={certForm.durationFrom}
                               onChange={(e) => setCertForm({ ...certForm, durationFrom: e.target.value })}
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
+                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
-                            <label className="block text-slate-500 mb-1">Duration To</label>
+                            <label className="block text-slate-500 dark:text-slate-400 mb-1">Duration To</label>
                             <input
                               type="date"
                               value={certForm.durationTo}
                               onChange={(e) => setCertForm({ ...certForm, durationTo: e.target.value })}
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
+                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
-                            <label className="block text-slate-500 mb-1">Training Venue</label>
+                            <label className="block text-slate-500 dark:text-slate-400 mb-1">Training Venue</label>
                             <input
                               type="text"
                               value={certForm.venue}
                               onChange={(e) => setCertForm({ ...certForm, venue: e.target.value })}
                               placeholder="e.g. Online (DKFFJ Portal)"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
+                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                           <div>
-                            <label className="block text-slate-500 mb-1">Performance/Conduct Rating</label>
+                            <label className="block text-slate-500 dark:text-slate-400 mb-1">Performance/Conduct Rating</label>
                             <input
                               type="text"
                               value={certForm.performance}
                               onChange={(e) => setCertForm({ ...certForm, performance: e.target.value })}
                               placeholder="e.g. Excellent, Very Good"
-                              className="w-full px-3 py-2 border rounded-lg bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55]"
+                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-1 focus:ring-[#001C55]"
                             />
                           </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 border-t pt-4 mt-4">
+                        <div className="flex flex-col sm:flex-row sm:justify-end gap-2 border-t border-slate-200 dark:border-slate-800 pt-4 mt-4">
                           <button
                             type="button"
                             onClick={() => setIssuingId(null)}
-                            className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-650 rounded-lg transition-colors cursor-pointer"
+                            className="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 rounded-lg transition-colors cursor-pointer"
                           >
                             Cancel
                           </button>
@@ -510,9 +616,9 @@ export default function AdminRegistrationsPage() {
                     )}
 
                     {reg.status === "COMPLETED" && (
-                      <div className="p-4 bg-emerald-50/45 border border-emerald-100 rounded-xl text-xs space-y-3">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2 font-bold text-emerald-850">
+                      <div className="p-4 bg-emerald-50/45 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl text-xs space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="flex items-center gap-2 font-bold text-emerald-900 dark:text-emerald-100">
                             <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
                             Course completed. Certificate has been generated and dispatched.
                           </div>
@@ -529,14 +635,14 @@ export default function AdminRegistrationsPage() {
                         </div>
                         
                         {reg.certificates && reg.certificates[0] && (
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2.5 border-t border-emerald-100/60 font-semibold text-slate-700">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-2.5 border-t border-emerald-100/60 dark:border-emerald-500/20 font-semibold text-slate-700 dark:text-slate-300">
                             <div>
-                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Certificate No</span>
-                              <span className="text-slate-800 font-mono mt-0.5 block">{reg.certificates[0].certificate_no}</span>
+                              <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Certificate No</span>
+                              <span className="text-slate-800 dark:text-slate-100 font-mono mt-0.5 block">{reg.certificates[0].certificate_no}</span>
                             </div>
                             <div>
-                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Completion Date</span>
-                              <span className="text-slate-800 mt-0.5 block">
+                              <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Completion Date</span>
+                              <span className="text-slate-800 dark:text-slate-100 mt-0.5 block">
                                 {new Date(reg.certificates[0].issue_date).toLocaleDateString("en-IN", {
                                   day: "numeric",
                                   month: "short",
@@ -545,12 +651,12 @@ export default function AdminRegistrationsPage() {
                               </span>
                             </div>
                             <div>
-                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Grade Awarded</span>
-                              <span className="text-emerald-700 font-bold mt-0.5 block">{reg.certificates[0].grade || "A"}</span>
+                              <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Grade Awarded</span>
+                              <span className="text-emerald-700 dark:text-emerald-300 font-bold mt-0.5 block">{reg.certificates[0].grade || "A"}</span>
                             </div>
                             <div>
-                              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Performance Rating</span>
-                              <span className="text-slate-800 mt-0.5 block">{reg.certificates[0].performance || "Excellent"}</span>
+                              <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Performance Rating</span>
+                              <span className="text-slate-800 dark:text-slate-100 mt-0.5 block">{reg.certificates[0].performance || "Excellent"}</span>
                             </div>
                           </div>
                         )}
@@ -558,7 +664,7 @@ export default function AdminRegistrationsPage() {
                     )}
 
                     {reg.remarks && (
-                      <div className="p-3 bg-slate-100/50 border rounded-lg text-xs text-slate-500 font-semibold italic">
+                      <div className="p-3 bg-slate-100/50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-500 dark:text-slate-400 font-semibold italic">
                         &ldquo;Board Notes: {reg.remarks}&rdquo;
                       </div>
                     )}
@@ -569,6 +675,7 @@ export default function AdminRegistrationsPage() {
               </div>
             );
           })}
+          </div>
         </div>
       )}
       {/* Toast Notification */}

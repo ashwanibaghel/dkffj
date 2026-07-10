@@ -55,9 +55,9 @@ export async function addNews(payload: {
 
     revalidatePath("/");
     return { success: true, news };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error adding news:", error);
-    return { success: false, error: error.message || "Failed to create news" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create news" };
   }
 }
 
@@ -86,9 +86,9 @@ export async function updateNews(
 
     revalidatePath("/");
     return { success: true, news };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating news:", error);
-    return { success: false, error: error.message || "Failed to update news" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update news" };
   }
 }
 
@@ -103,8 +103,8 @@ export async function deleteNews(id: string) {
 
     revalidatePath("/");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting news:", error);
-    return { success: false, error: error.message || "Failed to delete news" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete news" };
   }
 }

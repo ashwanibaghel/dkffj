@@ -53,9 +53,9 @@ export async function addLeader(payload: {
     revalidatePath("/");
     revalidatePath("/team");
     return { success: true, leader };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error adding leader:", error);
-    return { success: false, error: error.message || "Failed to create leader" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create leader" };
   }
 }
 
@@ -95,9 +95,9 @@ export async function updateLeader(
     revalidatePath("/");
     revalidatePath("/team");
     return { success: true, leader };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating leader:", error);
-    return { success: false, error: error.message || "Failed to update leader" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update leader" };
   }
 }
 
@@ -113,8 +113,8 @@ export async function deleteLeader(id: string) {
     revalidatePath("/");
     revalidatePath("/team");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting leader:", error);
-    return { success: false, error: error.message || "Failed to delete leader" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete leader" };
   }
 }

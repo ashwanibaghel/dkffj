@@ -4,6 +4,16 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { verifyAdmin } from "../auth";
 
+type CoursePayload = {
+  title: string;
+  description: string;
+  duration: string;
+  fees: number;
+  eligibility: string;
+  image_url: string | null;
+  is_active: boolean;
+};
+
 // 1. Fetch all courses (active + inactive)
 export async function getAdminCourses() {
   const isAdmin = await verifyAdmin();
@@ -62,7 +72,7 @@ export async function upsertCourse(id: string | null, formData: FormData) {
       const fileName = `courses/course_${Date.now()}.${fileExt}`;
       const fileBuffer = Buffer.from(await imageFile.arrayBuffer());
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("photos")
         .upload(fileName, fileBuffer, { contentType: imageFile.type, upsert: true });
 
@@ -74,13 +84,13 @@ export async function upsertCourse(id: string | null, formData: FormData) {
       // Get public URL
       const { data: urlRes } = supabase.storage.from("photos").getPublicUrl(fileName);
       imageUrl = urlRes.publicUrl;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       return { success: false, error: "Error uploading image file." };
     }
   }
 
-  const payload: any = {
+  const payload: CoursePayload = {
     title,
     description,
     duration,

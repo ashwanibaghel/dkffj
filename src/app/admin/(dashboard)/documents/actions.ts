@@ -41,9 +41,9 @@ export async function addDocument(payload: {
 
     revalidatePath("/");
     return { success: true, doc };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error adding document:", error);
-    return { success: false, error: error.message || "Failed to create document" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create document" };
   }
 }
 
@@ -58,8 +58,8 @@ export async function deleteDocument(id: string) {
 
     revalidatePath("/");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting document:", error);
-    return { success: false, error: error.message || "Failed to delete document" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete document" };
   }
 }

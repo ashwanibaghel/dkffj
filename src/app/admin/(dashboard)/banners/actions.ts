@@ -34,9 +34,9 @@ export async function addBanner(payload: { imageUrl: string; title?: string; sub
 
     revalidatePath("/");
     return { success: true, banner };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error adding banner:", error);
-    return { success: false, error: error.message || "Failed to create banner" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create banner" };
   }
 }
 
@@ -58,9 +58,9 @@ export async function updateBanner(id: string, payload: { imageUrl?: string; tit
 
     revalidatePath("/");
     return { success: true, banner };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating banner:", error);
-    return { success: false, error: error.message || "Failed to update banner" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update banner" };
   }
 }
 
@@ -75,8 +75,8 @@ export async function deleteBanner(id: string) {
 
     revalidatePath("/");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting banner:", error);
-    return { success: false, error: error.message || "Failed to delete banner" };
+    return { success: false, error: error instanceof Error ? error.message : "Failed to delete banner" };
   }
 }

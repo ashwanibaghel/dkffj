@@ -18,6 +18,48 @@ import {
 
 export const dynamic = "force-dynamic";
 
+type ActivityType = "membership" | "complaint" | "course" | "certificate" | "payment";
+
+type ActivityItem = {
+  time: Date;
+  title: string;
+  desc: string;
+  type: ActivityType;
+};
+
+type MemberLog = {
+  full_name: string;
+  ack_no: string;
+  created_at: string;
+  status: string;
+};
+
+type ComplaintLog = {
+  name: string;
+  complaint_no: string;
+  created_at: string;
+  status: string;
+};
+
+type CourseLog = {
+  full_name: string;
+  enrollment_no?: string | null;
+  created_at: string;
+  status: string;
+};
+
+type CertificateLog = {
+  user_name: string;
+  certificate_no: string;
+  created_at: string;
+};
+
+type PaymentLog = {
+  amount: number | string;
+  transaction_id: string;
+  created_at: string;
+};
+
 export default async function AdminDashboardPage() {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
@@ -66,9 +108,9 @@ export default async function AdminDashboardPage() {
     supabase.from("payments").select("amount, transaction_id, created_at").eq("status", "COMPLETED").order("created_at", { ascending: false }).limit(5),
   ]);
 
-  const activities: any[] = [];
+  const activities: ActivityItem[] = [];
   if (membersLogs.data) {
-    membersLogs.data.forEach((m: any) => {
+    (membersLogs.data as MemberLog[]).forEach((m) => {
       activities.push({
         time: new Date(m.created_at),
         title: "Membership Applied",
@@ -78,7 +120,7 @@ export default async function AdminDashboardPage() {
     });
   }
   if (complaintsLogs.data) {
-    complaintsLogs.data.forEach((c: any) => {
+    (complaintsLogs.data as ComplaintLog[]).forEach((c) => {
       activities.push({
         time: new Date(c.created_at),
         title: "Complaint Filed",
@@ -88,7 +130,7 @@ export default async function AdminDashboardPage() {
     });
   }
   if (courseLogs.data) {
-    courseLogs.data.forEach((cr: any) => {
+    (courseLogs.data as CourseLog[]).forEach((cr) => {
       activities.push({
         time: new Date(cr.created_at),
         title: "Course Enrollment",
@@ -98,7 +140,7 @@ export default async function AdminDashboardPage() {
     });
   }
   if (certLogs.data) {
-    certLogs.data.forEach((ce: any) => {
+    (certLogs.data as CertificateLog[]).forEach((ce) => {
       activities.push({
         time: new Date(ce.created_at),
         title: "Certificate Issued",
@@ -108,7 +150,7 @@ export default async function AdminDashboardPage() {
     });
   }
   if (payLogs.data) {
-    payLogs.data.forEach((p: any) => {
+    (payLogs.data as PaymentLog[]).forEach((p) => {
       activities.push({
         time: new Date(p.created_at),
         title: "Payment Received",
@@ -125,105 +167,113 @@ export default async function AdminDashboardPage() {
   const getStatusColor = (status: string) => {
     const s = status.toUpperCase();
     if (["APPROVED", "RESOLVED", "COMPLETED", "VALID"].includes(s)) {
-      return "bg-emerald-500/10 text-emerald-700 border-emerald-500/20";
+      return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20";
     }
     if (["PENDING", "SUBMITTED"].includes(s)) {
-      return "bg-amber-500/10 text-amber-700 border-amber-500/20";
+      return "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20";
     }
     if (["UNDER_REVIEW", "UNDER_INVESTIGATION", "IN_PROGRESS"].includes(s)) {
-      return "bg-sky-500/10 text-sky-700 border-sky-500/20";
+      return "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/20";
     }
-    return "bg-rose-500/10 text-rose-700 border-rose-500/20";
+    return "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20";
   };
 
   return (
-    <div className="space-y-8 animate-fadeIn text-left">
-      {/* Welcome Banner */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-6 text-left">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-slate-800">Administrative Shell Control</h1>
-          <p className="text-slate-500 text-xs mt-1">Real-time metrics, records management, and audit desk for DKFFJ Portal.</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+            <FileCheck className="w-5 h-5 text-[#001C55] dark:text-blue-400" /> Dashboard Home
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Monitor membership, grievances, academy activity, payments, and the latest operational events.</p>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
+          <Clock className="w-3.5 h-3.5" />
+          <span>{sortedActivities.length} recent timeline events</span>
         </div>
       </div>
-
+      
       {/* Global Search Bar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-        <form action="/admin/search" method="GET" className="flex gap-2">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm dark:shadow-none transition-colors duration-300">
+        <form action="/admin/search" method="GET" className="flex flex-col sm:flex-row gap-3">
           <input 
             type="text" 
             name="q"
             required
             placeholder="Global Search: Search by name, Ack number, enrollment ID, certificate number, or complaint docket..."
-            className="w-full pl-4 pr-4 py-3 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#001C55] transition-all font-semibold"
+            className="w-full pl-4 pr-4 py-3 border border-slate-200 dark:border-slate-800 rounded-xl text-sm bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 transition-all font-semibold placeholder-slate-400 dark:placeholder-slate-600"
           />
-          <button type="submit" className="bg-[#001C55] hover:bg-[#001236] text-white text-xs font-bold uppercase tracking-wider px-6 rounded-xl transition-all cursor-pointer">
+          <button type="submit" className="bg-[#001C55] dark:bg-blue-600 hover:bg-[#001236] dark:hover:bg-blue-500 text-white text-xs font-extrabold uppercase tracking-widest px-8 py-3 rounded-xl transition-all duration-300 cursor-pointer">
             Search
           </button>
         </form>
       </div>
 
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-center justify-between shadow-sm dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 group cursor-default">
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Members</span>
-            <span className="text-2xl font-extrabold text-slate-800 mt-1 block">{totalMembers || 0}</span>
-            <span className="text-[10px] text-amber-600 font-semibold mt-1 inline-flex items-center gap-1">
-              <Clock className="w-3 h-3" /> {pendingMembers || 0} Pending
+            <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] block">Total Members</span>
+            <span className="text-3xl font-black text-slate-900 dark:text-white mt-2 block tracking-tight">{totalMembers || 0}</span>
+            <span className="text-[10px] text-amber-700 dark:text-amber-500 font-extrabold mt-2 inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-500/10 px-2.5 py-1 rounded-lg">
+              <Clock className="w-3.5 h-3.5" /> {pendingMembers || 0} Pending
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-[#001C55]/10 flex items-center justify-center text-[#001C55] shrink-0">
-            <Users className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0 group-hover:scale-105 transition-transform duration-300 border border-blue-100 dark:border-blue-500/20">
+            <Users className="w-7 h-7" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-center justify-between shadow-sm dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 group cursor-default">
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Grievances Filed</span>
-            <span className="text-2xl font-extrabold text-slate-800 mt-1 block">{totalComplaints || 0}</span>
-            <span className="text-[10px] text-rose-600 font-semibold mt-1 inline-flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" /> {activeComplaints || 0} Active Cases
+            <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] block">Grievances Filed</span>
+            <span className="text-3xl font-black text-slate-900 dark:text-white mt-2 block tracking-tight">{totalComplaints || 0}</span>
+            <span className="text-[10px] text-rose-700 dark:text-rose-400 font-extrabold mt-2 inline-flex items-center gap-1 bg-rose-50 dark:bg-rose-500/10 px-2.5 py-1 rounded-lg">
+              <AlertTriangle className="w-3.5 h-3.5" /> {activeComplaints || 0} Active Cases
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0">
-            <ShieldAlert className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 group-hover:scale-105 transition-transform duration-300 border border-rose-100 dark:border-rose-500/20">
+            <ShieldAlert className="w-7 h-7" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-center justify-between shadow-sm dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 group cursor-default">
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Active Courses</span>
-            <span className="text-2xl font-extrabold text-slate-800 mt-1 block">{totalCourses || 0}</span>
-            <span className="text-[10px] text-slate-400 font-semibold mt-1.5 block">Academy CMS</span>
+            <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] block">Active Courses</span>
+            <span className="text-3xl font-black text-slate-900 dark:text-white mt-2 block tracking-tight">{totalCourses || 0}</span>
+            <span className="text-[10px] text-sky-700 dark:text-sky-400 font-extrabold mt-2 inline-flex items-center gap-1 bg-sky-50 dark:bg-sky-500/10 px-2.5 py-1 rounded-lg">
+               Academy CMS
+            </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-500 shrink-0">
-            <BookOpen className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 group-hover:scale-105 transition-transform duration-300 border border-sky-100 dark:border-sky-500/20">
+            <BookOpen className="w-7 h-7" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-center justify-between shadow-sm dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 group cursor-default">
           <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Enrollments</span>
-            <span className="text-2xl font-extrabold text-slate-800 mt-1 block">{totalEnrollments || 0}</span>
-            <span className="text-[10px] text-emerald-600 font-semibold mt-1 inline-flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" /> Active Intake
+            <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] block">Enrollments</span>
+            <span className="text-3xl font-black text-slate-900 dark:text-white mt-2 block tracking-tight">{totalEnrollments || 0}</span>
+            <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-extrabold mt-2 inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-1 rounded-lg">
+              <TrendingUp className="w-3.5 h-3.5" /> Active Intake
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 shrink-0">
-            <GraduationCap className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0 group-hover:scale-105 transition-transform duration-300 border border-indigo-100 dark:border-indigo-500/20">
+            <GraduationCap className="w-7 h-7" />
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-          <div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Revenue</span>
-            <span className="text-lg sm:text-xl font-black text-[#C00000] mt-1 block">INR {totalRevenue.toLocaleString("en-IN")}</span>
-            <span className="text-[10px] text-emerald-600 font-semibold mt-1 inline-flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" /> Fees Logged
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-center justify-between shadow-sm dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 group cursor-default relative overflow-hidden">
+          <div className="absolute inset-0 bg-emerald-500/5 dark:bg-emerald-500/10 pointer-events-none"></div>
+          <div className="relative z-10">
+            <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] block">Total Revenue</span>
+            <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-300 mt-2 block tracking-tight">INR {totalRevenue.toLocaleString("en-IN")}</span>
+            <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-extrabold mt-2 inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg shadow-sm dark:shadow-none border border-emerald-100 dark:border-emerald-500/20">
+              <CheckCircle className="w-3.5 h-3.5" /> Fees Logged
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0">
-            <IndianRupee className="w-6 h-6" />
+          <div className="relative z-10 w-12 h-12 rounded-xl bg-emerald-600 dark:bg-emerald-500 flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-md shadow-emerald-500/20">
+            <IndianRupee className="w-7 h-7" />
           </div>
         </div>
       </div>
@@ -231,28 +281,28 @@ export default async function AdminDashboardPage() {
       {/* Main Grid: Left lists & Right timeline */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Recent Membership requests</h3>
-              <Link href="/admin/members" className="text-[10px] font-bold text-[#001C55] hover:underline uppercase tracking-wider flex items-center gap-0.5">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
+            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/70">
+              <h3 className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-widest">Recent Membership requests</h3>
+              <Link href="/admin/members" className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 px-3 py-1.5 rounded-lg transition-all tracking-wider flex items-center gap-1">
                 Manage all <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {!recentMembers || recentMembers.length === 0 ? (
-                <p className="text-xs text-slate-400 p-6 text-center italic">No membership records found.</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 p-8 text-center italic font-medium">No membership records found.</p>
               ) : (
                 recentMembers.map((member) => (
-                  <div key={member.id} className="p-4 flex items-center justify-between text-xs hover:bg-slate-50/50 transition-all font-semibold text-slate-700">
+                  <div key={member.id} className="p-5 flex items-center justify-between text-sm hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all font-semibold text-slate-700 dark:text-slate-300 group">
                     <div>
-                      <h4 className="font-bold text-slate-800">{member.full_name}</h4>
-                      <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">ACK: {member.ack_no}</span>
+                      <h4 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">{member.full_name}</h4>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-1 block">ACK: {member.ack_no}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold border ${getStatusColor(member.status)}`}>
+                    <div className="flex items-center gap-4">
+                      <span className={`px-3 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider shadow-sm dark:shadow-none ${getStatusColor(member.status)}`}>
                         {member.status}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-semibold">{new Date(member.created_at).toLocaleDateString("en-IN")}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{new Date(member.created_at).toLocaleDateString("en-IN")}</span>
                     </div>
                   </div>
                 ))
@@ -260,28 +310,28 @@ export default async function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Recent Grievance Logs</h3>
-              <Link href="/admin/complaints" className="text-[10px] font-bold text-[#001C55] hover:underline uppercase tracking-wider flex items-center gap-0.5">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
+            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/70">
+              <h3 className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-widest">Recent Grievance Logs</h3>
+              <Link href="/admin/complaints" className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 px-3 py-1.5 rounded-lg transition-all tracking-wider flex items-center gap-1">
                 Review cases <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {!recentComplaints || recentComplaints.length === 0 ? (
-                <p className="text-xs text-slate-400 p-6 text-center italic">No grievances recorded.</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 p-8 text-center italic font-medium">No grievances recorded.</p>
               ) : (
                 recentComplaints.map((complaint) => (
-                  <div key={complaint.id} className="p-4 flex items-center justify-between text-xs hover:bg-slate-50/50 transition-all font-semibold text-slate-700">
+                  <div key={complaint.id} className="p-5 flex items-center justify-between text-sm hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all font-semibold text-slate-700 dark:text-slate-300 group">
                     <div>
-                      <h4 className="font-bold text-slate-800">By: {complaint.name}</h4>
-                      <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">Docket: {complaint.complaint_no}</span>
+                      <h4 className="font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">By: {complaint.name}</h4>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-1 block">Docket: {complaint.complaint_no}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold border ${getStatusColor(complaint.status)}`}>
+                    <div className="flex items-center gap-4">
+                      <span className={`px-3 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider shadow-sm dark:shadow-none ${getStatusColor(complaint.status)}`}>
                         {complaint.status}
                       </span>
-                      <span className="text-[10px] text-slate-400 font-semibold">{new Date(complaint.created_at).toLocaleDateString("en-IN")}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">{new Date(complaint.created_at).toLocaleDateString("en-IN")}</span>
                     </div>
                   </div>
                 ))
@@ -290,29 +340,29 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm h-fit">
-          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-6 pb-2 border-b border-slate-100">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none h-fit sticky top-24">
+          <h3 className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
             Live Activity Timeline
           </h3>
           {sortedActivities.length === 0 ? (
-            <p className="text-xs text-slate-400 italic">No activity logged yet.</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 italic font-medium">No activity logged yet.</p>
           ) : (
-            <div className="relative pl-4 border-l border-slate-150 space-y-6 text-xs text-left">
+            <div className="relative pl-5 border-l-2 border-slate-100 dark:border-slate-800 space-y-7 text-sm text-left">
               {sortedActivities.map((act, i) => (
-                <div key={i} className="relative">
-                  <span className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white ring-2 ring-slate-100 ${
-                    act.type === "payment" ? "bg-emerald-500" :
-                    act.type === "membership" ? "bg-sky-500" :
-                    act.type === "complaint" ? "bg-purple-500" : "bg-cyan-500"
+                <div key={i} className="relative group">
+                  <span className={`absolute -left-[27px] top-1.5 w-3.5 h-3.5 rounded-full border-[3px] border-white dark:border-slate-900 ring-4 ring-slate-50 dark:ring-slate-950 shadow-sm transition-transform duration-300 group-hover:scale-125 ${
+                    act.type === "payment" ? "bg-emerald-500 ring-emerald-50 dark:ring-emerald-500/20" :
+                    act.type === "membership" ? "bg-sky-500 ring-sky-50 dark:ring-sky-500/20" :
+                    act.type === "complaint" ? "bg-rose-500 ring-rose-50 dark:ring-rose-500/20" : "bg-cyan-500 ring-cyan-50 dark:ring-cyan-500/20"
                   }`} />
-                  <div>
+                  <div className="group-hover:translate-x-1 transition-transform duration-300">
                     <div className="flex justify-between items-center">
-                      <strong className="text-slate-800 font-bold text-[11px]">{act.title}</strong>
-                      <span className="text-[9px] text-slate-400 font-semibold">
+                      <strong className="text-slate-900 dark:text-slate-200 font-extrabold text-xs">{act.title}</strong>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
                         {act.time.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}
                       </span>
                     </div>
-                    <p className="text-slate-500 text-[10px] mt-0.5 font-medium leading-relaxed">{act.desc}</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-[11.5px] mt-1.5 font-medium leading-relaxed">{act.desc}</p>
                   </div>
                 </div>
               ))}

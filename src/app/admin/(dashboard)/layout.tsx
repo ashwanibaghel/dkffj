@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import AdminNavWrapper from "./AdminNavWrapper";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +39,10 @@ export default async function AdminLayout({
   }
 
   return (
-    <AdminNavWrapper profile={profile} email={user.email!}>
-      {children}
-    </AdminNavWrapper>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <AdminNavWrapper profile={profile} email={user.email!}>
+        {children}
+      </AdminNavWrapper>
+    </ThemeProvider>
   );
 }

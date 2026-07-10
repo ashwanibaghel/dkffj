@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields } from "./actions";
-import { Users, FileCheck, XCircle, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload } from "lucide-react";
+import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 
@@ -22,9 +23,42 @@ const DESIGNATIONS = [
   "IT Cell Incharge", "YouTube Media Partner", "Chartered Accountant", "Other"
 ];
 
+type MemberRecord = {
+  id: string;
+  user_id?: string;
+  full_name: string;
+  father_name: string;
+  gender: string;
+  dob: string;
+  mobile: string;
+  whatsapp?: string;
+  email: string;
+  address: string;
+  district: string;
+  state: string;
+  pincode: string;
+  education: string;
+  profession: string;
+  working_area: string;
+  designation: string;
+  police_station?: string | null;
+  photo_url?: string | null;
+  aadhaar_url: string;
+  signature_url: string;
+  status: string;
+  membership_no?: string | null;
+  ack_no: string;
+  approved_at?: string | null;
+  created_at: string;
+  remarks?: string | null;
+};
+
+const getErrorMessage = (error: unknown) => {
+  return error instanceof Error ? error.message : String(error);
+};
+
 export default function AdminMembersPage() {
-  const [members, setMembers] = useState<any[]>([]);
-  const [filteredMembers, setFilteredMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<MemberRecord[]>([]);
   const [filter, setFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,7 +77,19 @@ export default function AdminMembersPage() {
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState<string>("");
 
-  const startEditing = (member: any) => {
+  async function fetchData() {
+    setLoading(true);
+    try {
+      const data = await getMemberships();
+      setMembers(data as MemberRecord[]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const startEditing = (member: MemberRecord) => {
     setEditingId(member.id);
     setEditDesignation(member.designation);
     setEditPhotoFile(null);
@@ -79,8 +125,8 @@ export default function AdminMembersPage() {
         setActionError(res.error || "Failed to update membership details.");
         showToast(res.error || "Failed to update membership details.", "error");
       }
-    } catch (err: any) {
-      setActionError(err.message || "Error updating membership details.");
+    } catch (err: unknown) {
+      setActionError(getErrorMessage(err) || "Error updating membership details.");
       showToast("Error updating membership details.", "error");
     } finally {
       setActionLoading(false);
@@ -108,23 +154,27 @@ export default function AdminMembersPage() {
   }, [toast.visible]);
 
   useEffect(() => {
-    fetchData();
+    const animationFrame = window.requestAnimationFrame(() => {
+      void fetchData();
+    });
+
+    return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const data = await getMemberships();
-      setMembers(data);
-      setFilteredMembers(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const statusFilters = ["ALL", "PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"];
 
-  useEffect(() => {
+  const statusCounts = useMemo(() => {
+    return members.reduce(
+      (acc, member) => {
+        acc.ALL += 1;
+        acc[member.status] = (acc[member.status] || 0) + 1;
+        return acc;
+      },
+      { ALL: 0 } as Record<string, number>
+    );
+  }, [members]);
+
+  const filteredMembers = useMemo(() => {
     let result = members;
     if (filter !== "ALL") {
       result = result.filter((m) => m.status === filter);
@@ -139,7 +189,7 @@ export default function AdminMembersPage() {
           (m.membership_no && m.membership_no.toLowerCase().includes(q))
       );
     }
-    setFilteredMembers(result);
+    return result;
   }, [filter, searchQuery, members]);
 
   const handleOpenPrivateDoc = async (bucket: string, path: string) => {
@@ -150,12 +200,12 @@ export default function AdminMembersPage() {
       } else {
         showToast(res.error || "Failed to generate file access token.", "error");
       }
-    } catch (err) {
+    } catch {
       showToast("Error fetching document link.", "error");
     }
   };
 
-  const handleDownloadCertificate = async (member: any) => {
+  const handleDownloadCertificate = async (member: MemberRecord) => {
     setDownloadingId(member.id);
     try {
       const appUrl = window.location.origin;
@@ -191,15 +241,15 @@ export default function AdminMembersPage() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
       showToast("Certificate downloaded successfully!", "success");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      showToast(`Error generating certificate: ${err.message || err}`, "error");
+      showToast(`Error generating certificate: ${getErrorMessage(err)}`, "error");
     } finally {
       setDownloadingId(null);
     }
   };
 
-  const handleDownloadIdCard = async (member: any) => {
+  const handleDownloadIdCard = async (member: MemberRecord) => {
     setDownloadingIdCardId(member.id);
     try {
       const appUrl = window.location.origin;
@@ -257,9 +307,9 @@ export default function AdminMembersPage() {
       window.URL.revokeObjectURL(pngUrl);
 
       showToast("ID Card PDF & PNG downloaded successfully!", "success");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      showToast(`Error generating ID Card: ${err.message || err}`, "error");
+      showToast(`Error generating ID Card: ${getErrorMessage(err)}`, "error");
     } finally {
       setDownloadingIdCardId(null);
     }
@@ -279,7 +329,7 @@ export default function AdminMembersPage() {
         setActionError(res.error || "Failed to process membership change.");
         showToast(res.error || "Failed to process membership change.", "error");
       }
-    } catch (err) {
+    } catch {
       setActionError("Error updating membership status.");
       showToast("Error updating membership status.", "error");
     } finally {
@@ -299,28 +349,58 @@ export default function AdminMembersPage() {
     <div className="space-y-6">
       
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-serif font-bold text-slate-800 flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#001C55]" /> NGO Membership Board
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
+            <Users className="w-5 h-5 text-[#001C55] dark:text-blue-400" /> NGO Membership Board
           </h1>
-          <p className="text-slate-500 text-xs mt-1">Review applicant profiles, specimen files, and issue membership certificates.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Review applicant profiles, specimen files, and issue membership certificates.</p>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
+          <Clock className="w-3.5 h-3.5" />
+          <span>{filteredMembers.length} visible of {members.length} records</span>
         </div>
       </div>
 
+      {/* Status Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {statusFilters.map((status) => {
+          const isActive = filter === status;
+          const label = status === "ALL" ? "All" : status.replace("_", " ");
+          const count = statusCounts[status] || 0;
+          return (
+            <button
+              key={status}
+              type="button"
+              onClick={() => setFilter(status)}
+              className={`text-left rounded-2xl border p-4 transition-all ${
+                isActive
+                  ? "bg-[#001C55] text-white border-[#001C55] shadow-lg shadow-blue-950/10"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-500/40 hover:-translate-y-0.5"
+              }`}
+            >
+              <span className={`text-[10px] font-black uppercase tracking-[0.14em] ${isActive ? "text-blue-100" : "text-slate-400 dark:text-slate-500"}`}>
+                {label}
+              </span>
+              <span className="block text-2xl font-black mt-2 tracking-tight">{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Control Panel */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm dark:shadow-none">
         
         {/* Filters */}
         <div className="flex flex-wrap gap-2">
-          {["ALL", "PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"].map((f) => (
+          {statusFilters.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 filter === f
                   ? "bg-[#001C55] text-white border-[#001C55]"
-                  : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
               }`}
             >
               {f === "ALL" ? "All Applications" : f}
@@ -329,13 +409,13 @@ export default function AdminMembersPage() {
         </div>
 
         {/* Search */}
-        <div className="relative max-w-xs w-full">
+        <div className="relative max-w-md w-full">
           <input
             type="text"
-            placeholder="Search by name, ACK, ID..."
+            placeholder="Search name, ACK, member ID, email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:outline-none focus:bg-white"
+            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 font-semibold"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
         </div>
@@ -343,16 +423,24 @@ export default function AdminMembersPage() {
 
       {/* Main List */}
       {loading ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
+        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
           <Loader2 className="w-8 h-8 animate-spin text-[#001C55] mx-auto mb-3" />
-          <p className="text-xs text-slate-500">Loading applicant profiles, please wait...</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Loading applicant profiles, please wait...</p>
         </div>
       ) : filteredMembers.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-xl">
-          <p className="text-xs text-slate-500">No matching membership applications found.</p>
+        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+          <p className="text-xs text-slate-500 dark:text-slate-400">No matching membership applications found.</p>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm divide-y divide-slate-100">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
+          <div className="hidden lg:grid grid-cols-[minmax(240px,1.4fr)_minmax(220px,1fr)_minmax(160px,0.8fr)_minmax(150px,0.7fr)_96px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">
+            <span>Applicant</span>
+            <span>Contact</span>
+            <span>Member ID</span>
+            <span>Status</span>
+            <span className="text-right">Actions</span>
+          </div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {filteredMembers.map((member) => {
             const isExpanded = expandedId === member.id;
             return (
@@ -360,23 +448,28 @@ export default function AdminMembersPage() {
                 {/* Collapsed Header View */}
                 <div
                   onClick={() => setExpandedId(isExpanded ? null : member.id)}
-                  className={`p-4 flex items-center justify-between text-xs font-semibold cursor-pointer hover:bg-slate-50/50 transition-colors ${
-                    isExpanded ? "bg-slate-50/50 border-b border-slate-100" : ""
+                  className={`p-4 lg:px-5 lg:py-3 flex items-center justify-between text-xs font-semibold cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors ${
+                    isExpanded ? "bg-blue-50/40 dark:bg-blue-500/5 border-b border-slate-100 dark:border-slate-800" : ""
                   }`}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">{member.full_name}</h4>
-                      <span className="text-[10px] text-slate-400 mt-0.5 block font-mono">ACK: {member.ack_no}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(240px,1.4fr)_minmax(220px,1fr)_minmax(160px,0.8fr)_minmax(150px,0.7fr)_96px] gap-4 flex-1 items-center">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center shrink-0">
+                        <Users className="w-4 h-4 text-blue-700 dark:text-blue-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm truncate">{member.full_name}</h4>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block font-mono">ACK: {member.ack_no}</span>
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Contact Info</span>
+                      <span className="text-slate-700 dark:text-slate-300 block mt-0.5 truncate">{member.email}</span>
+                      <span className="text-slate-500 dark:text-slate-400 block mt-0.5">{member.mobile}</span>
                     </div>
                     <div>
-                      <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Contact Info</span>
-                      <span className="text-slate-650 block mt-0.5">{member.email}</span>
-                      <span className="text-slate-650 block mt-0.5">{member.mobile}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Membership ID</span>
-                      <span className="text-slate-800 block mt-0.5 font-mono font-bold">
+                      <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Membership ID</span>
+                      <span className="text-slate-800 dark:text-slate-200 block mt-0.5 font-mono font-bold">
                         {member.membership_no || "NOT GENERATED"}
                       </span>
                     </div>
@@ -384,6 +477,8 @@ export default function AdminMembersPage() {
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(member.status)}`}>
                         {member.status}
                       </span>
+                    </div>
+                    <div className="flex items-center justify-start lg:justify-end gap-2">
                       {member.status === "APPROVED" && (
                         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                           <button
@@ -414,6 +509,7 @@ export default function AdminMembersPage() {
                           </button>
                         </div>
                       )}
+                      <ShieldCheck className={`hidden lg:block w-4 h-4 ${member.status === "APPROVED" ? "text-emerald-500" : "text-slate-300 dark:text-slate-600"}`} />
                     </div>
                   </div>
                   <div className="text-slate-400 shrink-0 ml-4">
@@ -472,10 +568,13 @@ export default function AdminMembersPage() {
                       {/* Left Column: Personal Photo */}
                       <div className="flex flex-col items-center border border-slate-200/60 bg-white rounded-xl p-4 text-center">
                         <div className="relative group w-28 h-28">
-                          <img
+                          <Image
                             src={editingId === member.id ? editPhotoPreview : (member.photo_url || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300")}
                             alt={member.full_name}
-                            className="w-28 h-28 object-cover rounded-xl border"
+                            width={112}
+                            height={112}
+                            className="h-28 w-28 object-cover rounded-xl border"
+                            unoptimized
                           />
                           {editingId === member.id && (
                             <label className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
@@ -653,6 +752,7 @@ export default function AdminMembersPage() {
               </div>
             );
           })}
+          </div>
         </div>
       )}
 
