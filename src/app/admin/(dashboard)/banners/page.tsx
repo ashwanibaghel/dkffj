@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getBanners, addBanner, updateBanner, deleteBanner } from "./actions";
 import { Image as ImageIcon, Plus, Trash2, Edit2, X, ToggleLeft, ToggleRight, Loader2, AlertCircle, Search, Filter, Clock } from "lucide-react";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type BannerRecord = {
   id: string;
@@ -284,9 +285,13 @@ export default function AdminBannersPage() {
           <p className="text-slate-500 dark:text-slate-400">Loading slider banners, please wait...</p>
         </div>
       ) : filteredBanners.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-slate-500 dark:text-slate-400">No slider banners match the current filters.</p>
-        </div>
+        <AdminEmptyState
+          icon={ImageIcon}
+          title="No slider banners visible"
+          description="No banners match the current search or status filter. Clear filters or create a new homepage banner."
+          actionLabel="Add Banner"
+          onAction={openAddModal}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredBanners.map((banner) => (

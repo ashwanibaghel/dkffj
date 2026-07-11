@@ -7,6 +7,7 @@ import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, Chevr
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage } from "@/lib/uploadToStorage";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 const DESIGNATIONS = [
   "DIRECTOR", "ADD DIRECTOR", "National President", "PRESIDENT", "Secretary",
@@ -654,9 +655,11 @@ export default function AdminMembersPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400">Loading applicant profiles, please wait...</p>
         </div>
       ) : filteredMembers.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-xs text-slate-500 dark:text-slate-400">No matching membership applications found.</p>
-        </div>
+        <AdminEmptyState
+          icon={Users}
+          title="No members visible"
+          description="No membership applications match the selected status or search query. Try another status or search by name, email, or acknowledgement number."
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="hidden lg:grid grid-cols-[minmax(240px,1.4fr)_minmax(220px,1fr)_minmax(160px,0.8fr)_minmax(150px,0.7fr)_96px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">

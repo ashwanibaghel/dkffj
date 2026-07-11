@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { getAppreciationApplications, getSignedDocumentUrl, updateAppreciationStatus } from "./actions";
 import { FileCheck, XCircle, Search, Eye, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, Clock, Filter } from "lucide-react";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type AppreciationApplication = {
   id: string;
@@ -244,10 +245,12 @@ export default function AdminAppreciationPage() {
             <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">Loading appreciation applications...</span>
           </div>
         ) : filteredApplications.length === 0 ? (
-          <div className="p-20 text-center text-slate-400 dark:text-slate-500 flex flex-col items-center justify-center gap-2">
-            <Award className="w-10 h-10 text-slate-200 dark:text-slate-700" />
-            <span className="text-xs font-bold uppercase tracking-wider">No applications found</span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500">Try modifying your filters or search query.</span>
+          <div className="p-4">
+            <AdminEmptyState
+              icon={Award}
+              title="No appreciation applications visible"
+              description="No appreciation applications match the selected status or search query. Try another status or search by name, email, or application number."
+            />
           </div>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">

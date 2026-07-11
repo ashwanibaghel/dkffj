@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getAdminCourses, upsertCourse, toggleCourseStatus } from "./actions";
 import { BookOpen, Plus, Edit2, Loader2, AlertCircle, ToggleLeft, ToggleRight, X, Search, Filter, Clock } from "lucide-react";
 import { AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type CourseRecord = {
   id: string;
@@ -262,9 +263,13 @@ export default function AdminCoursesPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400">Loading courses catalog...</p>
         </div>
       ) : filteredCourses.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-xs text-slate-500 dark:text-slate-400">No courses match the current filters.</p>
-        </div>
+        <AdminEmptyState
+          icon={BookOpen}
+          title="No courses visible"
+          description="No academy courses match the current search or status filter. Add a course or adjust the filters."
+          actionLabel="Add Course"
+          onAction={handleOpenAdd}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCourses.map((course) => (

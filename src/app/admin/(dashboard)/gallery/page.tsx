@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getGalleryItems, addGalleryItem, deleteGalleryItem, getVideoItems, addVideoItem, deleteVideoItem } from "./actions";
 import { Image as ImageIcon, Video, Trash2, Plus, X, Loader2, AlertCircle, Search, Clock } from "lucide-react";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type PhotoRecord = {
   id: string;
@@ -300,10 +301,13 @@ export default function AdminGalleryPage() {
       ) : activeTab === "photos" ? (
         /* PHOTOS PANEL */
         filteredPhotos.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-            <ImageIcon className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-            <p className="text-slate-400 dark:text-slate-500">No photos match the current search.</p>
-          </div>
+          <AdminEmptyState
+            icon={ImageIcon}
+            title="No photos visible"
+            description="No gallery photos match the current search. Add a photo entry or adjust the search term."
+            actionLabel="Add Photo"
+            onAction={() => setModalOpen(true)}
+          />
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {filteredPhotos.map((item) => (
@@ -329,10 +333,13 @@ export default function AdminGalleryPage() {
       ) : (
         /* VIDEOS PANEL */
         filteredVideos.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-            <Video className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-            <p className="text-slate-400 dark:text-slate-500">No videos match the current search.</p>
-          </div>
+          <AdminEmptyState
+            icon={Video}
+            title="No videos visible"
+            description="No media videos match the current search. Add a video briefing or clear the search term."
+            actionLabel="Add Video"
+            onAction={() => setModalOpen(true)}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredVideos.map((item) => (

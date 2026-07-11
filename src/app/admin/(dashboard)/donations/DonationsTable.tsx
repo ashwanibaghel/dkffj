@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { CheckCircle2, Clock, Filter, HeartHandshake, ReceiptText, Search, XCircle } from "lucide-react";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 export type DonationLedgerItem = {
   id: string;
@@ -164,8 +165,12 @@ export default function DonationsTable({ initialDonations }: DonationsTableProps
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-semibold text-slate-700 dark:text-slate-300">
               {filteredDonations.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-400 dark:text-slate-500 italic">
-                    No donation records match filters.
+                  <td colSpan={7} className="p-4">
+                    <AdminEmptyState
+                      icon={HeartHandshake}
+                      title="No donations visible"
+                      description="No donation records match the current search or status filter. Try another status or search by donor, receipt, mobile, or purpose."
+                    />
                   </td>
                 </tr>
               ) : (

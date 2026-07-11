@@ -6,6 +6,7 @@ import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistra
 import { generateCertificatePDFClient } from "./CertificateGenerator";
 import { createClient } from "@/utils/supabase/client";
 import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Download, CheckCircle, ChevronUp, ChevronDown, BookOpen, Eye } from "lucide-react";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type CourseInfo = {
   title?: string | null;
@@ -382,9 +383,11 @@ export default function AdminRegistrationsPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400">Loading registrations list...</p>
         </div>
       ) : filteredRegistrations.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-xs text-slate-500 dark:text-slate-400">No matching registrations found.</p>
-        </div>
+        <AdminEmptyState
+          icon={GraduationCap}
+          title="No enrollments visible"
+          description="No course registrations match the selected status or search query. Try another status or search by student, course, or enrollment number."
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="hidden lg:grid grid-cols-[minmax(250px,1.25fr)_minmax(230px,1fr)_minmax(210px,0.95fr)_minmax(150px,0.7fr)_90px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">

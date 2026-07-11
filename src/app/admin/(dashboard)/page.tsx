@@ -15,6 +15,7 @@ import {
   CheckCircle,
   AlertTriangle
 } from "lucide-react";
+import AdminEmptyState from "./components/AdminEmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -290,7 +291,13 @@ export default async function AdminDashboardPage() {
             </div>
             <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {!recentMembers || recentMembers.length === 0 ? (
-                <p className="text-sm text-slate-400 dark:text-slate-500 p-8 text-center italic font-medium">No membership records found.</p>
+                <div className="p-4">
+                  <AdminEmptyState
+                    icon={Users}
+                    title="No recent members"
+                    description="New membership applications will appear here as soon as people submit the form."
+                  />
+                </div>
               ) : (
                 recentMembers.map((member) => (
                   <div key={member.id} className="p-5 flex items-center justify-between text-sm hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all font-semibold text-slate-700 dark:text-slate-300 group">
@@ -319,7 +326,13 @@ export default async function AdminDashboardPage() {
             </div>
             <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {!recentComplaints || recentComplaints.length === 0 ? (
-                <p className="text-sm text-slate-400 dark:text-slate-500 p-8 text-center italic font-medium">No grievances recorded.</p>
+                <div className="p-4">
+                  <AdminEmptyState
+                    icon={ShieldAlert}
+                    title="No recent grievances"
+                    description="New public grievance dockets will appear here when cases are filed."
+                  />
+                </div>
               ) : (
                 recentComplaints.map((complaint) => (
                   <div key={complaint.id} className="p-5 flex items-center justify-between text-sm hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-all font-semibold text-slate-700 dark:text-slate-300 group">
@@ -345,7 +358,11 @@ export default async function AdminDashboardPage() {
             Live Activity Timeline
           </h3>
           {sortedActivities.length === 0 ? (
-            <p className="text-sm text-slate-400 dark:text-slate-500 italic font-medium">No activity logged yet.</p>
+            <AdminEmptyState
+              icon={Clock}
+              title="No activity yet"
+              description="Memberships, grievances, certificates, enrollments, and payments will populate this timeline automatically."
+            />
           ) : (
             <div className="relative pl-5 border-l-2 border-slate-100 dark:border-slate-800 space-y-7 text-sm text-left">
               {sortedActivities.map((act, i) => (

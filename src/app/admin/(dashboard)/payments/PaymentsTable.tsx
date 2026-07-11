@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle } from "lucide-react";
 import { manuallyApprovePayment } from "./actions";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type PaymentLedgerRow = {
   id: string;
@@ -253,7 +254,13 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-semibold text-slate-700 dark:text-slate-300">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-400 dark:text-slate-500 italic">No transaction records match filters.</td>
+                  <td colSpan={7} className="p-4">
+                    <AdminEmptyState
+                      icon={ReceiptText}
+                      title="No transactions visible"
+                      description="No payment records match the current search or status filter. Try another status or search by transaction, payer, or category."
+                    />
+                  </td>
                 </tr>
               ) : (
                 filtered.map((pay) => {

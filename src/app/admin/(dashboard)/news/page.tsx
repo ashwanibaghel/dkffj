@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getNews, addNews, updateNews, deleteNews } from "./actions";
 import { Newspaper, Plus, Trash2, Edit2, X, Loader2, AlertCircle, Search, Filter, Clock, CheckCircle2, FilePenLine } from "lucide-react";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type NewsRecord = {
   id: string;
@@ -285,9 +286,13 @@ export default function AdminNewsPage() {
           <p className="text-slate-500 dark:text-slate-400">Loading announcements, please wait...</p>
         </div>
       ) : filteredNews.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-slate-500 dark:text-slate-400">No news updates match the current filters.</p>
-        </div>
+        <AdminEmptyState
+          icon={Newspaper}
+          title="No news posts visible"
+          description="No news or blog posts match the current status or search query. Create a post or clear the filters."
+          actionLabel="Create Post"
+          onAction={openAddModal}
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="hidden lg:grid grid-cols-[minmax(360px,1.4fr)_160px_130px_170px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">
