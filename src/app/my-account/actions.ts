@@ -16,6 +16,7 @@ export interface AccountData {
   courses: any[];
   complaints: any[];
   notifications: any[];
+  referredCount: number;
 }
 
 /** Fetch all account details linked to the logged-in user */
@@ -26,7 +27,7 @@ export async function getAccountDetails(): Promise<AccountData> {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return { profile: null, memberships: [], courses: [], complaints: [], notifications: [] };
+    return { profile: null, memberships: [], courses: [], complaints: [], notifications: [], referredCount: 0 };
   }
 
   // 1. Get profile from public users table
@@ -133,6 +134,20 @@ export async function getAccountDetails(): Promise<AccountData> {
     .order("sent_at", { ascending: false })
     .limit(20);
 
+  // Find approved membership ID to count referrals
+  let referredCount = 0;
+  const approvedMember = (memberships || []).find((m: any) => m.status === "APPROVED");
+  if (approvedMember) {
+    const { count, error: countError } = await supabase
+      .from("memberships")
+      .select("id", { count: "exact", head: true })
+      .eq("referred_by_member_id", approvedMember.id);
+    
+    if (!countError && count !== null) {
+      referredCount = count;
+    }
+  }
+
   return {
     profile: profile ? {
       id: profile.id,
@@ -144,7 +159,8 @@ export async function getAccountDetails(): Promise<AccountData> {
     memberships: memberships || [],
     courses: courses || [],
     complaints: complaints || [],
-    notifications: notifications || []
+    notifications: notifications || [],
+    referredCount
   };
 }
 

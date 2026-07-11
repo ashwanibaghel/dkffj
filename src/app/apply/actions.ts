@@ -104,6 +104,56 @@ export async function verifyMembershipOtp(mobile: string, code: string) {
   return { success: true, message: "OTP verified successfully." };
 }
 
+/**
+ * Validates a referral code (membership_no) and returns the referrer's UUID if eligible.
+ * Prevents self-referral using userId, email, and mobile checks.
+ */
+export async function checkReferralEligibility(
+  referralCode: string,
+  applicantUserId: string | null,
+  applicantEmail: string,
+  applicantMobile: string
+) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const cleanCode = referralCode.trim().toUpperCase();
+
+  // 1. Fetch referrer membership details
+  const { data: referrer, error } = await supabase
+    .from("memberships")
+    .select("id, status, user_id, email, mobile, membership_no")
+    .eq("membership_no", cleanCode)
+    .maybeSingle();
+
+  if (error || !referrer) {
+    return { success: false, error: "The Referral Member ID entered is invalid." };
+  }
+
+  // 2. Check if referrer is APPROVED
+  // (Isolating status check so additional expiry/suspension rules can be added here later)
+  if (referrer.status !== "APPROVED") {
+    return { success: false, error: "The Referral Member ID entered is not an active approved member." };
+  }
+
+  // 3. Self-referral prevention (authenticated user checks)
+  if (applicantUserId && referrer.user_id === applicantUserId) {
+    return { success: false, error: "You cannot use your own Membership ID as a referral." };
+  }
+
+  // 4. Self-referral prevention (unauthenticated contact-based checks)
+  const cleanAppEmail = applicantEmail.trim().toLowerCase();
+  const cleanAppMobile = applicantMobile.trim();
+  const cleanRefEmail = referrer.email.trim().toLowerCase();
+  const cleanRefMobile = referrer.mobile.trim();
+
+  if (cleanRefEmail === cleanAppEmail || cleanRefMobile === cleanAppMobile) {
+    return { success: false, error: "You cannot refer yourself." };
+  }
+
+  return { success: true, referrerId: referrer.id };
+}
+
 // 3. Submit Membership Application
 export async function submitMembershipApplication(prevData: any, formData: FormData) {
   const cookieStore = await cookies();
@@ -115,6 +165,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   const password = formData.get("password") as string;
   const fullName = sanitizeInput(formData.get("fullName") as string);
   const otpCode = sanitizeInput(formData.get("otpCode") as string);
+  const referralCode = sanitizeInput(formData.get("referralCode") as string || "");
 
   // Validate OTP was verified
   const now = new Date().toISOString();
@@ -161,6 +212,16 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       console.error("Auth registration exception:", err);
       return { success: false, error: `Account registration failed: ${err.message || err}` };
     }
+  }
+
+  // Validate Referral Code if provided (Direct joining has no code)
+  let referredByMemberId: string | null = null;
+  if (referralCode) {
+    const referralRes = await checkReferralEligibility(referralCode, userId || null, email, mobile);
+    if (!referralRes.success) {
+      return { success: false, error: referralRes.error };
+    }
+    referredByMemberId = referralRes.referrerId || null;
   }
 
   // Extract Form Fields
@@ -276,7 +337,8 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
           photo_url: photoUrl,
           aadhaar_url: aadhaarUrl,
           signature_url: signatureUrl,
-          status: "PENDING"
+          status: "PENDING",
+          referred_by_member_id: referredByMemberId
         })
         .select("id")
         .single();

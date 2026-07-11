@@ -412,7 +412,7 @@ export default function MyAccountPage() {
     );
   }
 
-  const { profile, memberships, courses, complaints, notifications } = data;
+  const { profile, memberships, courses, complaints, notifications, referredCount } = data;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] via-white to-[#e8f4fd] text-slate-900 flex flex-col font-sans relative">
@@ -473,32 +473,64 @@ export default function MyAccountPage() {
         <section className="flex-1 min-w-0">
           
           {/* DASHBOARD TAB */}
-          {activeTab === "dashboard" && (
-            <div className="space-y-6">
-              {/* Greeting */}
-              <div className="bg-gradient-to-r from-[#1565C0] to-[#0D47A1] rounded-3xl p-6 sm:p-8 text-white text-left shadow-lg">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-200">DKFFJ Resident Portal</span>
-                <h2 className="text-2xl sm:text-3xl font-black font-serif mt-2">Hello, {profile.fullName}</h2>
-                <p className="text-sky-100 text-xs mt-1 leading-relaxed max-w-lg">
-                  Access your dynamic files, view active memberships, track course approvals, and query grievance statuses in real-time.
-                </p>
-              </div>
+          {activeTab === "dashboard" && (() => {
+            const approvedMembership = memberships.find((m) => m.status === "APPROVED" && m.membership_no);
+            return (
+              <div className="space-y-6">
+                {/* Greeting */}
+                <div className="bg-gradient-to-r from-[#1565C0] to-[#0D47A1] rounded-3xl p-6 sm:p-8 text-white text-left shadow-lg">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-sky-200">DKFFJ Resident Portal</span>
+                  <h2 className="text-2xl sm:text-3xl font-black font-serif mt-2">Hello, {profile.fullName}</h2>
+                  <p className="text-sky-100 text-xs mt-1 leading-relaxed max-w-lg">
+                    Access your dynamic files, view active memberships, track course approvals, and query grievance statuses in real-time.
+                  </p>
+                </div>
 
-              {/* Stats overview */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Active Memberships</span>
-                  <span className="text-2xl font-black text-slate-800 mt-1 block">{memberships.filter(m => m.status === "APPROVED").length}</span>
+                {/* Referral ID Card (Only for Approved Members) */}
+                {approvedMembership && (
+                  <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-l-4 border-l-emerald-500">
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 uppercase tracking-wider">
+                        Approved Referrer ID
+                      </span>
+                      <h4 className="text-slate-800 font-bold text-sm mt-1">Your Referral ID: <span className="font-mono text-emerald-700 select-all">{approvedMembership.membership_no}</span></h4>
+                      <p className="text-[10px] text-slate-500">
+                        Share this ID with candidates you introduce. They must enter it under "Referral Member ID" during joining.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(approvedMembership.membership_no || "");
+                        alert("Referral ID copied to clipboard!");
+                      }}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md shadow-sky-600/10 shrink-0"
+                    >
+                      Copy ID
+                    </button>
+                  </div>
+                )}
+
+                {/* Stats overview */}
+                <div className={`grid grid-cols-1 ${approvedMembership ? "sm:grid-cols-4" : "sm:grid-cols-3"} gap-4`}>
+                  <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Active Memberships</span>
+                    <span className="text-2xl font-black text-slate-800 mt-1 block">{memberships.filter(m => m.status === "APPROVED").length}</span>
+                  </div>
+                  <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Course Registrations</span>
+                    <span className="text-2xl font-black text-slate-800 mt-1 block">{courses.length}</span>
+                  </div>
+                  <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Open Grievances</span>
+                    <span className="text-2xl font-black text-slate-800 mt-1 block">{complaints.filter(c => c.status !== "RESOLVED").length}</span>
+                  </div>
+                  {approvedMembership && (
+                    <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left">
+                      <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider block">Members Referred</span>
+                      <span className="text-2xl font-black text-emerald-700 mt-1 block">{referredCount}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Course Registrations</span>
-                  <span className="text-2xl font-black text-slate-800 mt-1 block">{courses.length}</span>
-                </div>
-                <div className="bg-white border border-sky-100 rounded-2xl p-5 shadow-sm text-left">
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Open Grievances</span>
-                  <span className="text-2xl font-black text-slate-800 mt-1 block">{complaints.filter(c => c.status !== "RESOLVED").length}</span>
-                </div>
-              </div>
 
               {/* Quick Applications list */}
               <div className="bg-white border border-sky-100 rounded-2xl p-6 shadow-sm text-left">
@@ -523,7 +555,8 @@ export default function MyAccountPage() {
                 )}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* MY APPLICATIONS TAB */}
           {activeTab === "applications" && (

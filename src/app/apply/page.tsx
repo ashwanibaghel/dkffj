@@ -75,6 +75,8 @@ export default function ApplyPage() {
   const [mobile, setMobile] = useState<string>("");
   const [whatsapp, setWhatsapp] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  const [joiningType, setJoiningType] = useState<"direct" | "referred">("direct");
+  const [referralCode, setReferralCode] = useState<string>("");
 
   // OTP states
   const [otpCode, setOtpCode] = useState<string>("");
@@ -249,6 +251,11 @@ export default function ApplyPage() {
       }
     }
 
+    if (joiningType === "referred" && !referralCode.trim()) {
+      setErrorMsg("Please enter a Referral Member ID.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -274,6 +281,9 @@ export default function ApplyPage() {
       formData.append("photo", photo);
       formData.append("aadhaar", aadhaar);
       formData.append("signature", signature);
+      if (joiningType === "referred") {
+        formData.append("referralCode", referralCode.trim());
+      }
       if (!isLoggedIn) {
         formData.append("password", password);
       }
@@ -533,6 +543,64 @@ export default function ApplyPage() {
                     className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] disabled:bg-slate-50"
                     placeholder="e.g. ramesh.gupta@gmail.com"
                   />
+                </div>
+
+                {/* Referral Attribution */}
+                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    How are you joining DKFFJ? *
+                  </label>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${joiningType === 'direct' ? 'border-[#001C55] bg-[#001C55]/5 ring-1 ring-[#001C55]' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
+                      <input
+                        type="radio"
+                        name="joiningType"
+                        value="direct"
+                        checked={joiningType === 'direct'}
+                        onChange={() => setJoiningType('direct')}
+                        className="text-[#001C55] focus:ring-[#001C55] h-4 w-4"
+                      />
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">Direct Joining</p>
+                        <p className="text-[10px] text-slate-500">I am joining independently</p>
+                      </div>
+                    </label>
+
+                    <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${joiningType === 'referred' ? 'border-[#001C55] bg-[#001C55]/5 ring-1 ring-[#001C55]' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
+                      <input
+                        type="radio"
+                        name="joiningType"
+                        value="referred"
+                        checked={joiningType === 'referred'}
+                        onChange={() => setJoiningType('referred')}
+                        className="text-[#001C55] focus:ring-[#001C55] h-4 w-4"
+                      />
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">Referred by Member</p>
+                        <p className="text-[10px] text-slate-500">I was introduced by a member</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {joiningType === 'referred' && (
+                    <div className="pt-2 animate-fadeIn">
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                        Referral Member ID *
+                      </label>
+                      <input
+                        type="text"
+                        value={referralCode}
+                        onChange={(e) => setReferralCode(e.target.value)}
+                        required={joiningType === 'referred'}
+                        placeholder="e.g. DKM00021"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white uppercase"
+                      />
+                      <p className="text-[10px] text-slate-500 mt-1 italic">
+                        Enter the unique Membership Number (DKMxxxx) of the member who referred you.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

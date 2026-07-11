@@ -25,7 +25,8 @@ import {
   Moon,
   ChevronDown,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Share2
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { getAdminNotifications, AdminNotification } from "./actions";
@@ -116,6 +117,7 @@ export default function AdminNavWrapper({
       label: "Applications",
       items: [
         { href: "/admin/members", label: "Members Desk", icon: Users },
+        { href: "/admin/referrals", label: "Referrals Desk", icon: Share2 },
         { href: "/admin/complaints", label: "Grievances Desk", icon: ShieldAlert },
         { href: "/admin/appreciation", label: "Appreciation Panel", icon: Award },
       ],
