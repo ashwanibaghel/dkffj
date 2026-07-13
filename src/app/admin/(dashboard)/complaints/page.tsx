@@ -30,6 +30,16 @@ type ComplaintRecord = {
   complaint_attachments?: ComplaintAttachment[];
 };
 
+const parseDetails = (detailsStr: string) => {
+  try {
+    const parsed = JSON.parse(detailsStr);
+    if (parsed && typeof parsed === "object" && "complaint_text" in parsed) {
+      return parsed;
+    }
+  } catch (e) {}
+  return null;
+};
+
 export default function AdminComplaintsPage() {
   const [complaints, setComplaints] = useState<ComplaintRecord[]>([]);
   const [filter, setFilter] = useState<string>("ALL");
@@ -318,39 +328,133 @@ export default function AdminComplaintsPage() {
                       </div>
                     )}
 
-                    {/* Description narrative */}
-                    <div className="space-y-2">
-                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Grievance Narrative / Statement</span>
-                      <div className="p-4 bg-white border border-slate-200/80 rounded-2xl text-xs leading-relaxed text-slate-700 whitespace-pre-line shadow-sm">
-                        {complaint.details}
-                      </div>
-                    </div>
+                    {(() => {
+                      const parsed = parseDetails(complaint.details);
+                      if (parsed) {
+                        return (
+                          <>
+                            {/* Premium Header Metrics */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div className="p-4 bg-rose-50/50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/20 rounded-2xl flex flex-col gap-1 shadow-sm">
+                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Incident Category / Grievance</span>
+                                <span className="text-sm font-extrabold text-[#C00000]">{parsed.incident_category}</span>
+                              </div>
+                              <div className="p-4 bg-sky-50/50 dark:bg-sky-500/5 border border-sky-100 dark:border-sky-500/20 rounded-2xl flex flex-col gap-1 shadow-sm">
+                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Occurrence Incident Date</span>
+                                <span className="text-sm font-extrabold text-[#001C55] dark:text-sky-350">{parsed.incident_date}</span>
+                              </div>
+                            </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Personal Details */}
-                      <div className="space-y-2 text-xs font-semibold text-slate-700">
-                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Case References</span>
-                        <table className="w-full">
-                          <tbody>
-                            <tr className="border-b border-slate-100 py-1.5 flex justify-between">
-                              <td className="text-slate-400">Grievant Name:</td>
-                              <td className="text-slate-800">{complaint.name} ({complaint.gender})</td>
-                            </tr>
-                            <tr className="border-b border-slate-100 py-1.5 flex justify-between">
-                              <td className="text-slate-400">Father&apos;s Name:</td>
-                              <td className="text-slate-800">{complaint.father_name}</td>
-                            </tr>
-                            <tr className="border-b border-slate-100 py-1.5 flex justify-between">
-                              <td className="text-slate-400">Incident Place:</td>
-                              <td className="text-slate-800 text-right">{complaint.address}</td>
-                            </tr>
-                            <tr className="py-1.5 flex justify-between">
-                              <td className="text-slate-400">Date Logged:</td>
-                              <td className="text-slate-800">{new Date(complaint.created_at).toLocaleString("en-IN")}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                            {/* Description narrative */}
+                            <div className="space-y-2">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Grievance Narrative / Statement</span>
+                              <div className="p-4 bg-white border border-slate-200/80 rounded-2xl text-xs leading-relaxed text-slate-700 whitespace-pre-line shadow-sm">
+                                {parsed.complaint_text}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {/* Personal Details */}
+                              <div className="space-y-2 text-xs font-semibold text-slate-700">
+                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Grievant Profile</span>
+                                <table className="w-full">
+                                  <tbody>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Full Name:</td>
+                                      <td className="text-slate-800">{complaint.name} ({complaint.gender})</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Father&apos;s Name:</td>
+                                      <td className="text-slate-800">{complaint.father_name}</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Date Of Birth:</td>
+                                      <td className="text-slate-800">{parsed.dob}</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Profession:</td>
+                                      <td className="text-slate-800">{parsed.profession}</td>
+                                    </tr>
+                                    <tr className="py-1.5 flex justify-between">
+                                      <td className="text-slate-400">WhatsApp:</td>
+                                      <td className="text-slate-800">{parsed.whatsapp_no}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+
+                              {/* Incident Place Details */}
+                              <div className="space-y-2 text-xs font-semibold text-slate-700">
+                                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Occurrence Address</span>
+                                <table className="w-full">
+                                  <tbody>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Landmark/Street:</td>
+                                      <td className="text-slate-800">{parsed.landmark}</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Post Office:</td>
+                                      <td className="text-slate-800">{parsed.post_office}</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Tehsil:</td>
+                                      <td className="text-slate-800">{parsed.tehsil}</td>
+                                    </tr>
+                                    <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                      <td className="text-slate-400">Police Station:</td>
+                                      <td className="text-slate-800">{complaint.police_station}</td>
+                                    </tr>
+                                    <tr className="py-1.5 flex justify-between">
+                                      <td className="text-slate-400">City/District:</td>
+                                      <td className="text-slate-800">{complaint.district}, {complaint.state} ({parsed.pincode})</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </>
+                        );
+                      }
+
+                      return (
+                        <>
+                          {/* Fallback Legacy Mode */}
+                          <div className="space-y-2">
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Grievance Narrative / Statement</span>
+                            <div className="p-4 bg-white border border-slate-200/80 rounded-2xl text-xs leading-relaxed text-slate-700 whitespace-pre-line shadow-sm">
+                              {complaint.details}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Personal Details */}
+                            <div className="space-y-2 text-xs font-semibold text-slate-700">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Case References</span>
+                              <table className="w-full">
+                                <tbody>
+                                  <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                    <td className="text-slate-400">Grievant Name:</td>
+                                    <td className="text-slate-800">{complaint.name} ({complaint.gender})</td>
+                                  </tr>
+                                  <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                    <td className="text-slate-400">Father&apos;s Name:</td>
+                                    <td className="text-slate-800">{complaint.father_name}</td>
+                                  </tr>
+                                  <tr className="border-b border-slate-100 py-1.5 flex justify-between">
+                                    <td className="text-slate-400">Incident Place:</td>
+                                    <td className="text-slate-800 text-right">{complaint.address}</td>
+                                  </tr>
+                                  <tr className="py-1.5 flex justify-between">
+                                    <td className="text-slate-400">Date Logged:</td>
+                                    <td className="text-slate-800">{new Date(complaint.created_at).toLocaleString("en-IN")}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
 
                       {/* Attachments list */}
                       <div className="space-y-2">
@@ -374,7 +478,6 @@ export default function AdminComplaintsPage() {
                           </div>
                         )}
                       </div>
-                    </div>
 
                     {/* Action Panel */}
                     <div className="border-t border-slate-200 pt-5 space-y-4 bg-white p-4 rounded-xl border">

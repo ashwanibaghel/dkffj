@@ -6,11 +6,122 @@ import { sendTransactionalEmail } from "@/services/email/service";
 import { getComplaintSubmittedTemplate } from "@/services/email/templates";
 import { sanitizeInput } from "@/lib/sanitize";
 
+// 1. Generate and Send OTP for Complaint
+export async function sendComplaintOtp(mobile: string, email: string) {
+  if (!mobile || !email) {
+    return { success: false, error: "Mobile number and Email are required." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Generate 6-digit OTP code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 mins expiry
+
+  // Insert OTP request into DB
+  const { error } = await supabase
+    .from("otp_requests")
+    .insert({
+      mobile,
+      email,
+      otp_code: code,
+      expires_at: expiresAt,
+      verified: false
+    });
+
+  if (error) {
+    console.error("Error saving OTP request:", error);
+    return { success: false, error: "Failed to generate OTP. Please try again." };
+  }
+
+  // Send Email with OTP using a premium HTML layout
+  const subject = "Grievance Portal Verification OTP - DKFFJ";
+  const htmlContent = `
+    <div style="font-family: sans-serif; padding: 30px; max-width: 580px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #001C55; font-family: serif; border-bottom: 3px solid #C00000; padding-bottom: 12px; margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px;">DK Foundation</h2>
+        <span style="color: #C00000; font-size: 10px; font-weight: bold; letter-spacing: 2px; display: block; margin-top: 4px;">OF FREEDOM AND JUSTICE</span>
+      </div>
+      <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello,</p>
+      <p style="font-size: 14px; color: #334155; line-height: 1.6;">You are registering an official grievance/complaint on the DKFFJ portal. To secure your submission and prevent fake reports, please verify your email using the following 6-digit One-Time Password (OTP):</p>
+      <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; padding: 18px; text-align: center; margin: 25px 0; border-radius: 12px;">
+        <span style="font-size: 32px; font-weight: 800; letter-spacing: 4px; color: #C00000; font-family: monospace; display: block;">${code}</span>
+      </div>
+      <p style="font-size: 12px; color: #64748b; line-height: 1.6;">This OTP is valid for 10 minutes. Please do not share this code with anyone. If you did not initiate this request, you can safely ignore this email.</p>
+      <div style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px; font-size: 13px; color: #475569; line-height: 1.6;">
+        Regards,<br>
+        <strong>Investigation Cell</strong><br>
+        <span style="color: #64748b; font-size: 11px;">DK Foundation of Freedom and Justice</span>
+      </div>
+    </div>
+  `;
+  const emailRes = await sendTransactionalEmail(email, subject, htmlContent);
+
+  // Log to console for local developer debugging/testing
+  console.log(`[COMPLAINT OTP SENT] To Email: ${email} -> CODE: ${code}`);
+
+  if (emailRes.mock) {
+    return {
+      success: true,
+      message: `[MOCK MODE] OTP: ${code} (Resend API key is missing).`
+    };
+  }
+
+  return { success: true, message: "OTP sent successfully to your email." };
+}
+
+// 2. Verify OTP for Complaint
+export async function verifyComplaintOtp(email: string, code: string) {
+  if (!email || !code) {
+    return { success: false, error: "Email and OTP code are required." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const now = new Date().toISOString();
+
+  // Fetch the latest active OTP request for this email
+  const { data, error } = await supabase
+    .from("otp_requests")
+    .select("id, otp_code, expires_at, verified")
+    .eq("email", email)
+    .eq("otp_code", code)
+    .eq("verified", false)
+    .gt("expires_at", now)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error checking OTP:", error);
+    return { success: false, error: "Database error. Please try again." };
+  }
+
+  if (!data) {
+    return { success: false, error: "Invalid or expired OTP. Please request a new one." };
+  }
+
+  // Mark OTP as verified
+  const { error: updateError } = await supabase
+    .from("otp_requests")
+    .update({ verified: true })
+    .eq("id", data.id);
+
+  if (updateError) {
+    console.error("Error updating OTP status:", updateError);
+    return { success: false, error: "Failed to mark OTP as verified." };
+  }
+
+  return { success: true };
+}
+
+// 3. Submit Complaint Grievance
 export async function submitComplaint(prevData: any, formData: FormData) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  // Extract auth user if available (complaints can be public, anonymous, or logged-in)
+  // Extract auth user if available
   let userId: string | null = null;
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
@@ -18,29 +129,90 @@ export async function submitComplaint(prevData: any, formData: FormData) {
   }
 
   // Extract Form Fields
-  const name = sanitizeInput(formData.get("name") as string);
+  const firstName = sanitizeInput(formData.get("firstName") as string);
+  const lastName = sanitizeInput(formData.get("lastName") as string);
   const fatherName = sanitizeInput(formData.get("fatherName") as string);
+  const dob = sanitizeInput(formData.get("dob") as string);
   const gender = sanitizeInput(formData.get("gender") as string);
-  const country = sanitizeInput((formData.get("country") as string) || "India");
+  const profession = sanitizeInput(formData.get("profession") as string);
+  
   const mobile = sanitizeInput(formData.get("mobile") as string);
-  const email = sanitizeInput(formData.get("email") as string || null);
-  const address = sanitizeInput(formData.get("address") as string);
+  const whatsappNo = sanitizeInput(formData.get("whatsappNo") as string);
+  const email = sanitizeInput(formData.get("email") as string);
+  
+  const incidentCategory = sanitizeInput(formData.get("incidentCategory") as string);
+  const incidentDate = sanitizeInput(formData.get("incidentDate") as string);
+  const rawComplaintText = sanitizeInput(formData.get("details") as string);
+
+  const landmark = sanitizeInput(formData.get("landmark") as string);
+  const postOffice = sanitizeInput(formData.get("postOffice") as string);
+  const tehsil = sanitizeInput(formData.get("tehsil") as string);
   const state = sanitizeInput(formData.get("state") as string);
   const district = sanitizeInput(formData.get("district") as string);
+  const pincode = sanitizeInput(formData.get("pincode") as string);
   const policeStation = sanitizeInput(formData.get("policeStation") as string);
-  const details = sanitizeInput(formData.get("details") as string);
+  const country = sanitizeInput((formData.get("country") as string) || "India");
 
   // Validate fields
-  if (!name || !fatherName || !mobile || !address || !state || !district || !policeStation || !details) {
+  if (
+    !firstName || 
+    !lastName || 
+    !fatherName || 
+    !dob || 
+    !gender || 
+    !profession || 
+    !mobile || 
+    !email || 
+    !incidentCategory || 
+    !incidentDate || 
+    !rawComplaintText || 
+    !landmark || 
+    !postOffice || 
+    !tehsil || 
+    !state || 
+    !district || 
+    !pincode || 
+    !policeStation
+  ) {
     return { success: false, error: "Please fill in all mandatory fields." };
   }
 
-  // Extract Attachments
-  const attachments = formData.getAll("attachments") as File[];
-  const uploadedFiles: { file_url: string; file_name: string; file_size: string }[] = [];
+  // Enforce OTP Verification check on the backend
+  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data: verifiedOtp, error: otpCheckError } = await supabase
+    .from("otp_requests")
+    .select("id")
+    .eq("email", email)
+    .eq("verified", true)
+    .gte("created_at", fifteenMinutesAgo)
+    .limit(1)
+    .maybeSingle();
+
+  if (otpCheckError) {
+    console.error("Error checking OTP status:", otpCheckError);
+    return { success: false, error: "Verification system check error." };
+  }
+
+  if (!verifiedOtp) {
+    return { success: false, error: "Email verification is mandatory. Please verify your email first using OTP." };
+  }
+
+  // Extract Attachments (Max 3: Aadhaar, Evidence, Supporting)
+  const aadhaarCard = formData.get("aadhaarCard") as File;
+  const evidenceCopy = formData.get("evidenceCopy") as File;
+  const supportingProof = formData.get("supportingProof") as File;
+
+  if (!aadhaarCard || aadhaarCard.size === 0) {
+    return { success: false, error: "Aadhaar Card copy upload is mandatory." };
+  }
+
+  const attachmentsToUpload: { file: File; fieldName: string }[] = [];
+  if (aadhaarCard && aadhaarCard.size > 0) attachmentsToUpload.push({ file: aadhaarCard, fieldName: "Aadhaar_Card" });
+  if (evidenceCopy && evidenceCopy.size > 0) attachmentsToUpload.push({ file: evidenceCopy, fieldName: "Evidence" });
+  if (supportingProof && supportingProof.size > 0) attachmentsToUpload.push({ file: supportingProof, fieldName: "Supporting_Proof" });
 
   try {
-    // 1. Generate unique DKC complaint number
+    // 1. Generate unique DKC complaint sequence number
     const { data: complaintNo, error: rpcError } = await supabase.rpc("generate_next_number", {
       p_key: "complaint",
       p_prefix: "DKC"
@@ -51,23 +223,43 @@ export async function submitComplaint(prevData: any, formData: FormData) {
       throw new Error("Grievance registration sequence error.");
     }
 
+    // Combine values for standard columns
+    const fullName = `${firstName} ${lastName}`.trim();
+    const fullAddress = `${landmark}, Post Office: ${postOffice}, Tehsil: ${tehsil}, Pincode: ${pincode}`;
+
+    // Serialize details as JSON
+    const detailsJson = JSON.stringify({
+      incident_category: incidentCategory,
+      incident_date: incidentDate,
+      first_name: firstName,
+      last_name: lastName,
+      dob,
+      profession,
+      whatsapp_no: whatsappNo,
+      landmark,
+      post_office: postOffice,
+      tehsil,
+      pincode,
+      complaint_text: rawComplaintText
+    });
+
     // 2. Insert complaint record first to get the UUID
     const { data: newComplaint, error: insertError } = await supabase
       .from("complaints")
       .insert({
         complaint_no: complaintNo,
         user_id: userId,
-        name,
+        name: fullName,
         father_name: fatherName,
         gender,
         country,
         mobile,
         email,
-        address,
+        address: fullAddress,
         state,
         district,
         police_station: policeStation,
-        details,
+        details: detailsJson,
         status: "SUBMITTED"
       })
       .select("id")
@@ -80,40 +272,38 @@ export async function submitComplaint(prevData: any, formData: FormData) {
 
     const complaintId = newComplaint.id;
 
-    // 3. Process & upload attachments if present
-    for (let i = 0; i < attachments.length; i++) {
-      const file = attachments[i];
-      if (file && file.size > 0) {
-        const fileExt = file.name.split(".").pop();
-        const safeName = `${complaintId}/attachment_${i}_${Date.now()}.${fileExt}`;
-        const fileBuffer = Buffer.from(await file.arrayBuffer());
+    // 3. Process & upload attachments
+    for (let i = 0; i < attachmentsToUpload.length; i++) {
+      const { file, fieldName } = attachmentsToUpload[i];
+      const fileExt = file.name.split(".").pop();
+      const safeName = `${complaintId}/${fieldName}_${Date.now()}.${fileExt}`;
+      const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-        // Upload to private 'complaints' bucket
-        const { error: uploadError } = await supabase.storage
-          .from("complaints")
-          .upload(safeName, fileBuffer, { contentType: file.type, upsert: true });
+      // Upload to private 'complaints' bucket
+      const { error: uploadError } = await supabase.storage
+        .from("complaints")
+        .upload(safeName, fileBuffer, { contentType: file.type, upsert: true });
 
-        if (uploadError) {
-          console.error(`Attachment ${i} upload failed:`, uploadError);
-          continue; // Continue uploading other files even if one fails
-        }
+      if (uploadError) {
+        console.error(`Attachment ${fieldName} upload failed:`, uploadError);
+        continue;
+      }
 
-        const storagePath = `complaints/${safeName}`;
-        const fileSizeStr = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+      const storagePath = `complaints/${safeName}`;
+      const fileSizeStr = (file.size / (1024 * 1024)).toFixed(2) + " MB";
 
-        // Create database log for attachment
-        const { error: attachDbErr } = await supabase
-          .from("complaint_attachments")
-          .insert({
-            complaint_id: complaintId,
-            file_url: storagePath,
-            file_name: file.name,
-            file_size: fileSizeStr
-          });
+      // Log attachment inside database
+      const { error: attachDbErr } = await supabase
+        .from("complaint_attachments")
+        .insert({
+          complaint_id: complaintId,
+          file_url: storagePath,
+          file_name: `${fieldName}_${file.name}`,
+          file_size: fileSizeStr
+        });
 
-        if (attachDbErr) {
-          console.error("Failed to log attachment inside database:", attachDbErr);
-        }
+      if (attachDbErr) {
+        console.error("Failed to log attachment inside database:", attachDbErr);
       }
     }
 
@@ -122,15 +312,13 @@ export async function submitComplaint(prevData: any, formData: FormData) {
       complaint_id: complaintId,
       from_status: "NONE",
       to_status: "SUBMITTED",
-      remarks: "Grievance registered. Docket number generated."
+      remarks: "Grievance registered with OTP validation. Docket generated."
     });
 
-    // 5. Send transaction email if email was provided
-    if (email) {
-      const emailSubject = `Grievance Registered: Docket ${complaintNo} - DKFFJ`;
-      const emailHtml = getComplaintSubmittedTemplate(name, complaintNo);
-      await sendTransactionalEmail(email, emailSubject, emailHtml);
-    }
+    // 5. Send transaction email
+    const emailSubject = `Grievance Registered: Docket ${complaintNo} - DKFFJ`;
+    const emailHtml = getComplaintSubmittedTemplate(fullName, complaintNo);
+    await sendTransactionalEmail(email, emailSubject, emailHtml);
 
     return {
       success: true,

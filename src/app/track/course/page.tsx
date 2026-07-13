@@ -54,7 +54,7 @@ function CourseTrackContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] via-white to-[#e8f4fd] text-slate-900 flex flex-col font-sans relative">
-      <header className="border-b border-sky-100 bg-white/80 backdrop-blur-md z-10 sticky top-0">
+      <header className="border-b border-sky-100 bg-white/95 backdrop-blur-md z-50 sticky top-0 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/track" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1565C0]/10 to-[#1565C0]/5 border border-sky-100 flex items-center justify-center">

@@ -6,6 +6,18 @@ import { useSearchParams } from "next/navigation";
 import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, ShieldAlert, FileText, ClipboardList } from "lucide-react";
 import { getSecureComplaintDetails, TrackingResult } from "../actions";
 
+const parseDetails = (text: string) => {
+  if (!text) return null;
+  try {
+    if (text.startsWith("{")) {
+      return JSON.parse(text);
+    }
+  } catch (e) {
+    // ignore
+  }
+  return null;
+};
+
 function ComplaintTrackContent() {
   const searchParams = useSearchParams();
   const [complaintNo, setComplaintNo] = useState<string>("");
@@ -63,7 +75,7 @@ function ComplaintTrackContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0f7ff] via-white to-[#e8f4fd] text-slate-900 flex flex-col font-sans relative">
-      <header className="border-b border-sky-100 bg-white/80 backdrop-blur-md z-10 sticky top-0">
+      <header className="border-b border-sky-100 bg-white/95 backdrop-blur-md z-50 sticky top-0 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/track" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1565C0]/10 to-[#1565C0]/5 border border-sky-100 flex items-center justify-center">
@@ -167,13 +179,36 @@ function ComplaintTrackContent() {
               </div>
 
               <div className="p-6">
-                {/* Details Section */}
-                {result.details && (
-                  <div className="mb-8 p-5 rounded-2xl bg-sky-50/20 border border-sky-100 text-left text-xs text-slate-700">
-                    <span className="font-bold text-slate-850 block mb-1">Grievance Summary / Subject</span>
-                    <p className="leading-relaxed font-medium">{result.details}</p>
-                  </div>
-                )}
+                 {/* Details Section */}
+                 {result.details && (() => {
+                   const parsed = parseDetails(result.details);
+                   if (parsed) {
+                     return (
+                       <div className="space-y-4 mb-8 text-left">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                           <div className="p-4 bg-rose-50/50 border border-rose-100 rounded-xl">
+                             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Incident Category</span>
+                             <span className="text-xs font-bold text-rose-800">{parsed.incident_category}</span>
+                           </div>
+                           <div className="p-4 bg-sky-50/50 border border-sky-100 rounded-xl">
+                             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Incident Date</span>
+                             <span className="text-xs font-bold text-[#001C55]">{parsed.incident_date}</span>
+                           </div>
+                         </div>
+                         <div className="p-5 rounded-2xl bg-sky-50/20 border border-sky-100 text-xs text-slate-700">
+                           <span className="font-bold text-slate-800 block mb-1">Grievance Narrative / Description</span>
+                           <p className="leading-relaxed font-medium whitespace-pre-line">{parsed.complaint_text}</p>
+                         </div>
+                       </div>
+                     );
+                   }
+                   return (
+                     <div className="mb-8 p-5 rounded-2xl bg-sky-50/20 border border-sky-100 text-left text-xs text-slate-700">
+                       <span className="font-bold text-slate-850 block mb-1">Grievance Summary / Subject</span>
+                       <p className="leading-relaxed font-medium whitespace-pre-line">{result.details}</p>
+                     </div>
+                   );
+                 })()}
 
                 {/* Secure message banner */}
                 <div className="mb-8 p-4 rounded-xl bg-slate-50 border border-slate-100 text-left text-slate-500 text-[11px] leading-relaxed flex items-start gap-2.5">
@@ -181,7 +216,7 @@ function ComplaintTrackContent() {
                   <div>
                     <span className="font-bold text-slate-700">Privacy Protection Enabled:</span>
                     <p className="mt-0.5 font-medium">
-                      Detailed investigation logs and personal remarks are redacted from this public portal to safeguard privacy. Log in to the member dashboard for full progress reports.
+                      Detailed internal investigation logs and officer remarks are redacted from this public tracking desk to safeguard privacy. Contact the Investigation Cell using your Docket ID for any detailed case inquiries.
                     </p>
                   </div>
                 </div>

@@ -136,22 +136,20 @@ export async function checkReferralEligibility(
     return { success: false, error: "The Referral Member ID entered is not an active approved member." };
   }
 
-  // 3. Self-referral prevention (authenticated user checks)
+  // 3. Self-referral prevention (authenticated user checks - hard block)
   if (applicantUserId && referrer.user_id === applicantUserId) {
     return { success: false, error: "You cannot use your own Membership ID as a referral." };
   }
 
-  // 4. Self-referral prevention (unauthenticated contact-based checks)
+  // 4. Soft warning check (unauthenticated contact-based matches - do NOT hard block)
   const cleanAppEmail = applicantEmail.trim().toLowerCase();
   const cleanAppMobile = applicantMobile.trim();
   const cleanRefEmail = referrer.email.trim().toLowerCase();
   const cleanRefMobile = referrer.mobile.trim();
 
-  if (cleanRefEmail === cleanAppEmail || cleanRefMobile === cleanAppMobile) {
-    return { success: false, error: "You cannot refer yourself." };
-  }
+  const isContactMatch = cleanRefEmail === cleanAppEmail || cleanRefMobile === cleanAppMobile;
 
-  return { success: true, referrerId: referrer.id };
+  return { success: true, referrerId: referrer.id, isContactMatch };
 }
 
 // 3. Submit Membership Application
@@ -216,12 +214,16 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
 
   // Validate Referral Code if provided (Direct joining has no code)
   let referredByMemberId: string | null = null;
+  let remarksPayload: string | null = null;
   if (referralCode) {
     const referralRes = await checkReferralEligibility(referralCode, userId || null, email, mobile);
     if (!referralRes.success) {
       return { success: false, error: referralRes.error };
     }
     referredByMemberId = referralRes.referrerId || null;
+    if (referralRes.isContactMatch) {
+      remarksPayload = "FLAGGED: Referral contact details (email or mobile) match applicant details.";
+    }
   }
 
   // Extract Form Fields
@@ -338,7 +340,8 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
           aadhaar_url: aadhaarUrl,
           signature_url: signatureUrl,
           status: "PENDING",
-          referred_by_member_id: referredByMemberId
+          referred_by_member_id: referredByMemberId,
+          remarks: remarksPayload
         })
         .select("id")
         .single();

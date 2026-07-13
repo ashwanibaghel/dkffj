@@ -443,7 +443,7 @@ export default function Home() {
         {/* ══════════════════════════════════════════════════════════════ */}
         {/* Constitutional & Administrative Authorities of India Section  */}
         {/* ══════════════════════════════════════════════════════════════ */}
-        <section className="relative py-12 md:py-16 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-[#0A1A3A] via-[#0D2352] to-[#0A1A3A]">
+        <section className="relative py-16 md:py-20 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-[#061127] via-[#0D2352] to-[#061127]">
 
           {/* Background decorative elements */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -473,7 +473,7 @@ export default function Home() {
           </div>
 
           {/* Section Heading */}
-          <div className="relative z-10 text-center mb-10">
+          <div className="relative z-10 text-center mb-12">
             {/* Tricolor top bar */}
             <div className="flex justify-center gap-0 mb-5">
               <div className="h-1 w-16 bg-[#FF9933] rounded-l-full" />
@@ -481,7 +481,7 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#138808] rounded-r-full" />
             </div>
 
-            <h2 className="text-[#c5a880] text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-widest mb-4">
+            <h2 className="text-gold-gradient text-lg sm:text-2xl md:text-3xl font-black uppercase tracking-widest mb-4 drop-shadow">
               Constitutional and Administrative Authorities of India
             </h2>
 
@@ -494,7 +494,7 @@ export default function Home() {
           </div>
 
           {/* Authority Cards Grid */}
-          <div className="relative z-10 max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="relative z-10 max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-5">
 
             {[
               {
@@ -532,24 +532,13 @@ export default function Home() {
             ].map((person, idx) => (
               <div
                 key={idx}
-                className="group relative bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/25 rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center transition-all duration-500 hover:bg-white/10 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+                className="group relative bg-[#0d1e3d]/40 backdrop-blur-md border border-[#c5a880]/15 hover:border-[#c5a880]/40 rounded-2xl p-5 flex flex-col items-center text-center transition-all duration-500 hover:bg-[#0d1e3d]/60 hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
               >
-                {/* Top color accent bar */}
-                <div
-                  className="absolute top-0 left-6 right-6 h-0.5 rounded-full transition-all group-hover:left-2 group-hover:right-2"
-                  style={{ background: `linear-gradient(90deg, transparent, ${person.color}, transparent)` }}
-                />
-
                 {/* Photo frame */}
                 <div
-                  className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full mb-3 overflow-hidden ring-2 ring-offset-2 ring-offset-[#0D2352] transition-all group-hover:ring-4"
+                  className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full mb-4 overflow-hidden ring-2 ring-offset-2 ring-offset-[#0A1A3A] transition-all duration-300 group-hover:scale-105"
                   style={{ ringColor: person.color }}
                 >
-                  {/* Outer gold ring */}
-                  <div
-                    className="absolute inset-0 rounded-full"
-                    style={{ boxShadow: `0 0 0 2px ${person.color}60, inset 0 0 0 1px rgba(255,255,255,0.1)` }}
-                  />
                   <img
                     src={person.imgUrl}
                     alt={person.name}
@@ -573,9 +562,9 @@ export default function Home() {
                 {/* Badge */}
                 <span className="text-base sm:text-xl mb-2">{person.badge}</span>
 
-                {/* Title — shown first, bold colored */}
+                {/* Title — bold colored */}
                 <p
-                  className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wide leading-snug mb-1"
+                  className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider leading-snug mb-1.5"
                   style={{ color: person.color }}
                 >
                   {person.title}
@@ -583,12 +572,12 @@ export default function Home() {
 
                 {/* Divider */}
                 <div
-                  className="w-10 h-px mb-2 rounded-full"
+                  className="w-12 h-px mb-2.5 rounded-full"
                   style={{ background: `linear-gradient(90deg, transparent, ${person.color}, transparent)` }}
                 />
 
-                {/* Name — below title */}
-                <h3 className="text-white font-bold text-[11px] sm:text-sm leading-tight">
+                {/* Name */}
+                <h3 className="text-white font-black text-[12px] sm:text-sm leading-tight tracking-wide">
                   {person.name}
                 </h3>
               </div>
@@ -596,156 +585,156 @@ export default function Home() {
           </div>
 
           {/* Bottom Satyameva Jayate */}
-          <div className="relative z-10 text-center mt-8">
-            <p className="text-[#c5a880]/60 text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase">
+          <div className="relative z-10 text-center mt-10">
+            <p className="text-gold-gradient text-[10px] sm:text-xs font-black tracking-[0.4em] uppercase">
               ✦ &nbsp; Satyameva Jayate &nbsp; ✦
             </p>
           </div>
         </section>
 
         {/* 2. Official Recognition & Registration Credentials Bar */}
-        <section className="bg-white border-y border-sky-100 py-8 px-6">
+        <section className="bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] border-y border-slate-200 py-12 px-6">
           <div className="max-w-6xl mx-auto w-full">
-            <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em] mb-6">Officially Recognised &amp; Registered By</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <p className="text-center text-[10px] text-slate-400 font-extrabold uppercase tracking-[0.35em] mb-8">Officially Recognised &amp; Registered By</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
 
-              {/* MCA — links to MCA company search portal */}
+              {/* MCA */}
               <a
                 href="https://www.mca.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-[#1565C0]/30 hover:-translate-y-0.5 transition-all cursor-pointer group"
+                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-[#1565C0]/40 transition-all cursor-pointer group"
               >
-                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center group-hover:bg-[#1565C0]/20 transition-colors">
-                  <svg className="w-5 h-5 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                <div className="w-12 h-12 rounded-full bg-[#1565C0]/5 flex items-center justify-center group-hover:bg-[#1565C0]/10 transition-colors">
+                  <svg className="w-6 h-6 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide group-hover:underline">Section 8 Company</p>
-                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Ministry of Corporate Affairs</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">CIN: U88900UP2023NPL185611</p>
-                  <p className="text-[8px] text-[#1565C0]/60 mt-1 flex items-center justify-center gap-0.5">Verify ↗</p>
+                  <p className="text-[12px] font-black text-[#001C55] uppercase tracking-wide group-hover:text-[#1565C0] transition-colors">Section 8 Company</p>
+                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Ministry of Corporate Affairs</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-1">CIN: U88900UP2023NPL185611</p>
+                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-[#1565C0] mt-2 group-hover:underline">Verify Profile ↗</span>
                 </div>
               </a>
 
-              {/* NITI Aayog — NGO Darpan portal */}
+              {/* NITI Aayog */}
               <a
                 href="https://ngodarpan.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-[#1565C0]/30 hover:-translate-y-0.5 transition-all cursor-pointer group"
+                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-[#1565C0]/40 transition-all cursor-pointer group"
               >
-                <div className="w-10 h-10 rounded-full bg-[#1565C0]/10 flex items-center justify-center group-hover:bg-[#1565C0]/20 transition-colors">
-                  <svg className="w-5 h-5 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
+                <div className="w-12 h-12 rounded-full bg-[#1565C0]/5 flex items-center justify-center group-hover:bg-[#1565C0]/10 transition-colors">
+                  <svg className="w-6 h-6 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-[#1565C0] uppercase tracking-wide group-hover:underline">NITI Aayog</p>
-                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Govt. of India NGO Registry</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">ID: UP/2023/0351342</p>
-                  <p className="text-[8px] text-[#1565C0]/60 mt-1">Verify ↗</p>
+                  <p className="text-[12px] font-black text-[#001C55] uppercase tracking-wide group-hover:text-[#1565C0] transition-colors">NITI Aayog</p>
+                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Govt. of India NGO Registry</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-1">ID: UP/2023/0351342</p>
+                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-[#1565C0] mt-2 group-hover:underline">Verify Registry ↗</span>
                 </div>
               </a>
 
-              {/* 12A — Income Tax India portal */}
+              {/* 12A */}
               <a
                 href="https://www.incometaxindia.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-green-200 hover:-translate-y-0.5 transition-all cursor-pointer group"
+                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-green-300 transition-all cursor-pointer group"
               >
-                <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
-                  <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
+                <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
+                  <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-green-700 uppercase tracking-wide group-hover:underline">12A Registered</p>
-                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Income Tax Exemption</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">Income Tax Act, 1961</p>
-                  <p className="text-[8px] text-green-600/60 mt-1">Know More ↗</p>
+                  <p className="text-[12px] font-black text-green-700 uppercase tracking-wide group-hover:text-green-800 transition-colors">12A Registered</p>
+                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Income Tax Exemption</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-1">Income Tax Act, 1961</p>
+                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-green-600 mt-2 group-hover:underline">Know More ↗</span>
                 </div>
               </a>
 
-              {/* 80G — Income Tax India portal */}
+              {/* 80G */}
               <a
                 href="https://www.incometaxindia.gov.in/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-sky-100 bg-[#f0f7ff] hover:shadow-md hover:border-amber-200 hover:-translate-y-0.5 transition-all cursor-pointer group"
+                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-amber-300 transition-all cursor-pointer group"
               >
-                <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
-                  <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                  <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-amber-700 uppercase tracking-wide group-hover:underline">80G Certified</p>
-                  <p className="text-[9px] text-slate-500 font-semibold mt-0.5">Donations Tax Deductible</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-0.5">Income Tax Act, 1961</p>
-                  <p className="text-[8px] text-amber-600/60 mt-1">Know More ↗</p>
+                  <p className="text-[12px] font-black text-amber-700 uppercase tracking-wide group-hover:text-amber-800 transition-colors">80G Certified</p>
+                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Donations Tax Deductible</p>
+                  <p className="text-[9px] text-slate-400 font-mono mt-1">Income Tax Act, 1961</p>
+                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-600 mt-2 group-hover:underline">Know More ↗</span>
                 </div>
               </a>
 
             </div>
 
             {/* Expandable Accreditations & Verification Table */}
-            <div className="mt-8 border border-sky-100/80 rounded-2xl bg-[#f0f7ff]/40 p-5 md:p-6 text-left">
-              <h4 className="text-xs font-black text-[#001C55] uppercase tracking-wider mb-4 flex items-center gap-1.5 font-serif">
+            <div className="mt-8 border border-slate-200 rounded-2xl bg-white p-5 md:p-6 shadow-sm text-left">
+              <h4 className="text-[11px] font-extrabold text-[#001C55] uppercase tracking-wider mb-5 flex items-center gap-2 font-sans border-b border-slate-100 pb-3">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#C00000]"></span> Legal Registrations &amp; Accreditations Directory
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3.5 text-[11px] text-slate-600 font-medium">
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3 text-[11px] text-slate-600 font-semibold">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">Section 8 Company:</span>
-                  <span className="font-semibold text-slate-800">DK Foundation of Freedom and Justice</span>
+                  <span className="text-slate-800">DK Foundation of Freedom and Justice</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">Section 8 Licence No:</span>
-                  <span className="font-mono font-bold text-slate-700">146043</span>
+                  <span className="font-mono text-slate-800">146043</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">CIN:</span>
-                  <span className="font-mono font-bold text-[#001C55]">U88900UP2023NPL185611</span>
+                  <span className="font-mono text-[#001C55]">U88900UP2023NPL185611</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">PAN Number:</span>
-                  <span className="font-mono font-bold text-slate-700">AAKCD1596R</span>
+                  <span className="font-mono text-slate-800">AAKCD1596R</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">TAN Number:</span>
-                  <span className="font-mono font-bold text-slate-700">LKND10615D</span>
+                  <span className="font-mono text-slate-800">LKND10615D</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">Unique ID NITI Aayog:</span>
-                  <span className="font-mono font-bold text-slate-700">UP/2023/0351342</span>
+                  <span className="font-mono text-slate-800">UP/2023/0351342</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
-                  <span className="text-slate-400">NGO ID (Ministry of Social Justice):</span>
-                  <span className="font-mono font-bold text-slate-700 font-sans">UP/00034249</span>
+                <div className="flex justify-between border-b border-slate-100 pb-2">
+                  <span className="text-slate-400">NGO ID (Min of Social Justice):</span>
+                  <span className="font-mono text-slate-800">UP/00034249</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">ISO 9001:2015 Cert No:</span>
-                  <span className="font-mono font-bold text-slate-700">QCCI/23Q/DOE/2909</span>
+                  <span className="font-mono text-slate-800">QCCI/23Q/DOE/2909</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">CSR Registration No:</span>
-                  <span className="font-mono font-bold text-slate-700">CSR00068100</span>
+                  <span className="font-mono text-slate-800">CSR00068100</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">12A Document ID No:</span>
-                  <span className="font-mono font-bold text-slate-700">AAKCD1596RE2024101</span>
+                  <span className="font-mono text-slate-800">AAKCD1596RE2024101</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">80G Document ID No:</span>
-                  <span className="font-mono font-bold text-slate-700">AAKCD1596RF2024101</span>
+                  <span className="font-mono text-slate-800">AAKCD1596RF2024101</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">MSME Registration No:</span>
-                  <span className="font-mono font-bold text-slate-700">UDYAM-UP-43-0117271</span>
+                  <span className="font-mono text-slate-800">UDYAM-UP-43-0117271</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
-                  <span className="text-slate-400">Ministry of Education ISBN:</span>
-                  <span className="font-mono font-bold text-slate-700 font-sans">28791/ISBN/2024/P</span>
+                <div className="flex justify-between border-b border-slate-100 pb-2">
+                  <span className="text-slate-400">Min of Education ISBN:</span>
+                  <span className="font-mono text-slate-800">28791/ISBN/2024/P</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">UN Affiliation Status:</span>
                   <span className="font-bold text-[#C00000] tracking-wide">Under Process</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
                   <span className="text-slate-400">Official Website:</span>
                   <a href="https://www.dkffj.org" target="_blank" rel="noopener noreferrer" className="font-mono font-bold text-[#1565C0] hover:underline">www.dkffj.org</a>
                 </div>
@@ -832,7 +821,7 @@ export default function Home() {
         </section>
 
         {/* 4. Services Section (Premium Lucide Icons & Larger Size) */}
-        <section id="services" className="py-12 md:py-24 px-6 bg-white border-t border-sky-100">
+        <section id="services" className="py-16 md:py-24 px-6 bg-white border-t border-slate-100">
           <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest">Our Operations</span>
@@ -840,59 +829,59 @@ export default function Home() {
               <div className="h-1 w-16 bg-[#1565C0] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
               {/* Service 1 */}
-              <div className="group border border-sky-100/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-[#f0f7ff]/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#1565C0]/30 transition-all duration-300">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#1565C0]/10 flex items-center justify-center text-[#1565C0] group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="group border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:border-[#1565C0]/25 transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-[#1565C0]/5 flex items-center justify-center text-[#1565C0] group-hover:bg-[#1565C0] group-hover:text-white transition-all duration-300">
+                  <Shield className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Human Rights Support</h4>
-                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Legal assistance and representation against state arbitrary actions and constitutional violations.</p>
+                <h4 className="text-sm sm:text-base font-black text-slate-800 font-sans tracking-wide">Human Rights Support</h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-semibold">Legal assistance and representation against state arbitrary actions and constitutional violations.</p>
               </div>
 
               {/* Service 2 */}
-              <div className="group border border-sky-100/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-[#f0f7ff]/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#C00000]/25 transition-all duration-300">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#C00000]/10 flex items-center justify-center text-[#C00000] group-hover:scale-110 transition-transform duration-300">
-                  <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="group border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:border-[#C00000]/20 transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-[#C00000]/5 flex items-center justify-center text-[#C00000] group-hover:bg-[#C00000] group-hover:text-white transition-all duration-300">
+                  <FileText className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Grievance Assistance</h4>
-                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Assisting local citizens in drafting, filing, and tracking official grievance applications to authorities.</p>
+                <h4 className="text-sm sm:text-base font-black text-slate-800 font-sans tracking-wide">Grievance Assistance</h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-semibold">Assisting local citizens in drafting, filing, and tracking official grievance applications to authorities.</p>
               </div>
 
               {/* Service 3 */}
-              <div className="group border border-sky-100/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-[#f0f7ff]/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#1565C0]/30 transition-all duration-300">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#1565C0]/10 flex items-center justify-center text-[#1565C0] group-hover:scale-110 transition-transform duration-300">
-                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="group border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:border-[#1565C0]/25 transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-[#1565C0]/5 flex items-center justify-center text-[#1565C0] group-hover:bg-[#1565C0] group-hover:text-white transition-all duration-300">
+                  <BookOpen className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Legal Awareness</h4>
-                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Organizing educational camps to inform common citizens about their legal rights and standard procedures.</p>
+                <h4 className="text-sm sm:text-base font-black text-slate-800 font-sans tracking-wide">Legal Awareness</h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-semibold">Organizing educational camps to inform common citizens about their legal rights and standard procedures.</p>
               </div>
 
               {/* Service 4 */}
-              <div className="group border border-sky-100/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-[#f0f7ff]/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#C00000]/25 transition-all duration-300">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#C00000]/10 flex items-center justify-center text-[#C00000] group-hover:scale-110 transition-transform duration-300">
-                  <Search className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="group border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:border-[#C00000]/20 transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-[#C00000]/5 flex items-center justify-center text-[#C00000] group-hover:bg-[#C00000] group-hover:text-white transition-all duration-300">
+                  <Search className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">RTI Advocacy</h4>
-                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Spreading information and filing thousands of RTIs to combat corruption and expose scams in government programs.</p>
+                <h4 className="text-sm sm:text-base font-black text-slate-800 font-sans tracking-wide">RTI Advocacy</h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-semibold">Spreading information and filing thousands of RTIs to combat corruption and expose scams in government programs.</p>
               </div>
 
               {/* Service 5 */}
-              <div className="group border border-sky-100/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-[#f0f7ff]/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#1565C0]/30 transition-all duration-300">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#1565C0]/10 flex items-center justify-center text-[#1565C0] group-hover:scale-110 transition-transform duration-300">
-                  <Users className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="group border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:border-[#1565C0]/25 transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-[#1565C0]/5 flex items-center justify-center text-[#1565C0] group-hover:bg-[#1565C0] group-hover:text-white transition-all duration-300">
+                  <Users className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Membership Program</h4>
-                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Enrolling dedicated social and legal activists across all Indian states with official verification ID cards.</p>
+                <h4 className="text-sm sm:text-base font-black text-slate-800 font-sans tracking-wide">Membership Program</h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-semibold">Enrolling dedicated social and legal activists across all Indian states with official verification ID cards.</p>
               </div>
 
               {/* Service 6 */}
-              <div className="group border border-sky-100/80 rounded-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 md:gap-4 bg-[#f0f7ff]/50 hover:bg-white hover:-translate-y-1 hover:shadow-lg hover:border-[#C00000]/25 transition-all duration-300">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#C00000]/10 flex items-center justify-center text-[#C00000] group-hover:scale-110 transition-transform duration-300">
-                  <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="group border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col gap-4 bg-slate-50/50 hover:bg-white hover:-translate-y-1.5 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:border-[#C00000]/20 transition-all duration-300">
+                <div className="w-12 h-12 rounded-2xl bg-[#C00000]/5 flex items-center justify-center text-[#C00000] group-hover:bg-[#C00000] group-hover:text-white transition-all duration-300">
+                  <GraduationCap className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 font-serif">Certification Academy</h4>
-                <p className="text-[10px] sm:text-xs text-slate-500 leading-relaxed font-light">Providing official certification courses in citizen rights, RTI drafting, and community leadership.</p>
+                <h4 className="text-sm sm:text-base font-black text-slate-800 font-sans tracking-wide">Certification Academy</h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-semibold">Providing official certification courses in citizen rights, RTI drafting, and community leadership.</p>
               </div>
             </div>
           </div>
@@ -1033,23 +1022,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-        {/* Dedicated Credentials Verification Section */}
-        <section id="verify-section" className="py-12 md:py-24 px-6 bg-white border-t border-sky-100">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-12">
-            <div className="text-center max-w-2xl mx-auto flex flex-col gap-3">
-              <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest">Verification Registry</span>
-              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Official Credentials Verification Desk</h2>
-              <div className="h-1 w-16 bg-[#1565C0] mx-auto mt-4 rounded-full"></div>
-              <p className="text-sm text-slate-500 mt-2 leading-relaxed font-light">
-                Verify NGO member certificates, designation letters, or official coordinator appointments instantly.
-              </p>
-            </div>
 
-            <div className="flex justify-center w-full">
-              <VerificationWidget />
-            </div>
-          </div>
-        </section>
 
         {/* 7. Documents & Registrations Section (Download CTA, sizes, & hover effects) */}
         <section id="documents" className="py-12 md:py-24 px-6 bg-[#f0f7ff] border-t border-sky-100">
@@ -1122,106 +1095,123 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 8. Latest News Section */}
-        <section id="news" className="py-12 md:py-24 px-6 bg-white border-t border-sky-100">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
+        {/* 8 & 9. Combined Updates & Media Briefings Desk */}
+        <section id="news" className="py-16 md:py-24 px-6 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto w-full flex flex-col gap-12">
             <div className="text-center max-w-2xl mx-auto">
-              <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest font-sans">Announcements</span>
-              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Latest Press & Campaign News</h2>
+              <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest font-sans">Updates & Media</span>
+              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Latest Briefings & Announcements</h2>
               <div className="h-1 w-16 bg-[#1565C0] mx-auto mt-4 rounded-full"></div>
             </div>
 
-            {/* News Cards Carousel */}
-            <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-6 pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 snap-x snap-mandatory scrollbar-thin">
-              {news.length === 0 ? (
-                Array.from({ length: 3 }).map((_, idx) => (
-                  <div key={idx} className="w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start bg-[#f0f7ff] border border-sky-100/80 rounded-2xl p-8 flex flex-col gap-4 animate-pulse min-h-[180px]">
-                    <div className="h-4 w-1/4 bg-slate-200 rounded-full"></div>
-                    <div className="h-6 w-3/4 bg-slate-200 rounded-full"></div>
-                    <div className="h-12 w-full bg-slate-200 rounded-xl"></div>
-                  </div>
-                ))
-              ) : (
-                news.map((item, idx) => (
-                  <div 
-                    key={item.id || idx} 
-                    className={`w-[85vw] sm:w-[380px] md:w-full shrink-0 md:shrink snap-start bg-[#f0f7ff] border border-sky-100/80 rounded-2xl p-8 flex flex-col gap-4 hover:border-[#1565C0]/30 transition-all duration-300 ${
-                      idx % 2 === 1 ? "hover:border-[#C00000]/25" : ""
-                    }`}
-                  >
-                    <span 
-                      className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded self-start ${
-                        idx % 2 === 1 ? "text-[#C00000] bg-[#C00000]/10" : "text-[#1565C0] bg-[#1565C0]/10"
-                      }`}
-                    >
-                      {item.date}
-                    </span>
-                    <h4 className="text-sm font-bold text-slate-800 font-serif leading-snug">{item.title}</h4>
-                    <p className="text-[11px] text-slate-500 leading-relaxed font-light">{item.content}</p>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </section>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              
+              {/* Left Column - Latest News Timeline (7 cols) */}
+              <div className="lg:col-span-7 space-y-6">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-[#1565C0]"></span> Press & Campaign News
+                </h3>
 
-        {/* 9. Video Gallery Section */}
-        <section id="video-gallery" className="py-12 md:py-24 px-6 bg-[#f0f7ff] border-t border-sky-100">
-          <div className="max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-12">
-            <div className="text-center max-w-2xl mx-auto">
-              <span className="text-[10px] text-[#C00000] font-extrabold uppercase tracking-widest font-sans">Press Briefings</span>
-              <h2 className="text-3xl font-bold font-serif text-slate-900 mt-2">Official Video Library</h2>
-              <div className="h-1 w-16 bg-[#1565C0] mx-auto mt-4 rounded-full"></div>
-            </div>
-
-            <div className="max-w-4xl mx-auto w-full bg-white rounded-3xl overflow-hidden border border-sky-100 shadow-sm p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center">
-              <div className="w-full md:w-1/2 aspect-video bg-slate-950 rounded-2xl overflow-hidden relative group cursor-pointer shadow-md">
-                <img
-                  src="https://img.youtube.com/vi/hjLMgfZ_Wp4/hqdefault.jpg"
-                  alt="DKFFJ Media Coverage"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-all">
-                  <div className="w-14 h-14 rounded-full bg-[#C00000] hover:bg-[#990000] text-white flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110">
-                    <PlayCircle className="w-6 h-6 fill-current" />
-                  </div>
+                <div className="space-y-4">
+                  {news.length === 0 ? (
+                    Array.from({ length: 3 }).map((_, idx) => (
+                      <div key={idx} className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col gap-3 animate-pulse">
+                        <div className="h-3.5 w-24 bg-slate-200 rounded-full"></div>
+                        <div className="h-5 w-3/4 bg-slate-200 rounded-full"></div>
+                        <div className="h-10 w-full bg-slate-200 rounded-xl"></div>
+                      </div>
+                    ))
+                  ) : (
+                    news.slice(0, 3).map((item, idx) => (
+                      <div 
+                        key={item.id || idx} 
+                        className="bg-white border border-slate-100/80 rounded-2xl p-6 flex flex-col gap-3 hover:shadow-md hover:border-[#1565C0]/25 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-black font-mono px-2 py-0.5 rounded text-[#1565C0] bg-[#1565C0]/5">
+                            {item.date}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-black text-slate-800 font-sans tracking-wide leading-snug">{item.title}</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed font-semibold">{item.content}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
-              </div>
 
-              <div className="w-full md:w-1/2 space-y-4 text-left">
-                <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded text-[#C00000] bg-[#C00000]/10 uppercase tracking-wider">
-                  Featured Broadcast
-                </span>
-                <h4 className="text-lg font-bold text-slate-800 font-serif leading-snug">
-                  DKFFJ Media Broadcast & Press Grievance Address
-                </h4>
-                <p className="text-slate-500 text-xs leading-relaxed font-light">
-                  Watch official campaign news, RTI exposure briefings, and executive council addresses by Director Danish Khan regarding public grievances and constitution protection.
-                </p>
-                <div className="pt-2">
+                <div className="pt-2 text-left">
                   <Link
-                    href="/gallery"
-                    className="bg-[#C00000] hover:bg-[#990000] text-white text-[11px] font-black uppercase tracking-widest px-5 py-3 rounded-xl transition-all shadow-[0_4px_12px_rgba(192,0,0,0.2)] inline-flex items-center gap-1.5"
+                    href="/news"
+                    className="text-[#1565C0] hover:text-[#0D47A1] text-xs font-black uppercase tracking-wider inline-flex items-center gap-1 group"
                   >
-                    <span>Enter Video Gallery Portal</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <span>Read All Campaign News</span>
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </div>
               </div>
+
+              {/* Right Column - Featured Video Briefing (5 cols) */}
+              <div className="lg:col-span-5 space-y-6">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-[#C00000]"></span> Featured Press Address
+                </h3>
+
+                <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm p-5 flex flex-col gap-5">
+                  <a 
+                    href="https://youtu.be/hjLMgfZ_Wp4" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="w-full aspect-video bg-slate-950 rounded-xl overflow-hidden relative group cursor-pointer shadow-md block"
+                  >
+                    <img
+                      src="https://img.youtube.com/vi/hjLMgfZ_Wp4/hqdefault.jpg"
+                      alt="DKFFJ Media Coverage"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-all">
+                      <div className="w-12 h-12 rounded-full bg-[#C00000] text-white flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110">
+                        <PlayCircle className="w-5 h-5 fill-current" />
+                      </div>
+                    </div>
+                  </a>
+
+                  <div className="space-y-3 text-left">
+                    <span className="text-[9px] font-black font-mono px-2 py-0.5 rounded text-[#C00000] bg-[#C00000]/5 uppercase tracking-wider">
+                      Executive Briefing
+                    </span>
+                    <h4 className="text-sm font-black text-slate-800 font-sans tracking-wide leading-snug">
+                      DKFFJ Media Broadcast & Press Grievance Address
+                    </h4>
+                    <p className="text-slate-500 text-xs leading-relaxed font-semibold">
+                      Watch official campaign updates, RTI exposure briefings, and executive council addresses by Director Danish Khan regarding public grievances and constitution protection.
+                    </p>
+                    <div className="pt-2">
+                      <Link
+                        href="/gallery"
+                        className="bg-[#C00000] hover:bg-[#990000] text-white text-[10px] font-black uppercase tracking-widest px-4 py-3 rounded-lg transition-all shadow-[0_4px_12px_rgba(192,0,0,0.2)] inline-flex items-center gap-1.5"
+                      >
+                        <span>Enter Video Portal</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </section>
-
-        {/* 10. Contact & Complaint Lodging Form */}
-        <section id="contact" className="py-12 md:py-24 px-6 bg-white border-t border-sky-100">
+         {/* 10. Contact & Complaint Lodging Form */}
+        <section id="contact" className="py-16 md:py-24 px-6 bg-gradient-to-b from-white to-slate-50 border-t border-slate-200">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-16 items-start">
             
             {/* Left — Inquiry / Contact Form */}
-            <div className="lg:col-span-7 bg-[#f0f7ff] p-8 md:p-10 rounded-3xl border border-sky-100/80 shadow-sm flex flex-col gap-6">
+            <div className="lg:col-span-7 bg-white p-8 md:p-10 rounded-3xl border border-slate-200 shadow-sm flex flex-col gap-6">
               <div>
                 <span className="text-[10px] text-[#1565C0] font-extrabold uppercase tracking-widest font-sans">Get In Touch</span>
                 <h3 className="text-2xl font-bold font-serif text-slate-900 mt-1">Contact / General Inquiry</h3>
-                <p className="text-xs text-slate-500 mt-1">Fill in the details below and our team will respond within 24–48 hours. You will also receive a confirmation on your email.</p>
+                <p className="text-xs text-slate-500 mt-1 font-semibold">Fill in the details below and our team will respond within 24–48 hours. You will also receive a confirmation on your email.</p>
               </div>
 
               {/* Dynamic Inquiry Form — saves to DB + sends emails */}
@@ -1236,45 +1226,45 @@ export default function Home() {
                 <div className="h-1 w-12 bg-[#1565C0] mt-2 rounded-full"></div>
               </div>
 
-              <div className="flex flex-col gap-6 text-xs text-slate-600">
+              <div className="flex flex-col gap-6 text-xs text-slate-600 font-semibold leading-relaxed">
                 <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-lg bg-[#1565C0]/10 flex items-center justify-center text-[#1565C0] shrink-0">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <div className="w-9 h-9 rounded-xl bg-[#1565C0]/5 flex items-center justify-center text-[#1565C0] shrink-0 border border-slate-100">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   </div>
                   <div>
-                    <h5 className="font-bold text-slate-800 mb-1">Mobile Support Lines</h5>
-                    <p className="font-mono text-slate-700 font-semibold">+91 9871219033, +91 8960552986</p>
+                    <h5 className="font-black text-slate-800 mb-1">Mobile Support Lines</h5>
+                    <p className="font-mono text-slate-700 font-bold">+91 9871219033, +91 8960552986</p>
                     <p className="font-mono text-slate-400 mt-0.5">Alt: +91 9453457930</p>
                   </div>
                 </div>
 
                 <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-lg bg-[#1565C0]/10 flex items-center justify-center text-[#1565C0] shrink-0">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <div className="w-9 h-9 rounded-xl bg-[#1565C0]/5 flex items-center justify-center text-[#1565C0] shrink-0 border border-slate-100">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div>
-                    <h5 className="font-bold text-slate-800 mb-1">Official Emails</h5>
-                    <p className="font-mono text-slate-700 font-semibold">info@dkffj.org</p>
+                    <h5 className="font-black text-slate-800 mb-1">Official Emails</h5>
+                    <p className="font-mono text-slate-700 font-bold">info@dkffj.org</p>
                     <p className="font-mono text-slate-400 mt-0.5">dkfoundationoffreedom@gmail.com</p>
                   </div>
                 </div>
 
                 <div className="flex gap-4 items-start">
-                  <div className="w-8 h-8 rounded-lg bg-[#1565C0]/10 flex items-center justify-center text-[#1565C0] shrink-0">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <div className="w-9 h-9 rounded-xl bg-[#1565C0]/5 flex items-center justify-center text-[#1565C0] shrink-0 border border-slate-100">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <div>
-                    <h5 className="font-bold text-slate-800 mb-1">Corporate & Regional Offices</h5>
-                    <p className="mb-2 leading-relaxed"><strong>Head Office:</strong> 117/M/29-C Kakadeo M-Block, Madhuvan Appt. Road, Kanpur, UP 208019</p>
-                    <p className="mb-2 leading-relaxed"><strong>Ajmer Office:</strong> Sarwar Guest House, Ander Kot District, Ajmer, Rajasthan 305001</p>
-                    <p className="mb-2 leading-relaxed"><strong>Lucknow Office:</strong> 20B, Gata No. 458, Bhakamau BKT, Basha, Lucknow, UP 226026</p>
+                  <div className="space-y-3 font-semibold text-slate-650">
+                    <h5 className="font-black text-slate-800 mb-1">Corporate & Regional Offices</h5>
+                    <p className="leading-relaxed"><strong>Head Office:</strong> 117/M/29-C Kakadeo M-Block, Madhuvan Appt. Road, Kanpur, UP 208019</p>
+                    <p className="leading-relaxed"><strong>Ajmer Office:</strong> Sarwar Guest House, Ander Kot District, Ajmer, Rajasthan 305001</p>
+                    <p className="leading-relaxed"><strong>Lucknow Office:</strong> 20B, Gata No. 458, Bhakamau BKT, Basha, Lucknow, UP 226026</p>
                     <p className="leading-relaxed"><strong>Delhi Office:</strong> 18/51 Trilok Puri, Near Shiv Mandir, Delhi 110091</p>
                   </div>
                 </div>
@@ -1286,69 +1276,71 @@ export default function Home() {
 
       </main>
 
-      {/* Global Footer (Improved with NITI, MCA, 12A, 80G and verification links) */}
-      <footer className="border-t border-sky-100 bg-[#e8f4fd] py-12 px-6">
-        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-10 text-xs text-slate-500">
+      {/* Global Footer (Improved premium deep dark style) */}
+      <footer className="border-t border-[#1e293b] bg-[#070f1e] py-16 px-6 text-slate-400">
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-10 text-xs">
           
-          <div className="flex flex-col gap-3 text-left">
-            <h5 className="font-serif font-bold text-[#1565C0] text-sm leading-none">DKFFJ NGO</h5>
-            <p className="leading-relaxed font-light text-slate-400">
+          <div className="flex flex-col gap-4 text-left">
+            <h5 className="font-serif font-black text-white text-sm tracking-widest uppercase">DKFFJ ORG</h5>
+            <p className="leading-relaxed font-semibold text-slate-400">
               DK Foundation of Freedom and Justice is a constitutional rights protection organ registered under Section 8 of the Companies Act, 2013, Ministry of Corporate Affairs, Govt. of India.
             </p>
-            <div className="flex flex-col gap-1 mt-2 text-[10px] text-slate-400 font-semibold font-mono font-sans">
+            <div className="flex flex-col gap-1.5 mt-2 text-[10px] text-slate-400 font-bold font-mono">
               <span>CIN: U88900UP2023NPL185611</span>
-              <span className="text-[#1565C0]">✓ MCA Registered Section 8</span>
-              <span className="text-[#1565C0]">✓ NITI Aayog: UP/2023/0351342</span>
-              <span className="text-[#1565C0]">✓ IT Exemption: 12A &amp; 80G</span>
+              <span className="text-[#c5a880]">✓ MCA Registered Section 8</span>
+              <span className="text-[#c5a880]">✓ NITI Aayog: UP/2023/0351342</span>
+              <span className="text-[#c5a880]">✓ IT Exemption: 12A &amp; 80G</span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 text-left">
-            <h5 className="font-bold text-slate-800 uppercase tracking-wider">Quick Links</h5>
-            <div className="flex flex-col gap-2">
-              <Link href="/about" className="hover:text-[#1565C0] transition-colors">About Objectives</Link>
-              <Link href="#services" className="hover:text-[#1565C0] transition-colors">Operations Details</Link>
-              <Link href="/courses" className="hover:text-[#1565C0] transition-colors">Academy Courses</Link>
-              <Link href="/documents" className="hover:text-[#1565C0] transition-colors">Downloadable Legals</Link>
-              <Link href="/admin/login" className="hover:text-[#1565C0] transition-colors">Admin Portal</Link>
-              <Link href="#verify-section" className="text-[#1565C0] font-bold hover:underline transition-all">Verify Registry Certificate</Link>
+          <div className="flex flex-col gap-4 text-left">
+            <h5 className="font-bold text-white uppercase tracking-wider">Quick Links</h5>
+            <div className="flex flex-col gap-2.5 font-semibold">
+              <Link href="/about" className="hover:text-[#c5a880] transition-colors">About Objectives</Link>
+              <Link href="#services" className="hover:text-[#c5a880] transition-colors">Operations Details</Link>
+              <Link href="/courses" className="hover:text-[#c5a880] transition-colors">Academy Courses</Link>
+              <Link href="/documents" className="hover:text-[#c5a880] transition-colors">Downloadable Legals</Link>
+              <Link href="/admin/login" className="hover:text-[#c5a880] transition-colors">Admin Portal</Link>
+              <Link href="/verify" className="text-[#c5a880] font-bold hover:underline transition-all">Verify Registry Certificate</Link>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 text-left">
-            <h5 className="font-bold text-slate-800 uppercase tracking-wider">Official Policies</h5>
-            <div className="flex flex-col gap-2">
-              <Link href="#" className="hover:text-[#1565C0] transition-colors">Privacy Policy</Link>
-              <Link href="#" className="hover:text-[#1565C0] transition-colors">Terms and Conditions</Link>
-              <Link href="#" className="hover:text-[#1565C0] transition-colors">Refund and Cancellation Policy</Link>
-              <Link href="#" className="hover:text-[#1565C0] transition-colors">Citizen Charter</Link>
+          <div className="flex flex-col gap-4 text-left">
+            <h5 className="font-bold text-white uppercase tracking-wider">Official Policies</h5>
+            <div className="flex flex-col gap-2.5 font-semibold">
+              <Link href="#" className="hover:text-[#c5a880] transition-colors">Privacy Policy</Link>
+              <Link href="#" className="hover:text-[#c5a880] transition-colors">Terms and Conditions</Link>
+              <Link href="#" className="hover:text-[#c5a880] transition-colors">Refund and Cancellation Policy</Link>
+              <Link href="#" className="hover:text-[#c5a880] transition-colors">Citizen Charter</Link>
             </div>
           </div>
 
           <div className="flex flex-col gap-4 items-start md:items-end text-left md:text-right">
-            <h5 className="font-bold text-slate-800 uppercase tracking-wider">Contact & Socials</h5>
-            <div className="flex flex-col gap-1.5 text-slate-500 text-[11px] md:items-end font-medium">
+            <h5 className="font-bold text-white uppercase tracking-wider">Contact & Socials</h5>
+            <div className="flex flex-col gap-2 text-slate-400 text-[11px] md:items-end font-semibold">
               <a 
                 href="https://wa.me/919871219033" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="hover:text-[#1565C0] font-bold text-[#25D366] flex items-center gap-1 hover:underline"
+                className="hover:text-white font-bold text-[#25D366] flex items-center gap-1 hover:underline"
               >
                 <span>WhatsApp: +91 98712 19033</span>
               </a>
               <span>Email: info@dkffj.org</span>
               <span>Kanpur, Uttar Pradesh, India</span>
             </div>
-            <div className="flex gap-2.5 mt-2">
-              {/* WhatsApp Channel */}
+            
+            {/* Social Icons Grid */}
+            <div className="flex gap-2.5 mt-3">
+              {/* WhatsApp */}
               <a 
                 href="https://whatsapp.com/channel/0029Va64Sq3KWEL0Fq19xi1g" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 title="WhatsApp Channel"
-                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-all text-slate-600"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-[#25D366] hover:border-transparent flex items-center justify-center transition-all text-white/80"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-2.622-1.307-3.738-1.93-5.235-4.478-.396-.673.396-.624 1.132-2.08.125-.248.062-.468-.032-.623-.093-.156-.814-1.963-.102-.977-.249.309-.494.364-.701.364-.207-.001-.444-.002-.68-.002-.237 0-.621.089-.945.442-.325.353-1.242 1.214-1.242 2.959 0 1.745 1.272 3.432 1.448 3.668.177.235 2.5 3.818 6.061 5.345 2.118.907 2.979.99 4.036.835 1.248-.184 1.879-.763 2.146-1.445.268-.682.268-1.27.188-1.393-.08-.124-.303-.223-.628-.386zM11.971 21.492c-1.61 0-3.192-.433-4.577-1.25l-.328-.194-3.399.891.908-3.315-.213-.339A9.458 9.458 0 0 1 2.502 12c0-5.244 4.267-9.511 9.512-9.511 2.54 0 4.928.99 6.724 2.787 1.795 1.797 2.784 4.185 2.784 6.726 0 5.244-4.267 9.511-9.512 9.511zm.019-21.5c-6.35 0-11.512 5.162-11.512 11.512 0 2.03.53 4.015 1.536 5.767L0 24l6.892-1.808a11.455 11.455 0 0 0 5.097 1.196h.004c6.348 0 11.51-5.163 11.51-11.513 0-3.078-1.198-5.97-3.373-8.145C17.955 1.198 15.064-.002 11.99.002z"/>
                 </svg>
               </a>
@@ -1358,9 +1350,9 @@ export default function Home() {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 title="Telegram Channel"
-                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#0088cc] hover:text-white flex items-center justify-center transition-all text-slate-600"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-[#0088cc] hover:border-transparent flex items-center justify-center transition-all text-white/80"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.28-.02-.12.02-1.99 1.25-5.61 3.7-.53.37-1 .55-1.42.54-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.36-.49.99-.75 3.88-1.69 6.46-2.8 7.74-3.33 3.68-1.52 4.44-1.78 4.94-1.79.11 0 .36.03.52.16.14.11.18.27.2.42.02.13.01.27-.01.37z"/>
                 </svg>
               </a>
@@ -1370,9 +1362,9 @@ export default function Home() {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 title="YouTube Channel"
-                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#FF0000] hover:text-white flex items-center justify-center transition-all text-slate-600"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-[#FF0000] hover:border-transparent flex items-center justify-center transition-all text-white/80"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
                   <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
               </a>
@@ -1382,9 +1374,9 @@ export default function Home() {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 title="Instagram"
-                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#E1306C] hover:text-white flex items-center justify-center transition-all text-slate-600"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-[#E1306C] hover:border-transparent flex items-center justify-center transition-all text-white/80"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
                 </svg>
               </a>
@@ -1394,38 +1386,39 @@ export default function Home() {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 title="LinkedIn"
-                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#0077B5] hover:text-white flex items-center justify-center transition-all text-slate-600"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-[#0077B5] hover:border-transparent flex items-center justify-center transition-all text-white/80"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
                   <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
                 </svg>
               </a>
               {/* Facebook */}
-              <a
-                href="https://www.facebook.com/dkffjorg?mibextid=ZbWKwL"
-                target="_blank"
-                rel="noopener noreferrer"
+              <a 
+                href="https://www.facebook.com/dkffjorg?mibextid=ZbWKwL" 
+                target="_blank" 
+                rel="noopener noreferrer" 
                 title="Facebook Page"
-                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-[#1877F2] hover:text-white flex items-center justify-center transition-all text-slate-600"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-[#1877F2] hover:border-transparent flex items-center justify-center transition-all text-white/80"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
               </a>
               {/* X (Twitter) */}
-              <a
-                href="https://twitter.com/dkfofaj?t=grzhZFyCWEFKUlR0nnW-6g&s=08"
-                target="_blank"
-                rel="noopener noreferrer"
+              <a 
+                href="https://twitter.com/dkfofaj?t=grzhZFyCWEFKUlR0nnW-6g&s=08" 
+                target="_blank" 
+                rel="noopener noreferrer" 
                 title="X (Twitter)"
-                className="w-7 h-7 rounded-full bg-slate-200 hover:bg-black hover:text-white flex items-center justify-center transition-all text-slate-600"
+                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-black hover:border-transparent flex items-center justify-center transition-all text-white/80"
               >
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
               </a>
             </div>
-            <span className="text-[10px] text-slate-400 mt-2 block">
+
+            <span className="text-[10px] text-slate-500 mt-3 block">
               &copy; {new Date().getFullYear()} DKFFJ. All rights reserved.
             </span>
           </div>
@@ -1434,21 +1427,21 @@ export default function Home() {
       </footer>
 
       {/* 13. Mobile Sticky Action Bar */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-sky-100 z-50 py-3 px-4 flex gap-2 justify-around shadow-[0_-5px_15px_rgba(0,0,0,0.08)]">
+      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-100 z-50 py-3 px-4 flex gap-2 justify-around shadow-[0_-5px_15px_rgba(0,0,0,0.08)]">
         <Link 
-          href="#contact" 
+          href="/apply" 
           className="flex-1 text-center bg-[#1565C0] hover:bg-[#0D47A1] text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-wider transition-colors"
         >
           Join Member
         </Link>
         <Link 
-          href="#contact" 
+          href="/complaint" 
           className="flex-1 text-center bg-[#C00000] hover:bg-[#990000] text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-wider transition-colors"
         >
           File Complaint
         </Link>
         <Link 
-          href="#verify-section" 
+          href="/verify" 
           className="flex-1 text-center bg-[#1565C0] hover:bg-slate-700 text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-wider transition-colors"
         >
           Verify Certificate

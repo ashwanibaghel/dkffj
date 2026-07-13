@@ -114,7 +114,7 @@ export function getComplaintSubmittedTemplate(name: string, complaintNo: string)
         <p style="font-size: 15px; line-height: 1.6;">Please save this docket number to track the status of your complaint online. We stand committed to ensuring freedom, justice, and human rights for all citizens.</p>
         
         <div style="margin-top: 32px; text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/track?type=complaint&id=${complaintNo}" style="background-color: #C00000; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Track Complaint Status</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/track/complaint?id=${complaintNo}" style="background-color: #C00000; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Track Complaint Status</a>
         </div>
       </div>
       <div style="background-color: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">

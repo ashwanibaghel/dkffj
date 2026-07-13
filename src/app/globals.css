@@ -60,3 +60,21 @@ body {
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Premium Gold Text and Border Gradients */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #f3d08a 0%, #c5a880 50%, #b29363 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.border-gold-gradient {
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #f3d08a, #c5a880, #b29363) border-box;
+  border: 1px solid transparent;
+}
+
+.dark .border-gold-gradient {
+  background: linear-gradient(#0f172a, #0f172a) padding-box,
+              linear-gradient(135deg, #f3d08a, #c5a880, #b29363) border-box;
+}
