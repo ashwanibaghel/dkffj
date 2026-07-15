@@ -372,42 +372,56 @@ export async function getSecureMembershipDetails(ackNo: string, contact: string)
 
   if (!searchStr || !contactStr) return null;
 
-  const { data: membership, error } = await supabase
-    .from("memberships")
-    .select(`
-      id, 
-      ack_no, 
-      membership_no, 
-      full_name, 
-      father_name,
-      gender,
-      dob,
-      mobile,
-      whatsapp,
-      email,
-      address,
-      district,
-      state,
-      pincode,
-      education,
-      profession,
-      working_area,
-      designation,
-      photo_url,
-      status, 
-      created_at,
-      approved_at,
+  let query = supabase.from("memberships").select(`
+    id, 
+    ack_no, 
+    membership_no, 
+    full_name, 
+    father_name,
+    gender,
+    dob,
+    mobile,
+    whatsapp,
+    email,
+    address,
+    district,
+    state,
+    pincode,
+    education,
+    profession,
+    working_area,
+    designation,
+    photo_url,
+    status, 
+    created_at,
+    approved_at,
+    remarks,
+    status_logs (
+      id,
+      from_status,
+      to_status,
       remarks,
-      status_logs (
-        id,
-        from_status,
-        to_status,
-        remarks,
-        created_at
-      )
-    `)
-    .or(`ack_no.eq.${searchStr},membership_no.eq.${searchStr}`)
-    .maybeSingle();
+      created_at
+    )
+  `);
+
+  if (searchStr.startsWith("MBR-")) {
+    const { data: payment } = await supabase
+      .from("payments")
+      .select("membership_id")
+      .eq("transaction_id", searchStr)
+      .maybeSingle();
+
+    if (payment && payment.membership_id) {
+      query = query.eq("id", payment.membership_id);
+    } else {
+      return { found: false, type: "membership", number: searchStr, name: "", status: "", date: "", timeline: [] };
+    }
+  } else {
+    query = query.or(`ack_no.eq.${searchStr},membership_no.eq.${searchStr}`);
+  }
+
+  const { data: membership, error } = await query.maybeSingle();
 
   if (error || !membership) {
     return { found: false, type: "membership", number: searchStr, name: "", status: "", date: "", timeline: [] };
@@ -532,29 +546,43 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
 
   if (!searchStr || !emailStr) return null;
 
-  const { data: enrollment, error } = await supabase
-    .from("course_registrations")
-    .select(`
-      id, 
-      enrollment_no, 
-      full_name, 
-      email,
-      status, 
-      created_at,
+  let query = supabase.from("course_registrations").select(`
+    id, 
+    enrollment_no, 
+    full_name, 
+    email,
+    status, 
+    created_at,
+    remarks,
+    courses (
+      title
+    ),
+    status_logs (
+      id,
+      from_status,
+      to_status,
       remarks,
-      courses (
-        title
-      ),
-      status_logs (
-        id,
-        from_status,
-        to_status,
-        remarks,
-        created_at
-      )
-    `)
-    .eq("enrollment_no", searchStr)
-    .maybeSingle();
+      created_at
+    )
+  `);
+
+  if (searchStr.startsWith("CRS-")) {
+    const { data: payment } = await supabase
+      .from("payments")
+      .select("registration_id")
+      .eq("transaction_id", searchStr)
+      .maybeSingle();
+
+    if (payment && payment.registration_id) {
+      query = query.eq("id", payment.registration_id);
+    } else {
+      return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
+    }
+  } else {
+    query = query.eq("enrollment_no", searchStr);
+  }
+
+  const { data: enrollment, error } = await query.maybeSingle();
 
   if (error || !enrollment) {
     return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
@@ -715,36 +743,50 @@ export async function getSecureAppreciationDetails(appNo: string, contact: strin
 
   if (!searchStr || !contactStr) return null;
 
-  const { data: app, error } = await supabase
-    .from("appreciation_applications")
-    .select(`
+  let query = supabase.from("appreciation_applications").select(`
+    id,
+    application_no,
+    full_name,
+    email,
+    mobile,
+    address,
+    country,
+    state,
+    district,
+    pincode,
+    social_work_field,
+    description,
+    photo_url,
+    status,
+    created_at,
+    approved_at,
+    remarks,
+    status_logs (
       id,
-      application_no,
-      full_name,
-      email,
-      mobile,
-      address,
-      country,
-      state,
-      district,
-      pincode,
-      social_work_field,
-      description,
-      photo_url,
-      status,
-      created_at,
-      approved_at,
+      from_status,
+      to_status,
       remarks,
-      status_logs (
-        id,
-        from_status,
-        to_status,
-        remarks,
-        created_at
-      )
-    `)
-    .eq("application_no", searchStr)
-    .maybeSingle();
+      created_at
+    )
+  `);
+
+  if (searchStr.startsWith("APR-")) {
+    const { data: payment } = await supabase
+      .from("payments")
+      .select("appreciation_id")
+      .eq("transaction_id", searchStr)
+      .maybeSingle();
+
+    if (payment && payment.appreciation_id) {
+      query = query.eq("id", payment.appreciation_id);
+    } else {
+      return { found: false, type: "appreciation", number: searchStr, name: "", status: "", date: "", timeline: [] };
+    }
+  } else {
+    query = query.eq("application_no", searchStr);
+  }
+
+  const { data: app, error } = await query.maybeSingle();
 
   if (error || !app) {
     return { found: false, type: "appreciation", number: searchStr, name: "", status: "", date: "", timeline: [] };

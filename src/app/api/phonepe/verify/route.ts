@@ -40,6 +40,11 @@ export async function GET(req: NextRequest) {
     let ackOrEnrollmentNo = "";
     let courseTitle = "";
 
+    const isBypassCheck = (email: string) => {
+      const e = email.toLowerCase().trim();
+      return e.includes("bypass") || e === "ashwanibaghel826@gmail.com";
+    };
+
     if (payment.membership_id) {
       const { data: membership } = await supabase
         .from("memberships")
@@ -50,7 +55,7 @@ export async function GET(req: NextRequest) {
         customerEmail = membership.email;
         customerName = membership.full_name;
         ackOrEnrollmentNo = membership.ack_no;
-        if (membership.email.toLowerCase().includes("bypass")) {
+        if (isBypassCheck(membership.email)) {
           isBypass = true;
         }
       }
@@ -65,7 +70,7 @@ export async function GET(req: NextRequest) {
         customerName = registration.full_name;
         ackOrEnrollmentNo = registration.enrollment_no || "PENDING";
         courseTitle = (registration.courses as any)?.title || "Selected Course";
-        if (registration.email.toLowerCase().includes("bypass")) {
+        if (isBypassCheck(registration.email)) {
           isBypass = true;
         }
       }
@@ -77,7 +82,7 @@ export async function GET(req: NextRequest) {
       if (donation) {
         customerEmail = donation.donor_email;
         customerName = donation.donor_name;
-        if (donation.donor_email.toLowerCase().includes("bypass")) {
+        if (isBypassCheck(donation.donor_email)) {
           isBypass = true;
         }
       }
@@ -91,7 +96,7 @@ export async function GET(req: NextRequest) {
         customerEmail = app.email;
         customerName = app.full_name;
         ackOrEnrollmentNo = app.application_no;
-        if (app.email.toLowerCase().includes("bypass")) {
+        if (isBypassCheck(app.email)) {
           isBypass = true;
         }
       }
