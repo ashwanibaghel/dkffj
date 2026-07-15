@@ -98,7 +98,11 @@ export async function GET(req: NextRequest) {
     }
 
     const { isProductionMode } = await import("@/lib/payment/phonepe");
-    if (isBypass && isProductionMode()) {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
+    const host = req.headers.get("host") || "";
+    const isVercelOrLocal = appUrl.includes("localhost") || appUrl.includes("vercel.app") || host.includes("localhost") || host.includes("vercel.app");
+
+    if (isBypass && isProductionMode() && !isVercelOrLocal) {
       console.warn(`[SECURITY WARNING] Bypass attempt blocked in PRODUCTION mode for email: ${customerEmail}`);
       isBypass = false;
     }

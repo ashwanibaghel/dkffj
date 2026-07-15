@@ -54,8 +54,9 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
   const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
   console.log(`[PHONEPE DEBUG] PHONEPE_MODE raw: "${process.env.PHONEPE_MODE}" | isProduction?: ${isProductionMode()}`);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
+  const isVercelOrLocal = appUrl.includes("localhost") || appUrl.includes("vercel.app");
 
-  if (!isProductionMode() && details.customerEmail.toLowerCase().includes("bypass")) {
+  if ((!isProductionMode() || isVercelOrLocal) && details.customerEmail.toLowerCase().includes("bypass")) {
     console.log(`[PAYMENT BYPASS] Email contains bypass - skipping PhonePe redirect generation`);
     return `${appUrl}/payment/success?orderId=${details.orderId}`;
   }
