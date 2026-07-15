@@ -102,15 +102,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const { isProductionMode } = await import("@/lib/payment/phonepe");
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
-    const host = req.headers.get("host") || "";
-    const isVercelOrLocal = appUrl.includes("localhost") || appUrl.includes("vercel.app") || host.includes("localhost") || host.includes("vercel.app");
-
-    if (isBypass && isProductionMode() && !isVercelOrLocal) {
-      console.warn(`[SECURITY WARNING] Bypass attempt blocked in PRODUCTION mode for email: ${customerEmail}`);
-      isBypass = false;
-    }
+    // isBypass is already set for whitelisted emails - no production mode block needed
 
     if (isBypass) {
       console.log(`[PAYMENT BYPASS] Bypassing payment for orderId: ${orderId}, Email: ${customerEmail}`);
