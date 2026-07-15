@@ -432,7 +432,7 @@ export default function CourseCard({ course }: { course: Course }) {
 
       {/* Modal Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full my-8 flex flex-col relative animate-scaleUp max-h-[90vh] overflow-y-auto">
             
             {/* Header */}
