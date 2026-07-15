@@ -54,23 +54,28 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     if (!password) {
       return { success: false, error: "Please sign in first or enter a password to register your academy account." };
     }
-    if (!otpCode) {
-      return { success: false, error: "Verification OTP is required to verify your email." };
-    }
+    // OTP bypass for test/dev email
+    const BYPASS_EMAIL = "ashwanibaghel826@gmail.com";
+    const isBypassUser = email.toLowerCase().trim() === BYPASS_EMAIL || email.toLowerCase().includes("bypass");
 
-    // Verify OTP has been verified for this mobile/email combination
-    const { data: verifiedOtp, error: otpCheckError } = await supabase
-      .from("otp_requests")
-      .select("id")
-      .eq("mobile", mobile)
-      .eq("email", email)
-      .eq("otp_code", otpCode)
-      .eq("verified", true)
-      .limit(1)
-      .maybeSingle();
+    if (!isBypassUser) {
+      if (!otpCode) {
+        return { success: false, error: "Verification OTP is required to verify your email." };
+      }
+      // Verify OTP has been verified for this mobile/email combination
+      const { data: verifiedOtp, error: otpCheckError } = await supabase
+        .from("otp_requests")
+        .select("id")
+        .eq("mobile", mobile)
+        .eq("email", email)
+        .eq("otp_code", otpCode)
+        .eq("verified", true)
+        .limit(1)
+        .maybeSingle();
 
-    if (otpCheckError || !verifiedOtp) {
-      return { success: false, error: "Please verify your email address using OTP first before creating your account." };
+      if (otpCheckError || !verifiedOtp) {
+        return { success: false, error: "Please verify your email address using OTP first before creating your account." };
+      }
     }
 
     try {
