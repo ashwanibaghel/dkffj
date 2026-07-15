@@ -1,10 +1,42 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, UserCheck, FileText, GraduationCap, Award, FileCheck } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { ArrowLeft, UserCheck, FileText, GraduationCap, Award, FileCheck, Loader2 } from "lucide-react";
 
-export default function TrackPage() {
+function TrackPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const type = searchParams.get("type");
+    const id = searchParams.get("id");
+    const contact = searchParams.get("contact") || searchParams.get("phone") || searchParams.get("email");
+
+    if (type) {
+      let targetHref = "";
+      if (type === "complaint") targetHref = "/track/complaint";
+      else if (type === "membership") targetHref = "/track/membership";
+      else if (type === "appreciation") targetHref = "/track/appreciation";
+      else if (type === "course") targetHref = "/track/course";
+      else if (type === "certificate") targetHref = "/track/certificate";
+
+      if (targetHref) {
+        let redirectUrl = targetHref;
+        const queryParams: string[] = [];
+        if (id) queryParams.push(`id=${encodeURIComponent(id)}`);
+        if (contact) queryParams.push(`contact=${encodeURIComponent(contact)}`);
+
+        if (queryParams.length > 0) {
+          redirectUrl += `?${queryParams.join("&")}`;
+        }
+
+        router.replace(redirectUrl);
+      }
+    }
+  }, [searchParams, router]);
+
   const cards = [
     {
       title: "Membership Status",
@@ -131,5 +163,17 @@ export default function TrackPage() {
         &copy; {new Date().getFullYear()} DK Foundation of Freedom & Justice. All Rights Reserved. • Secured Verification Portal
       </footer>
     </div>
+  );
+}
+
+export default function TrackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f0f7ff] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#1565C0]" />
+      </div>
+    }>
+      <TrackPageContent />
+    </Suspense>
   );
 }

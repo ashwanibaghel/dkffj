@@ -27,16 +27,8 @@ function ComplaintTrackContent() {
   const [result, setResult] = useState<TrackingResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
-  useEffect(() => {
-    const id = searchParams.get("id");
-    if (id) {
-      setComplaintNo(id);
-    }
-  }, [searchParams]);
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!complaintNo.trim() || !contact.trim()) {
+  const performSearch = async (compNo: string, contVal: string) => {
+    if (!compNo.trim() || !contVal.trim()) {
       setErrorMsg("Please enter both Complaint Number and registered Contact.");
       return;
     }
@@ -44,7 +36,7 @@ function ComplaintTrackContent() {
     setErrorMsg("");
     setSearched(true);
     try {
-      const res = await getSecureComplaintDetails(complaintNo, contact);
+      const res = await getSecureComplaintDetails(compNo, contVal);
       setResult(res);
       if (res && !res.found) {
         setErrorMsg("Complaint record not found or contact details do not match.");
@@ -56,6 +48,27 @@ function ComplaintTrackContent() {
       setLoading(false);
     }
   };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performSearch(complaintNo, contact);
+  };
+
+  useEffect(() => {
+    const id = searchParams.get("id");
+    const contactParam = searchParams.get("contact") || searchParams.get("phone") || searchParams.get("email");
+    
+    if (id) {
+      setComplaintNo(id);
+    }
+    if (contactParam) {
+      setContact(contactParam);
+    }
+    
+    if (id && contactParam) {
+      performSearch(id, contactParam);
+    }
+  }, [searchParams]);
 
   const getStatusColor = (status: string) => {
     const s = status.toUpperCase();
