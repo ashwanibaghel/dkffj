@@ -433,7 +433,7 @@ export default function CourseCard({ course }: { course: Course }) {
       {/* Modal Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden my-8 flex flex-col relative animate-scaleUp">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full my-8 flex flex-col relative animate-scaleUp max-h-[90vh] overflow-y-auto">
             
             {/* Header */}
             <div className="bg-[#001C55] text-white p-5 text-left">
@@ -663,8 +663,15 @@ export default function CourseCard({ course }: { course: Course }) {
                     required
                     disabled={isLoggedIn}
                     placeholder="e.g. Priya Devi Sharma"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
+                    className={`w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50 ${
+                      errorMsg && errorMsg.toLowerCase().includes("all registration fields") && !fullName
+                        ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                        : "border-slate-200"
+                    }`}
                   />
+                  {errorMsg && errorMsg.toLowerCase().includes("all registration fields") && !fullName && (
+                    <p className="text-[9px] text-rose-600 font-bold mt-1">Full Name is required.</p>
+                  )}
                 </div>
 
                 <div>
@@ -675,8 +682,15 @@ export default function CourseCard({ course }: { course: Course }) {
                     onChange={(e) => setFatherName(e.target.value)}
                     required
                     placeholder="e.g. Shri Hari Shankar Sharma"
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    className={`w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 ${
+                      errorMsg && errorMsg.toLowerCase().includes("all registration fields") && !fatherName
+                        ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                        : "border-slate-200"
+                    }`}
                   />
+                  {errorMsg && errorMsg.toLowerCase().includes("all registration fields") && !fatherName && (
+                    <p className="text-[9px] text-rose-600 font-bold mt-1">Father's Name is required.</p>
+                  )}
                 </div>
 
                 <div>
@@ -686,8 +700,15 @@ export default function CourseCard({ course }: { course: Course }) {
                     accept="image/*"
                     onChange={handlePhotoChange}
                     required={!photo}
-                    className="w-full px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    className={`w-full px-3 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 ${
+                      errorMsg && errorMsg.toLowerCase().includes("all registration fields") && !photo
+                        ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                        : "border-slate-200"
+                    }`}
                   />
+                  {errorMsg && errorMsg.toLowerCase().includes("all registration fields") && !photo && (
+                    <p className="text-[9px] text-rose-600 font-bold mt-1">Profile Photo is required.</p>
+                  )}
                   {isCompressing && (
                     <div className="text-[10px] text-blue-600 font-semibold mt-1 flex items-center gap-1">
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -757,9 +778,18 @@ export default function CourseCard({ course }: { course: Course }) {
                       required
                       disabled={!isLoggedIn && otpVerified}
                       placeholder="Mobile number"
-                      className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
+                      className={`w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50 ${
+                        errorMsg && (errorMsg.toLowerCase().includes("mobile") || errorMsg.toLowerCase().includes("phone") || (errorMsg.toLowerCase().includes("all registration fields") && !mobile))
+                          ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                          : "border-slate-200"
+                      }`}
                     />
                   </div>
+                  {errorMsg && (errorMsg.toLowerCase().includes("mobile") || errorMsg.toLowerCase().includes("phone") || (errorMsg.toLowerCase().includes("all registration fields") && !mobile)) && (
+                    <p className="text-[9px] text-rose-600 font-bold mt-1">
+                      {errorMsg.toLowerCase().includes("all registration fields") ? "Mobile Number is required." : errorMsg}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -772,7 +802,11 @@ export default function CourseCard({ course }: { course: Course }) {
                       required
                       disabled={isLoggedIn || otpVerified}
                       placeholder="e.g. priya.sharma@gmail.com"
-                      className="w-full px-3 py-2 pr-28 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50"
+                      className={`w-full px-3 py-2 pr-28 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50 ${
+                        errorMsg && (errorMsg.toLowerCase().includes("email") || (errorMsg.toLowerCase().includes("all registration fields") && !email))
+                          ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                          : "border-slate-200"
+                      }`}
                     />
                     {!isLoggedIn && !otpVerified && (
                       <button
@@ -791,6 +825,11 @@ export default function CourseCard({ course }: { course: Course }) {
                       </div>
                     )}
                   </div>
+                  {errorMsg && (errorMsg.toLowerCase().includes("email") || (errorMsg.toLowerCase().includes("all registration fields") && !email)) && (
+                    <p className="text-[9px] text-rose-600 font-bold mt-1">
+                      {errorMsg.toLowerCase().includes("all registration fields") ? "Email Address is required." : errorMsg}
+                    </p>
+                  )}
                 </div>
 
                 {/* OTP Input Fields if sent but not verified */}
@@ -804,7 +843,11 @@ export default function CourseCard({ course }: { course: Course }) {
                         onChange={(e) => setOtpCode(e.target.value)}
                         placeholder="e.g. 123456"
                         maxLength={6}
-                        className="w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                        className={`w-full px-3 py-2 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 ${
+                          errorMsg && (errorMsg.toLowerCase().includes("otp") || errorMsg.toLowerCase().includes("code"))
+                            ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                            : "border-slate-200"
+                        }`}
                       />
                       <button
                         type="button"
@@ -815,6 +858,9 @@ export default function CourseCard({ course }: { course: Course }) {
                         {otpLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Verify"}
                       </button>
                     </div>
+                    {errorMsg && (errorMsg.toLowerCase().includes("otp") || errorMsg.toLowerCase().includes("code")) && (
+                      <p className="text-[9px] text-rose-600 font-bold mt-1">{errorMsg}</p>
+                    )}
                   </div>
                 )}
 
@@ -834,7 +880,11 @@ export default function CourseCard({ course }: { course: Course }) {
                           onChange={(e) => setPassword(e.target.value)}
                           required
                           placeholder="Min 8 chars: A-z, 0-9, @#$%"
-                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                          className={`w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 ${
+                            errorMsg && (errorMsg.toLowerCase().includes("password") || errorMsg.toLowerCase().includes("match"))
+                              ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                              : "border-slate-200"
+                          }`}
                         />
                         <button
                           type="button"
@@ -855,7 +905,11 @@ export default function CourseCard({ course }: { course: Course }) {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required
                           placeholder="Retype password"
-                          className="w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                          className={`w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 ${
+                            errorMsg && errorMsg.toLowerCase().includes("match")
+                              ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
+                              : "border-slate-200"
+                          }`}
                         />
                         <button
                           type="button"
@@ -866,6 +920,9 @@ export default function CourseCard({ course }: { course: Course }) {
                         </button>
                       </div>
                     </div>
+                    {errorMsg && (errorMsg.toLowerCase().includes("password") || errorMsg.toLowerCase().includes("match")) && (
+                      <p className="text-[9px] text-rose-600 font-bold mt-1">{errorMsg}</p>
+                    )}
                   </div>
                 )}
 
