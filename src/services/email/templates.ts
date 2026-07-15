@@ -2,7 +2,7 @@ export function getMembershipVerificationTemplate(otp: string): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
       <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; tracking-wide; font-family: serif;">DK Foundation of Freedom & Justice</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1.5px; font-family: serif;">DK Foundation of Freedom & Justice</h1>
       </div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Verify Your Mobile / Email Connection</h2>
@@ -25,7 +25,7 @@ export function getCourseVerificationTemplate(otp: string): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
       <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; tracking-wide; font-family: serif;">DKFFJ Academy</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1.5px; font-family: serif;">DKFFJ Academy</h1>
       </div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Verify Your Email Address</h2>
