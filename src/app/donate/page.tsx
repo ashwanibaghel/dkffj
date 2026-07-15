@@ -57,8 +57,15 @@ export default function DonatePage() {
       return;
     }
 
-    if (country === "India" && !/^\d{10}$/.test(mobile)) {
-      setErrorMsg("Mobile number must be exactly 10 digits for India.");
+    if (!/^\d{10}$/.test(mobile)) {
+      setErrorMsg("Mobile number must be exactly 10 digits.");
+      return;
+    }
+
+    const donorEmail = formData.get("donorEmail") as string;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!donorEmail || !emailRegex.test(donorEmail)) {
+      setErrorMsg("Please enter a valid email address.");
       return;
     }
 
@@ -332,7 +339,7 @@ export default function DonatePage() {
                     <input
                       type="tel"
                       value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
+                      onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").substring(0, 10))}
                       required
                       placeholder={country === "India" ? "e.g. 9876543210" : "Enter mobile"}
                       className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white"

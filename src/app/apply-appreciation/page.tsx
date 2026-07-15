@@ -140,10 +140,31 @@ export default function ApplyAppreciationPage() {
         setErrorMsg("Please fill in all personal details.");
         return;
       }
-      if (country === "India" && !/^\d{10}$/.test(mobile)) {
-        setErrorMsg("Mobile number must be exactly 10 digits for India.");
+      if (!/^\d{10}$/.test(mobile)) {
+        setErrorMsg("Mobile number must be exactly 10 digits.");
         return;
       }
+      if (whatsapp && !/^\d{10}$/.test(whatsapp)) {
+        setErrorMsg("WhatsApp number must be exactly 10 digits.");
+        return;
+      }
+
+      // DOB constraint
+      const dobDate = new Date(dob);
+      const dobYear = dobDate.getFullYear();
+      const currentYear = new Date().getFullYear();
+      if (isNaN(dobYear) || dobYear < 1920 || dobYear > currentYear) {
+        setErrorMsg(`Please enter a valid Date of Birth (Year must be between 1920 and ${currentYear}).`);
+        return;
+      }
+
+      // Email constraint
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMsg("Please enter a valid email address.");
+        return;
+      }
+
       setStep(2);
     } else if (step === 2) {
       if (!otpVerified) {
@@ -187,6 +208,19 @@ export default function ApplyAppreciationPage() {
     if (!isLoggedIn) {
       if (!password || !confirmPassword) {
         setErrorMsg("Please select and confirm a password for your account.");
+        return;
+      }
+      if (password.length < 8) {
+        setErrorMsg("Password must be at least 8 characters long.");
+        return;
+      }
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasLowercase = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      
+      if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        setErrorMsg("Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.");
         return;
       }
       if (password !== confirmPassword) {
@@ -416,10 +450,10 @@ export default function ApplyAppreciationPage() {
                       <input
                         type="tel"
                         value={mobile}
-                        onChange={(e) => setMobile(e.target.value)}
+                        onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").substring(0, 10))}
                         required
                         className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                        placeholder={country === "India" ? "e.g. 9876543210" : "Enter mobile number"}
+                        placeholder="10-digit mobile number"
                       />
                     </div>
                   </div>
@@ -446,9 +480,9 @@ export default function ApplyAppreciationPage() {
                       <input
                         type="tel"
                         value={whatsapp}
-                        onChange={(e) => setWhatsapp(e.target.value)}
+                        onChange={(e) => setWhatsapp(e.target.value.replace(/\D/g, "").substring(0, 10))}
                         className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
-                        placeholder="Same as mobile if blank"
+                        placeholder="10-digit whatsapp number (Optional)"
                       />
                     </div>
                   </div>

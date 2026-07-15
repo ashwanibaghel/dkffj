@@ -198,8 +198,29 @@ export default function ComplaintPage() {
       return;
     }
 
-    if (country === "India" && !/^\d{10}$/.test(mobile)) {
-      setErrorMsg("Mobile number must be exactly 10 digits for India.");
+    if (!/^\d{10}$/.test(mobile)) {
+      setErrorMsg("Mobile number must be exactly 10 digits.");
+      return;
+    }
+
+    if (whatsappNo && !/^\d{10}$/.test(whatsappNo)) {
+      setErrorMsg("WhatsApp number must be exactly 10 digits.");
+      return;
+    }
+
+    // DOB constraint
+    const dobDate = new Date(dob);
+    const dobYear = dobDate.getFullYear();
+    const currentYear = new Date().getFullYear();
+    if (isNaN(dobYear) || dobYear < 1920 || dobYear > currentYear) {
+      setErrorMsg(`Please enter a valid Date of Birth (Year must be between 1920 and ${currentYear}).`);
+      return;
+    }
+
+    // Email constraint
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMsg("Please enter a valid email address.");
       return;
     }
 
@@ -427,7 +448,7 @@ export default function ComplaintPage() {
                       <input
                         type="tel"
                         value={whatsappNo}
-                        onChange={(e) => setWhatsappNo(e.target.value.replace(/\D/g, ""))}
+                        onChange={(e) => setWhatsappNo(e.target.value.replace(/\D/g, "").slice(0, 10))}
                         className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="WhatsApp number (Optional)"
                       />

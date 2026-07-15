@@ -327,6 +327,17 @@ export default function CourseCard({ course }: { course: Course }) {
       return;
     }
 
+    if (!/^\d{10}$/.test(mobile)) {
+      setErrorMsg("Mobile number must be exactly 10 digits.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMsg("Please enter a valid email address.");
+      return;
+    }
+
     if (!isLoggedIn) {
       if (!otpVerified) {
         setErrorMsg("Please verify your email address via OTP first.");
@@ -775,7 +786,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     <input
                       type="tel"
                       value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
+                      onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").substring(0, 10))}
                       required
                       disabled={!isLoggedIn && otpVerified}
                       placeholder="Mobile number"
