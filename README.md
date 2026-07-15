@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Features
+- **Member Referral System:** Fully secure single-level member referral tracking and attribution dashboard.
+- **Grievance Lodging Portal:** 26 official complaint categories, Aadhaar upload validation (up to 100MB), email verification OTP widget.
+- **Resend Email Integration:** Transactional emails and verification templates.
+
 ## Getting Started
 
 First, run the development server:
