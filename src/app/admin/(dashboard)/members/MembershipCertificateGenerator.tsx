@@ -593,6 +593,16 @@ export async function generateMembershipPDFClient(
             backgroundColor: "#fcf9f2"
           });
 
+          const pngBlob = await new Promise<Blob>((resBlob, rejBlob) => {
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resBlob(blob);
+              } else {
+                rejBlob(new Error("Failed to generate PNG blob"));
+              }
+            }, "image/png");
+          });
+
           const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
           const pdf = new jsPDF({
@@ -607,7 +617,7 @@ export async function generateMembershipPDFClient(
           root.unmount();
           document.body.removeChild(container);
 
-          resolve(pdfBlob);
+          resolve({ pdfBlob, pngBlob });
         } catch (err) {
           try {
             root.unmount();

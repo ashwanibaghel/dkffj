@@ -65,8 +65,70 @@ export async function getSignedDocumentUrl(bucket: string, storagePath: string) 
   return { success: true, signedUrl: data.signedUrl };
 }
 
+// Helper to download files to buffer for Resend email attachments
+async function downloadFileToBuffer(url: string): Promise<Buffer> {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch attachment from URL: ${url} (status: ${res.status})`);
+  }
+  const arrayBuffer = await res.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+}
+
+// Helper to download attachments and send approval email in the background
+async function sendApprovalEmailInBackground(
+  email: string,
+  subject: string,
+  html: string,
+  attachmentsPayload?: {
+    certPdfUrl?: string;
+    certPngUrl?: string;
+    idCardPdfUrl?: string;
+    idCardPngUrl?: string;
+  },
+  memberName?: string
+) {
+  const attachments = [];
+  try {
+    if (attachmentsPayload) {
+      const namePrefix = memberName ? memberName.replace(/\s+/g, "_") : "Member";
+
+      if (attachmentsPayload.certPdfUrl) {
+        const buf = await downloadFileToBuffer(attachmentsPayload.certPdfUrl);
+        attachments.push({ filename: `${namePrefix}_Certificate.pdf`, content: buf });
+      }
+      if (attachmentsPayload.certPngUrl) {
+        const buf = await downloadFileToBuffer(attachmentsPayload.certPngUrl);
+        attachments.push({ filename: `${namePrefix}_Certificate.png`, content: buf });
+      }
+      if (attachmentsPayload.idCardPdfUrl) {
+        const buf = await downloadFileToBuffer(attachmentsPayload.idCardPdfUrl);
+        attachments.push({ filename: `${namePrefix}_ID_Card.pdf`, content: buf });
+      }
+      if (attachmentsPayload.idCardPngUrl) {
+        const buf = await downloadFileToBuffer(attachmentsPayload.idCardPngUrl);
+        attachments.push({ filename: `${namePrefix}_ID_Card.png`, content: buf });
+      }
+    }
+  } catch (err) {
+    console.error("[BACKGROUND EMAIL] Error fetching attachment buffers:", err);
+  }
+
+  await sendTransactionalEmail(email, subject, html, attachments.length > 0 ? attachments : undefined);
+}
+
 // 3. Approve or Reject Membership
-export async function updateMembershipStatus(id: string, newStatus: string, remarks: string) {
+export async function updateMembershipStatus(
+  id: string,
+  newStatus: string,
+  remarks: string,
+  attachmentsPayload?: {
+    certPdfUrl?: string;
+    certPngUrl?: string;
+    idCardPdfUrl?: string;
+    idCardPngUrl?: string;
+  }
+) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -158,7 +220,7 @@ export async function updateMembershipStatus(id: string, newStatus: string, rema
         <span style="font-size: 13px; color: #166534; font-weight: bold; block;">Your Permanent Membership ID:</span>
         <strong style="font-size: 20px; color: #15803d; block; margin-top: 5px;">${generatedMembershipNo}</strong>
       </div>
-      <p>Congratulations! You are now a registered member and human rights officer with the DK Foundation. Your official ID card and certificate will be dispatched shortly.</p>
+      <p>Congratulations! You are now a registered member and human rights officer with the DK Foundation. Your official ID card and certificate are attached to this email and can also be downloaded from the tracking portal.</p>
     `;
   } else {
     emailHtml += `
@@ -178,7 +240,12 @@ export async function updateMembershipStatus(id: string, newStatus: string, rema
     </div>
   `;
 
-  await sendTransactionalEmail(member.email, emailSubject, emailHtml);
+  // Send in background so database response returns immediately to client
+  if (finalStatus !== "APPROVED") {
+    sendTransactionalEmail(member.email, emailSubject, emailHtml).catch((err) => {
+      console.error("sendTransactionalEmail failed:", err);
+    });
+  }
 
   return { success: true, membershipNo: generatedMembershipNo };
 }
@@ -247,4 +314,91 @@ export async function updateMembershipFields(formData: FormData) {
   }
 
   return { success: true };
+}
+
+// 5. Secure welcome email dispatch with Certificate and ID Card attachments
+export async function dispatchMembershipWelcomeEmail(
+  id: string,
+  attachmentsPayload: {
+    certPdfUrl: string;
+    certPngUrl: string;
+    idCardPdfUrl: string;
+    idCardPngUrl: string;
+  }
+) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Validate admin auth
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  // Fetch membership record
+  const { data: member } = await supabase
+    .from("memberships")
+    .select("full_name, email, membership_no, ack_no")
+    .eq("id", id)
+    .single();
+
+  if (!member) {
+    return { success: false, error: "Membership record not found." };
+  }
+
+  const emailSubject = `Membership Application APPROVED - DKFFJ`;
+  let emailHtml = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #001C55; padding: 20px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 20px;">DK Foundation of Freedom & Justice</h1>
+      </div>
+      <div style="padding: 24px; color: #334155;">
+        <h2>Application Status: APPROVED</h2>
+        <p>Dear ${member.full_name},</p>
+        <p>Your application for DKFFJ Membership (Acknowledgement: ${member.ack_no}) has been reviewed by the board and was <strong>APPROVED</strong>.</p>
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin: 20px 0;">
+          <span style="font-size: 13px; color: #166534; font-weight: bold; block;">Your Permanent Membership ID:</span>
+          <strong style="font-size: 20px; color: #15803d; block; margin-top: 5px;">${member.membership_no}</strong>
+        </div>
+        <p>Congratulations! You are now a registered member and human rights officer with the DK Foundation. Your official ID card and certificate are attached to this email and can also be downloaded from the tracking portal.</p>
+        <div style="margin-top: 24px;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/track?type=membership&id=${member.ack_no}" style="background-color: #001C55; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Track Application Details</a>
+        </div>
+      </div>
+      <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+        &copy; ${new Date().getFullYear()} DK Foundation. All Rights Reserved.
+      </div>
+    </div>
+  `;
+
+  try {
+    const attachments = [];
+    const namePrefix = member.full_name ? member.full_name.replace(/\s+/g, "_") : "Member";
+
+    if (attachmentsPayload.certPdfUrl) {
+      const buf = await downloadFileToBuffer(attachmentsPayload.certPdfUrl);
+      attachments.push({ filename: `${namePrefix}_Certificate.pdf`, content: buf });
+    }
+    if (attachmentsPayload.certPngUrl) {
+      const buf = await downloadFileToBuffer(attachmentsPayload.certPngUrl);
+      attachments.push({ filename: `${namePrefix}_Certificate.png`, content: buf });
+    }
+    if (attachmentsPayload.idCardPdfUrl) {
+      const buf = await downloadFileToBuffer(attachmentsPayload.idCardPdfUrl);
+      attachments.push({ filename: `${namePrefix}_ID_Card.pdf`, content: buf });
+    }
+    if (attachmentsPayload.idCardPngUrl) {
+      const buf = await downloadFileToBuffer(attachmentsPayload.idCardPngUrl);
+      attachments.push({ filename: `${namePrefix}_ID_Card.png`, content: buf });
+    }
+
+    await sendTransactionalEmail(member.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
+    return { success: true };
+  } catch (err: any) {
+    console.error("dispatchMembershipWelcomeEmail failed:", err);
+    return { success: false, error: err.message };
+  }
 }

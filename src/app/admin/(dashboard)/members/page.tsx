@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields } from "./actions";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail } from "./actions";
 import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
+import { uploadFileToStorage } from "@/lib/uploadToStorage";
 
 const DESIGNATIONS = [
   "DIRECTOR", "ADD DIRECTOR", "National President", "PRESIDENT", "Secretary",
@@ -318,21 +319,138 @@ export default function AdminMembersPage() {
   const handleAction = async (id: string, newStatus: string) => {
     setActionLoading(true);
     setActionError("");
+
+    const member = members.find((m) => m.id === id);
+    if (!member) {
+      setActionError("Member record not found.");
+      showToast("Member record not found.", "error");
+      setActionLoading(false);
+      return;
+    }
+
     try {
       const res = await updateMembershipStatus(id, newStatus, remarks);
       if (res.success) {
+        const generatedMembershipNo = res.membershipNo;
         setRemarks("");
         setExpandedId(null);
-        await fetchData(); // Refresh data
+        
+        // Update local state instantly without full screen reloading
+        setMembers((prev) =>
+          prev.map((m) =>
+            m.id === id
+              ? {
+                  ...m,
+                  status: newStatus,
+                  membership_no: generatedMembershipNo || m.membership_no,
+                  remarks: remarks || m.remarks,
+                  approved_at: newStatus === "APPROVED" ? new Date().toISOString() : m.approved_at,
+                }
+              : m
+          )
+        );
+
         showToast(`Membership status updated to ${newStatus} successfully!`, "success");
+        setActionLoading(false);
+
+        // Async Document Generation and Email Dispatch
+        if (newStatus === "APPROVED") {
+          (async () => {
+            showToast("Generating official ID card & certificate in background...", "success");
+            try {
+              const appUrl = window.location.origin;
+              const certNo = generatedMembershipNo || member.ack_no;
+              const verificationUrl = `${appUrl}/verify/${certNo}`;
+              const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+              const issueDateStr = new Date().toLocaleDateString("en-IN");
+
+              // 1. Generate Certificate PDF and PNG
+              const { pdfBlob: certPdfBlob, pngBlob: certPngBlob } = await generateMembershipPDFClient({
+                membershipNo: certNo,
+                ackNo: member.ack_no,
+                fullName: member.full_name,
+                fatherName: member.father_name,
+                designation: member.designation,
+                workingArea: member.working_area,
+                photoUrl: member.photo_url,
+                issueDateStr,
+                qrCodeUrl,
+                verificationUrl
+              });
+
+              // 2. Generate ID Card PDF and PNG
+              const validFromStr = new Date().toISOString().split("T")[0];
+              const validToDate = new Date();
+              validToDate.setFullYear(validToDate.getFullYear() + 1);
+              validToDate.setDate(validToDate.getDate() - 1);
+              const validToStr = validToDate.toISOString().split("T")[0];
+
+              const { pdfBlob: idPdfBlob, pngBlob: idPngBlob } = await generateMembershipIdCardPDFClient({
+                membershipNo: certNo,
+                ackNo: member.ack_no,
+                fullName: member.full_name,
+                fatherName: member.father_name,
+                designation: member.designation,
+                workingArea: member.working_area,
+                photoUrl: member.photo_url,
+                issueDateStr,
+                validFromStr,
+                validToStr,
+                addressStr: member.address || "",
+                districtStr: member.district || "",
+                stateStr: member.state || "",
+                pincodeStr: member.pincode || "",
+                mobileStr: member.mobile || "",
+                qrCodeUrl,
+                verificationUrl
+              });
+
+              // 3. Convert Blobs to files for uploading
+              const certPdfFile = new File([certPdfBlob], `Certificate_${certNo}.pdf`, { type: "application/pdf" });
+              const certPngFile = new File([certPngBlob], `Certificate_${certNo}.png`, { type: "image/png" });
+              const idCardPdfFile = new File([idPdfBlob], `ID_Card_${certNo}.pdf`, { type: "application/pdf" });
+              const idCardPngFile = new File([idPngBlob], `ID_Card_${certNo}.png`, { type: "image/png" });
+
+              // 4. Upload to public bucket
+              const uploadCertPdf = await uploadFileToStorage(certPdfFile, "photos", `certificates/${member.id}_cert.pdf`);
+              const uploadCertPng = await uploadFileToStorage(certPngFile, "photos", `certificates/${member.id}_cert.png`);
+              const uploadIdPdf = await uploadFileToStorage(idCardPdfFile, "photos", `id_cards/${member.id}_id.pdf`);
+              const uploadIdPng = await uploadFileToStorage(idCardPngFile, "photos", `id_cards/${member.id}_id.png`);
+
+              if (uploadCertPdf.error || uploadCertPng.error || uploadIdPdf.error || uploadIdPng.error) {
+                console.error("Document upload failed");
+                showToast("Background document upload failed. Welcome email could not be sent.", "error");
+                return;
+              }
+
+              // 5. Call welcome email dispatch server action
+              const emailRes = await dispatchMembershipWelcomeEmail(id, {
+                certPdfUrl: uploadCertPdf.url,
+                certPngUrl: uploadCertPng.url,
+                idCardPdfUrl: uploadIdPdf.url,
+                idCardPngUrl: uploadIdPng.url
+              });
+
+              if (emailRes.success) {
+                showToast("ID card & certificate successfully attached and emailed to applicant!", "success");
+              } else {
+                showToast(`Failed to email documents: ${emailRes.error}`, "error");
+              }
+            } catch (err) {
+              console.error("Background files dispatch error:", err);
+              showToast("Error generating and dispatching ID card & certificate.", "error");
+            }
+          })();
+        }
       } else {
         setActionError(res.error || "Failed to process membership change.");
         showToast(res.error || "Failed to process membership change.", "error");
+        setActionLoading(false);
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       setActionError("Error updating membership status.");
       showToast("Error updating membership status.", "error");
-    } finally {
       setActionLoading(false);
     }
   };

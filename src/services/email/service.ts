@@ -3,13 +3,21 @@ import { Resend } from "resend";
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey && resendApiKey !== "re_placeholder" ? new Resend(resendApiKey) : null;
 
-export async function sendTransactionalEmail(to: string, subject: string, htmlContent: string) {
+export async function sendTransactionalEmail(
+  to: string,
+  subject: string,
+  htmlContent: string,
+  attachments?: Array<{ filename: string; content: Buffer }>
+) {
   if (!resend) {
     console.log("----------------------------------------");
     console.log(`[MOCK EMAIL SENT]`);
     console.log(`To: ${to}`);
     console.log(`Subject: ${subject}`);
     console.log(`Body:\n${htmlContent}`);
+    if (attachments) {
+      console.log(`Attachments: ${attachments.map(a => a.filename).join(", ")}`);
+    }
     console.log("----------------------------------------");
     return { success: true, mock: true };
   }
@@ -21,6 +29,7 @@ export async function sendTransactionalEmail(to: string, subject: string, htmlCo
       to,
       subject,
       html: htmlContent,
+      attachments: attachments || undefined,
     });
     return { success: true, data };
   } catch (error: any) {
