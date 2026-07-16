@@ -576,8 +576,7 @@ export async function generateMembershipPDFClient(
           isoSealBase64={isoSealBase64}
         />
       );
-
-      // Wait 2 seconds to ensure custom web fonts and SVGs are fully parsed and rendered
+      // Wait 1.2 seconds to ensure custom web fonts and SVGs are fully parsed and rendered
       setTimeout(async () => {
         try {
           const targetElement = container.firstChild as HTMLElement;
@@ -586,7 +585,7 @@ export async function generateMembershipPDFClient(
           }
 
           const canvas = await html2canvas(targetElement, {
-            scale: 2.5, // Crisp resolution
+            scale: 2.0, // Crisp resolution, optimized from 2.5
             useCORS: true,
             allowTaint: false,
             logging: false,
@@ -603,7 +602,7 @@ export async function generateMembershipPDFClient(
             }, "image/png");
           });
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.98);
+          const imgData = canvas.toDataURL("image/jpeg", 0.80); // Compressed from 0.98 for smaller attachments
 
           const pdf = new jsPDF({
             orientation: "portrait",
@@ -625,7 +624,7 @@ export async function generateMembershipPDFClient(
           } catch (_) {}
           reject(err);
         }
-      }, 2000);
+      }, 1200);
     } catch (err) {
       reject(err);
     }

@@ -375,41 +375,28 @@ export async function dispatchMembershipWelcomeEmail(
   `;
 
   try {
-    const attachments = [];
     const namePrefix = member.full_name ? member.full_name.replace(/\s+/g, "_") : "Member";
+    const downloadKeys = [
+      { url: attachmentsPayload.certPdfUrl, filename: `${namePrefix}_Certificate.pdf` },
+      { url: attachmentsPayload.certPngUrl, filename: `${namePrefix}_Certificate.png` },
+      { url: attachmentsPayload.idCardPdfUrl, filename: `${namePrefix}_ID_Card.pdf` },
+      { url: attachmentsPayload.idCardPngUrl, filename: `${namePrefix}_ID_Card.png` }
+    ];
 
-    if (attachmentsPayload.certPdfUrl) {
-      try {
-        const buf = await downloadFileToBuffer(attachmentsPayload.certPdfUrl);
-        attachments.push({ filename: `${namePrefix}_Certificate.pdf`, content: buf });
-      } catch (e) {
-        console.error("Failed to download certPdf:", e);
-      }
-    }
-    if (attachmentsPayload.certPngUrl) {
-      try {
-        const buf = await downloadFileToBuffer(attachmentsPayload.certPngUrl);
-        attachments.push({ filename: `${namePrefix}_Certificate.png`, content: buf });
-      } catch (e) {
-        console.error("Failed to download certPng:", e);
-      }
-    }
-    if (attachmentsPayload.idCardPdfUrl) {
-      try {
-        const buf = await downloadFileToBuffer(attachmentsPayload.idCardPdfUrl);
-        attachments.push({ filename: `${namePrefix}_ID_Card.pdf`, content: buf });
-      } catch (e) {
-        console.error("Failed to download idCardPdf:", e);
-      }
-    }
-    if (attachmentsPayload.idCardPngUrl) {
-      try {
-        const buf = await downloadFileToBuffer(attachmentsPayload.idCardPngUrl);
-        attachments.push({ filename: `${namePrefix}_ID_Card.png`, content: buf });
-      } catch (e) {
-        console.error("Failed to download idCardPng:", e);
-      }
-    }
+    // Download all available attachments in parallel to minimize latency and prevent Vercel timeouts
+    const attachments = await Promise.all(
+      downloadKeys
+        .filter(item => !!item.url)
+        .map(async item => {
+          try {
+            const buf = await downloadFileToBuffer(item.url);
+            return { filename: item.filename, content: buf };
+          } catch (e) {
+            console.error(`Failed to download attachment ${item.filename}:`, e);
+            return null;
+          }
+        })
+    ).then(results => results.filter((res): res is { filename: string; content: Buffer } => res !== null));
 
     const emailRes = await sendTransactionalEmail(member.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
     if (!emailRes.success) {

@@ -449,8 +449,7 @@ export async function generateMembershipIdCardPDFClient(
           logoBase64={logoBase64}
         />
       );
-
-      // Wait 2.2 seconds to ensure fonts, photos and QR SVGs are loaded and rendered
+      // Wait 1.2 seconds to ensure fonts, photos and QR SVGs are loaded and rendered
       setTimeout(async () => {
         try {
           const targetElement = container.firstChild as HTMLElement;
@@ -459,7 +458,7 @@ export async function generateMembershipIdCardPDFClient(
           }
 
           const canvas = await html2canvas(targetElement, {
-            scale: 2.5, // High resolution output
+            scale: 2.0, // Crisp resolution, optimized from 2.5
             useCORS: true,
             allowTaint: false,
             logging: false,
@@ -478,7 +477,7 @@ export async function generateMembershipIdCardPDFClient(
           });
 
           // 2. Get PDF blob
-          const imgData = canvas.toDataURL("image/jpeg", 0.98);
+          const imgData = canvas.toDataURL("image/jpeg", 0.80); // Compressed from 0.98 for smaller attachments
 
           const pdf = new jsPDF({
             orientation: "landscape",
@@ -503,7 +502,7 @@ export async function generateMembershipIdCardPDFClient(
           } catch (_) {}
           reject(err);
         }
-      }, 2200);
+      }, 1200);
     } catch (err) {
       reject(err);
     }
