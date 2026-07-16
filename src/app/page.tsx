@@ -415,28 +415,54 @@ export default function Home() {
           </div>
 
           {/* Marquee Content */}
-          <div className="flex-1 overflow-hidden text-[11px] sm:text-xs font-semibold tracking-wide flex items-center h-full">
-            {news && news.length > 0 ? (
-              <div className="animate-marquee whitespace-nowrap">
-                {news.map((item) => (
-                  <span key={item.id} className="mx-8 inline-flex items-center gap-2">
-                    <span className="text-[#c5a880] font-black">✦</span>
-                    <span className="hover:text-yellow-250 transition-colors cursor-pointer">{item.title}</span>
-                  </span>
-                ))}
-                {/* Duplicate for infinite loop */}
-                {news.map((item) => (
-                  <span key={`dup-${item.id}`} className="mx-8 inline-flex items-center gap-2">
-                    <span className="text-[#c5a880] font-black">✦</span>
-                    <span className="hover:text-yellow-250 transition-colors cursor-pointer">{item.title}</span>
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div className="px-4 text-slate-200 animate-pulse italic">
-                Loading official news updates...
-              </div>
-            )}
+          <div className="flex-1 overflow-hidden text-[11px] sm:text-xs font-bold tracking-wide flex items-center h-full select-none">
+            <div className="animate-marquee whitespace-nowrap">
+              {[
+                "Stand up for human rights, stand with us.",
+                "Together we can make a difference.",
+                "Justice for all, not just some.",
+                "Human rights are non-negotiable.",
+                "One world, one people, one fight for justice.",
+                "Human rights are universal, not selective.",
+                "No justice, no peace.",
+                "We are all connected, let's stand together.",
+                "Human dignity should never be compromised.",
+                "Every life matters, every voice counts.",
+                "You can't have peace without justice.",
+                "Human rights are the foundation of a just society.",
+                "Let's build a world where everyone is free.",
+                "Justice is the only acceptable outcome.",
+                "Stand tall for what is right, even if you stand alone."
+              ].map((item, idx) => (
+                <span key={`ticker-${idx}`} className="mx-8 inline-flex items-center gap-2">
+                  <span className="text-[#c5a880] font-black">✦</span>
+                  <span className="hover:text-yellow-200 transition-colors">{item}</span>
+                </span>
+              ))}
+              {/* Duplicate for infinite loop */}
+              {[
+                "Stand up for human rights, stand with us.",
+                "Together we can make a difference.",
+                "Justice for all, not just some.",
+                "Human rights are non-negotiable.",
+                "One world, one people, one fight for justice.",
+                "Human rights are universal, not selective.",
+                "No justice, no peace.",
+                "We are all connected, let's stand together.",
+                "Human dignity should never be compromised.",
+                "Every life matters, every voice counts.",
+                "You can't have peace without justice.",
+                "Human rights are the foundation of a just society.",
+                "Let's build a world where everyone is free.",
+                "Justice is the only acceptable outcome.",
+                "Stand tall for what is right, even if you stand alone."
+              ].map((item, idx) => (
+                <span key={`dup-${idx}`} className="mx-8 inline-flex items-center gap-2">
+                  <span className="text-[#c5a880] font-black">✦</span>
+                  <span className="hover:text-yellow-200 transition-colors">{item}</span>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
