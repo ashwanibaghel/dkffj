@@ -1034,7 +1034,7 @@ export default function ApplyPage() {
                         <Upload className="w-5 h-5" />
                       </label>
                       <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                        {photo ? photo.name : "JPEG/PNG (Max 2MB)"}
+                        {photo ? photo.name : "JPEG/PNG (Max 15MB)"}
                       </span>
                     </div>
 
@@ -1053,7 +1053,7 @@ export default function ApplyPage() {
                         <FileText className="w-5 h-5" />
                       </label>
                       <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                        {aadhaar ? aadhaar.name : "JPEG/PNG/PDF (Max 5MB)"}
+                        {aadhaar ? aadhaar.name : "JPEG/PNG/PDF (Max 50MB)"}
                       </span>
                     </div>
 
@@ -1070,7 +1070,7 @@ export default function ApplyPage() {
                         <Upload className="w-5 h-5 text-sky-600" />
                       </label>
                       <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                        {signature ? signature.name : "JPEG/PNG (Max 1MB)"}
+                        {signature ? signature.name : "JPEG/PNG (Max 5MB)"}
                       </span>
                     </div>
                   </div>
