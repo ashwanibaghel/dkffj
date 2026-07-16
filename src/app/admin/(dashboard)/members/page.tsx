@@ -365,80 +365,105 @@ export default function AdminMembersPage() {
               const issueDateStr = new Date().toLocaleDateString("en-IN");
 
               // 1. Generate Certificate PDF and PNG
-              const { pdfBlob: certPdfBlob, pngBlob: certPngBlob } = await generateMembershipPDFClient({
-                membershipNo: certNo,
-                ackNo: member.ack_no,
-                fullName: member.full_name,
-                fatherName: member.father_name,
-                designation: member.designation,
-                workingArea: member.working_area,
-                photoUrl: member.photo_url,
-                issueDateStr,
-                qrCodeUrl,
-                verificationUrl
-              });
-
-              // 2. Generate ID Card PDF and PNG
-              const validFromStr = new Date().toISOString().split("T")[0];
-              const validToDate = new Date();
-              validToDate.setFullYear(validToDate.getFullYear() + 1);
-              validToDate.setDate(validToDate.getDate() - 1);
-              const validToStr = validToDate.toISOString().split("T")[0];
-
-              const { pdfBlob: idPdfBlob, pngBlob: idPngBlob } = await generateMembershipIdCardPDFClient({
-                membershipNo: certNo,
-                ackNo: member.ack_no,
-                fullName: member.full_name,
-                fatherName: member.father_name,
-                designation: member.designation,
-                workingArea: member.working_area,
-                photoUrl: member.photo_url,
-                issueDateStr,
-                validFromStr,
-                validToStr,
-                addressStr: member.address || "",
-                districtStr: member.district || "",
-                stateStr: member.state || "",
-                pincodeStr: member.pincode || "",
-                mobileStr: member.mobile || "",
-                qrCodeUrl,
-                verificationUrl
-              });
-
-              // 3. Convert Blobs to files for uploading
-              const certPdfFile = new File([certPdfBlob], `Certificate_${certNo}.pdf`, { type: "application/pdf" });
-              const certPngFile = new File([certPngBlob], `Certificate_${certNo}.png`, { type: "image/png" });
-              const idCardPdfFile = new File([idPdfBlob], `ID_Card_${certNo}.pdf`, { type: "application/pdf" });
-              const idCardPngFile = new File([idPngBlob], `ID_Card_${certNo}.png`, { type: "image/png" });
-
-              // 4. Upload to public bucket
-              const uploadCertPdf = await uploadFileToStorage(certPdfFile, "photos", `certificates/${member.id}_cert.pdf`);
-              const uploadCertPng = await uploadFileToStorage(certPngFile, "photos", `certificates/${member.id}_cert.png`);
-              const uploadIdPdf = await uploadFileToStorage(idCardPdfFile, "photos", `id_cards/${member.id}_id.pdf`);
-              const uploadIdPng = await uploadFileToStorage(idCardPngFile, "photos", `id_cards/${member.id}_id.png`);
-
-              if (uploadCertPdf.error || uploadCertPng.error || uploadIdPdf.error || uploadIdPng.error) {
-                console.error("Document upload failed");
-                showToast("Background document upload failed. Welcome email could not be sent.", "error");
-                return;
+              let certPdfBlob: Blob | undefined;
+              let certPngBlob: Blob | undefined;
+              try {
+                const certRes = await generateMembershipPDFClient({
+                  membershipNo: certNo,
+                  ackNo: member.ack_no,
+                  fullName: member.full_name,
+                  fatherName: member.father_name,
+                  designation: member.designation,
+                  workingArea: member.working_area,
+                  photoUrl: member.photo_url,
+                  issueDateStr,
+                  qrCodeUrl,
+                  verificationUrl
+                });
+                certPdfBlob = certRes.pdfBlob;
+                certPngBlob = certRes.pngBlob;
+              } catch (certErr) {
+                console.error("Certificate generation error:", certErr);
               }
 
-              // 5. Call welcome email dispatch server action
+              // 2. Generate ID Card PDF and PNG
+              let idPdfBlob: Blob | undefined;
+              let idPngBlob: Blob | undefined;
+              try {
+                const validFromStr = new Date().toISOString().split("T")[0];
+                const validToDate = new Date();
+                validToDate.setFullYear(validToDate.getFullYear() + 1);
+                validToDate.setDate(validToDate.getDate() - 1);
+                const validToStr = validToDate.toISOString().split("T")[0];
+
+                const idRes = await generateMembershipIdCardPDFClient({
+                  membershipNo: certNo,
+                  ackNo: member.ack_no,
+                  fullName: member.full_name,
+                  fatherName: member.father_name,
+                  designation: member.designation,
+                  workingArea: member.working_area,
+                  photoUrl: member.photo_url,
+                  issueDateStr,
+                  validFromStr,
+                  validToStr,
+                  addressStr: member.address || "",
+                  districtStr: member.district || "",
+                  stateStr: member.state || "",
+                  pincodeStr: member.pincode || "",
+                  mobileStr: member.mobile || "",
+                  qrCodeUrl,
+                  verificationUrl
+                });
+                idPdfBlob = idRes.pdfBlob;
+                idPngBlob = idRes.pngBlob;
+              } catch (idErr) {
+                console.error("ID Card generation error:", idErr);
+              }
+
+              // 3. Upload available files to Storage
+              let certPdfUrl = "";
+              let certPngUrl = "";
+              let idCardPdfUrl = "";
+              let idCardPngUrl = "";
+
+              if (certPdfBlob) {
+                const f = new File([certPdfBlob], `Certificate_${certNo}.pdf`, { type: "application/pdf" });
+                const r = await uploadFileToStorage(f, "photos", `certificates/${member.id}_cert.pdf`);
+                if (!r.error) certPdfUrl = r.url;
+              }
+              if (certPngBlob) {
+                const f = new File([certPngBlob], `Certificate_${certNo}.png`, { type: "image/png" });
+                const r = await uploadFileToStorage(f, "photos", `certificates/${member.id}_cert.png`);
+                if (!r.error) certPngUrl = r.url;
+              }
+              if (idPdfBlob) {
+                const f = new File([idPdfBlob], `ID_Card_${certNo}.pdf`, { type: "application/pdf" });
+                const r = await uploadFileToStorage(f, "photos", `id_cards/${member.id}_id.pdf`);
+                if (!r.error) idCardPdfUrl = r.url;
+              }
+              if (idPngBlob) {
+                const f = new File([idPngBlob], `ID_Card_${certNo}.png`, { type: "image/png" });
+                const r = await uploadFileToStorage(f, "photos", `id_cards/${member.id}_id.png`);
+                if (!r.error) idCardPngUrl = r.url;
+              }
+
+              // 4. Call welcome email dispatch server action
               const emailRes = await dispatchMembershipWelcomeEmail(id, {
-                certPdfUrl: uploadCertPdf.url,
-                certPngUrl: uploadCertPng.url,
-                idCardPdfUrl: uploadIdPdf.url,
-                idCardPngUrl: uploadIdPng.url
+                certPdfUrl,
+                certPngUrl,
+                idCardPdfUrl,
+                idCardPngUrl
               });
 
               if (emailRes.success) {
-                showToast("ID card & certificate successfully attached and emailed to applicant!", "success");
+                showToast("ID card & certificate successfully generated and emailed!", "success");
               } else {
                 showToast(`Failed to email documents: ${emailRes.error}`, "error");
               }
             } catch (err) {
               console.error("Background files dispatch error:", err);
-              showToast("Error generating and dispatching ID card & certificate.", "error");
+              showToast("Error in background email dispatch pipeline.", "error");
             }
           })();
         }

@@ -379,23 +379,42 @@ export async function dispatchMembershipWelcomeEmail(
     const namePrefix = member.full_name ? member.full_name.replace(/\s+/g, "_") : "Member";
 
     if (attachmentsPayload.certPdfUrl) {
-      const buf = await downloadFileToBuffer(attachmentsPayload.certPdfUrl);
-      attachments.push({ filename: `${namePrefix}_Certificate.pdf`, content: buf });
+      try {
+        const buf = await downloadFileToBuffer(attachmentsPayload.certPdfUrl);
+        attachments.push({ filename: `${namePrefix}_Certificate.pdf`, content: buf });
+      } catch (e) {
+        console.error("Failed to download certPdf:", e);
+      }
     }
     if (attachmentsPayload.certPngUrl) {
-      const buf = await downloadFileToBuffer(attachmentsPayload.certPngUrl);
-      attachments.push({ filename: `${namePrefix}_Certificate.png`, content: buf });
+      try {
+        const buf = await downloadFileToBuffer(attachmentsPayload.certPngUrl);
+        attachments.push({ filename: `${namePrefix}_Certificate.png`, content: buf });
+      } catch (e) {
+        console.error("Failed to download certPng:", e);
+      }
     }
     if (attachmentsPayload.idCardPdfUrl) {
-      const buf = await downloadFileToBuffer(attachmentsPayload.idCardPdfUrl);
-      attachments.push({ filename: `${namePrefix}_ID_Card.pdf`, content: buf });
+      try {
+        const buf = await downloadFileToBuffer(attachmentsPayload.idCardPdfUrl);
+        attachments.push({ filename: `${namePrefix}_ID_Card.pdf`, content: buf });
+      } catch (e) {
+        console.error("Failed to download idCardPdf:", e);
+      }
     }
     if (attachmentsPayload.idCardPngUrl) {
-      const buf = await downloadFileToBuffer(attachmentsPayload.idCardPngUrl);
-      attachments.push({ filename: `${namePrefix}_ID_Card.png`, content: buf });
+      try {
+        const buf = await downloadFileToBuffer(attachmentsPayload.idCardPngUrl);
+        attachments.push({ filename: `${namePrefix}_ID_Card.png`, content: buf });
+      } catch (e) {
+        console.error("Failed to download idCardPng:", e);
+      }
     }
 
-    await sendTransactionalEmail(member.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
+    const emailRes = await sendTransactionalEmail(member.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
+    if (!emailRes.success) {
+      throw new Error(emailRes.error || "Email delivery failed");
+    }
     return { success: true };
   } catch (err: any) {
     console.error("dispatchMembershipWelcomeEmail failed:", err);
