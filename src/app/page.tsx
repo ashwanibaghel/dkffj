@@ -1467,10 +1467,10 @@ export default function Home() {
           File Complaint
         </Link>
         <Link 
-          href="/verify" 
+          href="/courses" 
           className="flex-1 text-center bg-[#1565C0] hover:bg-slate-700 text-white text-[10px] font-bold py-2.5 rounded-lg uppercase tracking-wider transition-colors"
         >
-          Verify Certificate
+          Explore Courses
         </Link>
       </div>
 

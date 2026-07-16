@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { registerForCourse, sendCourseOtp, verifyCourseOtp } from "./actions";
 import { createClient } from "@/utils/supabase/client";
-import { BookOpen, Clock, Award, Loader2, AlertCircle, Shield, Check, Eye, EyeOff, User, Mail, ArrowLeft } from "lucide-react";
+import { BookOpen, Clock, Award, Loader2, AlertCircle, Shield, Check, Eye, EyeOff, User, Mail, ArrowLeft, Lock } from "lucide-react";
 
 interface Course {
   id: string;

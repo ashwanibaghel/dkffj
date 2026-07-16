@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { getActiveCourses } from "./actions";
-import CourseCard from "./CourseCard";
+import CoursesClient from "./CoursesClient";
 import { ArrowLeft, GraduationCap, ShieldAlert } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +9,14 @@ export const dynamic = "force-dynamic";
 export default async function CoursesPage() {
   const courses = await getActiveCourses();
 
+  // Serialize Prisma Decimal to String to allow safe Server-to-Client prop transmission
+  const serializedCourses = courses.map((course: any) => ({
+    ...course,
+    fees: course.fees ? course.fees.toString() : "0"
+  }));
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative select-none">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-[10%] left-[20%] w-[700px] h-[500px] rounded-full bg-[#001C55]/[0.02] blur-[120px]"></div>
@@ -38,24 +44,18 @@ export default async function CoursesPage() {
           <GraduationCap className="w-12 h-12 text-[#001C55] mx-auto mb-3" />
           <h1 className="text-3xl font-extrabold font-serif text-[#001C55]">DKFFJ Academy Portal</h1>
           <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-            Professional certificate programs in Human Rights Advocacy, RTI Activism, and NGO Governance. Enroll today and lead the change in your community.
+            Professional skill development and certification programs aligned with NSDC standards. Search and enroll in a course to lead the change.
           </p>
         </div>
 
-        {courses.length === 0 ? (
+        {serializedCourses.length === 0 ? (
           <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl max-w-md mx-auto">
             <ShieldAlert className="w-12 h-12 text-slate-350 mx-auto mb-3" />
             <h3 className="text-base font-bold text-slate-700">No Courses Available</h3>
             <p className="text-xs text-slate-500 mt-1">Please contact the administrator or check back later.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {courses.map((course: any) => (
-              <div key={course.id}>
-                <CourseCard course={course} />
-              </div>
-            ))}
-          </div>
+          <CoursesClient initialCourses={serializedCourses} />
         )}
       </main>
     </div>
