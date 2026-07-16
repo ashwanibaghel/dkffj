@@ -408,3 +408,59 @@ export async function dispatchMembershipWelcomeEmail(
     return { success: false, error: err.message };
   }
 }
+
+// 6. Fetch latest member print data and pre-resolve images to Base64 to bypass client CORS
+export async function getMemberPrintData(id: string, qrCodeUrl: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: member, error } = await supabase
+    .from("memberships")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !member) {
+    return { success: false, error: "Member record not found" };
+  }
+
+  let photoBase64 = "";
+  let qrBase64 = "";
+
+  // Fetch photo and convert to base64 on server side
+  if (member.photo_url) {
+    try {
+      const res = await fetch(member.photo_url);
+      if (res.ok) {
+        const arrayBuffer = await res.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString("base64");
+        const contentType = res.headers.get("content-type") || "image/jpeg";
+        photoBase64 = `data:${contentType};base64,${base64}`;
+      }
+    } catch (e) {
+      console.error("Failed to convert photoUrl on server:", e);
+    }
+  }
+
+  // Fetch QR code and convert to base64 on server side
+  if (qrCodeUrl) {
+    try {
+      const res = await fetch(qrCodeUrl);
+      if (res.ok) {
+        const arrayBuffer = await res.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString("base64");
+        const contentType = res.headers.get("content-type") || "image/png";
+        qrBase64 = `data:${contentType};base64,${base64}`;
+      }
+    } catch (e) {
+      console.error("Failed to convert qrCodeUrl on server:", e);
+    }
+  }
+
+  return {
+    success: true,
+    member: member as any,
+    photoBase64,
+    qrBase64
+  };
+}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail } from "./actions";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData } from "./actions";
 import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
@@ -214,26 +214,33 @@ export default function AdminMembersPage() {
       const verificationUrl = `${appUrl}/verify/${certNo}`;
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
       
-      const issueDateStr = member.approved_at 
-        ? new Date(member.approved_at).toLocaleDateString("en-IN")
-        : new Date(member.created_at).toLocaleDateString("en-IN");
+      // Fetch latest database status and pre-resolve images to base64
+      const printRes = await getMemberPrintData(member.id, qrCodeUrl);
+      if (!printRes.success || !printRes.member) {
+        throw new Error(printRes.error || "Failed to fetch latest membership details");
+      }
+      const latestMember = printRes.member;
+      
+      const issueDateStr = latestMember.approved_at 
+        ? new Date(latestMember.approved_at).toLocaleDateString("en-IN")
+        : new Date(latestMember.created_at).toLocaleDateString("en-IN");
 
       // Generate the PDF
-      const pdfBlob = await generateMembershipPDFClient({
-        membershipNo: member.membership_no || "",
-        ackNo: member.ack_no,
-        fullName: member.full_name,
-        fatherName: member.father_name,
-        designation: member.designation,
-        workingArea: member.working_area,
-        photoUrl: member.photo_url,
+      const certRes = await generateMembershipPDFClient({
+        membershipNo: latestMember.membership_no || "",
+        ackNo: latestMember.ack_no,
+        fullName: latestMember.full_name,
+        fatherName: latestMember.father_name,
+        designation: latestMember.designation,
+        workingArea: latestMember.working_area,
+        photoUrl: latestMember.photo_url,
         issueDateStr,
         qrCodeUrl,
         verificationUrl
-      });
+      }, printRes.photoBase64, printRes.qrBase64);
 
       // Trigger local browser download
-      const url = window.URL.createObjectURL(pdfBlob);
+      const url = window.URL.createObjectURL(certRes.pdfBlob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `Membership_Certificate_${certNo}.pdf`;
@@ -258,7 +265,14 @@ export default function AdminMembersPage() {
       const verificationUrl = `${appUrl}/verify/${certNo}`;
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
       
-      const issueDate = member.approved_at ? new Date(member.approved_at) : new Date(member.created_at);
+      // Fetch latest database status and pre-resolve images to base64
+      const printRes = await getMemberPrintData(member.id, qrCodeUrl);
+      if (!printRes.success || !printRes.member) {
+        throw new Error(printRes.error || "Failed to fetch latest membership details");
+      }
+      const latestMember = printRes.member;
+
+      const issueDate = latestMember.approved_at ? new Date(latestMember.approved_at) : new Date(latestMember.created_at);
       const issueDateStr = issueDate.toLocaleDateString("en-IN");
       
       const validFromStr = issueDate.toISOString().split("T")[0]; // YYYY-MM-DD
@@ -267,28 +281,28 @@ export default function AdminMembersPage() {
       validToDate.setDate(validToDate.getDate() - 1);
       const validToStr = validToDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
-      const { pdfBlob, pngBlob } = await generateMembershipIdCardPDFClient({
-        membershipNo: member.membership_no || "",
-        ackNo: member.ack_no,
-        fullName: member.full_name,
-        fatherName: member.father_name,
-        designation: member.designation,
-        workingArea: member.working_area,
-        photoUrl: member.photo_url,
+      const idRes = await generateMembershipIdCardPDFClient({
+        membershipNo: latestMember.membership_no || "",
+        ackNo: latestMember.ack_no,
+        fullName: latestMember.full_name,
+        fatherName: latestMember.father_name,
+        designation: latestMember.designation,
+        workingArea: latestMember.working_area,
+        photoUrl: latestMember.photo_url,
         issueDateStr,
         validFromStr,
         validToStr,
-        addressStr: member.address || "",
-        districtStr: member.district || "",
-        stateStr: member.state || "",
-        pincodeStr: member.pincode || "",
-        mobileStr: member.mobile || "",
+        addressStr: latestMember.address || "",
+        districtStr: latestMember.district || "",
+        stateStr: latestMember.state || "",
+        pincodeStr: latestMember.pincode || "",
+        mobileStr: latestMember.mobile || "",
         qrCodeUrl,
         verificationUrl
-      });
+      }, printRes.photoBase64, printRes.qrBase64);
 
       // 1. Download PDF
-      const pdfUrl = window.URL.createObjectURL(pdfBlob);
+      const pdfUrl = window.URL.createObjectURL(idRes.pdfBlob);
       const aPdf = document.createElement("a");
       aPdf.href = pdfUrl;
       aPdf.download = `Membership_ID_Card_${certNo}.pdf`;
@@ -298,7 +312,7 @@ export default function AdminMembersPage() {
       window.URL.revokeObjectURL(pdfUrl);
 
       // 2. Download PNG
-      const pngUrl = window.URL.createObjectURL(pngBlob);
+      const pngUrl = window.URL.createObjectURL(idRes.pngBlob);
       const aPng = document.createElement("a");
       aPng.href = pngUrl;
       aPng.download = `Membership_ID_Card_${certNo}.png`;
@@ -362,6 +376,14 @@ export default function AdminMembersPage() {
               const certNo = generatedMembershipNo || member.ack_no;
               const verificationUrl = `${appUrl}/verify/${certNo}`;
               const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+              
+              // Fetch latest print data (incl. base64 photo and QR) from the server
+              const printRes = await getMemberPrintData(id, qrCodeUrl);
+              if (!printRes.success || !printRes.member) {
+                throw new Error(printRes.error || "Failed to load printable details from database.");
+              }
+              const latestMember = printRes.member;
+
               const issueDateStr = new Date().toLocaleDateString("en-IN");
 
               // 1. Generate Certificate PDF and PNG
@@ -370,16 +392,16 @@ export default function AdminMembersPage() {
               try {
                 const certRes = await generateMembershipPDFClient({
                   membershipNo: certNo,
-                  ackNo: member.ack_no,
-                  fullName: member.full_name,
-                  fatherName: member.father_name,
-                  designation: member.designation,
-                  workingArea: member.working_area,
-                  photoUrl: member.photo_url,
+                  ackNo: latestMember.ack_no,
+                  fullName: latestMember.full_name,
+                  fatherName: latestMember.father_name,
+                  designation: latestMember.designation,
+                  workingArea: latestMember.working_area,
+                  photoUrl: latestMember.photo_url,
                   issueDateStr,
                   qrCodeUrl,
                   verificationUrl
-                });
+                }, printRes.photoBase64, printRes.qrBase64);
                 certPdfBlob = certRes.pdfBlob;
                 certPngBlob = certRes.pngBlob;
               } catch (certErr) {
@@ -398,23 +420,23 @@ export default function AdminMembersPage() {
 
                 const idRes = await generateMembershipIdCardPDFClient({
                   membershipNo: certNo,
-                  ackNo: member.ack_no,
-                  fullName: member.full_name,
-                  fatherName: member.father_name,
-                  designation: member.designation,
-                  workingArea: member.working_area,
-                  photoUrl: member.photo_url,
+                  ackNo: latestMember.ack_no,
+                  fullName: latestMember.full_name,
+                  fatherName: latestMember.father_name,
+                  designation: latestMember.designation,
+                  workingArea: latestMember.working_area,
+                  photoUrl: latestMember.photo_url,
                   issueDateStr,
                   validFromStr,
                   validToStr,
-                  addressStr: member.address || "",
-                  districtStr: member.district || "",
-                  stateStr: member.state || "",
-                  pincodeStr: member.pincode || "",
-                  mobileStr: member.mobile || "",
+                  addressStr: latestMember.address || "",
+                  districtStr: latestMember.district || "",
+                  stateStr: latestMember.state || "",
+                  pincodeStr: latestMember.pincode || "",
+                  mobileStr: latestMember.mobile || "",
                   qrCodeUrl,
                   verificationUrl
-                });
+                }, printRes.photoBase64, printRes.qrBase64);
                 idPdfBlob = idRes.pdfBlob;
                 idPngBlob = idRes.pngBlob;
               } catch (idErr) {

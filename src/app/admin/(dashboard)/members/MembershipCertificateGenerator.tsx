@@ -525,21 +525,17 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
       </div>
     </div>
   );
-};
-
-// Generates the PDF using html2canvas and jsPDF, returns the file blob
+};// Generates the PDF using html2canvas and jsPDF, returns the file blob and png blob
 export async function generateMembershipPDFClient(
-  data: MembershipCertificateData
-): Promise<Blob> {
+  data: MembershipCertificateData,
+  photoBase64Input?: string,
+  qrBase64Input?: string
+): Promise<{ pdfBlob: Blob; pngBlob: Blob }> {
   const html2canvas = (await import("html2canvas")).default;
   const { jsPDF } = await import("jspdf");
 
-  let photoBase64 = "";
-  if (data.photoUrl) {
-    photoBase64 = await getBase64ImageFromUrl(data.photoUrl);
-  }
-  const qrBase64 = await getBase64ImageFromUrl(data.qrCodeUrl);
-
+  const photoBase64 = photoBase64Input || (data.photoUrl ? await getBase64ImageFromUrl(data.photoUrl) : "");
+  const qrBase64 = qrBase64Input || await getBase64ImageFromUrl(data.qrCodeUrl);
   // Pre-resolve all local branding assets to Base64 to bypass CORS & html2canvas SVG limitations
   const logoBase64 = await getBase64ImageFromUrl("/logo.png");
   const mcaBase64 = await getBase64ImageFromUrl("/images/mca_logo.png");

@@ -22,6 +22,8 @@ export interface CertificateData {
 
 // Convert image URL to base64 to avoid CORS issues in canvas rendering
 export async function getBase64ImageFromUrl(imageUrl: string): Promise<string> {
+  if (!imageUrl) return "";
+  if (imageUrl.startsWith("data:")) return imageUrl;
   try {
     const res = await fetch(imageUrl, { mode: "cors" });
     const blob = await res.blob();

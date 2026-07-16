@@ -413,19 +413,17 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
     </div>
   );
 };
-
-// Generates the Landscape ID Card PDF, returns the file blob
+// Generates the Landscape ID Card PDF, returns the file blob and png blob
 export async function generateMembershipIdCardPDFClient(
-  data: MembershipIdCardData
+  data: MembershipIdCardData,
+  photoBase64Input?: string,
+  qrBase64Input?: string
 ): Promise<GenerationResult> {
   const html2canvas = (await import("html2canvas")).default;
   const { jsPDF } = await import("jspdf");
 
-  let photoBase64 = "";
-  if (data.photoUrl) {
-    photoBase64 = await getBase64ImageFromUrl(data.photoUrl);
-  }
-  const qrBase64 = await getBase64ImageFromUrl(data.qrCodeUrl);
+  const photoBase64 = photoBase64Input || (data.photoUrl ? await getBase64ImageFromUrl(data.photoUrl) : "");
+  const qrBase64 = qrBase64Input || await getBase64ImageFromUrl(data.qrCodeUrl);
   const logoBase64 = await getBase64ImageFromUrl("/logo.png");
 
   const container = document.createElement("div");
