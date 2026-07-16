@@ -365,7 +365,9 @@ function PaymentSuccessContent() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-700">
                     <div className="space-y-1.5">
                       <p><span className="font-semibold text-slate-500">Applicant Name:</span> <strong className="text-slate-800 uppercase">{receiptDetails.customerName}</strong></p>
-                      <p><span className="font-semibold text-slate-500">Father&apos;s Name:</span> <strong className="text-slate-800 uppercase">{receiptDetails.fatherName}</strong></p>
+                      {receiptDetails.fatherName && receiptDetails.fatherName !== "N/A" && (
+                        <p><span className="font-semibold text-slate-500">Father&apos;s Name:</span> <strong className="text-slate-800 uppercase">{receiptDetails.fatherName}</strong></p>
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <p><span className="font-semibold text-slate-500">Contact Number:</span> <span className="font-mono text-slate-800">{receiptDetails.customerMobile}</span></p>
