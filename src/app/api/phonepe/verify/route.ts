@@ -18,10 +18,10 @@ export async function GET(req: NextRequest) {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 
-    // First check our DB — if already COMPLETED, return immediately
+    // Fetch payment record
     const { data: payment } = await supabase
       .from("payments")
-      .select("id, amount, status, membership_id, registration_id, donation_id, appreciation_id")
+      .select("id, amount, status, gateway_transaction_id, created_at, membership_id, registration_id, donation_id, appreciation_id")
       .eq("transaction_id", orderId)
       .maybeSingle();
 
@@ -29,16 +29,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Payment record not found" }, { status: 404 });
     }
 
-    if (payment.status === "COMPLETED") {
-      return NextResponse.json({ success: true, status: "COMPLETED", orderId });
-    }
-
-    // Determine if it is a bypass payment by checking the email of the linked entity
-    let isBypass = false;
+    // Determine details
     let customerEmail = "";
     let customerName = "";
+    let fatherName = "";
+    let customerMobile = "";
     let ackOrEnrollmentNo = "";
     let courseTitle = "";
+    let paymentType = "donation";
+    let isBypass = false;
 
     const isBypassCheck = (email: string) => {
       const e = email.toLowerCase().trim();
@@ -46,35 +45,42 @@ export async function GET(req: NextRequest) {
     };
 
     if (payment.membership_id) {
+      paymentType = "membership";
       const { data: membership } = await supabase
         .from("memberships")
-        .select("email, full_name, ack_no")
+        .select("email, full_name, father_name, ack_no, mobile")
         .eq("id", payment.membership_id)
         .maybeSingle();
       if (membership) {
         customerEmail = membership.email;
         customerName = membership.full_name;
+        fatherName = membership.father_name;
         ackOrEnrollmentNo = membership.ack_no;
+        customerMobile = membership.mobile;
         if (isBypassCheck(membership.email)) {
           isBypass = true;
         }
       }
     } else if (payment.registration_id) {
+      paymentType = "enrollment";
       const { data: registration } = await supabase
         .from("course_registrations")
-        .select(`email, full_name, enrollment_no, courses (title)`)
+        .select(`email, full_name, father_name, enrollment_no, mobile, courses (title)`)
         .eq("id", payment.registration_id)
         .maybeSingle();
       if (registration) {
         customerEmail = registration.email;
         customerName = registration.full_name;
+        fatherName = registration.father_name || "";
         ackOrEnrollmentNo = registration.enrollment_no || "PENDING";
+        customerMobile = registration.mobile;
         courseTitle = (registration.courses as any)?.title || "Selected Course";
         if (isBypassCheck(registration.email)) {
           isBypass = true;
         }
       }
     } else if (payment.donation_id) {
+      paymentType = "donation";
       const prismaLocal = (await import("@/lib/prisma")).default;
       const donation = await prismaLocal.donations.findUnique({
         where: { id: payment.donation_id }
@@ -82,28 +88,53 @@ export async function GET(req: NextRequest) {
       if (donation) {
         customerEmail = donation.donor_email;
         customerName = donation.donor_name;
+        fatherName = "N/A";
+        customerMobile = donation.donor_phone || "";
+        ackOrEnrollmentNo = donation.transaction_id || orderId;
         if (isBypassCheck(donation.donor_email)) {
           isBypass = true;
         }
       }
     } else if (payment.appreciation_id) {
+      paymentType = "appreciation";
       const { data: app } = await supabase
         .from("appreciation_applications")
-        .select("email, full_name, application_no")
+        .select("email, full_name, father_name, application_no, mobile")
         .eq("id", payment.appreciation_id)
         .maybeSingle();
       if (app) {
         customerEmail = app.email;
         customerName = app.full_name;
+        fatherName = app.father_name || "";
         ackOrEnrollmentNo = app.application_no;
+        customerMobile = app.mobile;
         if (isBypassCheck(app.email)) {
           isBypass = true;
         }
       }
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
-    // isBypass is already set for whitelisted emails - no production mode block needed
+    const payloadDetails = {
+      customerName,
+      fatherName,
+      customerMobile,
+      customerEmail,
+      amount: Number(payment.amount),
+      date: payment.created_at,
+      gatewayTransactionId: payment.gateway_transaction_id || "PENDING",
+      ackOrEnrollmentNo,
+      paymentType,
+      description: courseTitle || (paymentType === "membership" ? "NGO Membership Fee" : paymentType === "appreciation" ? "Appreciation Application Fee" : "General Donation")
+    };
+
+    if (payment.status === "COMPLETED") {
+      return NextResponse.json({
+        success: true,
+        status: "COMPLETED",
+        orderId,
+        details: payloadDetails
+      });
+    }
 
     if (isBypass) {
       console.log(`[PAYMENT BYPASS] Bypassing payment for orderId: ${orderId}, Email: ${customerEmail}`);
@@ -122,7 +153,12 @@ export async function GET(req: NextRequest) {
 
       if (!updatedPayment || updatedPayment.length === 0) {
         console.log("[PAYMENT BYPASS] Payment already completed by another thread/process:", orderId);
-        return NextResponse.json({ success: true, status: "COMPLETED", orderId });
+        return NextResponse.json({
+          success: true,
+          status: "COMPLETED",
+          orderId,
+          details: { ...payloadDetails, gatewayTransactionId: mockTxnId }
+        });
       }
 
       // 2. Handle linked entities
@@ -334,7 +370,12 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      return NextResponse.json({ success: true, status: "COMPLETED", orderId });
+      return NextResponse.json({
+        success: true,
+        status: "COMPLETED",
+        orderId,
+        details: { ...payloadDetails, gatewayTransactionId: mockTxnId }
+      });
     }
 
     // Otherwise verify with PhonePe directly
@@ -351,6 +392,7 @@ export async function GET(req: NextRequest) {
       status: result.state,
       transactionId: result.transactionId,
       orderId,
+      details: { ...payloadDetails, gatewayTransactionId: result.transactionId || "PENDING" }
     });
   } catch (err: any) {
     console.error("PhonePe verify error:", err);

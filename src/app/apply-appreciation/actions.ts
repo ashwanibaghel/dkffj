@@ -300,11 +300,7 @@ export async function submitAppreciationApplication(prevData: any, formData: For
       customerMobile: mobile
     });
 
-    // 6. Send initial receipt email
-    const receiptSubject = "Appreciation Application Received (Awaiting Payment) - DKFFJ";
-    const receiptHtml = getAppreciationReceiptTemplate(fullName, appNo, amount);
-    await sendTransactionalEmail(email, receiptSubject, receiptHtml);
-
+    // 6. Return redirect URL without email
     return {
       success: true,
       applicationNo: appNo,

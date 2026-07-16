@@ -344,11 +344,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       customerMobile: mobile
     });
 
-    // 6. Send initial acknowledgement email receipt (pending payment verification)
-    const receiptSubject = "Membership Application Received (Awaiting Payment) - DKFFJ";
-    const receiptHtml = getMembershipReceiptTemplate(fullName, ackNo, amount);
-    await sendTransactionalEmail(email, receiptSubject, receiptHtml);
-
+    // 6. Return redirection URL without sending pending payment email
     return {
       success: true,
       ackNo,

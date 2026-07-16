@@ -196,11 +196,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
       customerMobile: mobile
     });
 
-    // 7. Send initial receipt (awaiting payment completion)
-    const emailSubject = `Course Registration Received (Awaiting Payment) - DKFFJ Academy`;
-    const emailHtml = getCourseRegistrationReceiptTemplate(fullName, course.title, enrollmentNo, fees);
-    await sendTransactionalEmail(email, emailSubject, emailHtml);
-
+    // 7. Return redirect URL without sending email
     return {
       success: true,
       enrollmentNo,
