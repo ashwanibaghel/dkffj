@@ -879,62 +879,7 @@ export default function ApplyPage() {
             {/* Step 4: Documents Upload & Authentication */}
             {step === 4 && (
               <div className="space-y-5">
-                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-4">Step 4: Upload Verification Documents</h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {/* Photo */}
-                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Passport Photo *</span>
-                    <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png"
-                        onChange={(e) => setPhoto(e.target.files?.[0] || null)}
-                        className="hidden"
-                      />
-                      <Upload className="w-5 h-5" />
-                    </label>
-                    <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                      {photo ? photo.name : "JPEG/PNG (Max 2MB)"}
-                    </span>
-                  </div>
-
-                  {/* Aadhaar / Identity Proof */}
-                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
-                      {country === "India" ? "Aadhaar Card *" : "Identity Proof (Passport/Govt ID) *"}
-                    </span>
-                    <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,application/pdf"
-                        onChange={(e) => setAadhaar(e.target.files?.[0] || null)}
-                        className="hidden"
-                      />
-                      <FileText className="w-5 h-5" />
-                    </label>
-                    <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                      {aadhaar ? aadhaar.name : "JPEG/PNG/PDF (Max 5MB)"}
-                    </span>
-                  </div>
-
-                  {/* Signature */}
-                  <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Specimen Signature *</span>
-                    <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png"
-                        onChange={(e) => setSignature(e.target.files?.[0] || null)}
-                        className="hidden"
-                      />
-                      <Upload className="w-5 h-5 text-sky-600" />
-                    </label>
-                    <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                      {signature ? signature.name : "JPEG/PNG (Max 1MB)"}
-                    </span>
-                  </div>
-                </div>
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider border-b pb-2 mb-4">Step 4: Review, Pledge & Submit</h3>
 
                 {/* Password for Account Creation */}
                 {!isLoggedIn && (
@@ -1027,7 +972,7 @@ export default function ApplyPage() {
                   <div className="space-y-2 pt-2">
                     <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">2. Impartiality & Loyalty Pledge</label>
                     <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl text-slate-600 leading-relaxed font-sans space-y-2 text-[11px]">
-                      <p>I hereby pledge to uphold the constitution of India and sincerely follow and abide by the objectives and ideals of DK Foundation of Freedom and Justice. I declare that I am not a part of any organisation that will jeopardize the DK Foundation of Freedom and Justice's image of impartiality.</p>
+                      <p>I hereby pledge to uphold the constitution of India and sincerely follow and abide by the objectives and ideals of DK Foundation of Freedom and Justice. I declare that I am not a part of any organisation that will jeopardize the DK Foundation of Freedom and Justice&apos;s image of impartiality.</p>
                       <p>I also affirm that I will sincerely render my services without any vested interest and any type of claims and work solely in the interest of the above said organisation. I will not violate any norms of the above said organisation and the governing body of DK Foundation of Freedom and Justice is at liberty and has liberty to terminate my post and membership from the organisation immediately without any notice. I shall have no claim whatsoever.</p>
                     </div>
                     <label className="flex items-start gap-2.5 cursor-pointer pt-1">
@@ -1052,6 +997,68 @@ export default function ApplyPage() {
                       />
                       <span className="text-slate-600 font-bold leading-normal select-none text-[11px]">I hereby declare that the information provided by me in this application is true and correct. *</span>
                     </label>
+                  </div>
+                </div>
+
+                {/* Document Upload — placed last */}
+                <div className="border-t pt-5 mt-5">
+                  <div className="flex items-center gap-2 text-slate-700 font-bold mb-4">
+                    <Upload className="w-4 h-4 text-[#001C55] shrink-0" />
+                    <span className="text-xs uppercase tracking-wider">Upload Verification Documents</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Photo */}
+                    <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Passport Photo *</span>
+                      <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png"
+                          onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                          className="hidden"
+                        />
+                        <Upload className="w-5 h-5" />
+                      </label>
+                      <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
+                        {photo ? photo.name : "JPEG/PNG (Max 2MB)"}
+                      </span>
+                    </div>
+
+                    {/* Aadhaar / Identity Proof */}
+                    <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                        {country === "India" ? "Aadhaar Card *" : "Identity Proof (Passport/Govt ID) *"}
+                      </span>
+                      <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,application/pdf"
+                          onChange={(e) => setAadhaar(e.target.files?.[0] || null)}
+                          className="hidden"
+                        />
+                        <FileText className="w-5 h-5" />
+                      </label>
+                      <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
+                        {aadhaar ? aadhaar.name : "JPEG/PNG/PDF (Max 5MB)"}
+                      </span>
+                    </div>
+
+                    {/* Signature */}
+                    <div className="border border-slate-200 rounded-xl p-4 text-center hover:border-[#001C55]/30 transition-all flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Specimen Signature *</span>
+                      <label className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center cursor-pointer hover:bg-slate-200 text-slate-600 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png"
+                          onChange={(e) => setSignature(e.target.files?.[0] || null)}
+                          className="hidden"
+                        />
+                        <Upload className="w-5 h-5 text-sky-600" />
+                      </label>
+                      <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
+                        {signature ? signature.name : "JPEG/PNG (Max 1MB)"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
