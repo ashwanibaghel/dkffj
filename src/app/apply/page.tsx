@@ -7,7 +7,6 @@ import { createClient } from "@/utils/supabase/client";
 import { sendMembershipOtp, verifyMembershipOtp, submitMembershipApplication } from "./actions";
 import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, Shield, Eye, EyeOff } from "lucide-react";
 import { compressFormFiles } from "@/lib/compressImage";
-import { uploadMembershipDocs } from "@/lib/uploadToStorage";
 
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
 
@@ -327,33 +326,16 @@ export default function ApplyPage() {
     }
 
     setLoading(true);
-    setSuccessMsg("Compressing images...");
+    setSuccessMsg("Compressing documents...");
 
     try {
-      // Step 1: Compress images client-side
+      // Step 1: Compress images client-side to be small enough (no 413)
+      // PDFs are left as-is, and images will stay high-quality but compressed
       const compressed = await compressFormFiles({ photo, aadhaar, signature });
-
-      // Step 2: Upload files directly from browser to Supabase Storage (bypasses Vercel 4.5MB limit)
-      setSuccessMsg("Uploading documents securely...");
-      const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();
-      const uploadResult = await uploadMembershipDocs(
-        tempUserId,
-        compressed.photo!,
-        compressed.aadhaar!,
-        compressed.signature!,
-        (step) => setSuccessMsg(step)
-      );
-
-      if (uploadResult.error) {
-        setErrorMsg(uploadResult.error);
-        setSuccessMsg("");
-        setLoading(false);
-        return;
-      }
 
       setSuccessMsg("Submitting application...");
 
-      // Step 3: Send only URLs to server action (no files = no 413)
+      // Step 2: Append compressed files to FormData
       const formData = new FormData();
       formData.append("fullName", fullName);
       formData.append("fatherName", fatherName);
@@ -373,10 +355,11 @@ export default function ApplyPage() {
       formData.append("workingArea", workingArea);
       formData.append("designation", designation);
       formData.append("policeStation", policeStation);
-      // URLs instead of files — permanently fixes 413
-      formData.append("photoUrl", uploadResult.photoUrl);
-      formData.append("aadhaarUrl", uploadResult.aadhaarUrl);
-      formData.append("signatureUrl", uploadResult.signatureUrl);
+
+      formData.append("photo", compressed.photo!);
+      formData.append("aadhaar", compressed.aadhaar!);
+      formData.append("signature", compressed.signature!);
+
       if (joiningType === "referred") {
         formData.append("referralCode", referralCode.trim());
       }

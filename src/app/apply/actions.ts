@@ -246,16 +246,56 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   const designation = sanitizeInput(formData.get("designation") as string);
   const policeStation = sanitizeInput(formData.get("policeStation") as string);
 
-  // Accept pre-uploaded file URLs (browser uploaded directly to Supabase Storage)
-  const photoUrl = sanitizeInput(formData.get("photoUrl") as string);
-  const aadhaarUrl = sanitizeInput(formData.get("aadhaarUrl") as string);
-  const signatureUrl = sanitizeInput(formData.get("signatureUrl") as string);
+  // Extract Upload Files
+  const photo = formData.get("photo") as File;
+  const aadhaar = formData.get("aadhaar") as File;
+  const signature = formData.get("signature") as File;
 
-  if (!photoUrl || !aadhaarUrl || !signatureUrl) {
-    return { success: false, error: "Document upload failed or incomplete. Please re-upload all files." };
+  if (!photo || photo.size === 0 || !aadhaar || aadhaar.size === 0 || !signature || signature.size === 0) {
+    return { success: false, error: "All required files (Photo, Aadhaar Card, Signature) must be uploaded." };
   }
 
   try {
+    // 1. Upload files to Supabase Storage
+    const photoExt = photo.name.split(".").pop();
+    const aadhaarExt = aadhaar.name.split(".").pop();
+    const signatureExt = signature.name.split(".").pop();
+
+    const photoName = `${userId}/photo_${Date.now()}.${photoExt}`;
+    const aadhaarName = `${userId}/aadhaar_${Date.now()}.${aadhaarExt}`;
+    const signatureName = `${userId}/signature_${Date.now()}.${signatureExt}`;
+
+    // Convert Files to ArrayBuffers -> Buffers
+    const photoBuffer = Buffer.from(await photo.arrayBuffer());
+    const aadhaarBuffer = Buffer.from(await aadhaar.arrayBuffer());
+    const signatureBuffer = Buffer.from(await signature.arrayBuffer());
+
+    // Upload to 'photos' bucket (public)
+    const { data: photoUpload, error: photoErr } = await supabase.storage
+      .from("photos")
+      .upload(photoName, photoBuffer, { contentType: photo.type, upsert: true });
+
+    if (photoErr) throw new Error(`Photo upload failed: ${photoErr.message}`);
+
+    // Get public URL for photo
+    const { data: photoUrlData } = supabase.storage.from("photos").getPublicUrl(photoName);
+    const photoUrl = photoUrlData.publicUrl;
+
+    // Upload to 'aadhaar' bucket (private)
+    const { error: aadhaarErr } = await supabase.storage
+      .from("aadhaar")
+      .upload(aadhaarName, aadhaarBuffer, { contentType: aadhaar.type, upsert: true });
+
+    if (aadhaarErr) throw new Error(`Aadhaar upload failed: ${aadhaarErr.message}`);
+    const aadhaarUrl = `aadhaar/${aadhaarName}`; // Save private storage path
+
+    // Upload to 'signatures' bucket (private)
+    const { error: signatureErr } = await supabase.storage
+      .from("signatures")
+      .upload(signatureName, signatureBuffer, { contentType: signature.type, upsert: true });
+
+    if (signatureErr) throw new Error(`Signature upload failed: ${signatureErr.message}`);
+    const signatureUrl = `signatures/${signatureName}`; // Save private storage path
     // 2. Generate Acknowledgement Number using SQL Stored Procedure
     const { data: ackNo, error: rpcError } = await supabase.rpc("generate_next_number", {
       p_key: "membership_ack",

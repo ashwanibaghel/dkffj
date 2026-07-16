@@ -10,9 +10,9 @@
  */
 export async function compressImage(
   file: File,
-  maxWidthPx = 1200,
-  quality = 0.75,
-  maxSizeKB = 800
+  maxWidthPx = 1800,
+  quality = 0.85,
+  maxSizeKB = 1500
 ): Promise<File> {
   // PDFs & non-images — return as-is
   if (!file.type.startsWith("image/")) return file;
@@ -78,9 +78,9 @@ export async function compressFormFiles(files: {
   signature: File | null;
 }): Promise<typeof files> {
   const [photo, aadhaar, signature] = await Promise.all([
-    files.photo ? compressImage(files.photo, 1200, 0.75, 400) : Promise.resolve(null),
-    files.aadhaar ? compressImage(files.aadhaar, 1400, 0.80, 700) : Promise.resolve(null),
-    files.signature ? compressImage(files.signature, 800, 0.80, 200) : Promise.resolve(null),
+    files.photo ? compressImage(files.photo, 1600, 0.85, 800) : Promise.resolve(null),
+    files.aadhaar ? compressImage(files.aadhaar, 2000, 0.85, 1200) : Promise.resolve(null),
+    files.signature ? compressImage(files.signature, 1200, 0.85, 500) : Promise.resolve(null),
   ]);
   return { photo, aadhaar, signature };
 }
