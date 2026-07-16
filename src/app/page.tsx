@@ -410,8 +410,8 @@ export default function Home() {
           {/* Static Title Tag */}
           <div className="bg-[#C00000] px-3 py-2 font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1.5 shrink-0 select-none shadow-[4px_0_10px_rgba(0,0,0,0.15)] relative z-10 border-r border-[#990000] h-full">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-            <span className="hidden sm:inline">Latest Updates</span>
-            <span className="sm:hidden">News</span>
+            <span className="hidden sm:inline">Our Mission</span>
+            <span className="sm:hidden">Mission</span>
           </div>
 
           {/* Marquee Content */}
