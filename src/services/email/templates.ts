@@ -1,9 +1,12 @@
 export function getMembershipVerificationTemplate(otp: string): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1.5px; font-family: serif;">DK Foundation of Freedom & Justice</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Verify Your Mobile / Email Connection</h2>
         <p style="font-size: 15px; line-height: 1.6;">A request has been initiated to verify your contact information for DKFFJ Membership registration. Please use the following One-Time Password (OTP) to complete your application:</p>
@@ -24,9 +27,12 @@ export function getMembershipVerificationTemplate(otp: string): string {
 export function getCourseVerificationTemplate(otp: string): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; letter-spacing: 1.5px; font-family: serif;">DKFFJ Academy</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Verify Your Email Address</h2>
         <p style="font-size: 15px; line-height: 1.6;">A request has been initiated to verify your email address for DKFFJ Academy course registration. Please use the following One-Time Password (OTP) to verify your email and complete your enrollment:</p>
@@ -47,9 +53,12 @@ export function getCourseVerificationTemplate(otp: string): string {
 export function getMembershipReceiptTemplate(name: string, ackNo: string, amount: number): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-family: serif;">DK Foundation of Freedom & Justice</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Membership Application Received</h2>
         <p style="font-size: 15px; line-height: 1.6;">Dear <strong>${name}</strong>,</p>
@@ -89,9 +98,12 @@ export function getMembershipReceiptTemplate(name: string, ackNo: string, amount
 export function getComplaintSubmittedTemplate(name: string, complaintNo: string): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-family: serif;">DK Foundation of Freedom & Justice</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #C00000; margin-top: 0; font-size: 20px;">Grievance Filed Successfully</h2>
         <p style="font-size: 15px; line-height: 1.6;">Dear <strong>${name}</strong>,</p>
@@ -127,9 +139,12 @@ export function getComplaintSubmittedTemplate(name: string, complaintNo: string)
 export function getCourseRegistrationReceiptTemplate(name: string, courseTitle: string, enrollmentNo: string, amount: number): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-family: serif;">DKFFJ Academy</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Course Enrollment Successful</h2>
         <p style="font-size: 15px; line-height: 1.6;">Dear <strong>${name}</strong>,</p>
@@ -165,9 +180,12 @@ export function getCourseRegistrationReceiptTemplate(name: string, courseTitle: 
 export function getCertificateIssuedTemplate(name: string, courseTitle: string, certNo: string, verifyUrl: string): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-family: serif;">DKFFJ Academy</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #C00000; margin-top: 0; font-size: 20px;">Congratulations! Your Certificate is Ready</h2>
         <p style="font-size: 15px; line-height: 1.6;">Dear <strong>${name}</strong>,</p>
@@ -202,9 +220,12 @@ export function getCertificateIssuedTemplate(name: string, courseTitle: string, 
 export function getAppreciationVerificationTemplate(otp: string): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-family: serif;">DK Foundation of Freedom & Justice</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Verify Contact for Appreciation Application</h2>
         <p style="font-size: 15px; line-height: 1.6;">A request has been initiated to verify your contact information for the Certificate of Appreciation Application. Please use the following One-Time Password (OTP) to complete your application verification:</p>
@@ -225,9 +246,12 @@ export function getAppreciationVerificationTemplate(otp: string): string {
 export function getAppreciationReceiptTemplate(name: string, ackNo: string, amount: number): string {
   return `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-      <div style="background-color: #001C55; padding: 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-family: serif;">DK Foundation of Freedom & Justice</h1>
-      </div>
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+</div>
       <div style="padding: 32px; background-color: #ffffff; color: #334155;">
         <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Appreciation Application Received</h2>
         <p style="font-size: 15px; line-height: 1.6;">Dear <strong>${name}</strong>,</p>
