@@ -256,6 +256,107 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   }
 
   try {
+    // 2. Generate Acknowledgement Number using SQL Stored Procedure
+    const { data: ackNo, error: rpcError } = await supabase.rpc("generate_next_number", {
+      p_key: "membership_ack",
+      p_prefix: "ACK"
+    });
+
+    if (rpcError) {
+      console.error("RPC sequence generation error:", rpcError);
+      throw new Error("Failed to generate acknowledgement number.");
+    }
+
+    // 3. Save application details to DB
+    const { data: membership, error: dbError } = await supabase
+      .from("memberships")
+      .select("id")
+      .eq("ack_no", ackNo)
+      .maybeSingle();
+
+    if (dbError) throw dbError;
+
+    // Insert new membership
+      const { data: newMembership, error: insertError } = await supabase
+        .from("memberships")
+        .insert({
+          ack_no: ackNo,
+          user_id: userId,
+          full_name: fullName,
+          father_name: fatherName,
+          gender,
+          dob,
+          mobile,
+          whatsapp,
+          email,
+          address,
+          country,
+          district,
+          state,
+          pincode,
+          education,
+          profession,
+          working_area: workingArea,
+          designation,
+          police_station: policeStation,
+          photo_url: photoUrl,
+          aadhaar_url: aadhaarUrl,
+          signature_url: signatureUrl,
+          status: "PENDING",
+          referred_by_member_id: referredByMemberId,
+          remarks: remarksPayload
+        })
+        .select("id")
+        .single();
+
+    if (insertError) {
+      console.error("Database insert error:", insertError);
+      throw new Error(`Database insert failed: ${insertError.message}`);
+    }
+
+    const membershipId = newMembership.id;
+
+    // 4. Create Pending Payment Log
+    const amount = Number(process.env.MEMBERSHIP_FEE || 1000.0);
+    const tempTxnId = "MBR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+    
+    const { error: paymentError } = await supabase
+      .from("payments")
+      .insert({
+        amount,
+        transaction_id: tempTxnId,
+        gateway: "PHONEPE",
+        status: "PENDING",
+        membership_id: membershipId
+      });
+
+    if (paymentError) {
+      console.error("Database payment logging error:", paymentError);
+      throw new Error(`Failed to initialize payment tracking: ${paymentError.message}`);
+    }
+
+    // 5. Generate Payment Redirect Link
+    const checkoutUrl = await paymentServiceInstance.processPayment({
+      orderId: tempTxnId,
+      amount,
+      currency: "INR",
+      customerEmail: email,
+      customerMobile: mobile
+    });
+
+    // 6. Send initial acknowledgement email receipt (pending payment verification)
+    const receiptSubject = "Membership Application Received (Awaiting Payment) - DKFFJ";
+    const receiptHtml = getMembershipReceiptTemplate(fullName, ackNo, amount);
+    await sendTransactionalEmail(email, receiptSubject, receiptHtml);
+
+    return {
+      success: true,
+      ackNo,
+      checkoutUrl,
+      message: "Application submitted. Redirecting to payment gateway..."
+    };
+
+  } catch (err: any) {
     console.error("Submission pipeline error:", err);
     return { success: false, error: err.message || "An unexpected error occurred during submission." };
   }
