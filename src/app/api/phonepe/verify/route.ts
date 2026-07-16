@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
         customerEmail = donation.donor_email;
         customerName = donation.donor_name;
         fatherName = "N/A";
-        customerMobile = donation.donor_phone || "";
+        customerMobile = donation.donor_mobile || "";
         ackOrEnrollmentNo = donation.transaction_id || orderId;
         if (isBypassCheck(donation.donor_email)) {
           isBypass = true;
@@ -99,13 +99,13 @@ export async function GET(req: NextRequest) {
       paymentType = "appreciation";
       const { data: app } = await supabase
         .from("appreciation_applications")
-        .select("email, full_name, father_name, application_no, mobile")
+        .select("email, full_name, application_no, mobile")
         .eq("id", payment.appreciation_id)
         .maybeSingle();
       if (app) {
         customerEmail = app.email;
         customerName = app.full_name;
-        fatherName = app.father_name || "";
+        fatherName = "N/A"; // Appreciation does not collect father's name
         ackOrEnrollmentNo = app.application_no;
         customerMobile = app.mobile;
         if (isBypassCheck(app.email)) {
