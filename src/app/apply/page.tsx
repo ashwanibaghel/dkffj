@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -53,9 +53,34 @@ const EDUCATION_OPTIONS = [
   "Other"
 ];
 
+const STORAGE_KEY = "membership_form_draft";
+const STORAGE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+function loadDraft() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - (parsed.__savedAt || 0) > STORAGE_TTL_MS) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch { return null; }
+}
+
+function clearDraft() {
+  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
 export default function ApplyPage() {
   const router = useRouter();
-  const [step, setStep] = useState<number>(1);
+
+  // ── Load saved draft once on first render ──
+  const draft = typeof window !== "undefined" ? loadDraft() : null;
+
+  const [step, setStep] = useState<number>(draft?.step || 1);
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [successMsg, setSuccessMsg] = useState<string>("");
@@ -64,48 +89,49 @@ export default function ApplyPage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  // Form states
-  const [fullName, setFullName] = useState<string>("");
-  const [fatherName, setFatherName] = useState<string>("");
-  const [gender, setGender] = useState<string>("Male");
-  const [dob, setDob] = useState<string>("");
-  const [country, setCountry] = useState<string>("India");
-  const [countryCode, setCountryCode] = useState<string>("+91");
-  const [whatsappCountryCode, setWhatsappCountryCode] = useState<string>("+91");
-  const [mobile, setMobile] = useState<string>("");
-  const [whatsapp, setWhatsapp] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [joiningType, setJoiningType] = useState<"direct" | "referred">("direct");
-  const [referralCode, setReferralCode] = useState<string>("");
+  // Form states — restored from sessionStorage draft if available
+  const [fullName, setFullName] = useState<string>(draft?.fullName || "");
+  const [fatherName, setFatherName] = useState<string>(draft?.fatherName || "");
+  const [gender, setGender] = useState<string>(draft?.gender || "Male");
+  const [dob, setDob] = useState<string>(draft?.dob || "");
+  const [country, setCountry] = useState<string>(draft?.country || "India");
+  const [countryCode, setCountryCode] = useState<string>(draft?.countryCode || "+91");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState<string>(draft?.whatsappCountryCode || "+91");
+  const [mobile, setMobile] = useState<string>(draft?.mobile || "");
+  const [whatsapp, setWhatsapp] = useState<string>(draft?.whatsapp || "");
+  const [email, setEmail] = useState<string>(draft?.email || "");
+  const [joiningType, setJoiningType] = useState<"direct" | "referred">(draft?.joiningType || "direct");
+  const [referralCode, setReferralCode] = useState<string>(draft?.referralCode || "");
 
   // OTP states
   const [otpCode, setOtpCode] = useState<string>("");
   const [sendingOtp, setSendingOtp] = useState<boolean>(false);
-  const [otpSent, setOtpSent] = useState<boolean>(false);
-  const [otpVerified, setOtpVerified] = useState<boolean>(false);
+  const [otpSent, setOtpSent] = useState<boolean>(draft?.otpSent || false);
+  const [otpVerified, setOtpVerified] = useState<boolean>(draft?.otpVerified || false);
   const [verifyingOtp, setVerifyingOtp] = useState<boolean>(false);
 
   // Address & Profession
-  const [address, setAddress] = useState<string>("");
-  const [district, setDistrict] = useState<string>("");
-  const [state, setState] = useState<string>("");
-  const [pincode, setPincode] = useState<string>("");
-  const [education, setEducation] = useState<string>("");
+  const [address, setAddress] = useState<string>(draft?.address || "");
+  const [district, setDistrict] = useState<string>(draft?.district || "");
+  const [state, setState] = useState<string>(draft?.state || "");
+  const [pincode, setPincode] = useState<string>(draft?.pincode || "");
+  const [education, setEducation] = useState<string>(draft?.education || "");
   const [showEduDropdown, setShowEduDropdown] = useState<boolean>(false);
-  const [profession, setProfession] = useState<string>("Service");
-  const [workingArea, setWorkingArea] = useState<string>("");
-  const [designation, setDesignation] = useState<string>("Member");
-  const [policeStation, setPoliceStation] = useState<string>("");
+  const [profession, setProfession] = useState<string>(draft?.profession || "Service");
+  const [workingArea, setWorkingArea] = useState<string>(draft?.workingArea || "");
+  const [designation, setDesignation] = useState<string>(draft?.designation || "Member");
+  const [policeStation, setPoliceStation] = useState<string>(draft?.policeStation || "");
 
   // Pledge Checkboxes
   const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
   const [agreePledge, setAgreePledge] = useState<boolean>(false);
   const [declareCorrect, setDeclareCorrect] = useState<boolean>(false);
 
-  // Documents
+  // Documents — Files cannot be stored in sessionStorage
   const [photo, setPhoto] = useState<File | null>(null);
   const [aadhaar, setAadhaar] = useState<File | null>(null);
   const [signature, setSignature] = useState<File | null>(null);
+  // Passwords — not stored for security
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
@@ -113,7 +139,28 @@ export default function ApplyPage() {
   const activeStateObj = indiaStatesDistricts.find((s) => s.state === state);
   const districtsList = activeStateObj ? activeStateObj.districts : [];
 
-  // Check login status on load
+  // ── Auto-save draft to sessionStorage whenever key fields change ──
+  useEffect(() => {
+    try {
+      const toSave = {
+        step, fullName, fatherName, gender, dob, country, countryCode,
+        whatsappCountryCode, mobile, whatsapp, email, joiningType, referralCode,
+        otpSent, otpVerified,
+        address, district, state, pincode, education, profession,
+        workingArea, designation, policeStation,
+        __savedAt: Date.now(),
+      };
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch {}
+  }, [
+    step, fullName, fatherName, gender, dob, country, countryCode,
+    whatsappCountryCode, mobile, whatsapp, email, joiningType, referralCode,
+    otpSent, otpVerified,
+    address, district, state, pincode, education, profession,
+    workingArea, designation, policeStation,
+  ]);
+
+  // ── Check login status on load ──
   useEffect(() => {
     const checkUser = async () => {
       const supabase = createClient();
@@ -312,6 +359,7 @@ export default function ApplyPage() {
       const res = await submitMembershipApplication(null, formData);
 
       if (res.success && res.checkoutUrl) {
+        clearDraft(); // clear saved draft after successful submission
         setSuccessMsg(res.message || "Enrollment logged. Redirecting to payment...");
         setTimeout(() => {
           router.push(res.checkoutUrl);
