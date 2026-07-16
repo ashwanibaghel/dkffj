@@ -38,21 +38,24 @@ export async function sendComplaintOtp(mobile: string, email: string) {
   // Send Email with OTP using a premium HTML layout
   const subject = "Grievance Portal Verification OTP - DKFFJ";
   const htmlContent = `
-    <div style="font-family: sans-serif; padding: 30px; max-width: 580px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: #001C55; font-family: serif; border-bottom: 3px solid #C00000; padding-bottom: 12px; margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px;">DK Foundation</h2>
-        <span style="color: #C00000; font-size: 10px; font-weight: bold; letter-spacing: 2px; display: block; margin-top: 4px;">OF FREEDOM AND JUSTICE</span>
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+        <img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+        <h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+        <div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+        <div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
       </div>
-      <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello,</p>
-      <p style="font-size: 14px; color: #334155; line-height: 1.6;">You are registering an official grievance/complaint on the DKFFJ portal. To secure your submission and prevent fake reports, please verify your email using the following 6-digit One-Time Password (OTP):</p>
-      <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; padding: 18px; text-align: center; margin: 25px 0; border-radius: 12px;">
-        <span style="font-size: 32px; font-weight: 800; letter-spacing: 4px; color: #C00000; font-family: monospace; display: block;">${code}</span>
+      <div style="padding: 32px; background-color: #ffffff; color: #334155;">
+        <h2 style="color: #001C55; margin-top: 0; font-size: 20px;">Verify Your Email Address</h2>
+        <p style="font-size: 15px; line-height: 1.6;">Hello,</p>
+        <p style="font-size: 15px; line-height: 1.6;">You are registering an official grievance/complaint on the DKFFJ portal. To secure your submission and prevent fake reports, please verify your email using the following 6-digit One-Time Password (OTP):</p>
+        <div style="text-align: center; margin: 32px 0;">
+          <span style="font-size: 36px; font-weight: bold; letter-spacing: 6px; color: #C00000; padding: 12px 28px; background-color: #fef2f2; border: 1px dashed #f87171; border-radius: 8px; display: inline-block;">${code}</span>
+        </div>
+        <p style="font-size: 13px; color: #64748b; line-height: 1.5;">This OTP is valid for 10 minutes. Please do not share this code with anyone. If you did not initiate this request, you can safely ignore this email.</p>
       </div>
-      <p style="font-size: 12px; color: #64748b; line-height: 1.6;">This OTP is valid for 10 minutes. Please do not share this code with anyone. If you did not initiate this request, you can safely ignore this email.</p>
-      <div style="margin-top: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px; font-size: 13px; color: #475569; line-height: 1.6;">
-        Regards,<br>
-        <strong>Investigation Cell</strong><br>
-        <span style="color: #64748b; font-size: 11px;">DK Foundation of Freedom and Justice</span>
+      <div style="background-color: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+        &copy; ${new Date().getFullYear()} DK Foundation of Freedom and Justice. All Rights Reserved.
       </div>
     </div>
   `;
