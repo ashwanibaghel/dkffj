@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { sendMembershipOtp, verifyMembershipOtp, submitMembershipApplication } from "./actions";
 import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, Shield, Eye, EyeOff } from "lucide-react";
+import { compressFormFiles } from "@/lib/compressImage";
 
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
 
@@ -325,8 +326,13 @@ export default function ApplyPage() {
     }
 
     setLoading(true);
+    setSuccessMsg("Compressing images, please wait...");
 
     try {
+      // Compress images client-side to avoid 413 on Vercel (4.5MB limit)
+      const compressed = await compressFormFiles({ photo, aadhaar, signature });
+      setSuccessMsg("");
+
       const formData = new FormData();
       formData.append("fullName", fullName);
       formData.append("fatherName", fatherName);
@@ -346,9 +352,9 @@ export default function ApplyPage() {
       formData.append("workingArea", workingArea);
       formData.append("designation", designation);
       formData.append("policeStation", policeStation);
-      formData.append("photo", photo);
-      formData.append("aadhaar", aadhaar);
-      formData.append("signature", signature);
+      formData.append("photo", compressed.photo!);
+      formData.append("aadhaar", compressed.aadhaar!);
+      formData.append("signature", compressed.signature!);
       if (joiningType === "referred") {
         formData.append("referralCode", referralCode.trim());
       }
