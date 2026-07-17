@@ -404,11 +404,8 @@ export async function issueCertificateForRegistration(
       updated_by: user.id
     });
 
-    // 6. Send Certificate Email to candidate
-    const emailSubject = "Official Certificate Issued - DKFFJ Academy";
-    const emailHtml = getCertificateIssuedTemplate(reg.full_name, courseTitle, certNo, verificationUrl);
-    await sendTransactionalEmail(reg.email, emailSubject, emailHtml);
-
+    // 6. Email will be sent after PDF/PNG are generated and uploaded by client-side browser
+    
     return {
       success: true,
       certNo,
@@ -458,4 +455,94 @@ export async function updateCertificatePdfUrl(certNo: string, pdfUrl: string) {
   }
 
   return { success: true };
+}
+
+// 5. Send Email with PDF and PNG attachments
+export async function sendCertificateFilesEmail(certNo: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Validate admin auth
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  try {
+    // 1. Fetch certificate details
+    const { data: cert, error: certErr } = await supabase
+      .from("certificates")
+      .select(`
+        *,
+        course_registrations (
+          full_name,
+          email
+        )
+      `)
+      .eq("certificate_no", certNo)
+      .single();
+
+    if (certErr || !cert) {
+      console.error("Failed to fetch certificate details for email:", certErr);
+      return { success: false, error: "Certificate record not found in database." };
+    }
+
+    const recipientEmail = (cert.course_registrations as any)?.email;
+    const studentName = (cert.course_registrations as any)?.full_name;
+
+    if (!recipientEmail) {
+      return { success: false, error: "Recipient email is missing." };
+    }
+
+    // 2. Download files from Supabase Storage
+    const { data: pdfData, error: pdfErr } = await supabase.storage
+      .from("certificates")
+      .download(`certs/cert_${certNo}.pdf`);
+
+    if (pdfErr || !pdfData) {
+      console.error("Failed to download PDF from storage:", pdfErr);
+      return { success: false, error: "Failed to download certificate PDF from storage." };
+    }
+
+    const { data: pngData, error: pngErr } = await supabase.storage
+      .from("certificates")
+      .download(`certs/cert_${certNo}.png`);
+
+    if (pngErr || !pngData) {
+      console.error("Failed to download PNG from storage:", pngErr);
+      return { success: false, error: "Failed to download certificate PNG from storage." };
+    }
+
+    // 3. Convert files to Buffers
+    const pdfBuffer = Buffer.from(await pdfData.arrayBuffer());
+    const pngBuffer = Buffer.from(await pngData.arrayBuffer());
+
+    // 4. Send Email with Attachments
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const verificationUrl = `${appUrl}/verify/${certNo}`;
+    const emailSubject = `Official Graduation Certificate Issued - ${cert.course_name}`;
+    const emailHtml = getCertificateIssuedTemplate(studentName, cert.course_name, certNo, verificationUrl);
+
+    const emailRes = await sendTransactionalEmail(
+      recipientEmail,
+      emailSubject,
+      emailHtml,
+      [
+        { filename: `${certNo}.pdf`, content: pdfBuffer },
+        { filename: `${certNo}.png`, content: pngBuffer }
+      ]
+    );
+
+    if (!emailRes.success) {
+      throw new Error(emailRes.error || "Email delivery failed");
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error("Error dispatching certificate email:", err);
+    return { success: false, error: err.message || "Failed to dispatch email with attachments." };
+  }
 }

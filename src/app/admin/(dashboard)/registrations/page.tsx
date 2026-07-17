@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile, updateCertificatePdfUrl } from "./actions";
+import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile, updateCertificatePdfUrl, sendCertificateFilesEmail } from "./actions";
 import { generateCertificatePDFClient } from "./CertificateGenerator";
 import { createClient } from "@/utils/supabase/client";
 import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Download, CheckCircle, ChevronUp, ChevronDown, BookOpen } from "lucide-react";
@@ -239,8 +239,9 @@ export default function AdminRegistrationsPage() {
         try {
           const supabase = createClient();
           const pdfPath = `certs/cert_${res.certNo}.pdf`;
+          const pngPath = `certs/cert_${res.certNo}.png`;
 
-          const pdfBlob = await generateCertificatePDFClient({
+          const { pdfBlob, pngBlob } = await generateCertificatePDFClient({
             certNo: res.certNo!,
             qrCodeUrl: res.qrCodeUrl!,
             verificationUrl: res.verificationUrl!,
@@ -257,12 +258,22 @@ export default function AdminRegistrationsPage() {
             dateStr: res.dateStr!
           });
 
+          // Upload PDF
           const { error: uploadError } = await supabase.storage
             .from("certificates")
             .upload(pdfPath, pdfBlob, { contentType: "application/pdf", upsert: true });
 
           if (uploadError) {
             throw new Error(`Failed to upload certificate PDF: ${uploadError.message}`);
+          }
+
+          // Upload PNG
+          const { error: pngUploadError } = await supabase.storage
+            .from("certificates")
+            .upload(pngPath, pngBlob, { contentType: "image/png", upsert: true });
+
+          if (pngUploadError) {
+            throw new Error(`Failed to upload certificate PNG: ${pngUploadError.message}`);
           }
 
           const { data: publicUrlRes } = supabase.storage.from("certificates").getPublicUrl(pdfPath);
@@ -272,9 +283,15 @@ export default function AdminRegistrationsPage() {
           if (!updateRes.success) {
             throw new Error(updateRes.error || "Failed to update PDF URL in database");
           }
-        } catch (pdfErr: unknown) {
-          console.error("Client side PDF generation/upload error:", pdfErr);
-          showToast("Certificate was created but PDF generation failed. Please check CORS or storage.", "error");
+
+          // Dispatch transactional email with PDF & PNG attachments
+          const emailRes = await sendCertificateFilesEmail(res.certNo!);
+          if (!emailRes.success) {
+            throw new Error(emailRes.error || "Failed to send email with certificate attachments");
+          }
+        } catch (pdfErr: any) {
+          console.error("Client side PDF/PNG generation/upload/email error:", pdfErr);
+          showToast(`Certificate created but files/email dispatch failed: ${pdfErr.message || pdfErr}`, "error");
         }
 
         setIssuingId(null);

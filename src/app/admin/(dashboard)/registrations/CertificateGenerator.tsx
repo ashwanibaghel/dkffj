@@ -515,10 +515,15 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   );
 };
 
-// Generates the PDF using html2canvas and jsPDF, returns the file blob
+export interface GeneratedCertificateFiles {
+  pdfBlob: Blob;
+  pngBlob: Blob;
+}
+
+// Generates the PDF and PNG using html2canvas and jsPDF, returns both blobs
 export async function generateCertificatePDFClient(
   data: CertificateData
-): Promise<Blob> {
+): Promise<GeneratedCertificateFiles> {
   const html2canvas = (await import("html2canvas")).default;
   const { jsPDF } = await import("jspdf");
 
@@ -592,10 +597,21 @@ export async function generateCertificatePDFClient(
           pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
           const pdfBlob = pdf.output("blob");
 
+          // Generate PNG Blob
+          const pngBlob = await new Promise<Blob>((resolvePng, rejectPng) => {
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolvePng(blob);
+              } else {
+                rejectPng(new Error("Canvas toBlob failed"));
+              }
+            }, "image/png");
+          });
+
           root.unmount();
           document.body.removeChild(container);
 
-          resolve(pdfBlob);
+          resolve({ pdfBlob, pngBlob });
         } catch (err) {
           try {
             root.unmount();
