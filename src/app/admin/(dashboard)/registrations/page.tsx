@@ -30,6 +30,9 @@ type RegistrationRecord = {
   email: string;
   father_name?: string | null;
   photo_url?: string | null;
+  working_sector?: string | null;
+  experience_cert_url?: string | null;
+  training_center?: string | null;
   status: string;
   remarks?: string | null;
   created_at: string;
@@ -187,7 +190,7 @@ export default function AdminRegistrationsPage() {
       durationFrom: fromDateStr,
       durationTo: toDateStr,
       grade: "A",
-      venue: "Online (DKFFJ Portal)",
+      venue: reg.training_center || "Online (DKFFJ Portal)",
       performance: "Excellent"
     });
     
@@ -463,15 +466,34 @@ export default function AdminRegistrationsPage() {
                       </div>
                     )}
 
-                    <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
                       <div>
                         <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Student Profile</span>
-                        <span className="text-slate-900 dark:text-slate-100 mt-1 block">{reg.full_name}</span>
-                        <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">{reg.email} | {reg.mobile}</span>
+                        <span className="text-slate-900 dark:text-slate-100 mt-1 block font-bold">{reg.full_name}</span>
+                        <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">{reg.email}</span>
+                        <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">{reg.mobile}</span>
                       </div>
                       <div>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Registration Date</span>
-                        <span className="text-slate-900 dark:text-slate-100 mt-1 block">{new Date(reg.created_at).toLocaleString("en-IN")}</span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Academic Details</span>
+                        <span className="text-slate-950 dark:text-slate-100 mt-1 block">Sector: <span className="font-bold text-slate-700 dark:text-slate-300">{reg.working_sector || "Not Specified"}</span></span>
+                        <span className="text-slate-950 dark:text-slate-100 mt-0.5 block">Center: <span className="font-bold text-[#001C55] dark:text-blue-400">{reg.training_center || "Not Assigned"}</span></span>
+                        {reg.experience_cert_url ? (
+                          <a
+                            href={reg.experience_cert_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline mt-1.5 inline-flex items-center gap-1 font-bold text-[10px]"
+                          >
+                            <Download className="w-3 h-3" /> View Experience Proof
+                          </a>
+                        ) : (
+                          <span className="text-slate-400 mt-1 block italic text-[10px]">No certificate uploaded</span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Registration Info</span>
+                        <span className="text-slate-900 dark:text-slate-100 mt-1 block">Date: {new Date(reg.created_at).toLocaleString("en-IN")}</span>
+                        {reg.father_name && <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">Father: {reg.father_name}</span>}
                       </div>
                     </div>
 

@@ -114,6 +114,10 @@ export default function CourseCard({ course }: { course: Course }) {
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
+  const [workingSector, setWorkingSector] = useState<string>("");
+  const [experienceCert, setExperienceCert] = useState<File | null>(null);
+  const [trainingCenter, setTrainingCenter] = useState<string>("");
+  const [customCenter, setCustomCenter] = useState<string>("");
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -206,6 +210,10 @@ export default function CourseCard({ course }: { course: Course }) {
         URL.revokeObjectURL(photoPreview);
       }
       setPhotoPreview(null);
+      setWorkingSector("");
+      setExperienceCert(null);
+      setTrainingCenter("");
+      setCustomCenter("");
       setErrorMsg("");
       setSuccessMsg("");
     }
@@ -322,8 +330,19 @@ export default function CourseCard({ course }: { course: Course }) {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!fullName || !mobile || !email || !fatherName || !photo) {
-      setErrorMsg("All registration fields, including Father's Name and Profile Photo, are required.");
+    if (!fullName || !mobile || !email || !fatherName || !photo || !workingSector || !trainingCenter) {
+      setErrorMsg("All registration fields, including Profile Photo, Working Sector, and Training Center, are required.");
+      return;
+    }
+
+    if (workingSector !== "Student / Unemployed" && !experienceCert) {
+      setErrorMsg("Please upload your Experience / Qualification Certificate for the selected working sector.");
+      return;
+    }
+
+    const finalTrainingCenter = trainingCenter === "Other" ? customCenter : trainingCenter;
+    if (trainingCenter === "Other" && !customCenter.trim()) {
+      setErrorMsg("Please specify your Training Center / Branch name.");
       return;
     }
 
@@ -375,8 +394,13 @@ export default function CourseCard({ course }: { course: Course }) {
       formData.append("mobile", countryCode + mobile);
       formData.append("email", email);
       formData.append("fatherName", fatherName);
+      formData.append("workingSector", workingSector);
+      formData.append("trainingCenter", finalTrainingCenter);
       if (photo) {
         formData.append("photo", photo);
+      }
+      if (experienceCert) {
+        formData.append("experienceCert", experienceCert);
       }
       if (!isLoggedIn) {
         formData.append("password", password);
@@ -761,6 +785,94 @@ export default function CourseCard({ course }: { course: Course }) {
                     </div>
                   )}
                 </div>
+
+                {/* Working Sector Selection */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Current Working Sector / Occupation *</label>
+                  <select
+                    value={workingSector}
+                    onChange={(e) => {
+                      setWorkingSector(e.target.value);
+                      if (e.target.value === "Student / Unemployed") {
+                        setExperienceCert(null);
+                      }
+                    }}
+                    required
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                  >
+                    <option value="">-- Select Sector --</option>
+                    <option value="Mass Media / Journalism">Mass Media / Journalism</option>
+                    <option value="Care Center / Health Care">Care Center / Health Care</option>
+                    <option value="NGO / Social Work">NGO / Social Work</option>
+                    <option value="Government Sector">Government Sector</option>
+                    <option value="Other Business / Sector">Other Business / Sector</option>
+                    <option value="Student / Unemployed">Student / Unemployed</option>
+                  </select>
+                </div>
+
+                {/* Experience Certificate File Upload (if not student) */}
+                {workingSector && workingSector !== "Student / Unemployed" && (
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                      Upload Experience / Qualification Certificate *
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        if (file && file.size > 3 * 1024 * 1024) {
+                          setErrorMsg("Maximum certificate file size is 3 MB.");
+                          e.target.value = "";
+                          setExperienceCert(null);
+                        } else {
+                          setExperienceCert(file);
+                        }
+                      }}
+                      required
+                      className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    />
+                    <p className="text-[9px] text-slate-400 mt-1">Upload PDF or Image of your experience/qualification proof (Max 3MB).</p>
+                    {experienceCert && (
+                      <div className="mt-1 text-[10px] text-emerald-600 font-bold">
+                        File selected: {experienceCert.name} ({(experienceCert.size / 1024).toFixed(1)} KB)
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Training Center Name Selection */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Select Training Center / Study Branch *</label>
+                  <select
+                    value={trainingCenter}
+                    onChange={(e) => setTrainingCenter(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                  >
+                    <option value="">-- Select Center --</option>
+                    <option value="DK Academy of Mass Media & Journalism">DK Academy of Mass Media & Journalism</option>
+                    <option value="DK Academy of Social Care & Health">DK Academy of Social Care & Health</option>
+                    <option value="DK Academy of Human Rights Protection">DK Academy of Human Rights Protection</option>
+                    <option value="DK Foundation Main Campus">DK Foundation Main Campus</option>
+                    <option value="Other">Other / Affiliated Center</option>
+                  </select>
+                </div>
+
+                {/* Custom Training Center Input if 'Other' is selected */}
+                {trainingCenter === "Other" && (
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Specify Center / Institute Name *</label>
+                    <input
+                      type="text"
+                      value={customCenter}
+                      onChange={(e) => setCustomCenter(e.target.value)}
+                      required
+                      placeholder="e.g. Gurukul Social Work Institute"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Mobile Number *</label>

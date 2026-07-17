@@ -39,9 +39,12 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   const otpCode = formData.get("otpCode") as string;
   const fatherName = formData.get("fatherName") as string;
   const photo = formData.get("photo") as File | null;
+  const workingSector = formData.get("workingSector") as string;
+  const trainingCenter = formData.get("trainingCenter") as string;
+  const experienceCert = formData.get("experienceCert") as File | null;
 
-  if (!courseId || !fullName || !mobile || !email || !fatherName || !photo || photo.size === 0) {
-    return { success: false, error: "Please fill in all registration fields and upload your profile photo." };
+  if (!courseId || !fullName || !mobile || !email || !fatherName || !photo || photo.size === 0 || !workingSector || !trainingCenter) {
+    return { success: false, error: "Please fill in all registration fields, including Working Sector and Training Center." };
   }
 
   // 1. Get/Create User account
@@ -120,6 +123,31 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     return { success: false, error: err.message || "Failed to upload profile photo." };
   }
 
+  // Upload Experience Certificate to Supabase Storage (if provided)
+  let experienceCertUrl = "";
+  if (experienceCert && experienceCert.size > 0) {
+    try {
+      const certExt = experienceCert.name.split(".").pop() || "pdf";
+      const certName = `${userId}/cert_course_${Date.now()}.${certExt}`;
+      const certBuffer = Buffer.from(await experienceCert.arrayBuffer());
+
+      const { data: certUpload, error: certErr } = await supabase.storage
+        .from("photos")
+        .upload(certName, certBuffer, { contentType: experienceCert.type, upsert: true });
+
+      if (certErr) {
+        console.error("Certificate upload error:", certErr);
+        throw new Error(`Experience certificate upload failed: ${certErr.message}`);
+      }
+
+      const { data: certUrlData } = supabase.storage.from("photos").getPublicUrl(certName);
+      experienceCertUrl = certUrlData.publicUrl;
+    } catch (err: any) {
+      console.error("Certificate upload pipeline error:", err);
+      return { success: false, error: err.message || "Failed to upload experience certificate." };
+    }
+  }
+
   // 2. Fetch course fee details
   const { data: course, error: courseError } = await supabase
     .from("courses")
@@ -157,6 +185,9 @@ export async function registerForCourse(prevData: any, formData: FormData) {
         email,
         father_name: fatherName,
         photo_url: photoUrl,
+        working_sector: workingSector,
+        experience_cert_url: experienceCertUrl || null,
+        training_center: trainingCenter,
         status: "PENDING"
       })
       .select("id")

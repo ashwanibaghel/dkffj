@@ -326,6 +326,7 @@ export async function issueCertificateForRegistration(
       created_at,
       father_name,
       photo_url,
+      training_center,
       courses (
         title,
         duration
@@ -347,7 +348,7 @@ export async function issueCertificateForRegistration(
   const durationFrom = certData.durationFrom || new Date(reg.created_at).toLocaleDateString("en-IN");
   const durationTo = certData.durationTo || new Date(reg.created_at).toLocaleDateString("en-IN");
   const grade = certData.grade || "A";
-  const venue = certData.venue || "Online (DKFFJ Portal)";
+  const venue = certData.venue || reg.training_center || "Online (DKFFJ Portal)";
   const performance = certData.performance || "Excellent";
 
   try {
