@@ -30,6 +30,24 @@ function PaymentSuccessContent() {
   const [refId, setRefId] = useState<string>("");
   const [attempts, setAttempts] = useState(0);
   const [receiptDetails, setReceiptDetails] = useState<ReceiptDetails | null>(null);
+  const [logoBase64, setLogoBase64] = useState<string>("");
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const res = await fetch("/logo.png");
+        const blob = await res.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setLogoBase64(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      } catch (err) {
+        console.error("Failed to load logo base64:", err);
+      }
+    };
+    fetchLogo();
+  }, []);
 
   useEffect(() => {
     if (!orderId) {
@@ -88,11 +106,12 @@ function PaymentSuccessContent() {
   const downloadPNG = async () => {
     if (!refId) return;
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      const html2canvasModule = await import("html2canvas");
+      const html2canvas = html2canvasModule.default || html2canvasModule;
       const element = document.getElementById("official-receipt");
       if (!element) return;
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
       });
@@ -109,22 +128,22 @@ function PaymentSuccessContent() {
   const downloadPDF = async () => {
     if (!refId) return;
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const { jsPDF } = await import("jspdf");
+      const html2canvasModule = await import("html2canvas");
+      const html2canvas = html2canvasModule.default || html2canvasModule;
+      const jspdfModule = await import("jspdf");
+      const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
       const element = document.getElementById("official-receipt");
       if (!element) return;
       
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
       });
       const imgData = canvas.toDataURL("image/png");
       
-      // Calculate sizes for A4 page width = 210mm
       const pdf = new jsPDF("p", "mm", "a4");
       const imgWidth = 210;
-      const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
@@ -251,9 +270,11 @@ function PaymentSuccessContent() {
             {/* Outer Frame with print margins */}
             <div 
               id="official-receipt" 
-              className="w-full max-w-[760px] bg-white border-8 border-double border-[#001C55] p-8 md:p-10 relative overflow-hidden font-serif select-none shadow-[0_10px_30px_rgba(0,0,0,0.05)] text-left"
+              className="w-full max-w-[760px] bg-white border-[10px] border-double border-[#001C55] p-8 md:p-10 relative overflow-hidden font-serif select-none shadow-[0_20px_50px_rgba(0,0,0,0.08)] rounded-2xl text-left"
               style={{ minHeight: "950px" }}
             >
+              {/* Inner Gold border */}
+              <div className="absolute inset-2 border border-[#C5A880] pointer-events-none z-10" />
               
               {/* PAID Watermark */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04] z-0 select-none">
@@ -264,7 +285,7 @@ function PaymentSuccessContent() {
 
               {/* Watermark Logo Center */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
-                <img src="/logo.png" className="w-[300px] h-[300px] object-contain" alt="" />
+                <img src={logoBase64 || "/logo.png"} className="w-[300px] h-[300px] object-contain" alt="" />
               </div>
 
               {/* Receipt Content */}
@@ -273,7 +294,7 @@ function PaymentSuccessContent() {
                 {/* 1. Header with Government/MCA Seal details */}
                 <div className="flex flex-col items-center text-center pb-6 border-b-2 border-slate-200">
                   <div className="flex items-center gap-4 justify-center mb-4">
-                    <img src="/logo.png" className="w-16 h-16 object-contain" alt="DKFFJ Logo" />
+                    <img src={logoBase64 || "/logo.png"} className="w-16 h-16 object-contain" alt="DKFFJ Logo" />
                     <div className="text-left font-serif">
                       <h1 className="text-xl md:text-2xl font-black text-[#001C55] tracking-wide uppercase leading-tight">
                         DK Foundation of Freedom & Justice
@@ -281,13 +302,13 @@ function PaymentSuccessContent() {
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-sans mt-0.5">
                         Incorporated under Section 8 of the Companies Act, 2013, Govt. of India
                       </p>
-                      <p className="text-[9px] text-slate-400 font-mono mt-0.5">
+                      <p className="text-[9px] text-[#C5A880] font-mono font-bold mt-0.5">
                         CIN: U74999DL2018NPL334888 • Reg No: N-334888
                       </p>
                     </div>
                   </div>
-                  <div className="w-full bg-[#001C55]/5 py-1.5 rounded-lg border border-[#001C55]/15 mt-1">
-                    <span className="text-xs uppercase tracking-[0.2em] font-sans font-bold text-[#001C55]">
+                  <div className="w-full bg-[#001C55] py-2 rounded-lg border border-[#001C55] mt-1 shadow-sm">
+                    <span className="text-xs uppercase tracking-[0.25em] font-sans font-black text-white block text-center">
                       Official Payment Acknowledgement Receipt
                     </span>
                   </div>
@@ -316,7 +337,7 @@ function PaymentSuccessContent() {
                       <p><span className="font-semibold text-slate-500">Gateway Provider:</span> <span className="font-bold text-slate-800">PhonePe UPI</span></p>
                       <p><span className="font-semibold text-slate-500">Transaction ID:</span> <span className="font-mono font-bold text-slate-800 break-all">{receiptDetails.gatewayTransactionId}</span></p>
                       <p><span className="font-semibold text-slate-500">Currency Code:</span> <span className="font-bold text-slate-800">INR (₹)</span></p>
-                      <p><span className="font-semibold text-slate-500">Amount Charged:</span> <span className="text-sm font-bold text-green-700 font-mono">₹{receiptDetails.amount.toLocaleString("en-IN")}.00</span></p>
+                      <p><span className="font-semibold text-slate-500">Amount Charged:</span> <span className="text-sm font-bold text-green-700 font-mono font-black">₹{receiptDetails.amount.toLocaleString("en-IN")}.00</span></p>
                     </div>
                   </div>
                 </div>
@@ -395,10 +416,10 @@ function PaymentSuccessContent() {
                     {/* Signature block */}
                     <div className="text-center font-sans">
                       <div className="h-10 flex items-center justify-center">
-                        <span className="font-serif italic text-slate-500 text-lg select-none opacity-80">Ashwani Baghel</span>
+                        <span className="font-serif italic text-slate-700 text-lg select-none opacity-90 font-bold"></span>
                       </div>
                       <div className="border-t border-slate-300 w-36 pt-1 text-center">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Authorized Officer</p>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Authorized Signatory</p>
                         <p className="text-[8px] text-slate-400">DK Foundation of Freedom & Justice</p>
                       </div>
                     </div>

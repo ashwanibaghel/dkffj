@@ -150,10 +150,32 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         membership.ack_no,
         Number(payment.amount)
       );
+
+      let attachments: any[] = [];
+      try {
+        const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+        const pdfBuffer = await generateReceiptPdfBuffer({
+          refId: merchantOrderId,
+          date: payment.created_at,
+          ackOrEnrollmentNo: membership.ack_no,
+          gatewayTransactionId: verifyResult.transactionId || "PENDING",
+          amount: Number(payment.amount),
+          description: "NGO Membership Fee",
+          customerName: membership.full_name,
+          fatherName: membership.father_name,
+          customerMobile: membership.mobile,
+          customerEmail: membership.email
+        });
+        attachments.push({ filename: `Receipt_${merchantOrderId}.pdf`, content: pdfBuffer });
+      } catch (pdfErr) {
+        console.error("Failed to generate PDF receipt attachment for membership:", pdfErr);
+      }
+
       await sendTransactionalEmail(
         membership.email,
         "Payment Verified & Membership Submitted - DKFFJ",
-        emailHtml
+        emailHtml,
+        attachments
       );
 
       // Notify Admins
@@ -271,10 +293,32 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         registration.enrollment_no || "PENDING",
         Number(payment.amount)
       );
+
+      let attachments: any[] = [];
+      try {
+        const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+        const pdfBuffer = await generateReceiptPdfBuffer({
+          refId: merchantOrderId,
+          date: payment.created_at,
+          ackOrEnrollmentNo: registration.enrollment_no || "PENDING",
+          gatewayTransactionId: verifyResult.transactionId || "PENDING",
+          amount: Number(payment.amount),
+          description: courseTitle,
+          customerName: registration.full_name,
+          fatherName: registration.father_name,
+          customerMobile: registration.mobile,
+          customerEmail: registration.email
+        });
+        attachments.push({ filename: `Receipt_${merchantOrderId}.pdf`, content: pdfBuffer });
+      } catch (pdfErr) {
+        console.error("Failed to generate PDF receipt attachment for course registration:", pdfErr);
+      }
+
       await sendTransactionalEmail(
         registration.email,
         "Course Enrollment Successful - DKFFJ Academy",
-        emailHtml
+        emailHtml,
+        attachments
       );
 
       // Notify Admins
@@ -342,10 +386,32 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         app.application_no,
         Number(payment.amount)
       );
+
+      let attachments: any[] = [];
+      try {
+        const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+        const pdfBuffer = await generateReceiptPdfBuffer({
+          refId: merchantOrderId,
+          date: payment.created_at,
+          ackOrEnrollmentNo: app.application_no,
+          gatewayTransactionId: verifyResult.transactionId || "PENDING",
+          amount: Number(payment.amount),
+          description: "Appreciation Application Fee",
+          customerName: app.full_name,
+          fatherName: "N/A",
+          customerMobile: app.mobile,
+          customerEmail: app.email
+        });
+        attachments.push({ filename: `Receipt_${merchantOrderId}.pdf`, content: pdfBuffer });
+      } catch (pdfErr) {
+        console.error("Failed to generate PDF receipt attachment for appreciation:", pdfErr);
+      }
+
       await sendTransactionalEmail(
         app.email,
         "Payment Verified & Appreciation Application Submitted - DKFFJ",
-        emailHtml
+        emailHtml,
+        attachments
       );
 
       // Notify Admins

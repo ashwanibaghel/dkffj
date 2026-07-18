@@ -180,10 +180,32 @@ export async function GET(req: NextRequest) {
           ackOrEnrollmentNo,
           Number(payment.amount)
         );
+
+        let attachments: any[] = [];
+        try {
+          const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+          const pdfBuffer = await generateReceiptPdfBuffer({
+            refId: orderId,
+            date: payment.created_at,
+            ackOrEnrollmentNo,
+            gatewayTransactionId: mockTxnId,
+            amount: Number(payment.amount),
+            description: "NGO Membership Fee",
+            customerName,
+            fatherName,
+            customerMobile,
+            customerEmail
+          });
+          attachments.push({ filename: `Receipt_${orderId}.pdf`, content: pdfBuffer });
+        } catch (pdfErr) {
+          console.error("Failed to generate PDF receipt attachment for membership bypass:", pdfErr);
+        }
+
         await sendTransactionalEmail(
           customerEmail,
           "Payment Verified & Membership Submitted (Bypass Mode) - DKFFJ",
-          emailHtml
+          emailHtml,
+          attachments
         );
 
         // Notify Admins (Bypass Mode)
@@ -278,10 +300,32 @@ export async function GET(req: NextRequest) {
           ackOrEnrollmentNo,
           Number(payment.amount)
         );
+
+        let attachments: any[] = [];
+        try {
+          const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+          const pdfBuffer = await generateReceiptPdfBuffer({
+            refId: orderId,
+            date: payment.created_at,
+            ackOrEnrollmentNo,
+            gatewayTransactionId: mockTxnId,
+            amount: Number(payment.amount),
+            description: courseTitle || "Selected Course",
+            customerName,
+            fatherName,
+            customerMobile,
+            customerEmail
+          });
+          attachments.push({ filename: `Receipt_${orderId}.pdf`, content: pdfBuffer });
+        } catch (pdfErr) {
+          console.error("Failed to generate PDF receipt attachment for course bypass:", pdfErr);
+        }
+
         await sendTransactionalEmail(
           customerEmail,
           "Course Enrollment Successful (Bypass Mode) - DKFFJ Academy",
-          emailHtml
+          emailHtml,
+          attachments
         );
 
         // Notify Admins (Bypass Mode)
@@ -337,10 +381,32 @@ export async function GET(req: NextRequest) {
           ackOrEnrollmentNo,
           Number(payment.amount)
         );
+
+        let attachments: any[] = [];
+        try {
+          const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+          const pdfBuffer = await generateReceiptPdfBuffer({
+            refId: orderId,
+            date: payment.created_at,
+            ackOrEnrollmentNo,
+            gatewayTransactionId: mockTxnId,
+            amount: Number(payment.amount),
+            description: "Appreciation Application Fee",
+            customerName,
+            fatherName,
+            customerMobile,
+            customerEmail
+          });
+          attachments.push({ filename: `Receipt_${orderId}.pdf`, content: pdfBuffer });
+        } catch (pdfErr) {
+          console.error("Failed to generate PDF receipt attachment for appreciation bypass:", pdfErr);
+        }
+
         await sendTransactionalEmail(
           customerEmail,
           "Payment Verified & Appreciation Application Submitted (Bypass Mode) - DKFFJ",
-          emailHtml
+          emailHtml,
+          attachments
         );
 
         // Notify Admins (Bypass Mode)
