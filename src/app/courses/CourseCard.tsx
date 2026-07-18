@@ -118,6 +118,14 @@ export default function CourseCard({ course }: { course: Course }) {
   const [experienceCert, setExperienceCert] = useState<File | null>(null);
   const [trainingCenter, setTrainingCenter] = useState<string>("");
   const [customCenter, setCustomCenter] = useState<string>("");
+  const [qualification, setQualification] = useState<string>("");
+  const [dob, setDob] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [stateName, setStateName] = useState<string>("");
+  const [districtName, setDistrictName] = useState<string>("");
+  const [qualificationDoc, setQualificationDoc] = useState<File | null>(null);
+  const [aadhaarDoc, setAadhaarDoc] = useState<File | null>(null);
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -214,6 +222,14 @@ export default function CourseCard({ course }: { course: Course }) {
       setExperienceCert(null);
       setTrainingCenter("");
       setCustomCenter("");
+      setQualification("");
+      setDob("");
+      setGender("");
+      setAddress("");
+      setStateName("");
+      setDistrictName("");
+      setQualificationDoc(null);
+      setAadhaarDoc(null);
       setErrorMsg("");
       setSuccessMsg("");
     }
@@ -330,13 +346,21 @@ export default function CourseCard({ course }: { course: Course }) {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!fullName || !mobile || !email || !fatherName || !photo || !workingSector || !trainingCenter) {
-      setErrorMsg("All registration fields, including Profile Photo, Working Sector, and Training Center, are required.");
+    if (!fullName || !mobile || !email || !fatherName || !photo || !workingSector || !trainingCenter ||
+        !qualification || !dob || !gender || !address || !stateName || !districtName || !qualificationDoc || !aadhaarDoc) {
+      setErrorMsg("All registration fields, including Profile Photo, Qualification, DOB, Gender, Address, State, District, Aadhaar Card, and Qualification proof, are required.");
       return;
     }
 
     if (workingSector !== "Student / Unemployed" && !experienceCert) {
       setErrorMsg("Please upload your Experience / Qualification Certificate for the selected working sector.");
+      return;
+    }
+
+    const dobYear = new Date(dob).getFullYear();
+    const currentYear = new Date().getFullYear();
+    if (isNaN(dobYear) || dobYear < 1920 || dobYear > currentYear) {
+      setErrorMsg("Please enter a valid Date of Birth.");
       return;
     }
 
@@ -396,12 +420,26 @@ export default function CourseCard({ course }: { course: Course }) {
       formData.append("fatherName", fatherName);
       formData.append("workingSector", workingSector);
       formData.append("trainingCenter", finalTrainingCenter);
+      formData.append("qualification", qualification);
+      formData.append("dob", dob);
+      formData.append("gender", gender);
+      formData.append("address", address);
+      formData.append("state", stateName);
+      formData.append("district", districtName);
+      
       if (photo) {
         formData.append("photo", photo);
       }
       if (experienceCert) {
         formData.append("experienceCert", experienceCert);
       }
+      if (qualificationDoc) {
+        formData.append("qualificationDoc", qualificationDoc);
+      }
+      if (aadhaarDoc) {
+        formData.append("aadhaarDoc", aadhaarDoc);
+      }
+      
       if (!isLoggedIn) {
         formData.append("password", password);
         formData.append("otpCode", otpCode);
@@ -729,6 +767,189 @@ export default function CourseCard({ course }: { course: Course }) {
                   )}
                 </div>
 
+                {/* Gender & DOB (Grid Layout) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Gender *</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    >
+                      <option value="">-- Select Gender --</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Transgender">Transgender</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Date of Birth *</label>
+                    <input
+                      type="date"
+                      value={dob}
+                      onChange={(e) => setDob(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    />
+                  </div>
+                </div>
+
+                {/* Complete Address */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Full Correspondence Address *</label>
+                  <textarea
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                    placeholder="Enter complete house no, street, area, post office, pincode"
+                    rows={2}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                  />
+                </div>
+
+                {/* State & District (Grid Layout) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">State *</label>
+                    <select
+                      value={stateName}
+                      onChange={(e) => setStateName(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    >
+                      <option value="">-- Select State --</option>
+                      <option value="Andhra Pradesh">Andhra Pradesh</option>
+                      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                      <option value="Assam">Assam</option>
+                      <option value="Bihar">Bihar</option>
+                      <option value="Chhattisgarh">Chhattisgarh</option>
+                      <option value="Goa">Goa</option>
+                      <option value="Gujarat">Gujarat</option>
+                      <option value="Haryana">Haryana</option>
+                      <option value="Himachal Pradesh">Himachal Pradesh</option>
+                      <option value="Jharkhand">Jharkhand</option>
+                      <option value="Karnataka">Karnataka</option>
+                      <option value="Kerala">Kerala</option>
+                      <option value="Madhya Pradesh">Madhya Pradesh</option>
+                      <option value="Maharashtra">Maharashtra</option>
+                      <option value="Manipur">Manipur</option>
+                      <option value="Meghalaya">Meghalaya</option>
+                      <option value="Mizoram">Mizoram</option>
+                      <option value="Nagaland">Nagaland</option>
+                      <option value="Odisha">Odisha</option>
+                      <option value="Punjab">Punjab</option>
+                      <option value="Rajasthan">Rajasthan</option>
+                      <option value="Sikkim">Sikkim</option>
+                      <option value="Tamil Nadu">Tamil Nadu</option>
+                      <option value="Telangana">Telangana</option>
+                      <option value="Tripura">Tripura</option>
+                      <option value="Uttar Pradesh">Uttar Pradesh</option>
+                      <option value="Uttarakhand">Uttarakhand</option>
+                      <option value="West Bengal">West Bengal</option>
+                      <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                      <option value="Chandigarh">Chandigarh</option>
+                      <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                      <option value="Delhi">Delhi</option>
+                      <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                      <option value="Ladakh">Ladakh</option>
+                      <option value="Lakshadweep">Lakshadweep</option>
+                      <option value="Puducherry">Puducherry</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">District *</label>
+                    <input
+                      type="text"
+                      value={districtName}
+                      onChange={(e) => setDistrictName(e.target.value)}
+                      required
+                      placeholder="e.g. Lucknow"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                    />
+                  </div>
+                </div>
+
+                {/* Educational Qualification */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Educational Qualification *</label>
+                  <select
+                    value={qualification}
+                    onChange={(e) => setQualification(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                  >
+                    <option value="">-- Select Qualification --</option>
+                    <option value="10th Pass">10th Pass</option>
+                    <option value="12th Pass">12th Pass</option>
+                    <option value="Under Graduate">Under Graduate</option>
+                    <option value="Graduate">Graduate</option>
+                    <option value="Post Graduate">Post Graduate</option>
+                    <option value="Doctorate">Doctorate</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                {/* Qualification Document File Upload */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    Upload Qualification Marksheet / Certificate *
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (file && file.size > 3 * 1024 * 1024) {
+                        setErrorMsg("Maximum qualification document size is 3 MB.");
+                        e.target.value = "";
+                        setQualificationDoc(null);
+                      } else {
+                        setQualificationDoc(file);
+                      }
+                    }}
+                    required
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                  />
+                  <p className="text-[9px] text-slate-400 mt-1">Upload PDF or Image of your highest qualification proof (Max 3MB).</p>
+                  {qualificationDoc && (
+                    <div className="mt-1 text-[10px] text-emerald-600 font-bold">
+                      File selected: {qualificationDoc.name} ({(qualificationDoc.size / 1024).toFixed(1)} KB)
+                    </div>
+                  )}
+                </div>
+
+                {/* Aadhaar Card Upload */}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    Upload Aadhaar Card (Front & Back) *
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (file && file.size > 3 * 1024 * 1024) {
+                        setErrorMsg("Maximum Aadhaar file size is 3 MB.");
+                        e.target.value = "";
+                        setAadhaarDoc(null);
+                      } else {
+                        setAadhaarDoc(file);
+                      }
+                    }}
+                    required
+                    className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
+                  />
+                  <p className="text-[9px] text-slate-400 mt-1">Upload PDF or Image containing front and back of Aadhaar (Max 3MB).</p>
+                  {aadhaarDoc && (
+                    <div className="mt-1 text-[10px] text-emerald-600 font-bold">
+                      File selected: {aadhaarDoc.name} ({(aadhaarDoc.size / 1024).toFixed(1)} KB)
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Profile Photo (Passport size) *</label>
                   <input
@@ -805,6 +1026,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     <option value="Care Center / Health Care">Care Center / Health Care</option>
                     <option value="NGO / Social Work">NGO / Social Work</option>
                     <option value="Government Sector">Government Sector</option>
+                    <option value="Freelancer / Independent Contractor">Freelancer / Independent Contractor</option>
                     <option value="Other Business / Sector">Other Business / Sector</option>
                     <option value="Student / Unemployed">Student / Unemployed</option>
                   </select>

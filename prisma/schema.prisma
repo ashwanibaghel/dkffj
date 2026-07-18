@@ -113,6 +113,14 @@ model course_registrations {
   working_sector                                String?           @db.VarChar(255)
   experience_cert_url                           String?           @db.VarChar(512)
   training_center                               String?           @db.VarChar(255)
+  qualification                                 String?           @db.VarChar(255)
+  dob                                           DateTime?         @db.Date
+  gender                                        String?           @db.VarChar(50)
+  address                                       String?           @db.Text
+  state                                         String?           @db.VarChar(100)
+  district                                      String?           @db.VarChar(100)
+  qualification_doc_url                         String?           @db.VarChar(512)
+  aadhaar_doc_url                               String?           @db.VarChar(512)
   status                                        enrollment_status @default(PENDING)
   approved_by                                   String?           @db.Uuid
   approved_at                                   DateTime?         @db.Timestamptz(6)

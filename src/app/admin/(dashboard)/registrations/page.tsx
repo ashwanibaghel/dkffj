@@ -33,6 +33,14 @@ type RegistrationRecord = {
   working_sector?: string | null;
   experience_cert_url?: string | null;
   training_center?: string | null;
+  qualification?: string | null;
+  dob?: string | null;
+  gender?: string | null;
+  address?: string | null;
+  state?: string | null;
+  district?: string | null;
+  qualification_doc_url?: string | null;
+  aadhaar_doc_url?: string | null;
   status: string;
   remarks?: string | null;
   created_at: string;
@@ -483,34 +491,80 @@ export default function AdminRegistrationsPage() {
                       </div>
                     )}
 
-                    <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      <div>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Student Profile</span>
-                        <span className="text-slate-900 dark:text-slate-100 mt-1 block font-bold">{reg.full_name}</span>
-                        <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">{reg.email}</span>
-                        <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">{reg.mobile}</span>
+                    <div className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-sm">
+                      {/* Column 1: Student Profile & Basic Info */}
+                      <div className="space-y-2">
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-[0.14em]">Student Profile</span>
+                        <span className="text-slate-950 dark:text-slate-100 text-sm font-extrabold block">{reg.full_name}</span>
+                        <span className="text-slate-500 dark:text-slate-400 block font-mono text-[11px]">{reg.email}</span>
+                        <span className="text-slate-500 dark:text-slate-400 block font-mono text-[11px]">{reg.mobile}</span>
+                        {reg.father_name && <span className="text-slate-600 dark:text-slate-350 block mt-1">Father: <span className="font-bold">{reg.father_name}</span></span>}
+                        <span className="text-slate-600 dark:text-slate-350 block">Gender: <span className="font-bold text-slate-800 dark:text-slate-200">{reg.gender || "Not Specified"}</span></span>
+                        <span className="text-slate-600 dark:text-slate-350 block">DOB: <span className="font-bold text-slate-800 dark:text-slate-200">{reg.dob ? new Date(reg.dob).toLocaleDateString("en-IN") : "Not Specified"}</span></span>
                       </div>
-                      <div>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Academic Details</span>
-                        <span className="text-slate-950 dark:text-slate-100 mt-1 block">Sector: <span className="font-bold text-slate-700 dark:text-slate-300">{reg.working_sector || "Not Specified"}</span></span>
-                        <span className="text-slate-950 dark:text-slate-100 mt-0.5 block">Center: <span className="font-bold text-[#001C55] dark:text-blue-400">{reg.training_center || "Not Assigned"}</span></span>
-                        {reg.experience_cert_url ? (
-                          <a
-                            href={reg.experience_cert_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline mt-1.5 inline-flex items-center gap-1 font-bold text-[10px]"
-                          >
-                            <Download className="w-3 h-3" /> View Experience Proof
-                          </a>
-                        ) : (
-                          <span className="text-slate-400 mt-1 block italic text-[10px]">No certificate uploaded</span>
-                        )}
+
+                      {/* Column 2: Address & Regional details */}
+                      <div className="space-y-2">
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-[0.14em]">Address Details</span>
+                        <p className="text-slate-800 dark:text-slate-200 leading-relaxed text-[11px] bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800/60 font-medium">
+                          {reg.address || "No address recorded."}
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 text-[11px]">
+                          <div>
+                            <span className="text-[9px] text-slate-400 uppercase tracking-wider block font-bold">District</span>
+                            <span className="font-bold text-slate-850 dark:text-slate-200 block truncate">{reg.district || "N/A"}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 uppercase tracking-wider block font-bold">State</span>
+                            <span className="font-bold text-slate-850 dark:text-slate-200 block truncate">{reg.state || "N/A"}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Registration Info</span>
-                        <span className="text-slate-900 dark:text-slate-100 mt-1 block">Date: {new Date(reg.created_at).toLocaleString("en-IN")}</span>
-                        {reg.father_name && <span className="text-slate-500 dark:text-slate-400 mt-0.5 block">Father: {reg.father_name}</span>}
+
+                      {/* Column 3: Academic, Center & Document Attachments */}
+                      <div className="space-y-2.5">
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-[0.14em]">Academic & Attachments</span>
+                        <div className="text-[11px] space-y-1 bg-[#001C55]/[0.02] dark:bg-blue-500/[0.02] p-2.5 rounded-lg border border-blue-500/10">
+                          <span className="text-slate-800 dark:text-slate-200 block">Sector: <span className="font-black text-[#001C55] dark:text-blue-400">{reg.working_sector || "Not Specified"}</span></span>
+                          <span className="text-slate-800 dark:text-slate-200 block">Center: <span className="font-black text-[#001C55] dark:text-blue-400">{reg.training_center || "Not Assigned"}</span></span>
+                          <span className="text-slate-800 dark:text-slate-200 block">Qual: <span className="font-black text-slate-900 dark:text-slate-100">{reg.qualification || "Not Specified"}</span></span>
+                        </div>
+
+                        {/* Files Downloads list */}
+                        <div className="flex flex-col gap-1.5 pt-1">
+                          {reg.aadhaar_doc_url && (
+                            <a
+                              href={reg.aadhaar_doc_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors"
+                            >
+                              <Download className="w-3.5 h-3.5 text-blue-600" /> Aadhaar Card Copy
+                            </a>
+                          )}
+                          {reg.qualification_doc_url && (
+                            <a
+                              href={reg.qualification_doc_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors"
+                            >
+                              <Download className="w-3.5 h-3.5 text-[#C00000]" /> Qualification Doc
+                            </a>
+                          )}
+                          {reg.experience_cert_url ? (
+                            <a
+                              href={reg.experience_cert_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors"
+                            >
+                              <Download className="w-3.5 h-3.5 text-emerald-600" /> Experience Proof
+                            </a>
+                          ) : reg.working_sector && reg.working_sector !== "Student / Unemployed" ? (
+                            <span className="text-slate-400 italic text-[10px] pl-1.5">No experience proof uploaded</span>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
 

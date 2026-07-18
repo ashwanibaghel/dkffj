@@ -42,9 +42,18 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   const workingSector = formData.get("workingSector") as string;
   const trainingCenter = formData.get("trainingCenter") as string;
   const experienceCert = formData.get("experienceCert") as File | null;
+  const qualification = formData.get("qualification") as string;
+  const dob = formData.get("dob") as string;
+  const gender = formData.get("gender") as string;
+  const address = formData.get("address") as string;
+  const state = formData.get("state") as string;
+  const district = formData.get("district") as string;
+  const qualificationDoc = formData.get("qualificationDoc") as File | null;
+  const aadhaarDoc = formData.get("aadhaarDoc") as File | null;
 
-  if (!courseId || !fullName || !mobile || !email || !fatherName || !photo || photo.size === 0 || !workingSector || !trainingCenter) {
-    return { success: false, error: "Please fill in all registration fields, including Working Sector and Training Center." };
+  if (!courseId || !fullName || !mobile || !email || !fatherName || !photo || photo.size === 0 || !workingSector || !trainingCenter ||
+      !qualification || !dob || !gender || !address || !state || !district || !qualificationDoc || qualificationDoc.size === 0 || !aadhaarDoc || aadhaarDoc.size === 0) {
+    return { success: false, error: "Please fill in all registration fields, including Aadhaar Card and Qualification Documents." };
   }
 
   // 1. Get/Create User account
@@ -148,6 +157,56 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     }
   }
 
+  // Upload Qualification Document to Supabase Storage
+  let qualificationDocUrl = "";
+  if (qualificationDoc && qualificationDoc.size > 0) {
+    try {
+      const docExt = qualificationDoc.name.split(".").pop() || "pdf";
+      const docName = `${userId}/qual_doc_${Date.now()}.${docExt}`;
+      const docBuffer = Buffer.from(await qualificationDoc.arrayBuffer());
+
+      const { data: uploadData, error: uploadErr } = await supabase.storage
+        .from("photos")
+        .upload(docName, docBuffer, { contentType: qualificationDoc.type, upsert: true });
+
+      if (uploadErr) {
+        console.error("Qualification doc upload error:", uploadErr);
+        throw new Error(`Qualification document upload failed: ${uploadErr.message}`);
+      }
+
+      const { data: urlData } = supabase.storage.from("photos").getPublicUrl(docName);
+      qualificationDocUrl = urlData.publicUrl;
+    } catch (err: any) {
+      console.error("Qualification doc upload pipeline error:", err);
+      return { success: false, error: err.message || "Failed to upload qualification document." };
+    }
+  }
+
+  // Upload Aadhaar Document to Supabase Storage
+  let aadhaarDocUrl = "";
+  if (aadhaarDoc && aadhaarDoc.size > 0) {
+    try {
+      const docExt = aadhaarDoc.name.split(".").pop() || "pdf";
+      const docName = `${userId}/aadhaar_doc_${Date.now()}.${docExt}`;
+      const docBuffer = Buffer.from(await aadhaarDoc.arrayBuffer());
+
+      const { data: uploadData, error: uploadErr } = await supabase.storage
+        .from("photos")
+        .upload(docName, docBuffer, { contentType: aadhaarDoc.type, upsert: true });
+
+      if (uploadErr) {
+        console.error("Aadhaar doc upload error:", uploadErr);
+        throw new Error(`Aadhaar card upload failed: ${uploadErr.message}`);
+      }
+
+      const { data: urlData } = supabase.storage.from("photos").getPublicUrl(docName);
+      aadhaarDocUrl = urlData.publicUrl;
+    } catch (err: any) {
+      console.error("Aadhaar doc upload pipeline error:", err);
+      return { success: false, error: err.message || "Failed to upload Aadhaar card document." };
+    }
+  }
+
   // 2. Fetch course fee details
   const { data: course, error: courseError } = await supabase
     .from("courses")
@@ -188,6 +247,14 @@ export async function registerForCourse(prevData: any, formData: FormData) {
         working_sector: workingSector,
         experience_cert_url: experienceCertUrl || null,
         training_center: trainingCenter,
+        qualification,
+        dob: dob ? new Date(dob).toISOString() : null,
+        gender,
+        address,
+        state,
+        district,
+        qualification_doc_url: qualificationDocUrl || null,
+        aadhaar_doc_url: aadhaarDocUrl || null,
         status: "PENDING"
       })
       .select("id")
