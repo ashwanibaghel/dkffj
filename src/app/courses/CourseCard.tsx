@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { registerForCourse, sendCourseOtp, verifyCourseOtp } from "./actions";
 import { createClient } from "@/utils/supabase/client";
 import { BookOpen, Clock, Award, Loader2, AlertCircle, Shield, Check, Eye, EyeOff, User, Mail, ArrowLeft, Lock } from "lucide-react";
+import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 
 interface Course {
   id: string;
@@ -126,6 +127,9 @@ export default function CourseCard({ course }: { course: Course }) {
   const [districtName, setDistrictName] = useState<string>("");
   const [qualificationDoc, setQualificationDoc] = useState<File | null>(null);
   const [aadhaarDoc, setAadhaarDoc] = useState<File | null>(null);
+
+  const selectedStateObj = indiaStatesDistricts.find((s) => s.state === stateName);
+  const districts = selectedStateObj ? selectedStateObj.districts : [];
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -815,60 +819,40 @@ export default function CourseCard({ course }: { course: Course }) {
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">State *</label>
                     <select
                       value={stateName}
-                      onChange={(e) => setStateName(e.target.value)}
+                      onChange={(e) => {
+                        setStateName(e.target.value);
+                        setDistrictName("");
+                      }}
                       required
                       className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                     >
                       <option value="">-- Select State --</option>
-                      <option value="Andhra Pradesh">Andhra Pradesh</option>
-                      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                      <option value="Assam">Assam</option>
-                      <option value="Bihar">Bihar</option>
-                      <option value="Chhattisgarh">Chhattisgarh</option>
-                      <option value="Goa">Goa</option>
-                      <option value="Gujarat">Gujarat</option>
-                      <option value="Haryana">Haryana</option>
-                      <option value="Himachal Pradesh">Himachal Pradesh</option>
-                      <option value="Jharkhand">Jharkhand</option>
-                      <option value="Karnataka">Karnataka</option>
-                      <option value="Kerala">Kerala</option>
-                      <option value="Madhya Pradesh">Madhya Pradesh</option>
-                      <option value="Maharashtra">Maharashtra</option>
-                      <option value="Manipur">Manipur</option>
-                      <option value="Meghalaya">Meghalaya</option>
-                      <option value="Mizoram">Mizoram</option>
-                      <option value="Nagaland">Nagaland</option>
-                      <option value="Odisha">Odisha</option>
-                      <option value="Punjab">Punjab</option>
-                      <option value="Rajasthan">Rajasthan</option>
-                      <option value="Sikkim">Sikkim</option>
-                      <option value="Tamil Nadu">Tamil Nadu</option>
-                      <option value="Telangana">Telangana</option>
-                      <option value="Tripura">Tripura</option>
-                      <option value="Uttar Pradesh">Uttar Pradesh</option>
-                      <option value="Uttarakhand">Uttarakhand</option>
-                      <option value="West Bengal">West Bengal</option>
-                      <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
-                      <option value="Chandigarh">Chandigarh</option>
-                      <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
-                      <option value="Delhi">Delhi</option>
-                      <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-                      <option value="Ladakh">Ladakh</option>
-                      <option value="Lakshadweep">Lakshadweep</option>
-                      <option value="Puducherry">Puducherry</option>
+                      {indiaStatesDistricts.map((s) => (
+                        <option key={s.state} value={s.state}>
+                          {s.state}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">District *</label>
-                    <input
-                      type="text"
+                    <select
                       value={districtName}
                       onChange={(e) => setDistrictName(e.target.value)}
                       required
-                      placeholder="e.g. Lucknow"
-                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
-                    />
+                      disabled={!stateName}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 disabled:bg-slate-50 disabled:text-slate-400"
+                    >
+                      <option value="">
+                        {!stateName ? "Select State first" : "-- Select District --"}
+                      </option>
+                      {districts.map((dist) => (
+                        <option key={dist} value={dist}>
+                          {dist}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
