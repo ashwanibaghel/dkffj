@@ -18,6 +18,7 @@ export async function getMemberships(statusFilter?: string) {
   let query = supabase
     .from("memberships")
     .select("*")
+    .neq("status", "PENDING") // Hide unpaid memberships from admin panel
     .order("created_at", { ascending: false });
 
   if (statusFilter && statusFilter !== "ALL") {

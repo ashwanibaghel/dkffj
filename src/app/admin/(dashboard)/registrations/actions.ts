@@ -35,6 +35,7 @@ export async function getRegistrations(statusFilter?: string) {
         pdf_url
       )
     `)
+    .neq("status", "PENDING") // Completely filter out unpaid registrations from admin panel
     .order("created_at", { ascending: false });
 
   if (statusFilter && statusFilter !== "ALL") {
