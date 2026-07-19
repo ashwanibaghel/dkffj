@@ -23,7 +23,7 @@ export async function sendTransactionalEmail(
   }
 
   try {
-    const fromEmail = process.env.RESEND_FROM_EMAIL || "DKFFJ Portal <noreply@dkffj.org>";
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "DKFFJ <info@dkffj.org>";
     const data = await resend.emails.send({
       from: fromEmail,
       to,
