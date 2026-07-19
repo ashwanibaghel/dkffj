@@ -18,16 +18,11 @@ export async function sendTransactionalEmail(
   const resend = new Resend(resendApiKey);
 
   try {
-    // Determine FROM email
+    // Use RESEND_FROM_EMAIL if set and valid, else fallback to verified domain
     const fromEmailEnv = process.env.RESEND_FROM_EMAIL || "";
-    let fromEmail: string;
-
-    if (fromEmailEnv && fromEmailEnv.includes("@")) {
-      fromEmail = fromEmailEnv;
-    } else {
-      // Default to verified mail subdomain
-      fromEmail = "DKFFJ <no-reply@mail.dkffj.org>";
-    }
+    const fromEmail = (fromEmailEnv && fromEmailEnv.includes("@"))
+      ? fromEmailEnv
+      : "DKFFJ <no-reply@dkffj.org>";
 
     console.log(`[EMAIL] Sending to: ${to} | From: ${fromEmail} | Subject: ${subject} | KeyPrefix: ${resendApiKey.substring(0, 8)}...`);
 
