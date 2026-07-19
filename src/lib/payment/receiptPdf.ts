@@ -150,29 +150,27 @@ export function generateReceiptPdfBuffer(details: ReceiptPdfDetails): Promise<Bu
     doc.font("Helvetica-Bold").text("GRAND TOTAL PAID (INR):", 50, summaryTop + 45);
     doc.font("Helvetica-Bold").text(`Rs. ${details.amount.toLocaleString("en-IN")}.00`, 450, summaryTop + 45, { align: "right", width: 95 });
 
-    // 7. Signature & Stamp area
+    // 7. Signature area (NO placeholder seal)
     const footerTop = height - 120;
     doc.fillColor("#94a3b8").strokeColor("#cbd5e1").lineWidth(0.5).moveTo(40, footerTop).lineTo(width - 40, footerTop).stroke();
 
     doc.fillColor("#64748b").fontSize(7).font("Helvetica-Bold").text("Electronic Verification Audit:", 45, footerTop + 6);
     doc.font("Helvetica").text("This document is a computer-generated official payment receipt issued under the authority of DK Foundation of Freedom & Justice. No signature is legally required for digital validation. System transaction references have been recorded securely in the audit trails.", 45, footerTop + 14, { width: 320, align: "justify" });
 
-    // Draw seal stamp
-    doc.save();
-    doc.translate(410, footerTop + 22);
-    doc.circle(0, 0, 18).dash(2, { space: 2 }).stroke("#1565C0");
-    doc.fillColor("#1565C0");
-    doc.fontSize(4).font("Helvetica-Bold").text("DK FOUNDATION", -18, -10, { align: "center", width: 36 });
-    doc.fontSize(5).font("Helvetica-Bold").text("OFFICIAL", -18, -2, { align: "center", width: 36 });
-    doc.fontSize(4).font("Helvetica-Bold").text("SEAL", -18, 4, { align: "center", width: 36 });
-    doc.restore();
+    // Signature image
+    try {
+      const sigPath = path.join(process.cwd(), "public/images/director_sig.png");
+      if (fs.existsSync(sigPath)) {
+        doc.image(sigPath, 430, footerTop + 2, { width: 110, height: 45 });
+      }
+    } catch (e) {
+      console.warn("Signature image load failed:", e);
+    }
 
-    // Signature Block
-    doc.fillColor("#1e293b");
-    doc.fontSize(10).font("Times-Italic").text("", 450, footerTop + 10, { align: "center", width: 100 });
-    doc.strokeColor("#94a3b8").lineWidth(0.5).moveTo(450, footerTop + 24).lineTo(550, footerTop + 24).stroke();
-    doc.fillColor("#475569").fontSize(6).font("Helvetica-Bold").text("AUTHORIZED SIGNATORY", 450, footerTop + 28, { align: "center", width: 100 });
-    doc.fontSize(5).font("Helvetica").text("DK Foundation of Freedom & Justice", 450, footerTop + 36, { align: "center", width: 100 });
+    // Signature line and label
+    doc.strokeColor("#94a3b8").lineWidth(0.5).moveTo(430, footerTop + 50).lineTo(540, footerTop + 50).stroke();
+    doc.fillColor("#475569").fontSize(6).font("Helvetica-Bold").text("AUTHORIZED SIGNATORY", 430, footerTop + 54, { align: "center", width: 110 });
+    doc.fontSize(5).font("Helvetica").text("DK Foundation of Freedom & Justice", 430, footerTop + 62, { align: "center", width: 110 });
 
     doc.end();
   });
