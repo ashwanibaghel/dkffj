@@ -1,33 +1,35 @@
 import { Resend } from "resend";
 
-const resendApiKey = process.env.RESEND_API_KEY;
-const resend = resendApiKey && resendApiKey !== "re_placeholder" ? new Resend(resendApiKey) : null;
-
 export async function sendTransactionalEmail(
   to: string,
   subject: string,
   htmlContent: string,
   attachments?: Array<{ filename: string; content: Buffer }>
 ) {
-  if (!resend) {
-    console.log("----------------------------------------");
-    console.log(`[MOCK EMAIL SENT]`);
-    console.log(`To: ${to}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`Body:\n${htmlContent}`);
-    if (attachments) {
-      console.log(`Attachments: ${attachments.map(a => a.filename).join(", ")}`);
-    }
-    console.log("----------------------------------------");
+  // Read key fresh every call — do NOT cache at module level
+  const resendApiKey = process.env.RESEND_API_KEY;
+
+  if (!resendApiKey || resendApiKey === "re_placeholder") {
+    console.log("[MOCK EMAIL] RESEND_API_KEY not set, logging email only.");
+    console.log(`To: ${to} | Subject: ${subject}`);
     return { success: true, mock: true };
   }
 
+  const resend = new Resend(resendApiKey);
+
   try {
-    let fromEmail = process.env.RESEND_FROM_EMAIL || "DKFFJ <no-reply@mail.dkffj.org>";
-    // Secure fallback: If configured sender is unverified root domain, override it to the verified mail subdomain
-    if (fromEmail.includes("info@dkffj.org") || !fromEmail.includes("mail.dkffj.org")) {
+    // Determine FROM email
+    const fromEmailEnv = process.env.RESEND_FROM_EMAIL || "";
+    let fromEmail: string;
+
+    if (fromEmailEnv && fromEmailEnv.includes("@")) {
+      fromEmail = fromEmailEnv;
+    } else {
+      // Default to verified mail subdomain
       fromEmail = "DKFFJ <no-reply@mail.dkffj.org>";
     }
+
+    console.log(`[EMAIL] Sending to: ${to} | From: ${fromEmail} | Subject: ${subject} | KeyPrefix: ${resendApiKey.substring(0, 8)}...`);
 
     const response = await resend.emails.send({
       from: fromEmail,
@@ -38,13 +40,14 @@ export async function sendTransactionalEmail(
     });
 
     if (response.error) {
-      console.error("Resend API returned email error:", response.error);
-      return { success: false, error: response.error.message || "Failed to deliver email through Resend API." };
+      console.error("[EMAIL ERROR] Resend API error:", JSON.stringify(response.error));
+      return { success: false, error: response.error.message || "Failed to deliver email." };
     }
 
+    console.log(`[EMAIL] Sent successfully, id: ${response.data?.id}`);
     return { success: true, data: response.data };
   } catch (error: any) {
-    console.error("Email exception caught:", error.message);
+    console.error("[EMAIL EXCEPTION]", error.message);
     return { success: false, error: error.message };
   }
 }
