@@ -522,21 +522,21 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <div style={{ marginTop: "15px", textAlign: "center" }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "8.5px",
-            color: "#666666",
+            fontSize: "10px",
+            fontWeight: "bold",
+            color: "#001C55",
             margin: 0
           }}>
-            An Internationally Approved Certification Body by UK Acknowledging Company Ltd.
+            Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
             fontSize: "9px",
             fontWeight: "bold",
-            color: "#a21e1e",
-            margin: "2px 0 0 0",
-            letterSpacing: "0.2px"
+            color: "#666666",
+            margin: "4px 0 0 0"
           }}>
-            Verify this certificate online on www.dkffj.org
+            Website : www.dkffj.org / Contact No.: 9871219033, 7080 403333
           </p>
         </div>
 
