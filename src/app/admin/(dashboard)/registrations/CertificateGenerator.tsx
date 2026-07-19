@@ -21,11 +21,20 @@ export interface CertificateData {
 }
 
 // Convert image URL to base64 to avoid CORS issues in canvas rendering
-export async function getBase64ImageFromUrl(imageUrl: string): Promise<string> {
+export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number = 5000): Promise<string> {
   if (!imageUrl) return "";
   if (imageUrl.startsWith("data:")) return imageUrl;
+  if (imageUrl.startsWith("/")) return imageUrl; // Local relative assets are same-origin and don't need base64 conversion
+
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
-    const res = await fetch(imageUrl, { mode: "cors" });
+    const res = await fetch(imageUrl, { 
+      mode: "cors",
+      signal: controller.signal
+    });
+    clearTimeout(id);
     const blob = await res.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -34,7 +43,8 @@ export async function getBase64ImageFromUrl(imageUrl: string): Promise<string> {
       reader.readAsDataURL(blob);
     });
   } catch (err) {
-    console.error("Failed to convert image to base64:", imageUrl, err);
+    clearTimeout(id);
+    console.warn("Failed to convert image to base64 within timeout, using original URL:", imageUrl, err);
     return imageUrl;
   }
 }
