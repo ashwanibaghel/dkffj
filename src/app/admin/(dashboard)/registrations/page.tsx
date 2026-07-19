@@ -5,7 +5,7 @@ import Image from "next/image";
 import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile, uploadAndEmailCertificate } from "./actions";
 import { generateCertificatePDFClient } from "./CertificateGenerator";
 import { createClient } from "@/utils/supabase/client";
-import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Download, CheckCircle, ChevronUp, ChevronDown, BookOpen } from "lucide-react";
+import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Download, CheckCircle, ChevronUp, ChevronDown, BookOpen, Eye } from "lucide-react";
 
 type CourseInfo = {
   title?: string | null;
@@ -63,6 +63,7 @@ export default function AdminRegistrationsPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [previewCertUrl, setPreviewCertUrl] = useState<string | null>(null);
 
   // Administration action states
   const [remarks, setRemarks] = useState<string>("");
@@ -426,6 +427,9 @@ export default function AdminRegistrationsPage() {
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm truncate">{reg.full_name}</h4>
                         <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block font-mono">Ref No: {reg.enrollment_no || "PENDING"}</span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5 block">
+                          Applied: {reg.created_at ? new Date(reg.created_at).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "N/A"}
+                        </span>
                       </div>
                     </div>
                     <div className="min-w-0">
@@ -475,6 +479,7 @@ export default function AdminRegistrationsPage() {
                         {reg.father_name && <span className="text-slate-600 dark:text-slate-350 block mt-1">Father: <span className="font-bold">{reg.father_name}</span></span>}
                         <span className="text-slate-600 dark:text-slate-350 block">Gender: <span className="font-bold text-slate-800 dark:text-slate-200">{reg.gender || "Not Specified"}</span></span>
                         <span className="text-slate-600 dark:text-slate-350 block">DOB: <span className="font-bold text-slate-800 dark:text-slate-200">{reg.dob ? new Date(reg.dob).toLocaleDateString("en-IN") : "Not Specified"}</span></span>
+                        <span className="text-slate-600 dark:text-slate-350 block">Applied Date: <span className="font-bold text-slate-800 dark:text-slate-200">{reg.created_at ? new Date(reg.created_at).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Not Recorded"}</span></span>
                       </div>
 
                       {/* Column 2: Address & Regional details */}
@@ -690,14 +695,23 @@ export default function AdminRegistrationsPage() {
                             Course completed. Certificate has been generated and dispatched.
                           </div>
                           {reg.certificates && reg.certificates[0] && reg.certificates[0].pdf_url && (
-                            <a
-                              href={reg.certificates[0].pdf_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
-                            >
-                              <Download className="w-3.5 h-3.5" /> Download Certificate
-                            </a>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setPreviewCertUrl(reg.certificates![0].pdf_url!.replace(".pdf", ".png"))}
+                                className="px-3 py-1.5 bg-[#001C55] hover:bg-[#001236] text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" /> Preview Certificate
+                              </button>
+                              <a
+                                href={reg.certificates[0].pdf_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
+                              >
+                                <Download className="w-3.5 h-3.5" /> Download Certificate
+                              </a>
+                            </div>
                           )}
                         </div>
                         
@@ -764,6 +778,41 @@ export default function AdminRegistrationsPage() {
         )}
         <span>{toast.message}</span>
       </div>
+
+      {/* Certificate Preview Modal */}
+      {previewCertUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
+            <button
+              type="button"
+              onClick={() => setPreviewCertUrl(null)}
+              className="absolute top-4 right-4 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition-all cursor-pointer"
+            >
+              ✕ Close
+            </button>
+            <h3 className="text-sm font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider">
+              Certificate Preview
+            </h3>
+            <div className="flex justify-center items-center overflow-auto max-h-[70vh] border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 p-2">
+              <img
+                src={previewCertUrl}
+                alt="Certificate Preview"
+                className="max-w-full h-auto object-contain rounded shadow-md"
+              />
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <a
+                href={previewCertUrl.replace(".png", ".pdf")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors"
+              >
+                <Download className="w-4 h-4" /> Download Official PDF
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
