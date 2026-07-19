@@ -206,16 +206,23 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           alignItems: "flex-end"
         }}>
           {/* Left Column: Authorized Signatory */}
-          <div style={{ width: "230px", textAlign: "center" }}>
-            <div style={{ height: "50px", display: "flex", justifyContent: "center", alignItems: "flex-end", overflow: "hidden", marginBottom: "5px" }}>
-              {signatureSrc && (
-                <img
-                  src={signatureSrc}
-                  alt="Director Signature"
-                  style={{ maxHeight: "100%", maxWidth: "160px", objectFit: "contain", mixBlendMode: "multiply" }}
-                />
-              )}
-            </div>
+          <div style={{ width: "230px", textAlign: "center", position: "relative", paddingTop: "40px" }}>
+            {signatureSrc && (
+              <img
+                src={signatureSrc}
+                alt="Director Signature"
+                style={{
+                  position: "absolute",
+                  bottom: "48px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  height: "55px",
+                  objectFit: "contain",
+                  mixBlendMode: "multiply",
+                  pointerEvents: "none"
+                }}
+              />
+            )}
             <div style={{ height: "1px", width: "180px", backgroundColor: "#cccccc", margin: "0 auto 5px auto" }} />
             <strong style={{ display: "block", fontSize: "11px", color: "#333333" }}>Director / Authorized Signatory</strong>
             <span style={{ fontSize: "9px", color: "#666666", display: "block" }}>DK Foundation Executive Council</span>

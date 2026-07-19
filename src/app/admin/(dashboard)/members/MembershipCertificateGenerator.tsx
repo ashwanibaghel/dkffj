@@ -408,22 +408,23 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           marginTop: "35px"
         }}>
           {/* Signatory (Left) */}
-          <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative" }}>
-            <div style={{ height: "45px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-              {signatureSrc && (
-                <img
-                  src={signatureSrc}
-                  alt="Director Signature"
-                  style={{
-                    height: "55px",
-                    objectFit: "contain",
-                    mixBlendMode: "multiply",
-                    marginTop: "-10px",
-                    pointerEvents: "none"
-                  }}
-                />
-              )}
-            </div>
+          <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
+            {signatureSrc && (
+              <img
+                src={signatureSrc}
+                alt="Director Signature"
+                style={{
+                  position: "absolute",
+                  bottom: "48px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  height: "55px",
+                  objectFit: "contain",
+                  mixBlendMode: "multiply",
+                  pointerEvents: "none"
+                }}
+              />
+            )}
             <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
             <p style={{
               fontFamily: "Arial, sans-serif",
