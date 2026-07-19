@@ -344,7 +344,7 @@ export async function sendCourseOtp(mobile: string, email: string) {
 
   if (!emailRes.success) {
     console.error("Resend email failed:", emailRes.error);
-    return { success: false, error: `Email delivery failed: ${emailRes.error}. If using a free Resend account, make sure RESEND_FROM_EMAIL environment variable is set to onboarding@resend.dev on Vercel.` };
+    return { success: false, error: `OTP bhejne mein samasya aai. Kuch der baad dobara koshish karein ya support se sampark karein.` };
   }
 
   // Log to console for local developer debugging/testing
