@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile, updateCertificatePdfUrl, sendCertificateFilesEmail } from "./actions";
+import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistration, getStudentProfile, uploadAndEmailCertificate } from "./actions";
 import { generateCertificatePDFClient } from "./CertificateGenerator";
 import { createClient } from "@/utils/supabase/client";
 import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Download, CheckCircle, ChevronUp, ChevronDown, BookOpen } from "lucide-react";
@@ -243,12 +243,7 @@ export default function AdminRegistrationsPage() {
 
       const res = await issueCertificateForRegistration(id, payload);
       if (res.success) {
-        // Generate PDF client-side
         try {
-          const supabase = createClient();
-          const pdfPath = `certs/cert_${res.certNo}.pdf`;
-          const pngPath = `certs/cert_${res.certNo}.png`;
-
           const { pdfBlob, pngBlob } = await generateCertificatePDFClient({
             certNo: res.certNo!,
             qrCodeUrl: res.qrCodeUrl!,
@@ -266,39 +261,18 @@ export default function AdminRegistrationsPage() {
             dateStr: res.dateStr!
           });
 
-          // Upload PDF
-          const { error: uploadError } = await supabase.storage
-            .from("certificates")
-            .upload(pdfPath, pdfBlob, { contentType: "application/pdf", upsert: true });
+          // Send files to server action via FormData for reliable upload and email delivery
+          const formData = new FormData();
+          formData.append("certNo", res.certNo!);
+          formData.append("pdf", new File([pdfBlob], `${res.certNo}.pdf`, { type: "application/pdf" }));
+          formData.append("png", new File([pngBlob], `${res.certNo}.png`, { type: "image/png" }));
 
-          if (uploadError) {
-            throw new Error(`Failed to upload certificate PDF: ${uploadError.message}`);
-          }
-
-          // Upload PNG
-          const { error: pngUploadError } = await supabase.storage
-            .from("certificates")
-            .upload(pngPath, pngBlob, { contentType: "image/png", upsert: true });
-
-          if (pngUploadError) {
-            throw new Error(`Failed to upload certificate PNG: ${pngUploadError.message}`);
-          }
-
-          const { data: publicUrlRes } = supabase.storage.from("certificates").getPublicUrl(pdfPath);
-          const pdfUrl = publicUrlRes.publicUrl;
-
-          const updateRes = await updateCertificatePdfUrl(res.certNo!, pdfUrl);
-          if (!updateRes.success) {
-            throw new Error(updateRes.error || "Failed to update PDF URL in database");
-          }
-
-          // Dispatch transactional email with PDF & PNG attachments
-          const emailRes = await sendCertificateFilesEmail(res.certNo!);
-          if (!emailRes.success) {
-            throw new Error(emailRes.error || "Failed to send email with certificate attachments");
+          const uploadRes = await uploadAndEmailCertificate(formData);
+          if (!uploadRes.success) {
+            throw new Error(uploadRes.error || "Failed to upload certificate files and send email on the server.");
           }
         } catch (pdfErr: any) {
-          console.error("Client side PDF/PNG generation/upload/email error:", pdfErr);
+          console.error("PDF/PNG upload and email dispatch error:", pdfErr);
           showToast(`Certificate created but files/email dispatch failed: ${pdfErr.message || pdfErr}`, "error");
         }
 

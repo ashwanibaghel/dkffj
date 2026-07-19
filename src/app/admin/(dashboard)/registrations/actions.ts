@@ -544,3 +544,121 @@ export async function sendCertificateFilesEmail(certNo: string) {
     return { success: false, error: err.message || "Failed to dispatch email with attachments." };
   }
 }
+
+// 6. Upload PDF & PNG to Supabase and dispatch email server-side in a single invocation
+export async function uploadAndEmailCertificate(formData: FormData) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Validate admin auth
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  const certNo = formData.get("certNo") as string;
+  const pdfFile = formData.get("pdf") as File;
+  const pngFile = formData.get("png") as File;
+
+  if (!certNo || !pdfFile || !pngFile) {
+    return { success: false, error: "Missing required certificate files." };
+  }
+
+  try {
+    const pdfBuffer = Buffer.from(await pdfFile.arrayBuffer());
+    const pngBuffer = Buffer.from(await pngFile.arrayBuffer());
+
+    const pdfPath = `certs/cert_${certNo}.pdf`;
+    const pngPath = `certs/cert_${certNo}.png`;
+
+    console.log(`[Server Action] Uploading PDF to certs/cert_${certNo}.pdf`);
+    const { error: uploadError } = await supabase.storage
+      .from("certificates")
+      .upload(pdfPath, pdfBuffer, { contentType: "application/pdf", upsert: true });
+
+    if (uploadError) {
+      console.error("PDF upload error:", uploadError);
+      return { success: false, error: `Failed to upload PDF: ${uploadError.message}` };
+    }
+
+    console.log(`[Server Action] Uploading PNG to certs/cert_${certNo}.png`);
+    const { error: pngUploadError } = await supabase.storage
+      .from("certificates")
+      .upload(pngPath, pngBuffer, { contentType: "image/png", upsert: true });
+
+    if (pngUploadError) {
+      console.error("PNG upload error:", pngUploadError);
+      return { success: false, error: `Failed to upload PNG: ${pngUploadError.message}` };
+    }
+
+    const { data: publicUrlRes } = supabase.storage.from("certificates").getPublicUrl(pdfPath);
+    const pdfUrl = publicUrlRes.publicUrl;
+
+    console.log(`[Server Action] Updating pdf_url in DB to ${pdfUrl}`);
+    const { error: dbError } = await supabase
+      .from("certificates")
+      .update({ pdf_url: pdfUrl })
+      .eq("certificate_no", certNo);
+
+    if (dbError) {
+      console.error("Database update error for pdf_url:", dbError);
+      return { success: false, error: `Database update failed: ${dbError.message}` };
+    }
+
+    // Dispatch transactional email with PDF & PNG attachments
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const verificationUrl = `${appUrl}/verify/${certNo}`;
+    
+    // Fetch certificate and student details
+    const { data: cert, error: certErr } = await supabase
+      .from("certificates")
+      .select(`
+        *,
+        course_registrations (
+          full_name,
+          email
+        )
+      `)
+      .eq("certificate_no", certNo)
+      .single();
+
+    if (certErr || !cert) {
+      console.error("Failed to fetch certificate details for email:", certErr);
+      return { success: false, error: "Certificate record not found for email dispatch." };
+    }
+
+    const recipientEmail = (cert.course_registrations as any)?.email;
+    const studentName = (cert.course_registrations as any)?.full_name;
+
+    if (!recipientEmail) {
+      return { success: false, error: "Recipient email is missing." };
+    }
+
+    const emailSubject = `Official Graduation Certificate Issued - ${cert.course_name}`;
+    const emailHtml = getCertificateIssuedTemplate(studentName, cert.course_name, certNo, verificationUrl);
+
+    console.log(`[Server Action] Sending email to ${recipientEmail}`);
+    const emailRes = await sendTransactionalEmail(
+      recipientEmail,
+      emailSubject,
+      emailHtml,
+      [
+        { filename: `${certNo}.pdf`, content: pdfBuffer },
+        { filename: `${certNo}.png`, content: pngBuffer }
+      ]
+    );
+
+    if (!emailRes.success) {
+      return { success: false, error: emailRes.error || "Email delivery failed" };
+    }
+
+    console.log(`[Server Action] Email successfully sent to ${recipientEmail}`);
+    return { success: true };
+  } catch (err: any) {
+    console.error("Server-side upload and email failed:", err);
+    return { success: false, error: err.message || "An unexpected error occurred." };
+  }
+}
