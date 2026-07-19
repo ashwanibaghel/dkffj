@@ -272,15 +272,15 @@ export default function AdminRegistrationsPage() {
           if (!uploadRes.success) {
             throw new Error(uploadRes.error || "Failed to upload certificate files and send email on the server.");
           }
+          showToast(`Certificate issued & emailed successfully! Serial: ${res.certNo}`, 'success');
         } catch (pdfErr: any) {
           console.error("PDF/PNG upload and email dispatch error:", pdfErr);
-          showToast(`Certificate created but files/email dispatch failed: ${pdfErr.message || pdfErr}`, "error");
+          showToast(`Certificate created but email failed: ${pdfErr.message || pdfErr}`, "error");
         }
 
         setIssuingId(null);
         setExpandedId(null);
         await fetchData(); // Refresh
-        showToast(`Certificate issued successfully! Serial: ${res.certNo}`, 'success');
       } else {
         setActionError(res.error || "Failed to issue certificate.");
       }

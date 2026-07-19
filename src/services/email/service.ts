@@ -23,17 +23,28 @@ export async function sendTransactionalEmail(
   }
 
   try {
-    const fromEmail = process.env.RESEND_FROM_EMAIL || "DKFFJ <no-reply@mail.dkffj.org>";
-    const data = await resend.emails.send({
+    let fromEmail = process.env.RESEND_FROM_EMAIL || "DKFFJ <no-reply@mail.dkffj.org>";
+    // Secure fallback: If configured sender is unverified root domain, override it to the verified mail subdomain
+    if (fromEmail.includes("info@dkffj.org") || !fromEmail.includes("mail.dkffj.org")) {
+      fromEmail = "DKFFJ <no-reply@mail.dkffj.org>";
+    }
+
+    const response = await resend.emails.send({
       from: fromEmail,
       to,
       subject,
       html: htmlContent,
       attachments: attachments || undefined,
     });
-    return { success: true, data };
+
+    if (response.error) {
+      console.error("Resend API returned email error:", response.error);
+      return { success: false, error: response.error.message || "Failed to deliver email through Resend API." };
+    }
+
+    return { success: true, data: response.data };
   } catch (error: any) {
-    console.error("Email failed to send:", error.message);
+    console.error("Email exception caught:", error.message);
     return { success: false, error: error.message };
   }
 }
