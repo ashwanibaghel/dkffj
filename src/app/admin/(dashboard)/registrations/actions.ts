@@ -497,28 +497,26 @@ export async function sendCertificateFilesEmail(certNo: string) {
       return { success: false, error: "Recipient email is missing." };
     }
 
-    // 2. Download files from Supabase Storage
-    const { data: pdfData, error: pdfErr } = await supabase.storage
-      .from("certificates")
-      .download(`certs/cert_${certNo}.pdf`);
+    // 2. Download files from Supabase Storage using public URL fetches to avoid RLS and auth issues in server action
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tgszzjbvpcznndrfkkov.supabase.co";
+    const pdfUrl = `${supabaseUrl}/storage/v1/object/public/certificates/certs/cert_${certNo}.pdf`;
+    const pngUrl = `${supabaseUrl}/storage/v1/object/public/certificates/certs/cert_${certNo}.png`;
 
-    if (pdfErr || !pdfData) {
-      console.error("Failed to download PDF from storage:", pdfErr);
-      return { success: false, error: "Failed to download certificate PDF from storage." };
+    console.log("Downloading PDF from public URL:", pdfUrl);
+    const pdfRes = await fetch(pdfUrl);
+    if (!pdfRes.ok) {
+      console.error(`Failed to download PDF from storage URL: ${pdfRes.status} ${pdfRes.statusText}`);
+      return { success: false, error: `Failed to download certificate PDF from storage (status: ${pdfRes.status}).` };
     }
+    const pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
 
-    const { data: pngData, error: pngErr } = await supabase.storage
-      .from("certificates")
-      .download(`certs/cert_${certNo}.png`);
-
-    if (pngErr || !pngData) {
-      console.error("Failed to download PNG from storage:", pngErr);
-      return { success: false, error: "Failed to download certificate PNG from storage." };
+    console.log("Downloading PNG from public URL:", pngUrl);
+    const pngRes = await fetch(pngUrl);
+    if (!pngRes.ok) {
+      console.error(`Failed to download PNG from storage URL: ${pngRes.status} ${pngRes.statusText}`);
+      return { success: false, error: `Failed to download certificate PNG from storage (status: ${pngRes.status}).` };
     }
-
-    // 3. Convert files to Buffers
-    const pdfBuffer = Buffer.from(await pdfData.arrayBuffer());
-    const pngBuffer = Buffer.from(await pngData.arrayBuffer());
+    const pngBuffer = Buffer.from(await pngRes.arrayBuffer());
 
     // 4. Send Email with Attachments
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
