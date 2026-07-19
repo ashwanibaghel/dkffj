@@ -185,7 +185,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
           .select("email")
           .in("role", ["ADMIN", "SUPERADMIN"]);
         const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
-        const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+        const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
         const adminSubject = `New Membership Fee Paid (Awaiting Review) - ${membership.full_name}`;
         const adminHtml = `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
@@ -328,7 +328,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
           .select("email")
           .in("role", ["ADMIN", "SUPERADMIN"]);
         const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
-        const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+        const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
         const adminSubject = `New Course Enrollment Verified - ${registration.full_name}`;
         const adminHtml = `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
@@ -421,7 +421,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
           .select("email")
           .in("role", ["ADMIN", "SUPERADMIN"]);
         const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
-        const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+        const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
         const adminSubject = `New Appreciation Application Paid (Awaiting Review) - ${app.full_name}`;
         const adminHtml = `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">

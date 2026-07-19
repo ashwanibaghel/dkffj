@@ -215,7 +215,7 @@ export async function GET(req: NextRequest) {
             .select("email")
             .in("role", ["ADMIN", "SUPERADMIN"]);
           const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
-          const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+          const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
           const adminSubject = `[TEST MODE] New Membership Application Verified - ${customerName}`;
           const adminHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
@@ -335,7 +335,7 @@ export async function GET(req: NextRequest) {
             .select("email")
             .in("role", ["ADMIN", "SUPERADMIN"]);
           const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
-          const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+          const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
           const adminSubject = `[TEST MODE] New Course Enrollment Verified - ${customerName}`;
           const adminHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
@@ -416,7 +416,7 @@ export async function GET(req: NextRequest) {
             .select("email")
             .in("role", ["ADMIN", "SUPERADMIN"]);
           const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
-          const adminRecipients = adminEmails.length > 0 ? adminEmails : [process.env.ADMIN_NOTIFICATION_EMAIL || "info@dkffj.org"];
+          const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
           const adminSubject = `[TEST MODE] New Appreciation Application Verified - ${customerName}`;
           const adminHtml = `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
