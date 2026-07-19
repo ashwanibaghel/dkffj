@@ -50,6 +50,7 @@ interface CertificateRendererProps {
   msmeBase64?: string;
   emblemBase64?: string;
   isoSealBase64?: string;
+  signatureBase64?: string;
 }
 
 export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
@@ -62,7 +63,8 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   nsdcBase64,
   msmeBase64,
   emblemBase64,
-  isoSealBase64
+  isoSealBase64,
+  signatureBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
@@ -73,6 +75,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   const msmeSrc = msmeBase64 || "/images/msme.png";
   const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
   const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
+  const signatureSrc = signatureBase64 || "/images/director_sig.png";
 
   return (
     <div
@@ -311,15 +314,15 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           .cert-input-line {
             flex-grow: 1;
             border-bottom: 2px solid #444;
-            height: 28px;
+            height: 35px;
             margin-left: 10px;
             background-color: transparent;
             color: #001C55;
             font-weight: 700;
             font-size: 17px;
-            padding: 0 10px;
+            padding: 0 10px 8px 10px;
             display: inline-flex;
-            align-items: center;
+            align-items: flex-end;
           }
           .cert-inline-inputs {
             display: flex;
@@ -439,6 +442,22 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             paddingTop: "40px",
             position: "relative"
           }}>
+            {signatureSrc && (
+              <img
+                src={signatureSrc}
+                alt="Director Signature"
+                style={{
+                  position: "absolute",
+                  bottom: "35px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  height: "55px",
+                  objectFit: "contain",
+                  mixBlendMode: "multiply",
+                  pointerEvents: "none"
+                }}
+              />
+            )}
             <div style={{ borderTop: "1px solid #333", width: "100%", marginBottom: "5px" }}></div>
             <span style={{ fontSize: "13px", fontWeight: 600, color: "#222" }}>(Seal & Signature)</span>
             <br />
@@ -538,7 +557,8 @@ export async function generateCertificatePDFClient(
     nsdcBase64,
     msmeBase64,
     emblemBase64,
-    isoSealBase64
+    isoSealBase64,
+    signatureBase64
   ] = await Promise.all([
     data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve(""),
     getBase64ImageFromUrl(data.qrCodeUrl),
@@ -548,7 +568,8 @@ export async function generateCertificatePDFClient(
     getBase64ImageFromUrl("/images/nsdc.png"),
     getBase64ImageFromUrl("/images/msme.png"),
     getBase64ImageFromUrl("/images/emblem_of_india.png"),
-    getBase64ImageFromUrl("/images/iso_seal.png")
+    getBase64ImageFromUrl("/images/iso_seal.png"),
+    getBase64ImageFromUrl("/images/director_sig.png")
   ]);
 
   const container = document.createElement("div");
@@ -576,6 +597,7 @@ export async function generateCertificatePDFClient(
           msmeBase64={msmeBase64}
           emblemBase64={emblemBase64}
           isoSealBase64={isoSealBase64}
+          signatureBase64={signatureBase64}
         />
       );
 

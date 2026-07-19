@@ -212,7 +212,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
                 <img
                   src={signatureSrc}
                   alt="Director Signature"
-                  style={{ maxHeight: "100%", maxWidth: "160px", objectFit: "contain" }}
+                  style={{ maxHeight: "100%", maxWidth: "160px", objectFit: "contain", mixBlendMode: "multiply" }}
                 />
               )}
             </div>

@@ -28,6 +28,7 @@ interface MembershipCertificateRendererProps {
   msmeBase64?: string;
   emblemBase64?: string;
   isoSealBase64?: string;
+  signatureBase64?: string;
 }
 
 export const MembershipCertificateRenderer: React.FC<MembershipCertificateRendererProps> = ({
@@ -40,7 +41,8 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   nsdcBase64,
   msmeBase64,
   emblemBase64,
-  isoSealBase64
+  isoSealBase64,
+  signatureBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
@@ -51,6 +53,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   const msmeSrc = msmeBase64 || "/images/msme.png";
   const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
   const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
+  const signatureSrc = signatureBase64 || "/images/director_sig.png";
 
   return (
     <div
@@ -405,8 +408,22 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           marginTop: "35px"
         }}>
           {/* Signatory (Left) */}
-          <div style={{ width: "230px", textAlign: "center", flexShrink: 0 }}>
-            <div style={{ height: "45px" }} />
+          <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative" }}>
+            <div style={{ height: "45px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              {signatureSrc && (
+                <img
+                  src={signatureSrc}
+                  alt="Director Signature"
+                  style={{
+                    height: "55px",
+                    objectFit: "contain",
+                    mixBlendMode: "multiply",
+                    marginTop: "-10px",
+                    pointerEvents: "none"
+                  }}
+                />
+              )}
+            </div>
             <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
             <p style={{
               fontFamily: "Arial, sans-serif",
@@ -545,7 +562,8 @@ export async function generateMembershipPDFClient(
     nsdcBase64,
     msmeBase64,
     emblemBase64,
-    isoSealBase64
+    isoSealBase64,
+    signatureBase64
   ] = await Promise.all([
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
@@ -555,7 +573,8 @@ export async function generateMembershipPDFClient(
     getBase64ImageFromUrl("/images/nsdc.png"),
     getBase64ImageFromUrl("/images/msme.png"),
     getBase64ImageFromUrl("/images/emblem_of_india.png"),
-    getBase64ImageFromUrl("/images/iso_seal.png")
+    getBase64ImageFromUrl("/images/iso_seal.png"),
+    getBase64ImageFromUrl("/images/director_sig.png")
   ]);
 
   const container = document.createElement("div");
@@ -583,6 +602,7 @@ export async function generateMembershipPDFClient(
           msmeBase64={msmeBase64}
           emblemBase64={emblemBase64}
           isoSealBase64={isoSealBase64}
+          signatureBase64={signatureBase64}
         />
       );
       // Wait 1.2 seconds to ensure custom web fonts and SVGs are fully parsed and rendered
