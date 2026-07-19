@@ -257,18 +257,16 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           <div style={{
             width: "100px",
             height: "100px",
-            borderRadius: "50%",
-            border: "2px dashed #cc0000",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "#ffffff",
-            padding: "5px"
+            backgroundColor: "transparent",
+            padding: "0px"
           }}>
             <img
               src={logoSrc}
               alt="Foundation Logo"
-              style={{ width: "85%", height: "85%", objectFit: "contain" }}
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
             />
           </div>
 
@@ -534,7 +532,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           marginTop: "10px",
           lineHeight: "1.4"
         }}>
-          An Internationally Approved Certification Body by UK Ackredetering Company Ltd.
+          An autonomous skill development diploma issued as an Independent Institutional Certification.
           <br />
           Verify this certificate online on www.dkffj.org
         </div>
