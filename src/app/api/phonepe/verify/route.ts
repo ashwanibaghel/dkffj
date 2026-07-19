@@ -128,6 +128,80 @@ export async function GET(req: NextRequest) {
     };
 
     if (payment.status === "COMPLETED") {
+      // Payment is done — but check if the linked entity was also updated.
+      // If not (partial failure scenario), recover it now.
+      if (payment.registration_id) {
+        const { data: reg } = await supabase
+          .from("course_registrations")
+          .select("id, status, enrollment_no, full_name, email, father_name, mobile, courses(title)")
+          .eq("id", payment.registration_id)
+          .maybeSingle();
+        if (reg && reg.status === "PENDING") {
+          // Recover: update registration to APPROVED
+          await supabase
+            .from("course_registrations")
+            .update({ status: "APPROVED" })
+            .eq("id", reg.id);
+          await supabase.from("status_logs").insert({
+            registration_id: reg.id,
+            from_status: "PENDING",
+            to_status: "APPROVED",
+            remarks: "Course fee payment already completed. Enrollment auto-recovered and approved.",
+          });
+          // Send enrollment confirmation email
+          try {
+            const regCourseTitle = (reg.courses as any)?.title || "Selected Course";
+            const emailHtml = getCourseRegistrationReceiptTemplate(
+              reg.full_name, regCourseTitle,
+              reg.enrollment_no || "PENDING", Number(payment.amount)
+            );
+            let attachments: any[] = [];
+            try {
+              const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+              const pdfBuf = await generateReceiptPdfBuffer({
+                refId: orderId, date: payment.created_at,
+                ackOrEnrollmentNo: reg.enrollment_no || "PENDING",
+                gatewayTransactionId: payment.gateway_transaction_id || "PENDING",
+                amount: Number(payment.amount), description: regCourseTitle,
+                customerName: reg.full_name, fatherName: reg.father_name || "N/A",
+                customerMobile: reg.mobile, customerEmail: reg.email
+              });
+              attachments.push({ filename: `Receipt_${orderId}.pdf`, content: pdfBuf });
+            } catch (_) { /* PDF optional */ }
+            await sendTransactionalEmail(reg.email, "Course Enrollment Approved - DKFFJ Academy", emailHtml, attachments);
+          } catch (emailErr) {
+            console.error("[VERIFY RECOVERY] Email send failed:", emailErr);
+          }
+        }
+      } else if (payment.membership_id) {
+        const { data: mem } = await supabase
+          .from("memberships")
+          .select("id, status")
+          .eq("id", payment.membership_id)
+          .maybeSingle();
+        if (mem && mem.status === "PENDING") {
+          await supabase.from("memberships").update({ status: "UNDER_REVIEW" }).eq("id", mem.id);
+          await supabase.from("status_logs").insert({
+            membership_id: mem.id,
+            from_status: "PENDING", to_status: "UNDER_REVIEW",
+            remarks: "Membership fee payment already completed. Application auto-recovered and forwarded to review.",
+          });
+        }
+      } else if (payment.appreciation_id) {
+        const { data: app } = await supabase
+          .from("appreciation_applications")
+          .select("id, status")
+          .eq("id", payment.appreciation_id)
+          .maybeSingle();
+        if (app && app.status === "PENDING") {
+          await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", app.id);
+          await supabase.from("status_logs").insert({
+            appreciation_id: app.id,
+            from_status: "PENDING", to_status: "UNDER_REVIEW",
+            remarks: "Appreciation fee payment already completed. Application auto-recovered.",
+          });
+        }
+      }
       return NextResponse.json({
         success: true,
         status: "COMPLETED",

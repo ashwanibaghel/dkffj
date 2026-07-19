@@ -75,7 +75,7 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
     amount: Math.round(details.amount * 100), // convert ₹ to paise
     redirectUrl: `${appUrl}/payment/success?orderId=${details.orderId}`,
     redirectMode: "REDIRECT",
-    callbackUrl: `${appUrl}/api/webhooks/phonepe`,
+    callbackUrl: `${appUrl}/api/phonepe/callback`,
     paymentInstrument: {
       type: "PAY_PAGE",
     },

@@ -92,7 +92,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   // 2. Fetch payment record from DB
   const { data: payment } = await supabase
     .from("payments")
-    .select("id, amount, status, membership_id, registration_id, donation_id, appreciation_id")
+    .select("id, amount, status, created_at, membership_id, registration_id, donation_id, appreciation_id")
     .eq("transaction_id", merchantOrderId)
     .maybeSingle();
 
@@ -128,7 +128,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   if (payment.membership_id) {
     const { data: membership } = await supabase
       .from("memberships")
-      .select("id, ack_no, full_name, email, status")
+      .select("id, ack_no, full_name, father_name, mobile, email, status")
       .eq("id", payment.membership_id)
       .single();
 
@@ -269,11 +269,12 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   if (payment.registration_id) {
     const { data: registration } = await supabase
       .from("course_registrations")
-      .select(`id, enrollment_no, full_name, email, status, courses (title)`)
+      .select(`id, enrollment_no, full_name, email, father_name, mobile, status, courses (title)`)
       .eq("id", payment.registration_id)
       .single();
 
     if (registration) {
+      // Critical: update DB first — email/PDF failures must NOT undo this
       await supabase
         .from("course_registrations")
         .update({ status: "APPROVED" })
@@ -286,75 +287,81 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         remarks: "Course fee payment verified via PhonePe. Enrollment approved.",
       });
 
-      const courseTitle = (registration.courses as any)?.title || "Selected Course";
-      const emailHtml = getCourseRegistrationReceiptTemplate(
-        registration.full_name,
-        courseTitle,
-        registration.enrollment_no || "PENDING",
-        Number(payment.amount)
-      );
-
-      let attachments: any[] = [];
+      // Email + PDF are best-effort — failures must not crash the function
       try {
-        const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
-        const pdfBuffer = await generateReceiptPdfBuffer({
-          refId: merchantOrderId,
-          date: payment.created_at,
-          ackOrEnrollmentNo: registration.enrollment_no || "PENDING",
-          gatewayTransactionId: verifyResult.transactionId || "PENDING",
-          amount: Number(payment.amount),
-          description: courseTitle,
-          customerName: registration.full_name,
-          fatherName: registration.father_name,
-          customerMobile: registration.mobile,
-          customerEmail: registration.email
-        });
-        attachments.push({ filename: `Receipt_${merchantOrderId}.pdf`, content: pdfBuffer });
-      } catch (pdfErr) {
-        console.error("Failed to generate PDF receipt attachment for course registration:", pdfErr);
-      }
+        const courseTitle = (registration.courses as any)?.title || "Selected Course";
+        const emailHtml = getCourseRegistrationReceiptTemplate(
+          registration.full_name,
+          courseTitle,
+          registration.enrollment_no || "PENDING",
+          Number(payment.amount)
+        );
 
-      await sendTransactionalEmail(
-        registration.email,
-        "Course Enrollment Successful - DKFFJ Academy",
-        emailHtml,
-        attachments
-      );
+        let attachments: any[] = [];
+        try {
+          const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+          const pdfBuffer = await generateReceiptPdfBuffer({
+            refId: merchantOrderId,
+            date: payment.created_at,
+            ackOrEnrollmentNo: registration.enrollment_no || "PENDING",
+            gatewayTransactionId: verifyResult.transactionId || "PENDING",
+            amount: Number(payment.amount),
+            description: courseTitle,
+            customerName: registration.full_name,
+            fatherName: registration.father_name || "N/A",
+            customerMobile: registration.mobile || "",
+            customerEmail: registration.email
+          });
+          attachments.push({ filename: `Receipt_${merchantOrderId}.pdf`, content: pdfBuffer });
+        } catch (pdfErr) {
+          console.error("Failed to generate PDF receipt attachment for course registration:", pdfErr);
+        }
 
-      // Notify Admins
-      try {
-        const { data: admins } = await supabase
-          .from("users")
-          .select("email")
-          .in("role", ["ADMIN", "SUPERADMIN"]);
-        const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
-        const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
-        const adminSubject = `New Course Enrollment Verified - ${registration.full_name}`;
-        const adminHtml = `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-            <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+        await sendTransactionalEmail(
+          registration.email,
+          "Course Enrollment Successful - DKFFJ Academy",
+          emailHtml,
+          attachments
+        );
+
+        // Notify Admins
+        try {
+          const courseTitle2 = (registration.courses as any)?.title || "Selected Course";
+          const { data: admins } = await supabase
+            .from("users")
+            .select("email")
+            .in("role", ["ADMIN", "SUPERADMIN"]);
+          const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+          const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
+          const adminSubject = `New Course Enrollment Verified - ${registration.full_name}`;
+          const adminHtml = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+              <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
 <img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
 <h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
 <div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
 <div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
 </div>
-            <div style="padding: 24px; color: #334155;">
-              <h2>New Student Enrollment Confirmed</h2>
-              <p>Hello Admin,</p>
-              <p>A new student enrollment fee of <strong>INR ${payment.amount}</strong> has been verified for: <strong>${registration.full_name}</strong> for the course: <strong>${courseTitle}</strong>.</p>
-              <p><strong>Enrollment Number:</strong> ${registration.enrollment_no}</p>
-              <p>The student's enrollment has been approved. Please manage this registration from the academy admin panel.</p>
-              <div style="margin-top: 24px; text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+              <div style="padding: 24px; color: #334155;">
+                <h2>New Student Enrollment Confirmed</h2>
+                <p>Hello Admin,</p>
+                <p>A new student enrollment fee of <strong>INR ${payment.amount}</strong> has been verified for: <strong>${registration.full_name}</strong> for the course: <strong>${courseTitle2}</strong>.</p>
+                <p><strong>Enrollment Number:</strong> ${registration.enrollment_no}</p>
+                <p>The student's enrollment has been approved. Please manage this registration from the academy admin panel.</p>
+                <div style="margin-top: 24px; text-align: center;">
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                </div>
               </div>
             </div>
-          </div>
-        `;
-        for (const adminEmail of adminRecipients) {
-          await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+          `;
+          for (const adminEmail of adminRecipients) {
+            await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+          }
+        } catch (adminErr) {
+          console.error("Admin notification error (course):", adminErr);
         }
-      } catch (adminErr) {
-        console.error("Admin notification error (course):", adminErr);
+      } catch (emailErr) {
+        console.error("[CALLBACK] Email/PDF failed for course registration — DB already updated, safe to ignore:", emailErr);
       }
     }
   }
@@ -363,7 +370,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   if (payment.appreciation_id) {
     const { data: app } = await supabase
       .from("appreciation_applications")
-      .select("id, application_no, full_name, email, status")
+      .select("id, application_no, full_name, email, mobile, status")
       .eq("id", payment.appreciation_id)
       .single();
 
