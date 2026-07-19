@@ -14,6 +14,7 @@ function CourseTrackContent() {
   const [searched, setSearched] = useState<boolean>(false);
   const [result, setResult] = useState<TrackingResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [downloading, setDownloading] = useState<boolean>(false);
 
   useEffect(() => {
     const id = searchParams.get("id");
@@ -181,14 +182,64 @@ function CourseTrackContent() {
                         <p className="text-slate-500 text-[11px] mt-0.5">Your official course completion certificate is ready for download.</p>
                       </div>
                     </div>
-                    <a
-                      href={result.certificate.pdf_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg shrink-0 cursor-pointer"
+                    <button
+                      onClick={async () => {
+                        if (!result || !result.certificate) return;
+                        
+                        // 1. If pdf_url is a valid absolute URL, open/download it directly
+                        if (result.certificate.pdf_url && result.certificate.pdf_url.startsWith("http")) {
+                          window.open(result.certificate.pdf_url, "_blank");
+                          return;
+                        }
+                        
+                        // 2. Fallback: Generate the PDF on the fly in the browser!
+                        setDownloading(true);
+                        try {
+                          const { generateCertificatePDFClient } = await import("@/app/admin/(dashboard)/registrations/CertificateGenerator");
+                          
+                          const pdfBlob = await generateCertificatePDFClient({
+                            certNo: result.certificate.certificate_no,
+                            qrCodeUrl: result.certificate.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/verify/${result.certificate.certificate_no}`)}`,
+                            verificationUrl: `${window.location.origin}/verify/${result.certificate.certificate_no}`,
+                            studentName: result.certificate.user_name || "",
+                            courseTitle: result.certificate.course_name || "",
+                            photoUrl: result.certificate.photoUrl,
+                            fatherName: result.fatherName || "N/A",
+                            enrollmentNo: result.number || "",
+                            durationFrom: result.certificate.duration_from || result.date,
+                            durationTo: result.certificate.duration_to || result.date,
+                            grade: result.certificate.grade || "A",
+                            venue: result.certificate.venue || "Online (DKFFJ Portal)",
+                            performance: result.certificate.performance || "Excellent",
+                            dateStr: result.certificate.issue_date || result.date
+                          });
+
+                          // Trigger local browser download
+                          const url = window.URL.createObjectURL(pdfBlob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = `Certificate_${result.certificate.certificate_no}.pdf`;
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          window.URL.revokeObjectURL(url);
+                        } catch (err: any) {
+                          console.error("Dynamic PDF Generation Failed:", err);
+                          alert(`Failed to generate certificate: ${err.message || err}`);
+                        } finally {
+                          setDownloading(false);
+                        }
+                      }}
+                      disabled={downloading}
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md hover:shadow-lg shrink-0 cursor-pointer"
                     >
-                      <Download className="w-4 h-4" /> Download Certificate
-                    </a>
+                      {downloading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      Download Certificate
+                    </button>
                   </div>
                 ) : (
                   <div className="mb-8 p-5 rounded-2xl bg-amber-50/50 border border-amber-100 text-left text-xs text-amber-800 flex items-start gap-2.5">

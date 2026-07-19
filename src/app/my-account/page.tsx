@@ -187,6 +187,59 @@ export default function MyAccountPage() {
     }
   };
 
+  const handleDownloadCourseCertificate = async (reg: any) => {
+    const cert = reg.certificates?.[0];
+    if (!cert) return;
+
+    if (cert.pdf_url && cert.pdf_url.startsWith("http")) {
+      window.open(cert.pdf_url, "_blank");
+      return;
+    }
+
+    setDownloadingId(reg.id + "-course");
+    try {
+      const { generateCertificatePDFClient } = await import("@/app/admin/(dashboard)/registrations/CertificateGenerator");
+      
+      const appUrl = window.location.origin;
+      const verificationUrl = `${appUrl}/verify/${cert.certificate_no}`;
+      const qrCodeUrl = cert.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      
+      const issueDateStr = cert.issue_date 
+        ? new Date(cert.issue_date).toLocaleDateString("en-IN")
+        : (reg.created_at ? new Date(reg.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN"));
+
+      const pdfBlob = await generateCertificatePDFClient({
+        certNo: cert.certificate_no,
+        qrCodeUrl,
+        verificationUrl,
+        studentName: cert.user_name || reg.full_name || "",
+        courseTitle: cert.course_name || reg.courses?.title || "",
+        photoUrl: reg.photo_url,
+        fatherName: reg.father_name || "N/A",
+        enrollmentNo: reg.enrollment_no || "",
+        durationFrom: cert.duration_from || issueDateStr,
+        durationTo: cert.duration_to || issueDateStr,
+        grade: cert.grade || "A",
+        venue: cert.venue || "Online (DKFFJ Portal)",
+        performance: cert.performance || "Excellent",
+        dateStr: issueDateStr
+      });
+
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Certificate_${cert.certificate_no}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(`Error generating PDF: ${err.message}`);
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   const handleDownloadIdCard = async (member: any) => {
     setDownloadingId(member.id + "-card");
     try {
@@ -802,14 +855,18 @@ export default function MyAccountPage() {
                         </div>
                         <div className="mt-4 pt-4 border-t border-slate-50 shrink-0">
                           {isReady ? (
-                            <a
-                              href={cert.pdf_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto"
+                            <button
+                              onClick={() => handleDownloadCourseCertificate(reg)}
+                              disabled={downloadingId === reg.id + "-course"}
+                              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 w-full sm:w-auto"
                             >
-                              <Download className="w-3 h-3" /> Download Certificate
-                            </a>
+                              {downloadingId === reg.id + "-course" ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Download className="w-3 h-3" />
+                              )}
+                              Download Certificate
+                            </button>
                           ) : (
                             <p className="text-[10px] text-slate-450 italic font-medium">
                               🟡 Certificate will be available for download after evaluation completion.

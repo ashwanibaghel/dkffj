@@ -282,8 +282,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
 export async function generateAppreciationPDFClient(
   data: AppreciationCertificateData
 ): Promise<Blob> {
-  const html2canvas = (await import("html2canvas")).default;
-  const { jsPDF } = await import("jspdf");
+  const html2canvasModule = await import("html2canvas");
+  const html2canvas = html2canvasModule.default || html2canvasModule;
+  const jspdfModule = await import("jspdf");
+  const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
   const qrBase64 = await getBase64ImageFromUrl(data.qrCodeUrl);
   const logoBase64 = await getBase64ImageFromUrl("/logo.png");

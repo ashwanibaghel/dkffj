@@ -531,8 +531,10 @@ export async function generateMembershipPDFClient(
   photoBase64Input?: string,
   qrBase64Input?: string
 ): Promise<{ pdfBlob: Blob; pngBlob: Blob }> {
-  const html2canvas = (await import("html2canvas")).default;
-  const { jsPDF } = await import("jspdf");
+  const html2canvasModule = await import("html2canvas");
+  const html2canvas = html2canvasModule.default || html2canvasModule;
+  const jspdfModule = await import("jspdf");
+  const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
   const photoBase64 = photoBase64Input || (data.photoUrl ? await getBase64ImageFromUrl(data.photoUrl) : "");
   const qrBase64 = qrBase64Input || await getBase64ImageFromUrl(data.qrCodeUrl);

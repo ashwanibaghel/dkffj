@@ -524,8 +524,10 @@ export interface GeneratedCertificateFiles {
 export async function generateCertificatePDFClient(
   data: CertificateData
 ): Promise<GeneratedCertificateFiles> {
-  const html2canvas = (await import("html2canvas")).default;
-  const { jsPDF } = await import("jspdf");
+  const html2canvasModule = await import("html2canvas");
+  const html2canvas = html2canvasModule.default || html2canvasModule;
+  const jspdfModule = await import("jspdf");
+  const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
   let photoBase64 = "";
   if (data.photoUrl) {

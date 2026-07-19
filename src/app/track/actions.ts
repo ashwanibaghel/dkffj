@@ -22,7 +22,18 @@ export interface TrackingResult {
   certificate?: {
     certificate_no: string;
     pdf_url: string;
+    qr_code_url?: string;
+    user_name?: string;
+    course_name?: string;
+    grade?: string | null;
+    performance?: string | null;
+    venue?: string | null;
+    duration_from?: string | null;
+    duration_to?: string | null;
+    issue_date?: string;
+    photoUrl?: string | null;
   } | null;
+  fatherName?: string | null;
   memberDetails?: {
     father_name: string;
     gender: string;
@@ -551,6 +562,8 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
     enrollment_no, 
     full_name, 
     email,
+    father_name,
+    photo_url,
     status, 
     created_at,
     remarks,
@@ -598,7 +611,7 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
   if (enrollment.status === "APPROVED" || enrollment.status === "COMPLETED") {
     const { data: certData } = await supabase
       .from("certificates")
-      .select("certificate_no, pdf_url")
+      .select("certificate_no, pdf_url, qr_code_url, user_name, course_name, grade, performance, venue, duration_from, duration_to, issue_date")
       .eq("registration_id", enrollment.id)
       .eq("status", "VALID")
       .maybeSingle();
@@ -607,6 +620,16 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
       certificate = {
         certificate_no: certData.certificate_no,
         pdf_url: certData.pdf_url,
+        qr_code_url: certData.qr_code_url,
+        user_name: certData.user_name,
+        course_name: certData.course_name,
+        grade: certData.grade,
+        performance: certData.performance,
+        venue: certData.venue,
+        duration_from: certData.duration_from,
+        duration_to: certData.duration_to,
+        issue_date: new Date(certData.issue_date).toLocaleDateString("en-IN"),
+        photoUrl: enrollment.photo_url
       };
     }
   }
@@ -629,6 +652,7 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
     details: enrollment.remarks || undefined,
     timeline,
     certificate,
+    fatherName: enrollment.father_name,
   };
   if (type === "appreciation") {
     const { data: app, error } = await supabase

@@ -79,6 +79,8 @@ export async function getAccountDetails(): Promise<AccountData> {
       id,
       enrollment_no,
       full_name,
+      father_name,
+      photo_url,
       email,
       status,
       created_at,
@@ -89,7 +91,16 @@ export async function getAccountDetails(): Promise<AccountData> {
       certificates (
         certificate_no,
         pdf_url,
-        status
+        status,
+        qr_code_url,
+        user_name,
+        course_name,
+        grade,
+        performance,
+        venue,
+        duration_from,
+        duration_to,
+        issue_date
       ),
       status_logs (
         id,
