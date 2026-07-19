@@ -27,7 +27,7 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
           verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`
         });
       } else {
-        pdfBlob = await generateCertificatePDFClient({
+        const resultFiles = await generateCertificatePDFClient({
           certNo: cert.certificateNo,
           qrCodeUrl: cert.qrCodeUrl,
           verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`,
@@ -43,6 +43,7 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
           performance: cert.performance || "Excellent",
           dateStr: cert.issueDate
         });
+        pdfBlob = resultFiles.pdfBlob;
       }
 
       // Trigger local browser download

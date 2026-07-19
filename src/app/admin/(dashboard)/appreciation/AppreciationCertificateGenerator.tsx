@@ -287,15 +287,27 @@ export async function generateAppreciationPDFClient(
   const jspdfModule = await import("jspdf");
   const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
-  const qrBase64 = await getBase64ImageFromUrl(data.qrCodeUrl);
-  const logoBase64 = await getBase64ImageFromUrl("/logo.png");
-  const mcaBase64 = await getBase64ImageFromUrl("/images/mca_logo.png");
-  const nitiBase64 = await getBase64ImageFromUrl("/images/niti_aayog.png");
-  const nsdcBase64 = await getBase64ImageFromUrl("/images/nsdc.png");
-  const msmeBase64 = await getBase64ImageFromUrl("/images/msme.png");
-  const emblemBase64 = await getBase64ImageFromUrl("/images/emblem_of_india.png");
-  const isoSealBase64 = await getBase64ImageFromUrl("/images/iso_seal.png");
-  const signatureBase64 = await getBase64ImageFromUrl("/images/director_sig.png");
+  const [
+    qrBase64,
+    logoBase64,
+    mcaBase64,
+    nitiBase64,
+    nsdcBase64,
+    msmeBase64,
+    emblemBase64,
+    isoSealBase64,
+    signatureBase64
+  ] = await Promise.all([
+    getBase64ImageFromUrl(data.qrCodeUrl),
+    getBase64ImageFromUrl("/logo.png"),
+    getBase64ImageFromUrl("/images/mca_logo.png"),
+    getBase64ImageFromUrl("/images/niti_aayog.png"),
+    getBase64ImageFromUrl("/images/nsdc.png"),
+    getBase64ImageFromUrl("/images/msme.png"),
+    getBase64ImageFromUrl("/images/emblem_of_india.png"),
+    getBase64ImageFromUrl("/images/iso_seal.png"),
+    getBase64ImageFromUrl("/images/director_sig.png")
+  ]);
 
   const container = document.createElement("div");
   container.style.position = "absolute";
@@ -363,7 +375,7 @@ export async function generateAppreciationPDFClient(
           } catch (_) {}
           reject(err);
         }
-      }, 2000);
+      }, 400);
     } catch (err) {
       reject(err);
     }

@@ -87,7 +87,7 @@ export default function AdminCertificatesPage() {
         return;
       }
 
-      const pdfBlob = await generateCertificatePDFClient({
+      const resultFiles = await generateCertificatePDFClient({
         certNo: cert.certificate_no,
         qrCodeUrl: cert.qr_code_url,
         verificationUrl: `${window.location.origin}/verify/${cert.certificate_no}`,
@@ -103,6 +103,8 @@ export default function AdminCertificatesPage() {
         performance: metaRes.performance!,
         dateStr: metaRes.dateStr!
       });
+
+      const pdfBlob = resultFiles.pdfBlob;
 
       // Sync/overwrite updated PDF in storage
       try {

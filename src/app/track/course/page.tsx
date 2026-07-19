@@ -197,7 +197,7 @@ function CourseTrackContent() {
                         try {
                           const { generateCertificatePDFClient } = await import("@/app/admin/(dashboard)/registrations/CertificateGenerator");
                           
-                          const pdfBlob = await generateCertificatePDFClient({
+                          const resultFiles = await generateCertificatePDFClient({
                             certNo: result.certificate.certificate_no,
                             qrCodeUrl: result.certificate.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/verify/${result.certificate.certificate_no}`)}`,
                             verificationUrl: `${window.location.origin}/verify/${result.certificate.certificate_no}`,
@@ -215,7 +215,7 @@ function CourseTrackContent() {
                           });
 
                           // Trigger local browser download
-                          const url = window.URL.createObjectURL(pdfBlob);
+                          const url = window.URL.createObjectURL(resultFiles.pdfBlob);
                           const a = document.createElement("a");
                           a.href = url;
                           a.download = `Certificate_${result.certificate.certificate_no}.pdf`;

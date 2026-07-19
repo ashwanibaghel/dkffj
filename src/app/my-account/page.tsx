@@ -208,7 +208,7 @@ export default function MyAccountPage() {
         ? new Date(cert.issue_date).toLocaleDateString("en-IN")
         : (reg.created_at ? new Date(reg.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN"));
 
-      const pdfBlob = await generateCertificatePDFClient({
+      const resultFiles = await generateCertificatePDFClient({
         certNo: cert.certificate_no,
         qrCodeUrl,
         verificationUrl,
@@ -225,7 +225,7 @@ export default function MyAccountPage() {
         dateStr: issueDateStr
       });
 
-      const url = window.URL.createObjectURL(pdfBlob);
+      const url = window.URL.createObjectURL(resultFiles.pdfBlob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `Certificate_${cert.certificate_no}.pdf`;

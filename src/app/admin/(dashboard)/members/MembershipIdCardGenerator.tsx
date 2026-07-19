@@ -424,9 +424,11 @@ export async function generateMembershipIdCardPDFClient(
   const jspdfModule = await import("jspdf");
   const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
-  const photoBase64 = photoBase64Input || (data.photoUrl ? await getBase64ImageFromUrl(data.photoUrl) : "");
-  const qrBase64 = qrBase64Input || await getBase64ImageFromUrl(data.qrCodeUrl);
-  const logoBase64 = await getBase64ImageFromUrl("/logo.png");
+  const [photoBase64, qrBase64, logoBase64] = await Promise.all([
+    photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
+    qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
+    getBase64ImageFromUrl("/logo.png")
+  ]);
 
   const container = document.createElement("div");
   container.style.position = "absolute";
@@ -502,7 +504,7 @@ export async function generateMembershipIdCardPDFClient(
           } catch (_) {}
           reject(err);
         }
-      }, 1200);
+      }, 400);
     } catch (err) {
       reject(err);
     }

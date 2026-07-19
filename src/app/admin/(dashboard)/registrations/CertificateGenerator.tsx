@@ -529,20 +529,27 @@ export async function generateCertificatePDFClient(
   const jspdfModule = await import("jspdf");
   const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
-  let photoBase64 = "";
-  if (data.photoUrl) {
-    photoBase64 = await getBase64ImageFromUrl(data.photoUrl);
-  }
-  const qrBase64 = await getBase64ImageFromUrl(data.qrCodeUrl);
-
-  // Pre-resolve all local branding assets to Base64 to bypass CORS & html2canvas SVG limitations
-  const logoBase64 = await getBase64ImageFromUrl("/logo.png");
-  const mcaBase64 = await getBase64ImageFromUrl("/images/mca_logo.png");
-  const nitiBase64 = await getBase64ImageFromUrl("/images/niti_aayog.png");
-  const nsdcBase64 = await getBase64ImageFromUrl("/images/nsdc.png");
-  const msmeBase64 = await getBase64ImageFromUrl("/images/msme.png");
-  const emblemBase64 = await getBase64ImageFromUrl("/images/emblem_of_india.png");
-  const isoSealBase64 = await getBase64ImageFromUrl("/images/iso_seal.png");
+  const [
+    photoBase64,
+    qrBase64,
+    logoBase64,
+    mcaBase64,
+    nitiBase64,
+    nsdcBase64,
+    msmeBase64,
+    emblemBase64,
+    isoSealBase64
+  ] = await Promise.all([
+    data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve(""),
+    getBase64ImageFromUrl(data.qrCodeUrl),
+    getBase64ImageFromUrl("/logo.png"),
+    getBase64ImageFromUrl("/images/mca_logo.png"),
+    getBase64ImageFromUrl("/images/niti_aayog.png"),
+    getBase64ImageFromUrl("/images/nsdc.png"),
+    getBase64ImageFromUrl("/images/msme.png"),
+    getBase64ImageFromUrl("/images/emblem_of_india.png"),
+    getBase64ImageFromUrl("/images/iso_seal.png")
+  ]);
 
   const container = document.createElement("div");
   container.style.position = "absolute";
@@ -621,7 +628,7 @@ export async function generateCertificatePDFClient(
           } catch (_) {}
           reject(err);
         }
-      }, 2000);
+      }, 400);
     } catch (err) {
       reject(err);
     }
