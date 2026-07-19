@@ -22,7 +22,7 @@ export async function sendTransactionalEmail(
     const fromEmailEnv = process.env.RESEND_FROM_EMAIL || "";
     const fromEmail = (fromEmailEnv && fromEmailEnv.includes("@"))
       ? fromEmailEnv
-      : "DKFFJ <no-reply@dkffj.org>";
+      : "DKFFJ <info@dkffj.org>";
 
     console.log(`[EMAIL] Sending to: ${to} | From: ${fromEmail} | Subject: ${subject} | KeyPrefix: ${resendApiKey.substring(0, 8)}...`);
 
