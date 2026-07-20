@@ -23,6 +23,11 @@ interface MembershipCertificateRendererProps {
   qrBase64?: string;
   logoBase64?: string;
   signatureBase64?: string;
+  mcaBase64?: string;
+  nitiBase64?: string;
+  nsdcBase64?: string;
+  emblemBase64?: string;
+  msmeBase64?: string;
 }
 
 export const MembershipCertificateRenderer: React.FC<MembershipCertificateRendererProps> = ({
@@ -30,12 +35,22 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   photoBase64,
   qrBase64,
   logoBase64,
-  signatureBase64
+  signatureBase64,
+  mcaBase64,
+  nitiBase64,
+  nsdcBase64,
+  emblemBase64,
+  msmeBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
+  const mcaSrc = mcaBase64 || "/images/mca_logo.png";
+  const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
+  const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
+  const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
+  const msmeSrc = msmeBase64 || "/images/msme.png";
 
   const certNumber = data.membershipNo || "1049";
 
@@ -69,8 +84,8 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
     <div
       id={`membership-certificate-render-container-${data.membershipNo || data.ackNo}`}
       style={{
-        width: "1123px", // Landscape A4 Width in pixels at 96 DPI
-        height: "794px",  // Landscape A4 Height in pixels at 96 DPI
+        width: "1123px", // Landscape A4 Width
+        height: "794px",  // Landscape A4 Height
         position: "relative",
         boxSizing: "border-box",
         overflow: "hidden",
@@ -78,7 +93,70 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         margin: "0 auto"
       }}
     >
-      {/* 1. Elegant Vector Certificate Border Frame coded in pure SVG */}
+      {/* 1. Repeating security watermark pattern */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 1,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          gap: "11px",
+          padding: "20px 0",
+          boxSizing: "border-box",
+          opacity: 0.08,
+          userSelect: "none"
+        }}
+      >
+        {Array.from({ length: 38 }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              fontFamily: "Arial, sans-serif",
+              fontWeight: "bold",
+              fontSize: "9px",
+              color: "#001C55",
+              whiteSpace: "nowrap",
+              letterSpacing: "1.5px",
+              width: "100%",
+              textAlign: "center"
+            }}
+          >
+            {"DK FOUNDATION OF FREEDOM AND JUSTICE   ".repeat(5)}
+          </div>
+        ))}
+      </div>
+
+      {/* 2. Large Central Watermark Logo */}
+      <div
+        style={{
+          position: "absolute",
+          left: "361px", // (1123 - 400) / 2
+          top: "197px",  // (794 - 400) / 2
+          width: "400px",
+          height: "400px",
+          opacity: 0.07,
+          pointerEvents: "none",
+          zIndex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          userSelect: "none"
+        }}
+      >
+        <img
+          src={logoSrc}
+          alt="Watermark Logo"
+          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+        />
+      </div>
+
+      {/* 3. Elegant Vector Certificate Border Frame */}
       <svg
         viewBox="0 0 1123 794"
         width="100%"
@@ -100,7 +178,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         {/* Gold dots border line */}
         <rect x="31" y="31" width="1061" height="732" fill="none" stroke="#c5a880" strokeWidth="0.8" strokeDasharray="3,5" />
 
-        {/* Symmetrical Vector Corner Ornaments (Top Left) */}
+        {/* Corner Ornaments (Top Left) */}
         <g transform="translate(35, 35)">
           <path d="M 0 0 L 45 0 L 45 5 L 5 5 L 5 45 L 0 45 Z" fill="#a21e1e" />
           <path d="M 8 8 L 30 8 L 30 11 L 11 11 L 11 30 L 8 30 Z" fill="#c5a880" />
@@ -129,7 +207,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </g>
       </svg>
 
-      {/* 2. Member Photo (top-left) */}
+      {/* 4. Member Photo (top-left) */}
       {photoSrc && (
         <div
           style={{
@@ -160,14 +238,14 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </div>
       )}
 
-      {/* 3. Crest Logo (centered at top) */}
+      {/* 5. Larger Crest Logo (centered at top) */}
       <div
         style={{
           position: "absolute",
-          left: "501px",
-          top: "52px",
-          width: "120px",
-          height: "120px",
+          left: "491px", // Centered: (1123 - 140) / 2
+          top: "42px",
+          width: "140px",
+          height: "140px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -177,11 +255,11 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <img
           src={logoSrc}
           alt="Crest Logo"
-          style={{ width: "100px", height: "100px", objectFit: "contain" }}
+          style={{ width: "130px", height: "130px", objectFit: "contain" }}
         />
       </div>
 
-      {/* 4. Regd details and Certificate Number (top-right, right-aligned to prevent border overlap) */}
+      {/* 6. Regd details and Certificate Number (top-right, right-aligned, font increased by 2px) */}
       <div
         style={{
           position: "absolute",
@@ -189,7 +267,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           top: "65px",
           textAlign: "right",
           fontFamily: "Arial, sans-serif",
-          fontSize: "14px",
+          fontSize: "16px", // Increased from 14px
           fontWeight: "bold",
           color: "#000000",
           lineHeight: "1.6",
@@ -198,16 +276,16 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
       >
         <p style={{ margin: 0 }}>Regd. No.: U88900UP2023NPL185611</p>
         <p style={{ margin: "2px 0 0 0" }}>
-          Certificates No.: <span style={{ fontFamily: "monospace", fontSize: "15px", color: "#a21e1e" }}>{certNumber}</span>
+          Certificates No.: <span style={{ fontFamily: "monospace", fontSize: "17px", color: "#a21e1e" }}>{certNumber}</span>
         </p>
       </div>
 
-      {/* 5. Central Titles Block */}
+      {/* 7. Central Titles Block (font increased by 2px) */}
       <div
         style={{
           position: "absolute",
           left: "0px",
-          top: "190px",
+          top: "185px",
           width: "1123px",
           textAlign: "center",
           zIndex: 4
@@ -216,7 +294,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <h1 style={{
           fontFamily: "'Georgia', serif",
           fontWeight: "bold",
-          fontSize: "29px",
+          fontSize: "31px", // Increased from 29px
           color: "#a21e1e",
           letterSpacing: "1px",
           margin: 0
@@ -226,7 +304,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <h2 style={{
           fontFamily: "'Arial', sans-serif",
           fontWeight: "bold",
-          fontSize: "18px",
+          fontSize: "20px", // Increased from 18px
           color: "#000000",
           letterSpacing: "0.5px",
           margin: "5px 0 0 0"
@@ -236,7 +314,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <p style={{
           fontFamily: "'Georgia', serif",
           fontStyle: "italic",
-          fontSize: "13px",
+          fontSize: "15px", // Increased from 13px
           color: "#333333",
           margin: "2px 0 0 0"
         }}>
@@ -244,18 +322,18 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 6. Award sentence */}
+      {/* 8. Award sentence (font increased by 2px) */}
       <div
         style={{
           position: "absolute",
           left: "0px",
-          top: "310px",
+          top: "312px",
           width: "1123px",
           textAlign: "center",
           fontFamily: "'Georgia', serif",
           fontWeight: "bold",
           fontStyle: "italic",
-          fontSize: "16px",
+          fontSize: "18px", // Increased from 16px
           color: "#001C55",
           letterSpacing: "0.5px",
           zIndex: 4
@@ -264,7 +342,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         THIS CERTIFICATE IS AWARDED TO
       </div>
 
-      {/* 7. Member Name Block */}
+      {/* 9. Member Name Block (font increased by 4px) */}
       <div
         style={{
           position: "absolute",
@@ -278,7 +356,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <span style={{
           fontFamily: "'Arial', sans-serif",
           fontWeight: "bold",
-          fontSize: "28px",
+          fontSize: "32px", // Increased from 28px
           color: "#000000",
           textTransform: "uppercase",
           letterSpacing: "1.5px",
@@ -299,7 +377,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }} />
       </div>
 
-      {/* 8. Human Rights Pledge Block */}
+      {/* 10. Human Rights Pledge Block (font increased by 2px) */}
       <div
         style={{
           position: "absolute",
@@ -307,7 +385,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           width: "983px",
           top: "420px",
           textAlign: "center",
-          fontSize: "14.5px",
+          fontSize: "16.5px", // Increased from 14.5px
           fontStyle: "italic",
           fontFamily: "'Georgia', serif",
           color: "#111111",
@@ -318,12 +396,12 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         Has Solemnly Pledged To Protect And Promote Human Rights Of All Social Activities, At All Times, Without Any Discrimination And Has Also Pledged Not To Violate The Human Rights Of Others, Directly Or Indirectly, Through His/her Actions, Words Or Deeds.
       </div>
 
-      {/* 9. Bottom Row: Dated */}
+      {/* 11. Bottom Row: Dated (Bolded and moved down) */}
       <div
         style={{
           position: "absolute",
           left: "80px",
-          top: "585px",
+          top: "602px", // Moved down from 585px
           width: "220px",
           zIndex: 4
         }}
@@ -338,7 +416,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           position: "relative",
           zIndex: 2
         }}>
-          Dated: <span style={{ fontFamily: "Arial, sans-serif", fontSize: "14.5px" }}>{formattedDate}</span>
+          Dated: <span style={{ fontFamily: "Arial, sans-serif", fontSize: "15px", fontWeight: "bold" }}>{formattedDate}</span>
         </span>
         <div style={{
           position: "absolute",
@@ -350,7 +428,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }} />
       </div>
 
-      {/* 10. Bottom Row: Center QR Code */}
+      {/* 12. Bottom Row: Center QR Code */}
       {qrSrc && (
         <div
           style={{
@@ -378,13 +456,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </div>
       )}
 
-      {/* 11. Bottom Row: Right Signature Block (Coded authorized signatory layout) */}
+      {/* 13. Bottom Row: Right Signature Block (Sizing increased) */}
       <div
         style={{
           position: "absolute",
           right: "80px",
-          top: "525px",
-          width: "220px",
+          top: "512px", // Adjusted for taller signature height
+          width: "240px", // Increased from 220px
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -396,7 +474,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
             src={signatureSrc}
             alt="Authorized Signature"
             style={{
-              height: "52px",
+              height: "68px", // Increased from 52px
               objectFit: "contain",
               mixBlendMode: "multiply",
               marginBottom: "3px"
@@ -406,7 +484,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <div style={{ width: "100%", borderTop: "1.2px solid #555555", margin: "2px 0" }} />
         <p style={{
           fontFamily: "Arial, sans-serif",
-          fontSize: "11px",
+          fontSize: "12px",
           fontWeight: "bold",
           color: "#333333",
           margin: 0,
@@ -416,7 +494,8 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
         <p style={{
           fontFamily: "Arial, sans-serif",
-          fontSize: "10px",
+          fontSize: "10.5px",
+          fontWeight: "bold",
           color: "#555555",
           margin: "1px 0 0 0",
           textAlign: "center"
@@ -425,24 +504,74 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 12. Footer Divider Line */}
+      {/* 14. Government/Footer Logo Band (Matched from Appreciation Certificate) */}
+      <div
+        style={{
+          position: "absolute",
+          left: "261px", // Centered: (1123 - 600) / 2
+          top: "650px",
+          width: "600px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: "#fcfcfc",
+          padding: "4px 15px",
+          borderRadius: "6px",
+          border: "1px solid #e2dcd0",
+          boxSizing: "border-box",
+          zIndex: 4
+        }}
+      >
+        {/* MCA Logo */}
+        <img
+          src={mcaSrc}
+          alt="Ministry of Corporate Affairs"
+          style={{ height: "30px", objectFit: "contain" }}
+        />
+        {/* NITI Aayog */}
+        <img
+          src={nitiSrc}
+          alt="NITI Aayog"
+          style={{ height: "28px", objectFit: "contain" }}
+        />
+        {/* NSDC */}
+        <img
+          src={nsdcSrc}
+          alt="NSDC"
+          style={{ height: "30px", objectFit: "contain" }}
+        />
+        {/* State Emblem of India */}
+        <img
+          src={emblemSrc}
+          alt="State Emblem of India"
+          style={{ height: "32px", objectFit: "contain" }}
+        />
+        {/* MSME Logo */}
+        <img
+          src={msmeSrc}
+          alt="MSME Logo"
+          style={{ height: "28px", objectFit: "contain" }}
+        />
+      </div>
+
+      {/* 15. Footer Divider Line (Slightly moved down) */}
       <div
         style={{
           position: "absolute",
           left: "60px",
           right: "60px",
-          top: "675px",
+          top: "712px",
           borderTop: "2px solid #a21e1e",
           zIndex: 4
         }}
       />
 
-      {/* 13. Footer details */}
+      {/* 16. Footer details (Font increased by 1.5px) */}
       <div
         style={{
           position: "absolute",
           left: "0px",
-          top: "685px",
+          top: "720px",
           width: "1123px",
           textAlign: "center",
           fontFamily: "Arial, sans-serif",
@@ -450,7 +579,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }}
       >
         <p style={{
-          fontSize: "10.5px",
+          fontSize: "12px", // Increased from 10.5px
           fontWeight: "bold",
           color: "#001C55",
           margin: 0
@@ -458,7 +587,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
         </p>
         <p style={{
-          fontSize: "9.5px",
+          fontSize: "11px", // Increased from 9.5px
           fontWeight: "bold",
           color: "#666666",
           margin: "4px 0 0 0"
@@ -485,12 +614,22 @@ export async function generateMembershipPDFClient(
     photoBase64,
     qrBase64,
     logoBase64,
-    signatureBase64
+    signatureBase64,
+    mcaBase64,
+    nitiBase64,
+    nsdcBase64,
+    emblemBase64,
+    msmeBase64
   ] = await Promise.all([
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
-    getBase64ImageFromUrl("/images/director_sig.png")
+    getBase64ImageFromUrl("/images/director_sig.png"),
+    getBase64ImageFromUrl("/images/mca_logo.png"),
+    getBase64ImageFromUrl("/images/niti_aayog.png"),
+    getBase64ImageFromUrl("/images/nsdc.png"),
+    getBase64ImageFromUrl("/images/emblem_of_india.png"),
+    getBase64ImageFromUrl("/images/msme.png")
   ]);
 
   const container = document.createElement("div");
@@ -513,6 +652,11 @@ export async function generateMembershipPDFClient(
           qrBase64={qrBase64}
           logoBase64={logoBase64}
           signatureBase64={signatureBase64}
+          mcaBase64={mcaBase64}
+          nitiBase64={nitiBase64}
+          nsdcBase64={nsdcBase64}
+          emblemBase64={emblemBase64}
+          msmeBase64={msmeBase64}
         />
       );
 
