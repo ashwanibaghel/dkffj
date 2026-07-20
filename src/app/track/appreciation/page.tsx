@@ -65,7 +65,8 @@ function AppreciationTrackContent() {
         socialWorkField: app.working_area || "",
         issueDateStr,
         qrCodeUrl,
-        verificationUrl
+        verificationUrl,
+        photoUrl: result?.memberDetails?.photo_url || null
       });
 
       const url = window.URL.createObjectURL(pdfBlob);

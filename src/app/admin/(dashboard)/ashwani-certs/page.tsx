@@ -74,7 +74,9 @@ export default function AshwaniCertsPage() {
         socialWorkField: "Human Rights & Right to Information (RTI) Advocacy",
         issueDateStr: ashwaniData.issueDateStr,
         qrCodeUrl,
-        verificationUrl
+        verificationUrl,
+        fatherName: ashwaniData.fatherName,
+        photoUrl: ashwaniData.photoUrl
       });
 
       const url = window.URL.createObjectURL(pdfBlob);
