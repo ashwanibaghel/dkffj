@@ -34,10 +34,10 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const templateSrc = templateBase64 || "/images/membership_template.jpg";
 
-  // Extracts numeric ID from certificate number (e.g. DKM-2026-9027 -> 9027, or keep original)
-  const certNumber = data.membershipNo ? data.membershipNo.replace(/^[^\d]*/, "") : "1049";
+  // In PHP code, $row->id_no is printed as the Certificates No.
+  const certNumber = data.membershipNo || "1049";
 
-  // Format date to DD MMM, YYYY if possible, matching the original layout style (e.g., 08 Oct, 2025)
+  // In PHP, date is formatted to "d M, Y" (e.g. 08 Oct, 2025)
   let formattedDate = data.issueDateStr;
   try {
     if (data.issueDateStr) {
@@ -67,8 +67,8 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
     <div
       id={`membership-certificate-render-container-${data.membershipNo || data.ackNo}`}
       style={{
-        width: "1123px", // Landscape A4 Width in pixels at 96 DPI
-        height: "868px",  // Landscape A4 Height matching 1600x1236 ratio
+        width: "1600px",
+        height: "1236px",
         position: "relative",
         backgroundImage: `url(${templateSrc})`,
         backgroundSize: "100% 100%",
@@ -85,13 +85,11 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <div
           style={{
             position: "absolute",
-            left: "84px",
-            top: "69px",
-            width: "133px",
-            height: "160px",
+            left: "120px",
+            top: "98px",
+            width: "190px",
+            height: "228px",
             overflow: "hidden",
-            border: "1px solid #333333",
-            backgroundColor: "#ffffff",
             display: "flex",
             justifyContent: "center",
             alignItems: "center"
@@ -113,10 +111,10 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
       <div
         style={{
           position: "absolute",
-          left: "989px",
-          top: "85px",
-          fontSize: "19px",
-          fontWeight: "800",
+          left: "1410px",
+          top: "115px",
+          fontSize: "26px", // 20pt matches old PHP GD size
+          fontWeight: "bold",
           color: "#000000",
           fontFamily: "Arial, sans-serif"
         }}
@@ -124,36 +122,34 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         {certNumber}
       </div>
 
-      {/* 3. Member Name overlay on the dotted line */}
+      {/* 3. Member Name overlay centered on the dotted line */}
       <div
         style={{
           position: "absolute",
-          left: "80px",
-          top: "435px",
-          width: "963px",
+          left: "0px",
+          top: "615px", // baseline Y=660, font size 30pt
+          width: "1600px",
           textAlign: "center",
-          fontSize: "27px",
-          fontWeight: "800",
+          fontSize: "38px", // 30pt matches old PHP GD size
+          fontWeight: "bold",
           color: "#000000",
           textTransform: "uppercase",
-          letterSpacing: "1px",
-          fontFamily: "'Inter', sans-serif"
+          fontFamily: "Arial, sans-serif"
         }}
       >
         {data.fullName}
       </div>
 
-      {/* 4. Date overlay on bottom-left next to "Dated" */}
+      {/* 4. Date overlay next to "Dated" */}
       <div
         style={{
           position: "absolute",
-          left: "154px",
-          top: "626px",
-          fontSize: "17.5px",
-          fontWeight: "800",
+          left: "220px",
+          top: "888px", // baseline Y=915, font size 20pt
+          fontSize: "26px", // 20pt matches old PHP GD size
+          fontWeight: "bold",
           color: "#000000",
-          fontFamily: "Arial, sans-serif",
-          letterSpacing: "0.5px"
+          fontFamily: "Arial, sans-serif"
         }}
       >
         {formattedDate}
@@ -164,13 +160,12 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <div
           style={{
             position: "absolute",
-            left: "509px",
-            top: "561px",
-            width: "105px",
-            height: "105px",
-            padding: "3px",
+            left: "725px",
+            top: "800px",
+            width: "150px",
+            height: "150px",
+            padding: "4px",
             backgroundColor: "#ffffff",
-            border: "1px solid #dddddd",
             boxSizing: "border-box"
           }}
         >
@@ -241,7 +236,7 @@ export async function generateMembershipPDFClient(
           }
 
           const canvas = await html2canvas(targetElement, {
-            scale: 2.0, // Crisp resolution
+            scale: 2.0, // Crisp high-resolution render
             useCORS: true,
             allowTaint: false,
             logging: false,
@@ -267,7 +262,12 @@ export async function generateMembershipPDFClient(
             format: "a4"
           });
 
-          pdf.addImage(imgData, "JPEG", 0, 0, 297, 210, undefined, "FAST");
+          // A4 landscape dimensions: 297 x 210 mm
+          // Certificate aspect ratio: 1600 / 1236 = 1.2945
+          // Center the image keeping the ratio:
+          // width = 210 * 1.2945 = 271.8 mm
+          // x_offset = (297 - 271.8) / 2 = 12.6 mm
+          pdf.addImage(imgData, "JPEG", 12.6, 0, 271.8, 210, undefined, "FAST");
           const pdfBlob = pdf.output("blob");
 
           root.unmount();
