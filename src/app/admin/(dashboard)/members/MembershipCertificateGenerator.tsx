@@ -93,7 +93,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         margin: "0 auto"
       }}
     >
-      {/* 1. Repeating security watermark pattern */}
+      {/* 1. Extremely subtle repeating security watermark pattern (Opacity reduced to 0.022 for clean background) */}
       <div
         style={{
           position: "absolute",
@@ -106,23 +106,23 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          gap: "11px",
+          gap: "28px",
           padding: "20px 0",
           boxSizing: "border-box",
-          opacity: 0.08,
+          opacity: 0.022,
           userSelect: "none"
         }}
       >
-        {Array.from({ length: 38 }).map((_, i) => (
+        {Array.from({ length: 22 }).map((_, i) => (
           <div
             key={i}
             style={{
               fontFamily: "Arial, sans-serif",
               fontWeight: "bold",
-              fontSize: "9px",
+              fontSize: "8.5px",
               color: "#001C55",
               whiteSpace: "nowrap",
-              letterSpacing: "1.5px",
+              letterSpacing: "2px",
               width: "100%",
               textAlign: "center"
             }}
@@ -132,15 +132,15 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         ))}
       </div>
 
-      {/* 2. Large Central Watermark Logo */}
+      {/* 2. Large Central Watermark Logo (Opacity reduced to 0.04 for high-end look) */}
       <div
         style={{
           position: "absolute",
-          left: "361px", // (1123 - 400) / 2
-          top: "197px",  // (794 - 400) / 2
-          width: "400px",
-          height: "400px",
-          opacity: 0.07,
+          left: "401px", // (1123 - 320) / 2
+          top: "237px",  // (794 - 320) / 2
+          width: "320px",
+          height: "320px",
+          opacity: 0.04,
           pointerEvents: "none",
           zIndex: 1,
           display: "flex",
@@ -396,7 +396,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         Has Solemnly Pledged To Protect And Promote Human Rights Of All Social Activities, At All Times, Without Any Discrimination And Has Also Pledged Not To Violate The Human Rights Of Others, Directly Or Indirectly, Through His/her Actions, Words Or Deeds.
       </div>
 
-      {/* 11. Bottom Row: Dated */}
+      {/* 11. Bottom Row: Dated (Aligned nicely with clear spacing) */}
       <div
         style={{
           position: "absolute",
@@ -428,15 +428,15 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }} />
       </div>
 
-      {/* 12. Bottom Row: Center QR Code */}
+      {/* 12. Bottom Row: Center QR Code (Sized to 85px to avoid overlapping with logos below) */}
       {qrSrc && (
         <div
           style={{
             position: "absolute",
-            left: "514px",
-            top: "545px",
-            width: "95px",
-            height: "95px",
+            left: "519px",
+            top: "535px",
+            width: "85px",
+            height: "85px",
             padding: "3px",
             backgroundColor: "#ffffff",
             border: "1px solid #cccccc",
@@ -504,13 +504,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 14. Larger, Full-Width Government Logo Band (No background box/strip) */}
+      {/* 14. Full-Width Government Logos (No background white container strip, shifted down to prevent QR code collision) */}
       <div
         style={{
           position: "absolute",
           left: "80px",
-          top: "640px",
-          width: "963px", // Stretched across the entire certificate content width
+          top: "645px", // Moved down slightly to create a 25px gap with the QR code
+          width: "963px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -552,13 +552,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         />
       </div>
 
-      {/* 15. Footer Divider Line */}
+      {/* 15. Footer Divider Line (Shifted down for clean spacing) */}
       <div
         style={{
           position: "absolute",
           left: "60px",
           right: "60px",
-          top: "712px",
+          top: "708px",
           borderTop: "2px solid #a21e1e",
           zIndex: 4
         }}
@@ -569,7 +569,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         style={{
           position: "absolute",
           left: "0px",
-          top: "720px",
+          top: "716px",
           width: "1123px",
           textAlign: "center",
           fontFamily: "Arial, sans-serif",
