@@ -66,6 +66,7 @@ export default function AdminMembersPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [downloadingIdCardId, setDownloadingIdCardId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"current" | "migrated">("current");
 
   // Administrative action states
   const [remarks, setRemarks] = useState<string>("");
@@ -164,8 +165,15 @@ export default function AdminMembersPage() {
 
   const statusFilters = ["ALL", "PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"];
 
+  const tabMembers = useMemo(() => {
+    return members.filter((m) => {
+      const isMigrated = m.remarks === "MIGRATED_PHP";
+      return activeTab === "migrated" ? isMigrated : !isMigrated;
+    });
+  }, [members, activeTab]);
+
   const statusCounts = useMemo(() => {
-    return members.reduce(
+    return tabMembers.reduce(
       (acc, member) => {
         acc.ALL += 1;
         acc[member.status] = (acc[member.status] || 0) + 1;
@@ -173,10 +181,10 @@ export default function AdminMembersPage() {
       },
       { ALL: 0 } as Record<string, number>
     );
-  }, [members]);
+  }, [tabMembers]);
 
   const filteredMembers = useMemo(() => {
-    let result = members;
+    let result = tabMembers;
     if (filter !== "ALL") {
       result = result.filter((m) => m.status === filter);
     }
@@ -186,12 +194,13 @@ export default function AdminMembersPage() {
         (m) =>
           m.full_name.toLowerCase().includes(q) ||
           m.email.toLowerCase().includes(q) ||
+          m.mobile.toLowerCase().includes(q) ||
           m.ack_no.toLowerCase().includes(q) ||
           (m.membership_no && m.membership_no.toLowerCase().includes(q))
       );
     }
     return result;
-  }, [filter, searchQuery, members]);
+  }, [filter, searchQuery, tabMembers]);
 
   const handleOpenPrivateDoc = async (bucket: string, path: string) => {
     try {
@@ -523,8 +532,42 @@ export default function AdminMembersPage() {
         </div>
         <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
           <Clock className="w-3.5 h-3.5" />
-          <span>{filteredMembers.length} visible of {members.length} records</span>
+          <span>{filteredMembers.length} visible of {tabMembers.length} records</span>
         </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-slate-200 dark:border-slate-800 gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab("current");
+            setFilter("ALL");
+            setExpandedId(null);
+          }}
+          className={`px-4 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            activeTab === "current"
+              ? "border-[#001C55] text-[#001C55] dark:border-blue-400 dark:text-blue-400"
+              : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
+          }`}
+        >
+          Active Membership Registry
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab("migrated");
+            setFilter("ALL");
+            setExpandedId(null);
+          }}
+          className={`px-4 py-2.5 text-xs font-black uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            activeTab === "migrated"
+              ? "border-[#001C55] text-[#001C55] dark:border-blue-400 dark:text-blue-400"
+              : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
+          }`}
+        >
+          Migrated Members (PHP Site Backup)
+        </button>
       </div>
 
       {/* Status Summary */}
