@@ -22,17 +22,20 @@ interface MembershipCertificateRendererProps {
   photoBase64?: string;
   qrBase64?: string;
   templateBase64?: string;
+  signatureBase64?: string;
 }
 
 export const MembershipCertificateRenderer: React.FC<MembershipCertificateRendererProps> = ({
   data,
   photoBase64,
   qrBase64,
-  templateBase64
+  templateBase64,
+  signatureBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const templateSrc = templateBase64 || "/images/membership_template.jpg";
+  const signatureSrc = signatureBase64 || "/images/director_sig.png";
 
   // In PHP code, $row->id_no is printed as the Certificates No.
   const certNumber = data.membershipNo || "1049";
@@ -107,16 +110,19 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </div>
       )}
 
-      {/* 2. Certificate Number overlay on top-right */}
+      {/* 2. Certificate Number overlay on top-right (pulled back to prevent boundary overflow) */}
       <div
         style={{
           position: "absolute",
-          left: "1410px",
+          left: "1355px",
           top: "115px",
-          fontSize: "26px", // 20pt matches old PHP GD size
+          width: "160px",
+          fontSize: "20px",
           fontWeight: "bold",
           color: "#000000",
-          fontFamily: "Arial, sans-serif"
+          fontFamily: "Arial, sans-serif",
+          textAlign: "left",
+          whiteSpace: "nowrap"
         }}
       >
         {certNumber}
@@ -180,6 +186,55 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           />
         </div>
       )}
+
+      {/* 6. Signature block cover to hide Danish Khan's signature and overlay the Authorized Signatory details */}
+      <div
+        style={{
+          position: "absolute",
+          left: "1230px",
+          top: "925px",
+          width: "245px",
+          height: "155px",
+          backgroundColor: "#ffffff",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-end"
+        }}
+      >
+        {signatureSrc && (
+          <img
+            src={signatureSrc}
+            alt="Authorized Signature"
+            style={{
+              height: "55px",
+              objectFit: "contain",
+              mixBlendMode: "multiply",
+              marginBottom: "3px"
+            }}
+          />
+        )}
+        <div style={{ width: "210px", borderTop: "1.2px solid #555555", margin: "2px 0" }} />
+        <p style={{
+          fontFamily: "Arial, sans-serif",
+          fontSize: "12px",
+          fontWeight: "bold",
+          color: "#333333",
+          margin: 0,
+          textAlign: "center"
+        }}>
+          (Seal & Signature)
+        </p>
+        <p style={{
+          fontFamily: "Arial, sans-serif",
+          fontSize: "10px",
+          color: "#555555",
+          margin: "1px 0 0 0",
+          textAlign: "center"
+        }}>
+          Authorized Signatory
+        </p>
+      </div>
     </div>
   );
 };
@@ -198,11 +253,13 @@ export async function generateMembershipPDFClient(
   const [
     photoBase64,
     qrBase64,
-    templateBase64
+    templateBase64,
+    signatureBase64
   ] = await Promise.all([
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
-    getBase64ImageFromUrl("/images/membership_template.jpg")
+    getBase64ImageFromUrl("/images/membership_template.jpg"),
+    getBase64ImageFromUrl("/images/director_sig.png")
   ]);
 
   const container = document.createElement("div");
@@ -224,6 +281,7 @@ export async function generateMembershipPDFClient(
           photoBase64={photoBase64}
           qrBase64={qrBase64}
           templateBase64={templateBase64}
+          signatureBase64={signatureBase64}
         />
       );
 
