@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { ShieldAlert, Lock, Mail, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { adminLoginAction } from "./actions";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -47,45 +48,17 @@ export default function AdminLoginPage() {
     }
 
     try {
-      const supabase = createClient();
-      
-      // Attempt login
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      // Authenticate via Server Action to bypass client-side QUIC/ISP network blocks
+      const res = await adminLoginAction(email, password);
 
-      if (authError) {
-        setErrorMsg(authError.message || "Invalid credentials.");
+      if (!res.success) {
+        setErrorMsg(res.error || "Invalid credentials.");
         setLoading(false);
         return;
       }
 
-      if (authData.user) {
-        // Double check profile role
-        const { data: profile, error: profileError } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", authData.user.id)
-          .maybeSingle();
-
-        if (profileError || !profile) {
-          setErrorMsg("Failed to load user permissions.");
-          setLoading(false);
-          return;
-        }
-
-        if (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN") {
-          setErrorMsg("Access Denied: You do not have administrator permissions.");
-          // Sign them out immediately to clear cookie session
-          await supabase.auth.signOut();
-          setLoading(false);
-          return;
-        }
-
-        // Redirect to admin dashboard
-        router.push("/admin");
-      }
+      // Redirect to admin dashboard
+      router.push("/admin");
     } catch (err) {
       setErrorMsg("An unexpected login error occurred.");
       setLoading(false);
