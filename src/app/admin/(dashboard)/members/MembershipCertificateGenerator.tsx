@@ -259,7 +259,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         />
       </div>
 
-      {/* 6. Regd details and Certificate Number (top-right, right-aligned, font increased by 2px) */}
+      {/* 6. Regd details and Certificate Number (top-right, right-aligned) */}
       <div
         style={{
           position: "absolute",
@@ -267,7 +267,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           top: "65px",
           textAlign: "right",
           fontFamily: "Arial, sans-serif",
-          fontSize: "16px", // Increased from 14px
+          fontSize: "16px",
           fontWeight: "bold",
           color: "#000000",
           lineHeight: "1.6",
@@ -280,7 +280,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 7. Central Titles Block (font increased by 2px) */}
+      {/* 7. Central Titles Block */}
       <div
         style={{
           position: "absolute",
@@ -294,7 +294,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <h1 style={{
           fontFamily: "'Georgia', serif",
           fontWeight: "bold",
-          fontSize: "31px", // Increased from 29px
+          fontSize: "31px",
           color: "#a21e1e",
           letterSpacing: "1px",
           margin: 0
@@ -304,7 +304,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <h2 style={{
           fontFamily: "'Arial', sans-serif",
           fontWeight: "bold",
-          fontSize: "20px", // Increased from 18px
+          fontSize: "20px",
           color: "#000000",
           letterSpacing: "0.5px",
           margin: "5px 0 0 0"
@@ -314,7 +314,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <p style={{
           fontFamily: "'Georgia', serif",
           fontStyle: "italic",
-          fontSize: "15px", // Increased from 13px
+          fontSize: "15px",
           color: "#333333",
           margin: "2px 0 0 0"
         }}>
@@ -322,7 +322,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 8. Award sentence (font increased by 2px) */}
+      {/* 8. Award sentence */}
       <div
         style={{
           position: "absolute",
@@ -333,7 +333,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           fontFamily: "'Georgia', serif",
           fontWeight: "bold",
           fontStyle: "italic",
-          fontSize: "18px", // Increased from 16px
+          fontSize: "18px",
           color: "#001C55",
           letterSpacing: "0.5px",
           zIndex: 4
@@ -342,7 +342,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         THIS CERTIFICATE IS AWARDED TO
       </div>
 
-      {/* 9. Member Name Block (font increased by 4px) */}
+      {/* 9. Member Name Block */}
       <div
         style={{
           position: "absolute",
@@ -356,7 +356,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <span style={{
           fontFamily: "'Arial', sans-serif",
           fontWeight: "bold",
-          fontSize: "32px", // Increased from 28px
+          fontSize: "32px",
           color: "#000000",
           textTransform: "uppercase",
           letterSpacing: "1.5px",
@@ -377,7 +377,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }} />
       </div>
 
-      {/* 10. Human Rights Pledge Block (font increased by 2px) */}
+      {/* 10. Human Rights Pledge Block */}
       <div
         style={{
           position: "absolute",
@@ -385,7 +385,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           width: "983px",
           top: "420px",
           textAlign: "center",
-          fontSize: "16.5px", // Increased from 14.5px
+          fontSize: "16.5px",
           fontStyle: "italic",
           fontFamily: "'Georgia', serif",
           color: "#111111",
@@ -396,12 +396,12 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         Has Solemnly Pledged To Protect And Promote Human Rights Of All Social Activities, At All Times, Without Any Discrimination And Has Also Pledged Not To Violate The Human Rights Of Others, Directly Or Indirectly, Through His/her Actions, Words Or Deeds.
       </div>
 
-      {/* 11. Bottom Row: Dated (Bolded and moved down) */}
+      {/* 11. Bottom Row: Dated */}
       <div
         style={{
           position: "absolute",
           left: "80px",
-          top: "602px", // Moved down from 585px
+          top: "602px",
           width: "220px",
           zIndex: 4
         }}
@@ -456,13 +456,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </div>
       )}
 
-      {/* 13. Bottom Row: Right Signature Block (Sizing increased) */}
+      {/* 13. Bottom Row: Right Signature Block */}
       <div
         style={{
           position: "absolute",
           right: "80px",
-          top: "512px", // Adjusted for taller signature height
-          width: "240px", // Increased from 220px
+          top: "512px",
+          width: "240px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -474,7 +474,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
             src={signatureSrc}
             alt="Authorized Signature"
             style={{
-              height: "68px", // Increased from 52px
+              height: "68px",
               objectFit: "contain",
               mixBlendMode: "multiply",
               marginBottom: "3px"
@@ -504,21 +504,19 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 14. Government/Footer Logo Band (Matched from Appreciation Certificate) */}
+      {/* 14. Larger, Full-Width Government Logo Band (No background box/strip) */}
       <div
         style={{
           position: "absolute",
-          left: "261px", // Centered: (1123 - 600) / 2
-          top: "650px",
-          width: "600px",
+          left: "80px",
+          top: "640px",
+          width: "963px", // Stretched across the entire certificate content width
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          backgroundColor: "#fcfcfc",
-          padding: "4px 15px",
-          borderRadius: "6px",
-          border: "1px solid #e2dcd0",
-          boxSizing: "border-box",
+          backgroundColor: "transparent",
+          border: "none",
+          padding: 0,
           zIndex: 4
         }}
       >
@@ -526,35 +524,35 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <img
           src={mcaSrc}
           alt="Ministry of Corporate Affairs"
-          style={{ height: "30px", objectFit: "contain" }}
+          style={{ height: "45px", maxWidth: "200px", objectFit: "contain" }}
         />
         {/* NITI Aayog */}
         <img
           src={nitiSrc}
           alt="NITI Aayog"
-          style={{ height: "28px", objectFit: "contain" }}
+          style={{ height: "42px", maxWidth: "120px", objectFit: "contain" }}
         />
         {/* NSDC */}
         <img
           src={nsdcSrc}
           alt="NSDC"
-          style={{ height: "30px", objectFit: "contain" }}
+          style={{ height: "45px", maxWidth: "120px", objectFit: "contain" }}
         />
         {/* State Emblem of India */}
         <img
           src={emblemSrc}
           alt="State Emblem of India"
-          style={{ height: "32px", objectFit: "contain" }}
+          style={{ height: "48px", maxWidth: "70px", objectFit: "contain" }}
         />
         {/* MSME Logo */}
         <img
           src={msmeSrc}
           alt="MSME Logo"
-          style={{ height: "28px", objectFit: "contain" }}
+          style={{ height: "42px", maxWidth: "120px", objectFit: "contain" }}
         />
       </div>
 
-      {/* 15. Footer Divider Line (Slightly moved down) */}
+      {/* 15. Footer Divider Line */}
       <div
         style={{
           position: "absolute",
@@ -566,7 +564,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }}
       />
 
-      {/* 16. Footer details (Font increased by 1.5px) */}
+      {/* 16. Footer details */}
       <div
         style={{
           position: "absolute",
@@ -579,7 +577,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }}
       >
         <p style={{
-          fontSize: "12px", // Increased from 10.5px
+          fontSize: "12px",
           fontWeight: "bold",
           color: "#001C55",
           margin: 0
@@ -587,7 +585,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
         </p>
         <p style={{
-          fontSize: "11px", // Increased from 9.5px
+          fontSize: "11px",
           fontWeight: "bold",
           color: "#666666",
           margin: "4px 0 0 0"
