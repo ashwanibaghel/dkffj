@@ -437,10 +437,9 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          backgroundColor: "#fcfcfc",
-          padding: "8px 20px",
-          borderRadius: "8px",
-          border: "1px solid #e2dcd0"
+          backgroundColor: "transparent",
+          border: "none",
+          padding: "0"
         }}>
           {/* MCA Logo */}
           <img
