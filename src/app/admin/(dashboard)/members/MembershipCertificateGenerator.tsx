@@ -23,11 +23,6 @@ interface MembershipCertificateRendererProps {
   qrBase64?: string;
   logoBase64?: string;
   signatureBase64?: string;
-  mcaBase64?: string;
-  nitiBase64?: string;
-  nsdcBase64?: string;
-  emblemBase64?: string;
-  msmeBase64?: string;
 }
 
 export const MembershipCertificateRenderer: React.FC<MembershipCertificateRendererProps> = ({
@@ -35,22 +30,12 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   photoBase64,
   qrBase64,
   logoBase64,
-  signatureBase64,
-  mcaBase64,
-  nitiBase64,
-  nsdcBase64,
-  emblemBase64,
-  msmeBase64
+  signatureBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
-  const mcaSrc = mcaBase64 || "/images/mca_logo.png";
-  const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
-  const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
-  const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
-  const msmeSrc = msmeBase64 || "/images/msme.png";
 
   const certNumber = data.membershipNo || "1049";
 
@@ -93,7 +78,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         margin: "0 auto"
       }}
     >
-      {/* 1. Extremely subtle repeating security watermark pattern (Opacity reduced to 0.022 for clean background) */}
+      {/* 1. Extremely subtle, non-intrusive security watermark pattern (Opacity reduced to 0.012, gap increased to 38px) */}
       <div
         style={{
           position: "absolute",
@@ -106,14 +91,14 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          gap: "28px",
+          gap: "38px",
           padding: "20px 0",
           boxSizing: "border-box",
-          opacity: 0.022,
+          opacity: 0.012,
           userSelect: "none"
         }}
       >
-        {Array.from({ length: 22 }).map((_, i) => (
+        {Array.from({ length: 16 }).map((_, i) => (
           <div
             key={i}
             style={{
@@ -132,7 +117,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         ))}
       </div>
 
-      {/* 2. Large Central Watermark Logo (Opacity reduced to 0.04 for high-end look) */}
+      {/* 2. Large Central Watermark Logo (Opacity reduced to 0.03 for minimal distraction) */}
       <div
         style={{
           position: "absolute",
@@ -140,7 +125,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           top: "237px",  // (794 - 320) / 2
           width: "320px",
           height: "320px",
-          opacity: 0.04,
+          opacity: 0.03,
           pointerEvents: "none",
           zIndex: 1,
           display: "flex",
@@ -315,7 +300,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           fontFamily: "'Georgia', serif",
           fontStyle: "italic",
           fontSize: "15px",
-          color: "#333333",
+          color: "#000000", // Changed to pure black for high contrast/readability
           margin: "2px 0 0 0"
         }}>
           Regd. By Ministry of Corporate affairs Govt. of India
@@ -377,7 +362,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }} />
       </div>
 
-      {/* 10. Human Rights Pledge Block */}
+      {/* 10. Human Rights Pledge Block (Color set to solid pure black #000000 for maximum readability) */}
       <div
         style={{
           position: "absolute",
@@ -388,7 +373,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           fontSize: "16.5px",
           fontStyle: "italic",
           fontFamily: "'Georgia', serif",
-          color: "#111111",
+          color: "#000000", // Changed from #111111 to pure black
           lineHeight: "1.8",
           zIndex: 4
         }}
@@ -396,7 +381,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         Has Solemnly Pledged To Protect And Promote Human Rights Of All Social Activities, At All Times, Without Any Discrimination And Has Also Pledged Not To Violate The Human Rights Of Others, Directly Or Indirectly, Through His/her Actions, Words Or Deeds.
       </div>
 
-      {/* 11. Bottom Row: Dated (Aligned nicely with clear spacing) */}
+      {/* 11. Bottom Row: Dated */}
       <div
         style={{
           position: "absolute",
@@ -428,13 +413,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }} />
       </div>
 
-      {/* 12. Bottom Row: Center QR Code (Sized to 85px to avoid overlapping with logos below) */}
+      {/* 12. Bottom Row: Center QR Code (Moved down to 585px since government logos are removed) */}
       {qrSrc && (
         <div
           style={{
             position: "absolute",
             left: "519px",
-            top: "535px",
+            top: "585px", // Moved down from 535px
             width: "85px",
             height: "85px",
             padding: "3px",
@@ -461,7 +446,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         style={{
           position: "absolute",
           right: "80px",
-          top: "512px",
+          top: "535px",
           width: "240px",
           display: "flex",
           flexDirection: "column",
@@ -504,55 +489,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 14. Full-Width Government Logos (No background white container strip, shifted down to prevent QR code collision) */}
-      <div
-        style={{
-          position: "absolute",
-          left: "80px",
-          top: "645px", // Moved down slightly to create a 25px gap with the QR code
-          width: "963px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "transparent",
-          border: "none",
-          padding: 0,
-          zIndex: 4
-        }}
-      >
-        {/* MCA Logo */}
-        <img
-          src={mcaSrc}
-          alt="Ministry of Corporate Affairs"
-          style={{ height: "45px", maxWidth: "200px", objectFit: "contain" }}
-        />
-        {/* NITI Aayog */}
-        <img
-          src={nitiSrc}
-          alt="NITI Aayog"
-          style={{ height: "42px", maxWidth: "120px", objectFit: "contain" }}
-        />
-        {/* NSDC */}
-        <img
-          src={nsdcSrc}
-          alt="NSDC"
-          style={{ height: "45px", maxWidth: "120px", objectFit: "contain" }}
-        />
-        {/* State Emblem of India */}
-        <img
-          src={emblemSrc}
-          alt="State Emblem of India"
-          style={{ height: "48px", maxWidth: "70px", objectFit: "contain" }}
-        />
-        {/* MSME Logo */}
-        <img
-          src={msmeSrc}
-          alt="MSME Logo"
-          style={{ height: "42px", maxWidth: "120px", objectFit: "contain" }}
-        />
-      </div>
-
-      {/* 15. Footer Divider Line (Shifted down for clean spacing) */}
+      {/* 14. Footer Divider Line (Slightly adjusted top offset) */}
       <div
         style={{
           position: "absolute",
@@ -564,7 +501,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }}
       />
 
-      {/* 16. Footer details */}
+      {/* 15. Footer details */}
       <div
         style={{
           position: "absolute",
@@ -612,22 +549,12 @@ export async function generateMembershipPDFClient(
     photoBase64,
     qrBase64,
     logoBase64,
-    signatureBase64,
-    mcaBase64,
-    nitiBase64,
-    nsdcBase64,
-    emblemBase64,
-    msmeBase64
+    signatureBase64
   ] = await Promise.all([
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
-    getBase64ImageFromUrl("/images/director_sig.png"),
-    getBase64ImageFromUrl("/images/mca_logo.png"),
-    getBase64ImageFromUrl("/images/niti_aayog.png"),
-    getBase64ImageFromUrl("/images/nsdc.png"),
-    getBase64ImageFromUrl("/images/emblem_of_india.png"),
-    getBase64ImageFromUrl("/images/msme.png")
+    getBase64ImageFromUrl("/images/director_sig.png")
   ]);
 
   const container = document.createElement("div");
@@ -650,11 +577,6 @@ export async function generateMembershipPDFClient(
           qrBase64={qrBase64}
           logoBase64={logoBase64}
           signatureBase64={signatureBase64}
-          mcaBase64={mcaBase64}
-          nitiBase64={nitiBase64}
-          nsdcBase64={nsdcBase64}
-          emblemBase64={emblemBase64}
-          msmeBase64={msmeBase64}
         />
       );
 
