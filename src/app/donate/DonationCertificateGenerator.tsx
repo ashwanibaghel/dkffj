@@ -26,6 +26,7 @@ interface DonationCertificateRendererProps {
   msmeBase64?: string;
   emblemBase64?: string;
   isoSealBase64?: string;
+  signatureBase64?: string;
 }
 
 export const DonationCertificateRenderer: React.FC<DonationCertificateRendererProps> = ({
@@ -37,7 +38,8 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
   nsdcBase64,
   msmeBase64,
   emblemBase64,
-  isoSealBase64
+  isoSealBase64,
+  signatureBase64
 }) => {
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
@@ -47,6 +49,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
   const msmeSrc = msmeBase64 || "/images/msme.png";
   const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
   const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
+  const signatureSrc = signatureBase64 || "/images/director_sig.png";
 
   return (
     <div
@@ -160,12 +163,12 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
       {/* Certificate Content wrapper */}
       <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
         
-        {/* Top Header */}
-        <div style={{ marginTop: "25px", textAlign: "center" }}>
+        {/* Top Header (Fonts enlarged) */}
+        <div style={{ marginTop: "28px", textAlign: "center" }}>
           <h1 style={{
             fontFamily: "'Cinzel', serif",
             fontWeight: 800,
-            fontSize: "24px",
+            fontSize: "27px", // Increased from 24px
             color: "#a21e1e",
             letterSpacing: "1px",
             margin: 0
@@ -175,30 +178,30 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           <p style={{
             fontFamily: "'Playfair Display', serif",
             fontStyle: "italic",
-            fontSize: "12px",
+            fontSize: "14px", // Increased from 12px
             color: "#333333",
-            margin: "4px 0 0 0"
+            margin: "5px 0 0 0"
           }}>
             (Under Section 8 of The Companies Act, 2013 Govt of India)
           </p>
           <p style={{
             fontFamily: "'Inter', sans-serif",
             fontWeight: 600,
-            fontSize: "10px",
+            fontSize: "12px", // Increased from 10px
             color: "#555555",
             letterSpacing: "0.5px",
-            margin: "2px 0 0 0"
+            margin: "3px 0 0 0"
           }}>
             CIN No. U88900UP2023NPL185611
           </p>
         </div>
 
-        {/* Ref No & Date Pills */}
+        {/* Ref No & Date Pills (Fonts enlarged) */}
         <div style={{
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
-          marginTop: "15px",
+          marginTop: "18px",
           fontFamily: "'Playfair Display', serif"
         }}>
           <div style={{
@@ -206,7 +209,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             borderRadius: "20px",
             padding: "4px 15px",
             backgroundColor: "#ffffff",
-            fontSize: "12px",
+            fontSize: "13.5px", // Increased from 12px
             fontWeight: "bold",
             color: "#333333"
           }}>
@@ -217,7 +220,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             borderRadius: "20px",
             padding: "4px 15px",
             backgroundColor: "#ffffff",
-            fontSize: "12px",
+            fontSize: "13.5px", // Increased from 12px
             fontWeight: "bold",
             color: "#333333"
           }}>
@@ -225,12 +228,12 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           </div>
         </div>
 
-        {/* Curved Title & Crest Logo Area */}
+        {/* Curved Title & Crest Logo Area (Crest Logo enlarged) */}
         <div style={{
           position: "relative",
           width: "700px",
           height: "230px",
-          marginTop: "10px",
+          marginTop: "12px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center"
@@ -239,7 +242,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 2 }}>
             <svg viewBox="0 0 700 230" width="700" height="230" style={{ overflow: "visible" }}>
               <path id="text-curve" d="M 60,185 A 440,440 0 0,1 640,185" fill="none" />
-              <text fill="#001C55" style={{ fontSize: "50px", fontFamily: "'UnifrakturMaguntia', serif" }}>
+              <text fill="#001C55" style={{ fontSize: "54px", fontFamily: "'UnifrakturMaguntia', serif" }}>
                 <textPath href="#text-curve" startOffset="50%" textAnchor="middle">
                   Certificate of Appreciation
                 </textPath>
@@ -247,12 +250,12 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             </svg>
           </div>
 
-          {/* Crest Logo */}
-          <div style={{ position: "absolute", top: "105px", zIndex: 1 }}>
+          {/* Crest Logo (Enlarged) */}
+          <div style={{ position: "absolute", top: "100px", zIndex: 1 }}>
             <img
               src={logoSrc}
               alt="Crest Logo"
-              style={{ width: "110px", height: "110px", objectFit: "contain" }}
+              style={{ width: "125px", height: "125px", objectFit: "contain" }}
             />
           </div>
         </div>
@@ -269,7 +272,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             border-radius: 0;
             color: #001C55;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 19px;
             height: 28px;
             box-shadow: none;
             padding: 0 10px;
@@ -279,18 +282,18 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             align-items: center;
             width: 90%;
             margin-left: 5%;
-            font-size: 15px;
+            font-size: 17.5px;
             color: #222222;
             font-style: italic;
           }
         `}</style>
 
-        {/* Form Fields (Dynamic Rows) */}
-        <div style={{ width: "100%", marginTop: "25px", display: "flex", flexDirection: "column", gap: "18px" }}>
+        {/* Form Fields (Dynamic Rows - Fonts increased to fill space) */}
+        <div style={{ width: "100%", marginTop: "28px", display: "flex", flexDirection: "column", gap: "22px" }}>
           
           {/* Row 1: Donor Name */}
           <div className="cert-line">
-            <span style={{ minWidth: "290px", fontSize: "15px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
+            <span style={{ minWidth: "330px", fontSize: "17.5px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
               This certificate is proudly presented to Mr./Ms./Mrs.
             </span>
             <div className="cert-pill" style={{ flex: 1, textTransform: "uppercase" }}>
@@ -300,7 +303,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
 
           {/* Row 2: Contribution details */}
           <div style={{
-            fontSize: "15px",
+            fontSize: "17.5px", // Increased from 15px
             fontStyle: "italic",
             fontFamily: "'Playfair Display', serif",
             color: "#222222",
@@ -330,15 +333,15 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             width: "90%",
             marginLeft: "5%",
             textAlign: "center",
-            fontSize: "15px",
+            fontSize: "17.5px", // Increased from 15px
             fontStyle: "italic",
             color: "#222222",
             lineHeight: "1.8",
-            marginTop: "12px",
+            marginTop: "15px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "4px"
+            gap: "5px"
           }}>
             <p style={{ margin: 0 }}>
               Your act of kindness serves as an inspiration and strengthens our mission to promote
@@ -352,21 +355,36 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           </div>
         </div>
 
-        {/* Signatures, Seal and QR Code Area */}
+        {/* Signatures, Seal and QR Code Area (Shifted down and signature image rendered) */}
         <div style={{
           width: "90%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "45px"
+          marginTop: "65px" // Shifted down from 45px
         }}>
-          {/* Signatory (Left) */}
-          <div style={{ width: "230px", textAlign: "center", flexShrink: 0 }}>
-            <div style={{ height: "45px" }} />
+          {/* Signatory (Left Column - Signature image and text) */}
+          <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "50px" }}>
+            {signatureSrc && (
+              <img
+                src={signatureSrc}
+                alt="Authorized Signature"
+                style={{
+                  position: "absolute",
+                  bottom: "48px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  height: "65px", // Height set matching membership size
+                  objectFit: "contain",
+                  mixBlendMode: "multiply",
+                  pointerEvents: "none"
+                }}
+              />
+            )}
             <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
             <p style={{
               fontFamily: "Arial, sans-serif",
-              fontSize: "10px",
+              fontSize: "11px",
               fontWeight: "bold",
               color: "#333333",
               margin: 0
@@ -375,7 +393,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             </p>
             <p style={{
               fontFamily: "Arial, sans-serif",
-              fontSize: "9px",
+              fontSize: "10px",
               color: "#555555",
               margin: "2px 0 0 0"
             }}>
@@ -383,8 +401,8 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             </p>
           </div>
 
-          {/* ISO 9001 Seal */}
-          <div style={{ width: "100px", height: "130px", marginTop: "-30px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          {/* ISO 9001 Seal (Center Column - Sizing increased) */}
+          <div style={{ width: "110px", height: "140px", marginTop: "-30px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
             <img
               src={isoSealSrc}
               alt="ISO 9001 Seal"
@@ -392,13 +410,13 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             />
           </div>
 
-          {/* Verification QR Code */}
+          {/* Verification QR Code (Right Column - Sizing increased) */}
           <div style={{ width: "230px", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
             <div style={{
-              width: "85px",
-              height: "85px",
+              width: "90px",
+              height: "90px",
               border: "1px solid #cccccc",
-              padding: "2px",
+              padding: "3px",
               backgroundColor: "#ffffff"
             }}>
               {qrSrc && (
@@ -412,9 +430,9 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           </div>
         </div>
 
-        {/* Footer Logo Band */}
+        {/* Footer Logo Band (Shifted down) */}
         <div style={{
-          marginTop: "45px",
+          marginTop: "65px", // Shifted down from 45px
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
@@ -428,51 +446,53 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "42px", maxWidth: "150px", objectFit: "contain" }}
+            style={{ height: "45px", maxWidth: "160px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "40px", maxWidth: "90px", objectFit: "contain" }}
+            style={{ height: "42px", maxWidth: "95px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "42px", maxWidth: "95px", objectFit: "contain" }}
+            style={{ height: "45px", maxWidth: "100px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
             alt="State Emblem of India"
-            style={{ height: "45px", maxWidth: "55px", objectFit: "contain" }}
+            style={{ height: "48px", maxWidth: "60px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "40px", maxWidth: "110px", objectFit: "contain" }}
+            style={{ height: "42px", maxWidth: "115px", objectFit: "contain" }}
           />
         </div>
 
-        {/* Verify Footer Link */}
-        <div style={{ marginTop: "15px", textAlign: "center" }}>
+        {/* Verify Footer Link (Margin and line separation updated to completely resolve overlap) */}
+        <div style={{ marginTop: "30px", textAlign: "center" }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "8.5px",
+            fontSize: "11px", // Increased from 8.5px
             color: "#666666",
-            margin: 0
+            margin: "0 0 8px 0", // Added bottom margin to resolve overlap
+            lineHeight: "1.6"
           }}>
             An Internationally Approved Certification Body by UK Acknowledging Company Ltd.
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "9px",
+            fontSize: "12px", // Increased from 9px
             fontWeight: "bold",
             color: "#a21e1e",
-            margin: "2px 0 0 0",
-            letterSpacing: "0.2px"
+            margin: "0",
+            letterSpacing: "0.2px",
+            lineHeight: "1.6"
           }}>
             Verify this certificate online on www.dkffj.org
           </p>
@@ -497,6 +517,7 @@ export async function generateDonationPDFClient(
   const msmeBase64 = await getBase64ImageFromUrl("/images/msme.png");
   const emblemBase64 = await getBase64ImageFromUrl("/images/emblem_of_india.png");
   const isoSealBase64 = await getBase64ImageFromUrl("/images/iso_seal.png");
+  const signatureBase64 = await getBase64ImageFromUrl("/images/director_sig.png");
 
   const container = document.createElement("div");
   container.style.position = "absolute";
@@ -522,6 +543,7 @@ export async function generateDonationPDFClient(
           msmeBase64={msmeBase64}
           emblemBase64={emblemBase64}
           isoSealBase64={isoSealBase64}
+          signatureBase64={signatureBase64}
         />
       );
 
