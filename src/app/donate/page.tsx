@@ -46,6 +46,7 @@ export default function DonatePage() {
     e.preventDefault();
     setErrorMsg("");
     
+    const formData = new FormData(e.currentTarget);
     const amount = getAmountValue();
     if (amount <= 0) {
       setErrorMsg("Please enter or select a valid donation amount.");
@@ -75,7 +76,6 @@ export default function DonatePage() {
     }
 
     setLoading(true);
-    const formData = new FormData(e.currentTarget);
     formData.set("amount", amount.toString());
     formData.set("purpose", purpose);
     formData.set("donorMobile", countryCode + mobile);
