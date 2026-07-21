@@ -332,7 +332,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         style={{
           position: "absolute",
           left: "120px",
-          top: "355px",
+          top: "348px", // Adjusted top slightly to sit on the line
           width: "883px",
           textAlign: "center",
           zIndex: 4
@@ -345,8 +345,8 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           color: "#000000",
           textTransform: "uppercase",
           letterSpacing: "1.5px",
-          backgroundColor: "#ffffff",
-          padding: "0 15px",
+          backgroundColor: "transparent",
+          padding: "0",
           position: "relative",
           zIndex: 2
         }}>
@@ -356,7 +356,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: "6px",
+          bottom: "-4px", // Positioned below the text baseline so it acts as an underline
           borderBottom: "1.5px dotted #999999",
           zIndex: 1
         }} />
@@ -396,8 +396,8 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           fontWeight: "bold",
           fontSize: "15px",
           color: "#000000",
-          backgroundColor: "#ffffff",
-          paddingRight: "10px",
+          backgroundColor: "transparent",
+          paddingRight: "0",
           position: "relative",
           zIndex: 2
         }}>
@@ -407,7 +407,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: "3px",
+          bottom: "-4px", // Positioned below the text baseline
           borderBottom: "1.5px dotted #999999",
           zIndex: 1
         }} />
