@@ -252,7 +252,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           top: "65px",
           textAlign: "right",
           fontFamily: "Arial, sans-serif",
-          fontSize: "16px",
+          fontSize: "18px", // Increased from 16px
           fontWeight: "bold",
           color: "#000000",
           lineHeight: "1.6",
@@ -261,7 +261,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
       >
         <p style={{ margin: 0 }}>Regd. No.: U88900UP2023NPL185611</p>
         <p style={{ margin: "2px 0 0 0" }}>
-          Certificates No.: <span style={{ fontFamily: "monospace", fontSize: "17px", color: "#a21e1e" }}>{certNumber}</span>
+          Certificates No.: <span style={{ fontFamily: "monospace", fontSize: "20px", color: "#a21e1e" }}>{certNumber}</span>
         </p>
       </div>
 
@@ -270,7 +270,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         style={{
           position: "absolute",
           left: "0px",
-          top: "185px",
+          top: "180px", // Moved up slightly to accommodate larger fonts
           width: "1123px",
           textAlign: "center",
           zIndex: 4
@@ -279,7 +279,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <h1 style={{
           fontFamily: "'Georgia', serif",
           fontWeight: "bold",
-          fontSize: "31px",
+          fontSize: "36px", // Increased from 31px
           color: "#a21e1e",
           letterSpacing: "1px",
           margin: 0
@@ -289,19 +289,19 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <h2 style={{
           fontFamily: "'Arial', sans-serif",
           fontWeight: "bold",
-          fontSize: "20px",
+          fontSize: "24px", // Increased from 20px
           color: "#000000",
           letterSpacing: "0.5px",
-          margin: "5px 0 0 0"
+          margin: "6px 0 0 0"
         }}>
           HUMAN RIGHTS PROTECTION
         </h2>
         <p style={{
           fontFamily: "'Georgia', serif",
           fontStyle: "italic",
-          fontSize: "15px",
-          color: "#000000", // Changed to pure black for high contrast/readability
-          margin: "2px 0 0 0"
+          fontSize: "18px", // Increased from 15px
+          color: "#000000",
+          margin: "4px 0 0 0"
         }}>
           Regd. By Ministry of Corporate affairs Govt. of India
         </p>
@@ -312,13 +312,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         style={{
           position: "absolute",
           left: "0px",
-          top: "312px",
+          top: "308px",
           width: "1123px",
           textAlign: "center",
           fontFamily: "'Georgia', serif",
           fontWeight: "bold",
           fontStyle: "italic",
-          fontSize: "18px",
+          fontSize: "21px", // Increased from 18px
           color: "#001C55",
           letterSpacing: "0.5px",
           zIndex: 4
@@ -332,7 +332,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         style={{
           position: "absolute",
           left: "120px",
-          top: "348px", // Adjusted top slightly to sit on the line
+          top: "348px",
           width: "883px",
           textAlign: "center",
           zIndex: 4
@@ -341,7 +341,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <span style={{
           fontFamily: "'Arial', sans-serif",
           fontWeight: "bold",
-          fontSize: "32px",
+          fontSize: "38px", // Increased from 32px
           color: "#000000",
           textTransform: "uppercase",
           letterSpacing: "1.5px",
@@ -356,24 +356,25 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: "-4px", // Positioned below the text baseline so it acts as an underline
+          bottom: "-6px",
           borderBottom: "1.5px dotted #999999",
           zIndex: 1
         }} />
       </div>
 
-      {/* 10. Human Rights Pledge Block (Color set to solid pure black #000000 for maximum readability) */}
+      {/* 10. Human Rights Pledge Block */}
       <div
         style={{
           position: "absolute",
           left: "70px",
           width: "983px",
-          top: "420px",
+          top: "415px",
           textAlign: "center",
-          fontSize: "16.5px",
+          fontSize: "19px", // Increased from 16.5px
           fontStyle: "italic",
+          fontWeight: "bold", // Set to bold for optimal readability over watermark
           fontFamily: "'Georgia', serif",
-          color: "#000000", // Changed from #111111 to pure black
+          color: "#000000",
           lineHeight: "1.8",
           zIndex: 4
         }}
@@ -387,39 +388,39 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           position: "absolute",
           left: "80px",
           top: "602px",
-          width: "220px",
+          width: "240px",
           zIndex: 4
         }}
       >
         <span style={{
           fontFamily: "'Georgia', serif",
           fontWeight: "bold",
-          fontSize: "15px",
+          fontSize: "18px", // Increased from 15px
           color: "#000000",
           backgroundColor: "transparent",
           paddingRight: "0",
           position: "relative",
           zIndex: 2
         }}>
-          Dated: <span style={{ fontFamily: "Arial, sans-serif", fontSize: "15px", fontWeight: "bold" }}>{formattedDate}</span>
+          Dated: <span style={{ fontFamily: "Arial, sans-serif", fontSize: "18px", fontWeight: "bold" }}>{formattedDate}</span>
         </span>
         <div style={{
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: "-4px", // Positioned below the text baseline
+          bottom: "-4px",
           borderBottom: "1.5px dotted #999999",
           zIndex: 1
         }} />
       </div>
 
-      {/* 12. Bottom Row: Center QR Code (Moved down to 585px since government logos are removed) */}
+      {/* 12. Bottom Row: Center QR Code */}
       {qrSrc && (
         <div
           style={{
             position: "absolute",
             left: "519px",
-            top: "585px", // Moved down from 535px
+            top: "585px",
             width: "85px",
             height: "85px",
             padding: "3px",
@@ -469,7 +470,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         <div style={{ width: "100%", borderTop: "1.2px solid #555555", margin: "2px 0" }} />
         <p style={{
           fontFamily: "Arial, sans-serif",
-          fontSize: "12px",
+          fontSize: "14px", // Increased from 12px
           fontWeight: "bold",
           color: "#333333",
           margin: 0,
@@ -479,7 +480,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
         <p style={{
           fontFamily: "Arial, sans-serif",
-          fontSize: "10.5px",
+          fontSize: "12px", // Increased from 10.5px
           fontWeight: "bold",
           color: "#555555",
           margin: "1px 0 0 0",
@@ -489,7 +490,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
       </div>
 
-      {/* 14. Footer Divider Line (Slightly adjusted top offset) */}
+      {/* 14. Footer Divider Line */}
       <div
         style={{
           position: "absolute",
@@ -514,7 +515,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }}
       >
         <p style={{
-          fontSize: "12px",
+          fontSize: "14.5px", // Increased from 12px
           fontWeight: "bold",
           color: "#001C55",
           margin: 0
@@ -522,10 +523,10 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
         </p>
         <p style={{
-          fontSize: "11px",
+          fontSize: "13px", // Increased from 11px
           fontWeight: "bold",
           color: "#666666",
-          margin: "4px 0 0 0"
+          margin: "5px 0 0 0"
         }}>
           Website : www.dkffj.org / Contact No.: 9871219033, 7080 403333
         </p>
