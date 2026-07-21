@@ -78,7 +78,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         margin: "0 auto"
       }}
     >
-      {/* 1. Extremely subtle, non-intrusive security watermark pattern (Opacity reduced to 0.012, gap increased to 38px) */}
+      {/* 1. Subtle security watermark pattern (Opacity increased to 0.12, gap set to 12px for dense pattern) */}
       <div
         style={{
           position: "absolute",
@@ -91,14 +91,14 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          gap: "38px",
+          gap: "12px",
           padding: "20px 0",
           boxSizing: "border-box",
-          opacity: 0.012,
+          opacity: 0.12,
           userSelect: "none"
         }}
       >
-        {Array.from({ length: 16 }).map((_, i) => (
+        {Array.from({ length: 55 }).map((_, i) => (
           <div
             key={i}
             style={{
@@ -117,7 +117,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         ))}
       </div>
 
-      {/* 2. Large Central Watermark Logo (Opacity reduced to 0.03 for minimal distraction) */}
+      {/* 2. Large Central Watermark Logo (Opacity increased to 0.10) */}
       <div
         style={{
           position: "absolute",
@@ -125,7 +125,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           top: "237px",  // (794 - 320) / 2
           width: "320px",
           height: "320px",
-          opacity: 0.03,
+          opacity: 0.10,
           pointerEvents: "none",
           zIndex: 1,
           display: "flex",
