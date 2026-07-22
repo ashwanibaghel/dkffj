@@ -28,6 +28,7 @@ interface AppreciationCertificateRendererProps {
   emblemBase64?: string;
   isoSealBase64?: string;
   signatureBase64?: string;
+  borderBase64?: string;
 }
 
 export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRendererProps> = ({
@@ -41,7 +42,8 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   msmeBase64,
   emblemBase64,
   isoSealBase64,
-  signatureBase64
+  signatureBase64,
+  borderBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
@@ -53,6 +55,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
   const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
+  const borderSrc = borderBase64 || "/images/royal-vip-certificate-border-a4-portrait-v2.svg";
 
   const displayRefNo = data.applicationNo;
   const displayFatherName = data.fatherName || "";
@@ -117,56 +120,22 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
         ))}
       </div>
 
-      {/* Vector Certificate Border Frame */}
-      <svg
-        viewBox="0 0 794 1123"
-        width="100%"
-        height="100%"
+      {/* VIP antique certificate border supplied for the appreciation certificate */}
+      <img
+        src={borderSrc}
+        alt=""
+        aria-hidden="true"
         style={{
           position: "absolute",
           top: 0,
           left: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "fill",
           pointerEvents: "none",
           zIndex: 3
         }}
-      >
-        {/* Outer gold border line */}
-        <rect x="16" y="16" width="762" height="1091" fill="none" stroke="#c5a880" strokeWidth="5" />
-        
-        {/* Inner thin red border line */}
-        <rect x="24" y="24" width="746" height="1075" fill="none" stroke="#a21e1e" strokeWidth="2" />
-        
-        {/* Gold dots border line */}
-        <rect x="30" y="30" width="734" height="1063" fill="none" stroke="#c5a880" strokeWidth="1" strokeDasharray="3,6" />
-
-        {/* Symmetrical Vector Corner Ornaments (Top Left) */}
-        <g transform="translate(35, 35)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
-        
-        {/* Corner Ornaments (Top Right) */}
-        <g transform="translate(759, 35) scale(-1, 1)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
-        
-        {/* Corner Ornaments (Bottom Left) */}
-        <g transform="translate(35, 1088) scale(1, -1)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
-        
-        {/* Corner Ornaments (Bottom Right) */}
-        <g transform="translate(759, 1088) scale(-1, -1)">
-          <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="#a21e1e" />
-          <path d="M 10 10 L 40 10 L 40 13 L 13 13 L 13 40 L 10 40 Z" fill="#c5a880" />
-          <circle cx="5" cy="5" r="2.5" fill="#c5a880" />
-        </g>
-      </svg>
+      />
 
       {/* Certificate Content wrapper */}
       <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -241,7 +210,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           position: "relative",
           width: "700px",
           height: "230px",
-          marginTop: "10px",
+          marginTop: "26px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center"
@@ -250,7 +219,15 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 2 }}>
             <svg viewBox="0 0 700 230" width="700" height="230" style={{ overflow: "visible" }}>
               <path id="text-curve" d="M 60,185 A 440,440 0 0,1 640,185" fill="none" />
-              <text fill="#001C55" style={{ fontSize: "50px", fontFamily: "'UnifrakturMaguntia', serif" }}>
+              <text
+                fill="#001C55"
+                style={{
+                  fontSize: "43px",
+                  fontFamily: "'Cinzel Decorative', 'Playfair Display', Georgia, serif",
+                  fontWeight: 700,
+                  letterSpacing: "0.7px"
+                }}
+              >
                 <textPath href="#text-curve" startOffset="50%" textAnchor="middle">
                   Certificate of Appreciation
                 </textPath>
@@ -571,7 +548,8 @@ export async function generateAppreciationPDFClient(
     msmeBase64,
     emblemBase64,
     isoSealBase64,
-    signatureBase64
+    signatureBase64,
+    borderBase64
   ] = await Promise.all([
     data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve(""),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
@@ -582,7 +560,8 @@ export async function generateAppreciationPDFClient(
     getBase64ImageFromUrl("/images/msme.png"),
     getBase64ImageFromUrl("/images/emblem_of_india.png"),
     getBase64ImageFromUrl("/images/iso_seal.png"),
-    getBase64ImageFromUrl("/images/director_sig.png")
+    getBase64ImageFromUrl("/images/director_sig.png"),
+    getBase64ImageFromUrl("/images/royal-vip-certificate-border-a4-portrait-v2.svg")
   ]);
 
   const container = document.createElement("div");
@@ -611,6 +590,7 @@ export async function generateAppreciationPDFClient(
           emblemBase64={emblemBase64}
           isoSealBase64={isoSealBase64}
           signatureBase64={signatureBase64}
+          borderBase64={borderBase64}
         />
       );
 

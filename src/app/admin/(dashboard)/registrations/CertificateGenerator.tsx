@@ -61,6 +61,7 @@ interface CertificateRendererProps {
   emblemBase64?: string;
   isoSealBase64?: string;
   signatureBase64?: string;
+  borderBase64?: string;
 }
 
 export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
@@ -74,7 +75,8 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   msmeBase64,
   emblemBase64,
   isoSealBase64,
-  signatureBase64
+  signatureBase64,
+  borderBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
@@ -86,6 +88,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
   const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
+  const borderSrc = borderBase64 || "/images/completion-antique-royal-border-a4.svg";
 
   return (
     <div
@@ -103,7 +106,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
     >
       {/* Google Fonts injection */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Poppins:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700;800&family=Poppins:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&display=swap');
       `}</style>
 
       {/* Repeating security watermark pattern */}
@@ -174,45 +177,28 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         />
       </div>
 
-      {/* Vector Certificate Border Frame */}
-      <svg
-        viewBox="0 0 794 1123"
-        width="100%"
-        height="100%"
+      {/* Antique royal A4 background/border; certificate content remains unchanged. */}
+      <img
+        src={borderSrc}
+        alt=""
+        aria-hidden="true"
         style={{
           position: "absolute",
           top: 0,
           left: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "fill",
           pointerEvents: "none",
-          zIndex: 3
+          zIndex: 0
         }}
-      >
-        <defs>
-          <linearGradient id="goldBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#b8860b" />
-            <stop offset="30%" stopColor="#ffd700" />
-            <stop offset="70%" stopColor="#ffd700" />
-            <stop offset="100%" stopColor="#b8860b" />
-          </linearGradient>
-        </defs>
-        {/* Outer gold border line using the linear gradient */}
-        <rect x="15" y="15" width="764" height="1093" fill="none" stroke="url(#goldBorderGradient)" strokeWidth="20" />
-        
-        {/* Inner thin red border line */}
-        <rect x="30" y="30" width="734" height="1063" fill="none" stroke="#cc0000" strokeWidth="3" />
-        
-        {/* Symmetrical Vector Corner Ornaments */}
-        <path d="M 65 25 L 25 25 L 25 65" fill="none" stroke="#cc0000" strokeWidth="6" />
-        <path d="M 729 25 L 769 25 L 769 65" fill="none" stroke="#cc0000" strokeWidth="6" />
-        <path d="M 25 1058 L 25 1098 L 65 1098" fill="none" stroke="#cc0000" strokeWidth="6" />
-        <path d="M 769 1058 L 769 1098 L 729 1098" fill="none" stroke="#cc0000" strokeWidth="6" />
-      </svg>
+      />
 
       {/* Certificate Content wrapper */}
-      <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 15px" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", padding: "54px 38px 42px", boxSizing: "border-box" }}>
         
         {/* Top Header */}
-        <div style={{ textAlign: "center", width: "100%", marginBottom: "15px" }}>
+        <div style={{ textAlign: "center", width: "100%", marginBottom: "8px" }}>
           <h1 style={{
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 800,
@@ -247,16 +233,19 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         {/* Top Meta (Logo on Left, Student Photo on Right) */}
         <div style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "center",
           alignItems: "center",
           width: "100%",
-          marginBottom: "15px",
-          padding: "0 10px"
+          height: "120px",
+          position: "relative",
+          marginBottom: "8px",
+          padding: "0 10px",
+          boxSizing: "border-box"
         }}>
           {/* Foundation Logo */}
           <div style={{
-            width: "100px",
-            height: "100px",
+            width: "90px",
+            height: "90px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -272,11 +261,14 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
 
           {/* Student's Photo */}
           <div style={{
-            width: "110px",
-            height: "140px",
+            width: "95px",
+            height: "120px",
             border: "1px solid #999",
             borderRadius: "15px",
             overflow: "hidden",
+            position: "absolute",
+            right: "10px",
+            top: 0,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -295,9 +287,9 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         </div>
 
         {/* Certificate Title */}
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+        <div style={{ textAlign: "center", marginBottom: "18px" }}>
           <h2 style={{
-            fontFamily: "'Cinzel', serif",
+            fontFamily: "'Cinzel Decorative', Algerian, 'Cinzel', serif",
             color: "#cc0000",
             fontSize: "38px",
             fontWeight: 700,
@@ -317,20 +309,24 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             font-weight: 600;
             color: #222;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
           }
           .cert-input-line {
             flex-grow: 1;
+            min-width: 0;
             border-bottom: 2px solid #444;
-            height: 35px;
+            min-height: 35px;
             margin-left: 10px;
             background-color: transparent;
             color: #001C55;
             font-weight: 700;
-            font-size: 17px;
-            padding: 0 10px 8px 10px;
+            font-size: 16px;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+            padding: 4px 10px 8px 10px;
+            box-sizing: border-box;
             display: inline-flex;
-            align-items: flex-end;
+            align-items: center;
           }
           .cert-inline-inputs {
             display: flex;
@@ -344,7 +340,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         `}</style>
 
         {/* Form Content Body */}
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", padding: "0 10px" }}>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", padding: "0 10px", boxSizing: "border-box" }}>
           
           <div className="cert-row">
             This is to certify that Mr./Ms. 
@@ -408,12 +404,12 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             fontStyle: "italic",
             fontSize: "14px",
             color: "#444",
-            marginTop: "10px",
+            marginTop: "6px",
             textAlign: "left",
             lineHeight: "1.6",
             fontWeight: 500
           }}>
-            During this period, his/her performance and conduct were found to be <span style={{ color: "#001C55", fontWeight: 700, fontStyle: "normal", borderBottom: "1.5px solid #444", padding: "0 5px" }}>{data.performance}</span>.
+            During this period, his/her performance and conduct were found to be <span style={{ color: "#001C55", fontWeight: 700, fontStyle: "normal", textDecoration: "underline", textUnderlineOffset: "3px", padding: "0 3px" }}>{data.performance}</span>.
             <br />
             We wish him/her every success in all future endeavors.
           </div>
@@ -424,9 +420,10 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           display: "flex",
           justifyContent: "space-between",
           width: "100%",
-          marginTop: "25px",
+          marginTop: "14px",
           padding: "0 10px",
-          fontSize: "14px",
+          boxSizing: "border-box",
+          fontSize: "12px",
           fontWeight: 700,
           color: "#222"
         }}>
@@ -440,14 +437,15 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           justifyContent: "space-between",
           alignItems: "center",
           width: "100%",
-          marginTop: "auto",
-          padding: "0 10px 10px 10px"
+          marginTop: "14px",
+          padding: "0 10px 4px 10px",
+          boxSizing: "border-box"
         }}>
           {/* Signature Area */}
           <div style={{
             textAlign: "center",
-            width: "220px",
-            paddingTop: "40px",
+            width: "190px",
+            paddingTop: "32px",
             position: "relative"
           }}>
             {signatureSrc && (
@@ -456,10 +454,10 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
                 alt="Director Signature"
                 style={{
                   position: "absolute",
-                  bottom: "48px",
+                  bottom: "42px",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  height: "55px",
+                  height: "48px",
                   objectFit: "contain",
                   mixBlendMode: "multiply",
                   pointerEvents: "none"
@@ -467,16 +465,16 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
               />
             )}
             <div style={{ borderTop: "1px solid #333", width: "100%", marginBottom: "5px" }}></div>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: "#222" }}>(Seal & Signature)</span>
+            <span style={{ fontSize: "11px", fontWeight: 600, color: "#222" }}>(Seal & Signature)</span>
             <br />
-            <span style={{ fontSize: "11px", color: "#555" }}>Director / Authorized Signatory</span>
+            <span style={{ fontSize: "9px", color: "#555" }}>Director / Authorized Signatory</span>
           </div>
 
           {/* ISO Seal */}
           <div style={{
-            width: "90px",
-            height: "90px",
-            marginTop: "-15px"
+            width: "78px",
+            height: "78px",
+            marginTop: "-10px"
           }}>
             <img
               src={isoSealSrc}
@@ -487,8 +485,8 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
 
           {/* QR Code */}
           <div style={{
-            width: "95px",
-            height: "95px",
+            width: "82px",
+            height: "82px",
             border: "2px solid #333",
             display: "flex",
             justifyContent: "center",
@@ -513,24 +511,24 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           justifyContent: "space-around",
           alignItems: "center",
           borderTop: "1px solid #ccc",
-          paddingTop: "10px",
-          marginTop: "10px"
+          paddingTop: "6px",
+          marginTop: "5px"
         }}>
-          <img src={mcaSrc} alt="MCA Govt of India" style={{ height: "30px", objectFit: "contain" }} />
-          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "28px", objectFit: "contain" }} />
-          <img src={nsdcSrc} alt="NSDC" style={{ height: "30px", objectFit: "contain" }} />
-          <img src={emblemSrc} alt="Emblem" style={{ height: "32px", objectFit: "contain" }} />
-          <img src={msmeSrc} alt="MSME Govt of India" style={{ height: "28px", objectFit: "contain" }} />
+          <img src={mcaSrc} alt="MCA Govt of India" style={{ height: "24px", objectFit: "contain" }} />
+          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "22px", objectFit: "contain" }} />
+          <img src={nsdcSrc} alt="NSDC" style={{ height: "24px", objectFit: "contain" }} />
+          <img src={emblemSrc} alt="Emblem" style={{ height: "25px", objectFit: "contain" }} />
+          <img src={msmeSrc} alt="MSME Govt of India" style={{ height: "22px", objectFit: "contain" }} />
         </div>
 
         {/* Footer Verification text */}
         <div style={{
-          fontSize: "11px",
+          fontSize: "9px",
           color: "#cc0000",
           fontWeight: "bold",
           textAlign: "center",
-          marginTop: "10px",
-          lineHeight: "1.4"
+          marginTop: "4px",
+          lineHeight: "1.25"
         }}>
           An autonomous skill development diploma issued as an Independent Institutional Certification.
           <br />
@@ -566,7 +564,8 @@ export async function generateCertificatePDFClient(
     msmeBase64,
     emblemBase64,
     isoSealBase64,
-    signatureBase64
+    signatureBase64,
+    borderBase64
   ] = await Promise.all([
     data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve(""),
     getBase64ImageFromUrl(data.qrCodeUrl),
@@ -577,7 +576,8 @@ export async function generateCertificatePDFClient(
     getBase64ImageFromUrl("/images/msme.png"),
     getBase64ImageFromUrl("/images/emblem_of_india.png"),
     getBase64ImageFromUrl("/images/iso_seal.png"),
-    getBase64ImageFromUrl("/images/director_sig.png")
+    getBase64ImageFromUrl("/images/director_sig.png"),
+    getBase64ImageFromUrl("/images/completion-antique-royal-border-a4.svg")
   ]);
 
   const container = document.createElement("div");
@@ -606,6 +606,7 @@ export async function generateCertificatePDFClient(
           emblemBase64={emblemBase64}
           isoSealBase64={isoSealBase64}
           signatureBase64={signatureBase64}
+          borderBase64={borderBase64}
         />
       );
 
