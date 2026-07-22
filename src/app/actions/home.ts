@@ -44,7 +44,7 @@ export async function getHomeLeaders() {
 
   // Fallback to static member registry
   return staticMembers
-    .filter((m) => m.show_home === 1)
+    .filter((m) => m.showHome === 1)
     .map((m) => ({
       id: m.id,
       name: m.name,
@@ -54,7 +54,7 @@ export async function getHomeLeaders() {
       mobile: m.mobile,
       photo: m.photo,
       status: m.status,
-      showHome: m.show_home,
+      showHome: m.showHome,
       description: leaderDescriptions[m.id] || "DKFFJ Executive Council Member."
     }));
 }

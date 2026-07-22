@@ -189,15 +189,33 @@ export default function AdminMembersPage() {
       result = result.filter((m) => m.status === filter);
     }
     if (searchQuery.trim() !== "") {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (m) =>
-          m.full_name.toLowerCase().includes(q) ||
-          m.email.toLowerCase().includes(q) ||
-          m.mobile.toLowerCase().includes(q) ||
-          m.ack_no.toLowerCase().includes(q) ||
-          (m.membership_no && m.membership_no.toLowerCase().includes(q))
-      );
+      const queryTerms = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
+      result = result.filter((m) => {
+        const searchableText = [
+          m.full_name,
+          m.father_name,
+          m.email,
+          m.mobile,
+          m.whatsapp,
+          m.ack_no,
+          m.membership_no,
+          m.designation,
+          m.working_area,
+          m.district,
+          m.state,
+          m.address,
+          m.profession,
+          m.education,
+          m.pincode,
+          m.police_station,
+          m.remarks
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return queryTerms.every((term) => searchableText.includes(term));
+      });
     }
     return result;
   }, [filter, searchQuery, tabMembers]);
@@ -566,7 +584,7 @@ export default function AdminMembersPage() {
               : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400"
           }`}
         >
-          Migrated Members (PHP Site Backup)
+          Legacy Members Registry
         </button>
       </div>
 
@@ -620,7 +638,7 @@ export default function AdminMembersPage() {
         <div className="relative max-w-md w-full">
           <input
             type="text"
-            placeholder="Search name, ACK, member ID, email..."
+            placeholder="Search name, father name, designation, city, mobile, ACK..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 font-semibold"
