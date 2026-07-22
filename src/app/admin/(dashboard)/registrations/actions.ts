@@ -353,10 +353,12 @@ export async function issueCertificateForRegistration(
   const performance = certData.performance || "Excellent";
 
   try {
-    // 1. Generate Certificate Number based on enrollment suffix (for 100% consistency)
-    const certNo = reg.enrollment_no
-      ? reg.enrollment_no.replace("DKE", "DKCERT")
-      : ("DKCERT-" + Math.random().toString(36).substring(2, 9).toUpperCase());
+    // 1. Generate Certificate Number matching enrollment prefix (DKFFJ/C/YYYY/XXXX)
+    const currentYear = new Date().getFullYear();
+    let certNo = reg.enrollment_no || `DKFFJ/C/${currentYear}/0001`;
+    if (!certNo.startsWith("DKFFJ/C/")) {
+      certNo = `DKFFJ/C/${currentYear}/` + certNo.split("-").pop()?.padStart(4, "0");
+    }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const verificationUrl = `${appUrl}/verify/${certNo}`;

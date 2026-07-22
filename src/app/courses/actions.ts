@@ -221,10 +221,11 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   const fees = Number(course.fees);
 
   try {
-    // 3. Atomically generate Enrollment Number DKE-YYYY-XXXXX
+    // 3. Atomically generate Enrollment Number DKFFJ/C/YYYY/XXXX
+    const currentYear = new Date().getFullYear();
     const { data: enrollmentNo, error: rpcError } = await supabase.rpc("generate_next_number", {
       p_key: "course_reg",
-      p_prefix: "DKE"
+      p_prefix: `DKFFJ/C/${currentYear}/`
     });
 
     if (rpcError || !enrollmentNo) {

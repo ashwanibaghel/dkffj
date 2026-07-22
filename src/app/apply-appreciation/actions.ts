@@ -230,10 +230,11 @@ export async function submitAppreciationApplication(prevData: any, formData: For
       achievementProofUrl = `aadhaar/${achievementName}`;
     }
 
-    // 2. Generate Application Number
+    // 2. Generate Application Number DKFFJ/A/YYYY/XXXX
+    const currentYear = new Date().getFullYear();
     const { data: appNo, error: rpcError } = await supabase.rpc("generate_next_number", {
       p_key: "appreciation_app",
-      p_prefix: "DKA"
+      p_prefix: `DKFFJ/A/${currentYear}/`
     });
 
     if (rpcError || !appNo) {

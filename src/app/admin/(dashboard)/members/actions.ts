@@ -178,9 +178,10 @@ export async function updateMembershipStatus(
 
   // 1. Generate Membership Number atomically if approving for the first time
   if (newStatus === "APPROVED" && !member.membership_no) {
+    const currentYear = new Date().getFullYear();
     const { data: mNo, error: rpcError } = await supabase.rpc("generate_next_number", {
       p_key: "membership_no",
-      p_prefix: "DKM"
+      p_prefix: `DKFFJ/M/${currentYear}/`
     });
 
     if (rpcError || !mNo) {
