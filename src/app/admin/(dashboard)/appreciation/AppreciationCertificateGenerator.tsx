@@ -18,7 +18,6 @@ export interface AppreciationCertificateData {
 
 interface AppreciationCertificateRendererProps {
   data: AppreciationCertificateData;
-  photoBase64?: string;
   qrBase64?: string;
   logoBase64?: string;
   mcaBase64?: string;
@@ -33,7 +32,6 @@ interface AppreciationCertificateRendererProps {
 
 export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRendererProps> = ({
   data,
-  photoBase64,
   qrBase64,
   logoBase64,
   mcaBase64,
@@ -45,17 +43,16 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   signatureBase64,
   borderBase64
 }) => {
-  const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
-  const mcaSrc = mcaBase64 || "/images/mca_logo.png";
-  const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
+  const mcaSrc = mcaBase64 || "/images/mca.png";
+  const nitiSrc = nitiBase64 || "/images/niti aayog.png";
   const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
   const msmeSrc = msmeBase64 || "/images/msme.png";
-  const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
-  const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
+  const emblemSrc = emblemBase64 || "/images/ministry of social justice and empowerment.png";
+  const isoSealSrc = isoSealBase64 || "/images/iso.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
-  const borderSrc = borderBase64 || "/images/royal-vip-certificate-border-a4-portrait-v2.svg";
+  const borderSrc = borderBase64 || "/images/appreciation-classic-victorian-border-a4.svg";
 
   const displayRefNo = data.applicationNo;
   const displayFatherName = data.fatherName || "";
@@ -78,7 +75,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
     >
       {/* Google Fonts injection */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&family=Great+Vibes&family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&family=Inter:wght@400;600;700&display=swap');
       `}</style>
 
       {/* Repeating security watermark pattern */}
@@ -120,6 +117,23 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
         ))}
       </div>
 
+      {/* Large, subtle foundation seal in the center background */}
+      <div
+        style={{
+          position: "absolute",
+          top: "52%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "370px",
+          height: "370px",
+          opacity: 0.08,
+          pointerEvents: "none",
+          zIndex: 2
+        }}
+      >
+        <img src={logoSrc} alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+      </div>
+
       {/* VIP antique certificate border supplied for the appreciation certificate */}
       <img
         src={borderSrc}
@@ -133,15 +147,15 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           height: "100%",
           objectFit: "fill",
           pointerEvents: "none",
-          zIndex: 3
+          zIndex: 0
         }}
       />
 
       {/* Certificate Content wrapper */}
-      <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", padding: "0 16px", boxSizing: "border-box" }}>
         
         {/* Top Header */}
-        <div style={{ marginTop: "25px", textAlign: "center" }}>
+        <div style={{ marginTop: "36px", textAlign: "center" }}>
           <h1 style={{
             fontFamily: "'Cinzel', serif",
             fontWeight: 800,
@@ -152,12 +166,22 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           }}>
             DK FOUNDATION OF FREEDOM AND JUSTICE
           </h1>
+          <h2 style={{
+            fontFamily: "'Inter', Arial, sans-serif",
+            fontWeight: 800,
+            fontSize: "14px",
+            color: "#111111",
+            letterSpacing: "0.8px",
+            margin: "2px 0 0 0"
+          }}>
+            HUMAN RIGHTS PROTECTION
+          </h2>
           <p style={{
             fontFamily: "'Playfair Display', serif",
             fontStyle: "italic",
             fontSize: "12px",
             color: "#333333",
-            margin: "4px 0 0 0"
+            margin: "2px 0 0 0"
           }}>
             (Under Section 8 of The Companies Act, 2013 Govt of India)
           </p>
@@ -178,54 +202,74 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
-          marginTop: "15px",
+          marginTop: "8px",
           fontFamily: "'Playfair Display', serif"
         }}>
           <div style={{
-            border: "1.5px solid #c5a880",
-            borderRadius: "20px",
-            padding: "4px 15px",
-            backgroundColor: "#ffffff",
-            fontSize: "12px",
+            border: "none",
+            borderRadius: 0,
+            padding: "4px 8px",
+            backgroundColor: "transparent",
+            width: "210px",
+            minHeight: "28px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            columnGap: "4px",
+            textAlign: "center",
+            boxSizing: "border-box",
+            position: "relative",
+            fontSize: "14px",
             fontWeight: "bold",
             color: "#333333"
           }}>
-            Ref No: <span style={{ color: "#a21e1e", fontFamily: "monospace" }}>{displayRefNo}</span>
+            <span>Ref No:</span>
+            <span style={{ color: "#a21e1e", fontFamily: "monospace" }}>{displayRefNo}</span>
           </div>
           <div style={{
-            border: "1.5px solid #c5a880",
-            borderRadius: "20px",
-            padding: "4px 15px",
-            backgroundColor: "#ffffff",
-            fontSize: "12px",
+            border: "none",
+            borderRadius: 0,
+            padding: "4px 8px",
+            backgroundColor: "transparent",
+            width: "210px",
+            minHeight: "28px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            columnGap: "4px",
+            textAlign: "center",
+            boxSizing: "border-box",
+            position: "relative",
+            fontSize: "14px",
             fontWeight: "bold",
             color: "#333333"
           }}>
-            Date: <span style={{ color: "#333333" }}>{data.issueDateStr}</span>
+            <span>Date:</span>
+            <span style={{ color: "#333333" }}>{data.issueDateStr}</span>
           </div>
         </div>
 
         {/* Combined Curved Title & Crest Logo Area */}
         <div style={{
           position: "relative",
-          width: "700px",
-          height: "230px",
-          marginTop: "26px",
+          width: "100%",
+          height: "205px",
+          marginTop: "4px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center"
         }}>
           {/* Curved Title SVG */}
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 2 }}>
-            <svg viewBox="0 0 700 230" width="700" height="230" style={{ overflow: "visible" }}>
-              <path id="text-curve" d="M 60,185 A 440,440 0 0,1 640,185" fill="none" />
+            <svg viewBox="0 0 700 205" width="100%" height="205" style={{ overflow: "visible" }}>
+              <path id="text-curve" d="M 60,165 A 440,440 0 0,1 640,165" fill="none" />
               <text
                 fill="#001C55"
                 style={{
-                  fontSize: "43px",
-                  fontFamily: "'Cinzel Decorative', 'Playfair Display', Georgia, serif",
-                  fontWeight: 700,
-                  letterSpacing: "0.7px"
+                  fontSize: "49px",
+                  fontFamily: "'UnifrakturMaguntia', 'Old English Text MT', serif",
+                  fontWeight: 400,
+                  letterSpacing: "0.15px"
                 }}
               >
                 <textPath href="#text-curve" startOffset="50%" textAnchor="middle">
@@ -236,11 +280,11 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
 
           {/* Crest Logo (perfectly centered and nestled under the arch curve) */}
-          <div style={{ position: "absolute", top: "105px", zIndex: 1 }}>
+          <div style={{ position: "absolute", top: "82px", zIndex: 1 }}>
             <img
               src={logoSrc}
               alt="Crest Logo"
-              style={{ width: "110px", height: "110px", objectFit: "contain" }}
+              style={{ width: "128px", height: "128px", objectFit: "contain" }}
             />
           </div>
         </div>
@@ -255,7 +299,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             border: none;
             border-bottom: 1.5px solid #c5a880;
             border-radius: 0;
-            color: #001C55;
+            color: #111111;
             font-weight: bold;
             font-size: 16px;
             height: 28px;
@@ -267,37 +311,37 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             align-items: center;
             width: 90%;
             margin-left: 5%;
-            font-size: 15px;
+            font-size: 16px;
             color: #222222;
             font-style: italic;
           }
         `}</style>
 
         {/* Form Fields (Dynamic Rows) */}
-        <div style={{ width: "100%", marginTop: "15px", display: "flex", flexDirection: "column", gap: "15px" }}>
+        <div style={{ width: "100%", marginTop: "5px", display: "flex", flexDirection: "column", gap: "10px" }}>
           
-          {/* Two-Column Section for Name/Father/Designation on Left, Student Photo on Right */}
-          <div style={{ width: "90%", marginLeft: "5%", display: "flex", gap: "25px", alignItems: "flex-start" }}>
+          {/* Full-width centered recipient details */}
+          <div style={{ width: "90%", marginLeft: "5%", display: "flex", justifyContent: "center" }}>
             
             {/* Left Column: Certification details */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
               {/* Row 1: Student Name */}
-              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
-                <span style={{ minWidth: "290px", fontSize: "15px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
+              <div className="cert-line" style={{ width: "100%", marginLeft: 0, justifyContent: "center" }}>
+                 <span style={{ minWidth: "290px", fontSize: "16px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
                   This certificate is proudly presented to Mr./Ms./Mrs.
                 </span>
-                <div className="cert-pill" style={{ flex: 1, textTransform: "uppercase" }}>
+                <div className="cert-pill" style={{ minWidth: "230px", textTransform: "uppercase" }}>
                   {data.fullName}
                 </div>
               </div>
 
               {/* Row 2: Father Name */}
               {displayFatherName && (
-                <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
-                  <span style={{ minWidth: "140px", fontSize: "15px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
+                <div className="cert-line" style={{ width: "100%", marginLeft: 0, justifyContent: "center" }}>
+                   <span style={{ minWidth: "140px", fontSize: "16px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
                     Son/Daughter of Mr.
                   </span>
-                  <div className="cert-pill" style={{ flex: 1 }}>
+                  <div className="cert-pill" style={{ minWidth: "230px" }}>
                     {displayFatherName}
                   </div>
                 </div>
@@ -305,48 +349,23 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
 
               {/* Row 3: Dedication Lead-in */}
               <div style={{
-                fontSize: "15px",
+                 fontSize: "16px",
                 fontStyle: "italic",
                 fontFamily: "'Playfair Display', serif",
                 color: "#222222",
-                textAlign: "left"
+                textAlign: "center"
               }}>
-                in recognition of your outstanding dedication, valuable contribution, and
+                in recognition of your outstanding dedication, valuable contribution, and sincere efforts towards
               </div>
 
               {/* Row 4: Designation & Area */}
-              <div className="cert-line" style={{ width: "100%", marginLeft: 0 }}>
-                <span style={{ minWidth: "150px", fontSize: "15px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
-                  sincere efforts towards
-                </span>
-                <div className="cert-pill" style={{ flex: 1 }}>
+              <div className="cert-line" style={{ width: "100%", marginLeft: 0, justifyContent: "center", flexWrap: "nowrap" }}>
+                <div className="cert-pill" style={{ width: "100%", minWidth: 0, padding: "0 6px", fontSize: "16px", whiteSpace: "nowrap" }}>
                   {displayDesignation} ({displayWorkingArea})
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Member Photo */}
-            {photoSrc && (
-              <div
-                style={{
-                  width: "105px",
-                  height: "135px",
-                  overflow: "hidden",
-                  borderRadius: "6px",
-                  border: "2px solid #c5a880",
-                  backgroundColor: "#ffffff",
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
-                  flexShrink: 0,
-                  marginTop: "6px"
-                }}
-              >
-                <img
-                  src={photoSrc}
-                  alt="Member Profile"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </div>
-            )}
           </div>
 
           {/* Row 5: Central Appreciation text paragraph */}
@@ -354,11 +373,11 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             width: "90%",
             marginLeft: "5%",
             textAlign: "center",
-            fontSize: "15px",
+            fontSize: "16px",
             fontStyle: "italic",
             color: "#222222",
-            lineHeight: "1.8",
-            marginTop: "10px",
+            lineHeight: "1.6",
+            marginTop: "4px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -373,7 +392,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             <p style={{ margin: 0 }}>
               and serve as an inspiration to others.
             </p>
-            <p style={{ margin: "10px 0 0 0", fontWeight: "600", fontFamily: "'Playfair Display', serif" }}>
+            <p style={{ margin: "6px 0 0 0", fontWeight: "600", fontFamily: "'Playfair Display', serif" }}>
               We extend our heartfelt gratitude and wish you continued
             </p>
             <p style={{ margin: 0, fontWeight: "600", fontFamily: "'Playfair Display', serif" }}>
@@ -388,7 +407,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "35px"
+          marginTop: "92px"
         }}>
           {/* Signatory (Left) */}
           <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
@@ -429,7 +448,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
 
           {/* High-Resolution Gold/Black Ribbon ISO 9001 Seal (Center) */}
-          <div style={{ width: "100px", height: "130px", marginTop: "-30px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ width: "112px", height: "112px", marginTop: "-20px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
             <img
               src={isoSealSrc}
               alt="ISO 9001 Seal"
@@ -459,50 +478,50 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
 
         {/* Footer Logo Band */}
         <div style={{
-          marginTop: "35px",
+          marginTop: "12px",
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          backgroundColor: "#fcfcfc",
-          padding: "8px 20px",
-          borderRadius: "8px",
-          border: "1px solid #e2dcd0"
+          backgroundColor: "transparent",
+          padding: "0 10px",
+          borderRadius: 0,
+          border: "none"
         }}>
           {/* MCA Logo */}
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "42px", maxWidth: "150px", objectFit: "contain" }}
+            style={{ height: "70px", maxWidth: "180px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "40px", maxWidth: "90px", objectFit: "contain" }}
+            style={{ height: "68px", maxWidth: "125px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "42px", maxWidth: "95px", objectFit: "contain" }}
+            style={{ height: "70px", maxWidth: "140px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
-            alt="State Emblem of India"
-            style={{ height: "45px", maxWidth: "55px", objectFit: "contain" }}
+            alt="Ministry of Social Justice and Empowerment"
+            style={{ height: "72px", maxWidth: "120px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "40px", maxWidth: "110px", objectFit: "contain" }}
+            style={{ height: "68px", maxWidth: "145px", objectFit: "contain" }}
           />
         </div>
 
         {/* Verify Footer Link */}
-        <div style={{ marginTop: "15px", textAlign: "center" }}>
+        <div style={{ marginTop: "-10px", textAlign: "center" }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
             fontSize: "10px",
@@ -517,9 +536,9 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             fontSize: "9px",
             fontWeight: "bold",
             color: "#666666",
-            margin: "4px 0 0 0"
+            margin: "7px 0 0 0"
           }}>
-            Website : www.dkffj.org / Contact No.: 9871219033, 7080 403333
+            Website : www.dkffj.org / Contact No.: 9871219033, 7080403333
           </p>
         </div>
 
@@ -539,7 +558,6 @@ export async function generateAppreciationPDFClient(
   const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
   const [
-    photoBase64,
     qrBase64,
     logoBase64,
     mcaBase64,
@@ -551,17 +569,16 @@ export async function generateAppreciationPDFClient(
     signatureBase64,
     borderBase64
   ] = await Promise.all([
-    data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve(""),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
-    getBase64ImageFromUrl("/images/mca_logo.png"),
-    getBase64ImageFromUrl("/images/niti_aayog.png"),
+    getBase64ImageFromUrl("/images/mca.png"),
+    getBase64ImageFromUrl("/images/niti aayog.png"),
     getBase64ImageFromUrl("/images/nsdc.png"),
     getBase64ImageFromUrl("/images/msme.png"),
-    getBase64ImageFromUrl("/images/emblem_of_india.png"),
-    getBase64ImageFromUrl("/images/iso_seal.png"),
+    getBase64ImageFromUrl("/images/ministry of social justice and empowerment.png"),
+    getBase64ImageFromUrl("/images/iso.png"),
     getBase64ImageFromUrl("/images/director_sig.png"),
-    getBase64ImageFromUrl("/images/royal-vip-certificate-border-a4-portrait-v2.svg")
+    getBase64ImageFromUrl("/images/appreciation-classic-victorian-border-a4.svg")
   ]);
 
   const container = document.createElement("div");
@@ -580,7 +597,6 @@ export async function generateAppreciationPDFClient(
       root.render(
         <AppreciationCertificateRenderer
           data={data}
-          photoBase64={photoBase64}
           qrBase64={qrBase64}
           logoBase64={logoBase64}
           mcaBase64={mcaBase64}
@@ -597,20 +613,24 @@ export async function generateAppreciationPDFClient(
       // Wait 1.2 seconds to ensure custom web fonts and SVGs are fully parsed and rendered
       setTimeout(async () => {
         try {
+          await document.fonts.ready;
           const targetElement = container.firstChild as HTMLElement;
           if (!targetElement) {
             throw new Error("Target element not found in offscreen container");
           }
 
           const canvas = await html2canvas(targetElement, {
-            scale: 2.0, // Crisp resolution, optimized from 2.5
+            // CSS renders at 96 DPI; 700 / 96 ≈ 7.29.
+            scale: 7.3,
             useCORS: true,
             allowTaint: false,
             logging: false,
-            backgroundColor: "#fcf9f2"
+            backgroundColor: "#fcf9f2",
+            imageTimeout: 15000
           });
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.80); // Compressed from 0.98 for smaller attachments
+          // Keep fine text, watermark lines and small government logos sharp.
+          const imgData = canvas.toDataURL("image/jpeg", 0.98);
 
           const pdf = new jsPDF({
             orientation: "portrait", // Set to portrait to match membership format
@@ -618,7 +638,7 @@ export async function generateAppreciationPDFClient(
             format: "a4"
           });
 
-          pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+          pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "NONE");
           const pdfBlob = pdf.output("blob");
 
           root.unmount();

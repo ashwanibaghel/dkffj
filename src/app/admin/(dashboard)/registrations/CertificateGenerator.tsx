@@ -81,12 +81,12 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   const photoSrc = photoBase64 || data.photoUrl || "";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
-  const mcaSrc = mcaBase64 || "/images/mca_logo.png";
-  const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
+  const mcaSrc = mcaBase64 || "/images/mca.png";
+  const nitiSrc = nitiBase64 || "/images/niti aayog.png";
   const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
   const msmeSrc = msmeBase64 || "/images/msme.png";
-  const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
-  const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
+  const emblemSrc = emblemBase64 || "/images/ministry of social justice and empowerment.png";
+  const isoSealSrc = isoSealBase64 || "/images/iso.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/completion-antique-royal-border-a4.svg";
 
@@ -106,7 +106,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
     >
       {/* Google Fonts injection */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700;800&family=Poppins:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@700;800&family=UnifrakturMaguntia&family=Poppins:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&display=swap');
       `}</style>
 
       {/* Repeating security watermark pattern */}
@@ -198,7 +198,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
       <div style={{ position: "relative", width: "100%", height: "100%", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", padding: "54px 38px 42px", boxSizing: "border-box" }}>
         
         {/* Top Header */}
-        <div style={{ textAlign: "center", width: "100%", marginBottom: "8px" }}>
+        <div style={{ textAlign: "center", width: "100%", marginBottom: "4px" }}>
           <h1 style={{
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 800,
@@ -210,12 +210,23 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           }}>
             DK Foundation of Freedom and Justice
           </h1>
+          <h2 style={{
+            fontFamily: "'Poppins', sans-serif",
+            fontWeight: 800,
+            fontSize: "14px",
+            color: "#111111",
+            letterSpacing: "0.8px",
+            margin: "2px 0 0 0",
+            textTransform: "uppercase"
+          }}>
+            Human Rights Protection
+          </h2>
           <p style={{
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 600,
             fontSize: "12px",
             color: "#333",
-            margin: "4px 0 0 0"
+            margin: "2px 0 0 0"
           }}>
             (Under Section 8 of The Companies Act, 2013 Govt of India)
           </p>
@@ -236,16 +247,16 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           justifyContent: "center",
           alignItems: "center",
           width: "100%",
-          height: "120px",
+          height: "110px",
           position: "relative",
-          marginBottom: "8px",
+          marginBottom: "4px",
           padding: "0 10px",
           boxSizing: "border-box"
         }}>
           {/* Foundation Logo */}
           <div style={{
-            width: "90px",
-            height: "90px",
+            width: "105px",
+            height: "105px",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -262,7 +273,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           {/* Student's Photo */}
           <div style={{
             width: "95px",
-            height: "120px",
+            height: "110px",
             border: "1px solid #999",
             borderRadius: "15px",
             overflow: "hidden",
@@ -287,12 +298,12 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         </div>
 
         {/* Certificate Title */}
-        <div style={{ textAlign: "center", marginBottom: "18px" }}>
+        <div style={{ textAlign: "center", marginBottom: "10px" }}>
           <h2 style={{
-            fontFamily: "'Cinzel Decorative', Algerian, 'Cinzel', serif",
+            fontFamily: "'UnifrakturMaguntia', 'Old English Text MT', serif",
             color: "#cc0000",
             fontSize: "38px",
-            fontWeight: 700,
+            fontWeight: 400,
             textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
             margin: 0
           }}>
@@ -309,21 +320,21 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             font-weight: 600;
             color: #222;
             width: 100%;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
           }
           .cert-input-line {
             flex-grow: 1;
             min-width: 0;
             border-bottom: 2px solid #444;
-            min-height: 35px;
+            min-height: 32px;
             margin-left: 10px;
             background-color: transparent;
-            color: #001C55;
+            color: #111111;
             font-weight: 700;
             font-size: 16px;
             line-height: 1.25;
             overflow-wrap: anywhere;
-            padding: 4px 10px 8px 10px;
+            padding: 3px 10px 6px 10px;
             box-sizing: border-box;
             display: inline-flex;
             align-items: center;
@@ -357,8 +368,8 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           </div>
 
           <div className="cert-row">
-            has successfully completed the 
-            <div className="cert-input-line">
+            <span style={{ width: "140px", flexShrink: 0 }}>has successfully completed the</span>
+            <div className="cert-input-line" style={{ marginLeft: 0 }}>
               {data.courseTitle}
             </div>
           </div>
@@ -409,7 +420,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             lineHeight: "1.6",
             fontWeight: 500
           }}>
-            During this period, his/her performance and conduct were found to be <span style={{ color: "#001C55", fontWeight: 700, fontStyle: "normal", textDecoration: "underline", textUnderlineOffset: "3px", padding: "0 3px" }}>{data.performance}</span>.
+            During this period, his/her performance and conduct were found to be <span style={{ color: "#111111", fontWeight: 700, fontStyle: "normal", textDecoration: "underline", textUnderlineOffset: "3px", padding: "0 3px" }}>{data.performance}</span>.
             <br />
             We wish him/her every success in all future endeavors.
           </div>
@@ -420,7 +431,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           display: "flex",
           justifyContent: "space-between",
           width: "100%",
-          marginTop: "14px",
+          marginTop: "28px",
           padding: "0 10px",
           boxSizing: "border-box",
           fontSize: "12px",
@@ -433,8 +444,8 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
 
         {/* Footer Section (Signature, Seal, QR Code) */}
         <div style={{
-          display: "flex",
-          justifyContent: "space-between",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
           width: "100%",
           marginTop: "14px",
@@ -446,7 +457,8 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             textAlign: "center",
             width: "190px",
             paddingTop: "32px",
-            position: "relative"
+            position: "relative",
+            justifySelf: "start"
           }}>
             {signatureSrc && (
               <img
@@ -472,9 +484,10 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
 
           {/* ISO Seal */}
           <div style={{
-            width: "78px",
-            height: "78px",
-            marginTop: "-10px"
+            width: "90px",
+            height: "90px",
+            marginTop: "-10px",
+            justifySelf: "center"
           }}>
             <img
               src={isoSealSrc}
@@ -492,7 +505,8 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             justifyContent: "center",
             alignItems: "center",
             backgroundColor: "#fff",
-            padding: "2px"
+            padding: "2px",
+            justifySelf: "end"
           }}>
             {qrSrc && (
               <img
@@ -510,15 +524,15 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           display: "flex",
           justifyContent: "space-around",
           alignItems: "center",
-          borderTop: "1px solid #ccc",
-          paddingTop: "6px",
-          marginTop: "5px"
+          borderTop: "none",
+          paddingTop: "2px",
+          marginTop: "12px"
         }}>
-          <img src={mcaSrc} alt="MCA Govt of India" style={{ height: "24px", objectFit: "contain" }} />
-          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "22px", objectFit: "contain" }} />
-          <img src={nsdcSrc} alt="NSDC" style={{ height: "24px", objectFit: "contain" }} />
-          <img src={emblemSrc} alt="Emblem" style={{ height: "25px", objectFit: "contain" }} />
-          <img src={msmeSrc} alt="MSME Govt of India" style={{ height: "22px", objectFit: "contain" }} />
+          <img src={mcaSrc} alt="MCA Govt of India" style={{ height: "72px", maxWidth: "175px", objectFit: "contain" }} />
+          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "70px", maxWidth: "135px", objectFit: "contain" }} />
+          <img src={nsdcSrc} alt="NSDC" style={{ height: "72px", maxWidth: "150px", objectFit: "contain" }} />
+          <img src={emblemSrc} alt="Ministry of Social Justice and Empowerment" style={{ height: "76px", maxWidth: "135px", objectFit: "contain" }} />
+          <img src={msmeSrc} alt="MSME Govt of India" style={{ height: "70px", maxWidth: "155px", objectFit: "contain" }} />
         </div>
 
         {/* Footer Verification text */}
@@ -527,7 +541,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
           color: "#cc0000",
           fontWeight: "bold",
           textAlign: "center",
-          marginTop: "4px",
+          marginTop: "12px",
           lineHeight: "1.25"
         }}>
           An autonomous skill development diploma issued as an Independent Institutional Certification.
@@ -570,12 +584,12 @@ export async function generateCertificatePDFClient(
     data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve(""),
     getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
-    getBase64ImageFromUrl("/images/mca_logo.png"),
-    getBase64ImageFromUrl("/images/niti_aayog.png"),
+    getBase64ImageFromUrl("/images/mca.png"),
+    getBase64ImageFromUrl("/images/niti aayog.png"),
     getBase64ImageFromUrl("/images/nsdc.png"),
     getBase64ImageFromUrl("/images/msme.png"),
-    getBase64ImageFromUrl("/images/emblem_of_india.png"),
-    getBase64ImageFromUrl("/images/iso_seal.png"),
+    getBase64ImageFromUrl("/images/ministry of social justice and empowerment.png"),
+    getBase64ImageFromUrl("/images/iso.png"),
     getBase64ImageFromUrl("/images/director_sig.png"),
     getBase64ImageFromUrl("/images/completion-antique-royal-border-a4.svg")
   ]);
@@ -613,17 +627,20 @@ export async function generateCertificatePDFClient(
       // Wait 2 seconds to ensure custom web fonts and SVGs are fully parsed and rendered
       setTimeout(async () => {
         try {
+          await document.fonts.ready;
           const targetElement = container.firstChild as HTMLElement;
           if (!targetElement) {
             throw new Error("Target element not found in offscreen container");
           }
 
           const canvas = await html2canvas(targetElement, {
-            scale: 2.5, // Crisp resolution
+            // CSS renders at 96 DPI; 700 / 96 ≈ 7.29.
+            scale: 7.3,
             useCORS: true,
             allowTaint: false,
             logging: false,
-            backgroundColor: "#ffffff"
+            backgroundColor: "#ffffff",
+            imageTimeout: 15000
           });
 
           const imgData = canvas.toDataURL("image/jpeg", 0.98);
@@ -634,7 +651,7 @@ export async function generateCertificatePDFClient(
             format: "a4"
           });
 
-          pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+          pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "NONE");
           const pdfBlob = pdf.output("blob");
 
           // Generate PNG Blob
