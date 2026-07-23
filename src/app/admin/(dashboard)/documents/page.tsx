@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getDocuments, addDocument, deleteDocument } from "./actions";
 import { FileText, Download, Plus, Trash2, X, Loader2, AlertCircle, Shield, Award, Landmark, Search, Filter, Clock } from "lucide-react";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type DocumentRecord = {
   id: string;
@@ -261,9 +262,13 @@ export default function AdminDocumentsPage() {
           <p className="text-slate-500 dark:text-slate-400">Loading documents list, please wait...</p>
         </div>
       ) : filteredDocuments.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-slate-500 dark:text-slate-400">No official documents match the current filters.</p>
-        </div>
+        <AdminEmptyState
+          icon={FileText}
+          title="No documents visible"
+          description="No legal download entries match the selected category or search query. Add a registry item or clear filters."
+          actionLabel="Upload Document"
+          onAction={openAddModal}
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="hidden lg:grid grid-cols-[minmax(320px,1.3fr)_150px_minmax(250px,1fr)_150px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">

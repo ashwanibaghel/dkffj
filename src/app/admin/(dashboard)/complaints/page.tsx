@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { getComplaints, updateComplaintStatus } from "./actions";
 import { getSignedDocumentUrl } from "../members/actions";
 import { ShieldAlert, Search, Loader2, AlertCircle, Eye, ChevronDown, ChevronUp, Clock, Gavel, CheckCircle, FileText } from "lucide-react";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type ComplaintAttachment = {
   id: string;
@@ -250,9 +251,11 @@ export default function AdminComplaintsPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400">Loading cases registry, please wait...</p>
         </div>
       ) : filteredComplaints.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-xs text-slate-500 dark:text-slate-400">No active grievances match the selected criteria.</p>
-        </div>
+        <AdminEmptyState
+          icon={ShieldAlert}
+          title="No grievances visible"
+          description="No grievance cases match the selected status or search query. Try another status or search by docket, name, or email."
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="hidden lg:grid grid-cols-[minmax(220px,1.2fr)_minmax(190px,0.9fr)_minmax(230px,1.1fr)_minmax(150px,0.7fr)_90px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">

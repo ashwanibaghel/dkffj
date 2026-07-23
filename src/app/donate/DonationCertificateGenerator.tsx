@@ -43,12 +43,12 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
 }) => {
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
-  const mcaSrc = mcaBase64 || "/images/mca_logo.png";
-  const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
+  const mcaSrc = mcaBase64 || "/images/mca.png";
+  const nitiSrc = nitiBase64 || "/images/niti aayog.png";
   const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
   const msmeSrc = msmeBase64 || "/images/msme.png";
-  const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
-  const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
+  const emblemSrc = emblemBase64 || "/images/ministry of social justice and empowerment.png";
+  const isoSealSrc = isoSealBase64 || "/images/iso.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
 
   return (
@@ -175,12 +175,22 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           }}>
             DK FOUNDATION OF FREEDOM AND JUSTICE
           </h1>
+          <h2 style={{
+            fontFamily: "'Inter', Arial, sans-serif",
+            fontWeight: 800,
+            fontSize: "15px",
+            color: "#111111",
+            letterSpacing: "0.8px",
+            margin: "2px 0 0 0"
+          }}>
+            HUMAN RIGHTS PROTECTION
+          </h2>
           <p style={{
             fontFamily: "'Playfair Display', serif",
             fontStyle: "italic",
             fontSize: "14px", // Increased from 12px
             color: "#333333",
-            margin: "5px 0 0 0"
+            margin: "2px 0 0 0"
           }}>
             (Under Section 8 of The Companies Act, 2013 Govt of India)
           </p>
@@ -270,7 +280,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
             border: none;
             border-bottom: 1.5px solid #c5a880;
             border-radius: 0;
-            color: #001C55;
+            color: #111111;
             font-weight: bold;
             font-size: 19px;
             height: 28px;
@@ -402,7 +412,7 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           </div>
 
           {/* ISO 9001 Seal (Center Column - Sizing increased) */}
-          <div style={{ width: "110px", height: "140px", marginTop: "-30px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ width: "125px", height: "150px", marginTop: "-30px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
             <img
               src={isoSealSrc}
               alt="ISO 9001 Seal"
@@ -445,31 +455,31 @@ export const DonationCertificateRenderer: React.FC<DonationCertificateRendererPr
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "45px", maxWidth: "160px", objectFit: "contain" }}
+            style={{ height: "60px", maxWidth: "175px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "42px", maxWidth: "95px", objectFit: "contain" }}
+            style={{ height: "58px", maxWidth: "115px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "45px", maxWidth: "100px", objectFit: "contain" }}
+            style={{ height: "60px", maxWidth: "125px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
-            alt="State Emblem of India"
-            style={{ height: "48px", maxWidth: "60px", objectFit: "contain" }}
+            alt="Ministry of Social Justice and Empowerment"
+            style={{ height: "62px", maxWidth: "105px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "42px", maxWidth: "115px", objectFit: "contain" }}
+            style={{ height: "58px", maxWidth: "135px", objectFit: "contain" }}
           />
         </div>
 
@@ -510,12 +520,12 @@ export async function generateDonationPDFClient(
 
   // Pre-resolve all local branding assets to Base64 to bypass CORS & html2canvas SVG limitations
   const logoBase64 = await getBase64ImageFromUrl("/logo.png");
-  const mcaBase64 = await getBase64ImageFromUrl("/images/mca_logo.png");
-  const nitiBase64 = await getBase64ImageFromUrl("/images/niti_aayog.png");
+    const mcaBase64 = await getBase64ImageFromUrl("/images/mca.png");
+    const nitiBase64 = await getBase64ImageFromUrl("/images/niti aayog.png");
   const nsdcBase64 = await getBase64ImageFromUrl("/images/nsdc.png");
   const msmeBase64 = await getBase64ImageFromUrl("/images/msme.png");
-  const emblemBase64 = await getBase64ImageFromUrl("/images/emblem_of_india.png");
-  const isoSealBase64 = await getBase64ImageFromUrl("/images/iso_seal.png");
+    const emblemBase64 = await getBase64ImageFromUrl("/images/ministry of social justice and empowerment.png");
+    const isoSealBase64 = await getBase64ImageFromUrl("/images/iso.png");
   const signatureBase64 = await getBase64ImageFromUrl("/images/director_sig.png");
 
   const container = document.createElement("div");

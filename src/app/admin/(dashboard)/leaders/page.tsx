@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getLeaders, addLeader, updateLeader, deleteLeader } from "./actions";
 import { Users, Plus, Trash2, Edit2, X, ToggleLeft, ToggleRight, Loader2, AlertCircle, Search, Filter, Clock, Home } from "lucide-react";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type LeaderRecord = {
   id: string;
@@ -332,9 +333,13 @@ export default function AdminLeadersPage() {
           <p className="text-slate-500 dark:text-slate-400">Loading council registry, please wait...</p>
         </div>
       ) : filteredLeaders.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-slate-500 dark:text-slate-400">No council members match the current filters.</p>
-        </div>
+        <AdminEmptyState
+          icon={Users}
+          title="No council members visible"
+          description="No executive council profiles match the current filters. Add a member or search by name, role, mobile, or location."
+          actionLabel="Add Member"
+          onAction={openAddModal}
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="overflow-x-auto">

@@ -32,6 +32,8 @@ export async function getRegistrations(statusFilter?: string) {
         grade,
         performance,
         venue,
+        duration_from,
+        duration_to,
         pdf_url
       )
     `)

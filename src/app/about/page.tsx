@@ -117,9 +117,8 @@ export default function AboutPage() {
         <section className="bg-sky-50/50 p-8 rounded-3xl border border-sky-100 text-center space-y-6">
           <span className="text-[9px] uppercase tracking-widest font-black text-slate-400">Regd by Ministry of Corporate Affairs, Govt. of India</span>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-85">
-            <img src="/images/mca_logo.png" alt="MCA" className="h-10 md:h-12 object-contain" />
-            <img src="/images/niti_aayog.png" alt="NITI Aayog" className="h-10 md:h-12 object-contain" />
-            <img src="/images/emblem_of_india.png" alt="Govt. of India" className="h-10 md:h-12 object-contain" />
+            <img src="/images/mca.png" alt="MCA" className="h-10 md:h-12 object-contain" />
+            <img src="/images/niti aayog.png" alt="NITI Aayog" className="h-10 md:h-12 object-contain" />
           </div>
         </section>
         

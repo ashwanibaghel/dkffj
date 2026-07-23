@@ -6,6 +6,7 @@ import { getRegistrations, updateRegistrationStatus, issueCertificateForRegistra
 import { generateCertificatePDFClient } from "./CertificateGenerator";
 import { createClient } from "@/utils/supabase/client";
 import { GraduationCap, Award, Search, Loader2, AlertCircle, Clock, Download, CheckCircle, ChevronUp, ChevronDown, BookOpen, Eye } from "lucide-react";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type CourseInfo = {
   title?: string | null;
@@ -18,6 +19,8 @@ type CertificateInfo = {
   grade?: string | null;
   performance?: string | null;
   venue?: string | null;
+  duration_from?: string | null;
+  duration_to?: string | null;
   pdf_url?: string | null;
 };
 
@@ -70,6 +73,7 @@ export default function AdminRegistrationsPage() {
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string>("");
   const [issuingId, setIssuingId] = useState<string | null>(null);
+  const [downloadingCertNo, setDownloadingCertNo] = useState<string | null>(null);
   const [certForm, setCertForm] = useState<CertFormState>({
     fatherName: "",
     durationFrom: "",
@@ -88,6 +92,54 @@ export default function AdminRegistrationsPage() {
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, visible: true, type });
+  };
+
+  const downloadLatestCertificate = async (registration: RegistrationRecord) => {
+    const certificate = registration.certificates?.[0];
+    if (!certificate) {
+      showToast("Certificate record not found.", "error");
+      return;
+    }
+
+    const certNo = certificate.certificate_no;
+    setDownloadingCertNo(certNo);
+    try {
+      const verificationUrl = `${window.location.origin}/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const issueDate = new Date(certificate.issue_date).toLocaleDateString("en-IN");
+
+      const { pdfBlob } = await generateCertificatePDFClient({
+        certNo,
+        qrCodeUrl,
+        verificationUrl,
+        studentName: registration.full_name,
+        courseTitle: registration.courses?.title || "Course Completion",
+        photoUrl: registration.photo_url,
+        fatherName: registration.father_name || "N/A",
+        enrollmentNo: registration.enrollment_no || "N/A",
+        durationFrom: certificate.duration_from || "N/A",
+        durationTo: certificate.duration_to || "N/A",
+        grade: certificate.grade || "A",
+        venue: certificate.venue || registration.training_center || "DK Foundation Main Campus",
+        performance: certificate.performance || "Excellent",
+        dateStr: issueDate
+      });
+
+      const objectUrl = window.URL.createObjectURL(pdfBlob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = `${certNo}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(objectUrl);
+      showToast("Latest certificate design downloaded successfully.", "success");
+    } catch (error) {
+      console.error("Certificate download error:", error);
+      showToast(error instanceof Error ? error.message : "Certificate download failed.", "error");
+    } finally {
+      setDownloadingCertNo(null);
+    }
   };
 
   async function fetchData() {
@@ -382,9 +434,11 @@ export default function AdminRegistrationsPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400">Loading registrations list...</p>
         </div>
       ) : filteredRegistrations.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-xs text-slate-500 dark:text-slate-400">No matching registrations found.</p>
-        </div>
+        <AdminEmptyState
+          icon={GraduationCap}
+          title="No enrollments visible"
+          description="No course registrations match the selected status or search query. Try another status or search by student, course, or enrollment number."
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="hidden lg:grid grid-cols-[minmax(250px,1.25fr)_minmax(230px,1fr)_minmax(210px,0.95fr)_minmax(150px,0.7fr)_90px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">
@@ -703,14 +757,19 @@ export default function AdminRegistrationsPage() {
                               >
                                 <Eye className="w-3.5 h-3.5" /> Preview Certificate
                               </button>
-                              <a
-                                href={reg.certificates[0].pdf_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                type="button"
+                                onClick={() => downloadLatestCertificate(reg)}
+                                disabled={downloadingCertNo === reg.certificates[0].certificate_no}
                                 className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
                               >
-                                <Download className="w-3.5 h-3.5" /> Download Certificate
-                              </a>
+                                {downloadingCertNo === reg.certificates[0].certificate_no ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Download className="w-3.5 h-3.5" />
+                                )}
+                                Download Certificate
+                              </button>
                             </div>
                           )}
                         </div>

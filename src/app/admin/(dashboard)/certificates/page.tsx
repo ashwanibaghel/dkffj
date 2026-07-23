@@ -7,6 +7,7 @@ import { Award, Search, Loader2, Download, AlertTriangle, ShieldCheck, QrCode, C
 import { generateCertificatePDFClient } from "../registrations/CertificateGenerator";
 import { createClient } from "@/utils/supabase/client";
 import { AdminToast, useAdminFeedback } from "../components/AdminFeedback";
+import AdminEmptyState from "../components/AdminEmptyState";
 
 type CertificateRecord = {
   id: string;
@@ -246,9 +247,11 @@ export default function AdminCertificatesPage() {
           <p className="text-xs text-slate-500 dark:text-slate-400">Loading certificate registry...</p>
         </div>
       ) : filteredCerts.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-          <p className="text-xs text-slate-500 dark:text-slate-400">No certificate records found.</p>
-        </div>
+        <AdminEmptyState
+          icon={Award}
+          title="No certificates visible"
+          description="No certificate records match the current status or search query. Try another filter or search by certificate number."
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
           <div className="hidden lg:grid grid-cols-[minmax(280px,1.35fr)_minmax(230px,1fr)_130px_120px_210px] gap-4 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500 sticky top-0 z-10">

@@ -1,10 +1,48 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useCallback, useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Search, ArrowLeft, Loader2, Users, ShieldAlert, GraduationCap, Award, FileCheck } from "lucide-react";
+import { Search, ArrowLeft, Loader2, Users, ShieldAlert, GraduationCap, Award } from "lucide-react";
+import AdminEmptyState from "../components/AdminEmptyState";
+
+type MembershipSearchResult = {
+  id: string;
+  ack_no: string;
+  membership_no?: string | null;
+  full_name: string;
+  designation?: string | null;
+  status: string;
+  created_at: string;
+};
+
+type CourseSearchResult = {
+  id: string;
+  enrollment_no?: string | null;
+  full_name: string;
+  status: string;
+  created_at: string;
+  courses?: { title?: string | null } | { title?: string | null }[] | null;
+};
+
+type ComplaintSearchResult = {
+  id: string;
+  complaint_no: string;
+  name: string;
+  status: string;
+  details?: string | null;
+  created_at: string;
+};
+
+type CertificateSearchResult = {
+  id: string;
+  certificate_no: string;
+  user_name: string;
+  course_name: string;
+  status: string;
+  issue_date: string;
+};
 
 function SearchResultsContent() {
   const searchParams = useSearchParams();
@@ -12,10 +50,10 @@ function SearchResultsContent() {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [results, setResults] = useState<{
-    memberships: any[];
-    courses: any[];
-    complaints: any[];
-    certificates: any[];
+    memberships: MembershipSearchResult[];
+    courses: CourseSearchResult[];
+    complaints: ComplaintSearchResult[];
+    certificates: CertificateSearchResult[];
   }>({
     memberships: [],
     courses: [],
@@ -23,15 +61,7 @@ function SearchResultsContent() {
     certificates: []
   });
 
-  useEffect(() => {
-    if (query) {
-      performGlobalSearch();
-    } else {
-      setLoading(false);
-    }
-  }, [query]);
-
-  const performGlobalSearch = async () => {
+  const performGlobalSearch = useCallback(async () => {
     setLoading(true);
     const supabase = createClient();
     const cleanQuery = query.trim();
@@ -75,17 +105,31 @@ function SearchResultsContent() {
         .limit(10);
 
       setResults({
-        memberships: memberData || [],
-        courses: courseData || [],
-        complaints: complaintData || [],
-        certificates: certData || []
+        memberships: (memberData || []) as MembershipSearchResult[],
+        courses: (courseData || []) as CourseSearchResult[],
+        complaints: (complaintData || []) as ComplaintSearchResult[],
+        certificates: (certData || []) as CertificateSearchResult[]
       });
     } catch (err) {
       console.error("Global search query failed:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [query]);
+
+  useEffect(() => {
+    let animationFrame: number;
+
+    if (query) {
+      animationFrame = window.requestAnimationFrame(() => {
+        void performGlobalSearch();
+      });
+      return () => window.cancelAnimationFrame(animationFrame);
+    }
+
+    animationFrame = window.requestAnimationFrame(() => setLoading(false));
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [performGlobalSearch, query]);
 
   const getStatusColor = (status: string) => {
     const s = status.toUpperCase();
@@ -123,13 +167,11 @@ function SearchResultsContent() {
           <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Searching Database...</p>
         </div>
       ) : totalResults === 0 ? (
-        <div className="text-center py-16 bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <Search className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="font-bold text-slate-700">No records matched</h3>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            Try adjusting your spelling or searching by full names, Ack IDs (ACK-...), Docket IDs (DKC-...), or phone numbers.
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={Search}
+          title="No records matched"
+          description="Try adjusting your spelling or searching by full names, ACK IDs, docket IDs, certificate numbers, or phone numbers."
+        />
       ) : (
         <div className="space-y-6">
           
