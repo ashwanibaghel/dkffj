@@ -407,7 +407,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "45px"
+          marginTop: "70px"
         }}>
           {/* Signatory (Left) */}
           <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
