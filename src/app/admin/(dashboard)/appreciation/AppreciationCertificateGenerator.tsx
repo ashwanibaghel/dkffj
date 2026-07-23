@@ -407,7 +407,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "92px"
+          marginTop: "45px"
         }}>
           {/* Signatory (Left) */}
           <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
@@ -480,7 +480,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
 
         {/* Footer Logo Band */}
         <div style={{
-          marginTop: "12px",
+          marginTop: "6px",
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
@@ -494,39 +494,39 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "70px", maxWidth: "180px", objectFit: "contain" }}
+            style={{ height: "56px", maxWidth: "160px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "68px", maxWidth: "125px", objectFit: "contain" }}
+            style={{ height: "54px", maxWidth: "115px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "70px", maxWidth: "140px", objectFit: "contain" }}
+            style={{ height: "56px", maxWidth: "125px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
             alt="Ministry of Social Justice and Empowerment"
-            style={{ height: "72px", maxWidth: "120px", objectFit: "contain" }}
+            style={{ height: "58px", maxWidth: "110px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "68px", maxWidth: "145px", objectFit: "contain" }}
+            style={{ height: "54px", maxWidth: "130px", objectFit: "contain" }}
           />
         </div>
 
         {/* Verify Footer Link */}
-        <div style={{ marginTop: "6px", textAlign: "center" }}>
+        <div style={{ marginTop: "4px", textAlign: "center" }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "11px",
+            fontSize: "10px",
             fontWeight: "bold",
             color: "#001C55",
             margin: 0,
@@ -536,10 +536,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "11px",
+            fontSize: "10px",
             fontWeight: "bold",
             color: "#444444",
-            margin: "4px 0 0 0",
+            margin: "3px 0 0 0",
             whiteSpace: "nowrap",
             letterSpacing: "0.3px"
           }}>
