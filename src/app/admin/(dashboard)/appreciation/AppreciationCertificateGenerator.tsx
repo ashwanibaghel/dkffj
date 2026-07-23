@@ -522,23 +522,25 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
         </div>
 
         {/* Verify Footer Link */}
-        <div style={{ marginTop: "-10px", textAlign: "center" }}>
+        <div style={{ marginTop: "6px", textAlign: "center" }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "10px",
+            fontSize: "11px",
             fontWeight: "bold",
             color: "#001C55",
-            margin: 0
+            margin: 0,
+            letterSpacing: "0.2px"
           }}>
             Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "10px",
+            fontSize: "11px",
             fontWeight: "bold",
-            color: "#555555",
+            color: "#444444",
             margin: "4px 0 0 0",
-            whiteSpace: "nowrap"
+            whiteSpace: "nowrap",
+            letterSpacing: "0.3px"
           }}>
             Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
           </p>
