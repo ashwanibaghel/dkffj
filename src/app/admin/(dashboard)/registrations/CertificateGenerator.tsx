@@ -85,9 +85,10 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   const nitiSrc = nitiBase64 || "/images/niti aayog.png";
   const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
   const msmeSrc = msmeBase64 || "/images/msme.png";
-  const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
-  const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
+  const emblemSrc = emblemBase64 || "/images/ministry of social justice and empowerment.png";
+  const isoSealSrc = isoSealBase64 || "/images/iso.png";
   const signatureSrc = signatureBase64 || "/images/course_director_sig.png";
+  const borderSrc = borderBase64 || "/images/completion-antique-royal-border-a4.svg";
 
   return (
     <div
@@ -478,7 +479,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             <div style={{ borderTop: "1px solid #333", width: "100%", marginBottom: "5px" }}></div>
             <span style={{ fontSize: "11px", fontWeight: 600, color: "#222" }}>(Seal & Signature)</span>
             <br />
-            <span style={{ fontSize: "12px", fontWeight: 700, color: "#333" }}>Director</span>
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "#333" }}>Director</span>
           </div>
 
           {/* ISO Seal */}
@@ -587,9 +588,10 @@ export async function generateCertificatePDFClient(
     getBase64ImageFromUrl("/images/niti aayog.png"),
     getBase64ImageFromUrl("/images/nsdc.png"),
     getBase64ImageFromUrl("/images/msme.png"),
-    getBase64ImageFromUrl("/images/emblem_of_india.png"),
-    getBase64ImageFromUrl("/images/iso_seal.png"),
-    getBase64ImageFromUrl("/images/course_director_sig.png")
+    getBase64ImageFromUrl("/images/ministry of social justice and empowerment.png"),
+    getBase64ImageFromUrl("/images/iso.png"),
+    getBase64ImageFromUrl("/images/course_director_sig.png"),
+    getBase64ImageFromUrl("/images/completion-antique-royal-border-a4.svg")
   ]);
 
   const container = document.createElement("div");

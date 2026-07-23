@@ -492,7 +492,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
         </p>
         <p style={{
-          fontSize: "13px",
+          fontSize: "12px",
           fontWeight: "bold",
           color: "#555555",
           margin: "5px 0 0 0",
