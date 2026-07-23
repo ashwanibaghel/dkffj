@@ -480,13 +480,13 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         </p>
         <p style={{
           fontFamily: "Arial, sans-serif",
-          fontSize: "12px", // Increased from 10.5px
+          fontSize: "13px",
           fontWeight: "bold",
-          color: "#555555",
-          margin: "1px 0 0 0",
+          color: "#333333",
+          margin: "2px 0 0 0",
           textAlign: "center"
         }}>
-          Authorized Signatory
+          CEO
         </p>
       </div>
 
@@ -523,12 +523,14 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
           Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
         </p>
         <p style={{
-          fontSize: "13px", // Increased from 11px
+          fontSize: "13px",
           fontWeight: "bold",
-          color: "#666666",
-          margin: "5px 0 0 0"
+          color: "#555555",
+          margin: "5px 0 0 0",
+          whiteSpace: "nowrap",
+          letterSpacing: "0.2px"
         }}>
-          Website : www.dkffj.org / Contact No.: 9871219033, 7080 403333
+          Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
         </p>
       </div>
     </div>

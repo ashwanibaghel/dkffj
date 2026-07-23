@@ -443,11 +443,12 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             </p>
             <p style={{
               fontFamily: "Arial, sans-serif",
-              fontSize: "9px",
-              color: "#555555",
+              fontSize: "11px",
+              fontWeight: "bold",
+              color: "#333333",
               margin: "2px 0 0 0"
             }}>
-              Director / Authorized Signatory
+              CEO
             </p>
           </div>
 
@@ -537,12 +538,13 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "9px",
+            fontSize: "10px",
             fontWeight: "bold",
-            color: "#666666",
-            margin: "4px 0 0 0"
+            color: "#555555",
+            margin: "4px 0 0 0",
+            whiteSpace: "nowrap"
           }}>
-            Website : www.dkffj.org / Contact No.: 9871219033, 7080 403333
+            Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
           </p>
         </div>
 

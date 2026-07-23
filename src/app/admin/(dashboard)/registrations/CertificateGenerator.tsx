@@ -85,7 +85,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   const msmeSrc = msmeBase64 || "/images/msme.png";
   const emblemSrc = emblemBase64 || "/images/emblem_of_india.png";
   const isoSealSrc = isoSealBase64 || "/images/iso_seal.png";
-  const signatureSrc = signatureBase64 || "/images/director_sig.png";
+  const signatureSrc = signatureBase64 || "/images/course_director_sig.png";
 
   return (
     <div
@@ -214,15 +214,15 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
         {/* Top Header */}
         <div style={{ textAlign: "center", width: "100%", marginBottom: "15px" }}>
           <h1 style={{
-            fontFamily: "'Poppins', sans-serif",
+            fontFamily: "'Cinzel', serif",
             fontWeight: 800,
             fontSize: "24px",
-            color: "#cc0000",
-            letterSpacing: "0.5px",
+            color: "#a21e1e",
+            letterSpacing: "1px",
             textTransform: "uppercase",
             margin: 0
           }}>
-            DK Foundation of Freedom and Justice
+            DK FOUNDATION OF FREEDOM AND JUSTICE
           </h1>
           <p style={{
             fontFamily: "'Poppins', sans-serif",
@@ -469,7 +469,7 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
             <div style={{ borderTop: "1px solid #333", width: "100%", marginBottom: "5px" }}></div>
             <span style={{ fontSize: "13px", fontWeight: 600, color: "#222" }}>(Seal & Signature)</span>
             <br />
-            <span style={{ fontSize: "11px", color: "#555" }}>Director / Authorized Signatory</span>
+            <span style={{ fontSize: "12px", fontWeight: 700, color: "#333" }}>Director</span>
           </div>
 
           {/* ISO Seal */}
@@ -577,7 +577,7 @@ export async function generateCertificatePDFClient(
     getBase64ImageFromUrl("/images/msme.png"),
     getBase64ImageFromUrl("/images/emblem_of_india.png"),
     getBase64ImageFromUrl("/images/iso_seal.png"),
-    getBase64ImageFromUrl("/images/director_sig.png")
+    getBase64ImageFromUrl("/images/course_director_sig.png")
   ]);
 
   const container = document.createElement("div");
