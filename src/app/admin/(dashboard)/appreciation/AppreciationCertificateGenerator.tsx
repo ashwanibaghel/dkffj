@@ -417,10 +417,11 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
                 alt="Director Signature"
                 style={{
                   position: "absolute",
-                  bottom: "48px",
+                  bottom: "35px",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  height: "55px",
+                  height: "75px",
+                  maxWidth: "170px",
                   objectFit: "contain",
                   mixBlendMode: "multiply",
                   pointerEvents: "none"

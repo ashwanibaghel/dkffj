@@ -466,10 +466,11 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
                 alt="Director Signature"
                 style={{
                   position: "absolute",
-                  bottom: "42px",
+                  bottom: "32px",
                   left: "50%",
                   transform: "translateX(-50%)",
-                  height: "48px",
+                  height: "75px",
+                  maxWidth: "170px",
                   objectFit: "contain",
                   mixBlendMode: "multiply",
                   pointerEvents: "none"

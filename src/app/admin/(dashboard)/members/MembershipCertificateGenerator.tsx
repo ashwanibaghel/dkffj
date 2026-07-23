@@ -429,7 +429,8 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
             src={signatureSrc}
             alt="Authorized Signature"
             style={{
-              height: "68px",
+              height: "80px",
+              maxWidth: "180px",
               objectFit: "contain",
               mixBlendMode: "multiply",
               marginBottom: "3px"
