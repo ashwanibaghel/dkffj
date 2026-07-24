@@ -46,10 +46,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
   const mcaSrc = mcaBase64 || "/images/mca.png";
-  const nitiSrc = nitiBase64 || "/images/niti aayog.png";
+  const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
   const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
   const msmeSrc = msmeBase64 || "/images/msme.png";
-  const emblemSrc = emblemBase64 || "/images/ministry of social justice and empowerment.png";
+  const emblemSrc = emblemBase64 || "/images/ministry_of_social_justice.png";
   const isoSealSrc = isoSealBase64 || "/images/iso.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/appreciation-classic-victorian-border-a4.svg";
@@ -577,10 +577,10 @@ export async function generateAppreciationPDFClient(
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
     getBase64ImageFromUrl("/images/mca.png"),
-    getBase64ImageFromUrl("/images/niti aayog.png"),
+    getBase64ImageFromUrl("/images/niti_aayog.png"),
     getBase64ImageFromUrl("/images/nsdc.png"),
     getBase64ImageFromUrl("/images/msme.png"),
-    getBase64ImageFromUrl("/images/ministry of social justice and empowerment.png"),
+    getBase64ImageFromUrl("/images/ministry_of_social_justice.png"),
     getBase64ImageFromUrl("/images/iso.png"),
     getBase64ImageFromUrl("/images/director_sig.png"),
     getBase64ImageFromUrl("/images/appreciation-classic-victorian-border-a4.svg")

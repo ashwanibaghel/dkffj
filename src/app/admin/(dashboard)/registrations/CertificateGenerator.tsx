@@ -21,16 +21,16 @@ export interface CertificateData {
 }
 
 // Convert image URL to base64 to avoid CORS issues in canvas rendering
-export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number = 5000): Promise<string> {
+export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number = 8000): Promise<string> {
   if (!imageUrl) return "";
   if (imageUrl.startsWith("data:")) return imageUrl;
-  if (imageUrl.startsWith("/")) return imageUrl; // Local relative assets are same-origin and don't need base64 conversion
 
+  const encodedUrl = encodeURI(imageUrl);
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(imageUrl, { 
+    const res = await fetch(encodedUrl, { 
       mode: "cors",
       signal: controller.signal
     });
@@ -45,7 +45,7 @@ export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number 
   } catch (err) {
     clearTimeout(id);
     console.warn("Failed to convert image to base64 within timeout, using original URL:", imageUrl, err);
-    return imageUrl;
+    return encodedUrl;
   }
 }
 
@@ -82,10 +82,10 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
   const mcaSrc = mcaBase64 || "/images/mca.png";
-  const nitiSrc = nitiBase64 || "/images/niti aayog.png";
+  const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
   const nsdcSrc = nsdcBase64 || "/images/nsdc.png";
   const msmeSrc = msmeBase64 || "/images/msme.png";
-  const emblemSrc = emblemBase64 || "/images/ministry of social justice and empowerment.png";
+  const emblemSrc = emblemBase64 || "/images/ministry_of_social_justice.png";
   const isoSealSrc = isoSealBase64 || "/images/iso.png";
   const signatureSrc = signatureBase64 || "/images/course_director_sig.png";
   const borderSrc = borderBase64 || "/images/completion-antique-royal-border-a4.svg";
@@ -586,10 +586,10 @@ export async function generateCertificatePDFClient(
     getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
     getBase64ImageFromUrl("/images/mca.png"),
-    getBase64ImageFromUrl("/images/niti aayog.png"),
+    getBase64ImageFromUrl("/images/niti_aayog.png"),
     getBase64ImageFromUrl("/images/nsdc.png"),
     getBase64ImageFromUrl("/images/msme.png"),
-    getBase64ImageFromUrl("/images/ministry of social justice and empowerment.png"),
+    getBase64ImageFromUrl("/images/ministry_of_social_justice.png"),
     getBase64ImageFromUrl("/images/iso.png"),
     getBase64ImageFromUrl("/images/course_director_sig.png"),
     getBase64ImageFromUrl("/images/completion-antique-royal-border-a4.svg")

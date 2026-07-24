@@ -1,11 +1,14 @@
+"use server";
+
 "use client";
 
 import React, { useState } from "react";
-import { Download, Award, ShieldCheck, Heart, GraduationCap, Loader2, CheckCircle2 } from "lucide-react";
+import { Download, Award, ShieldCheck, Heart, GraduationCap, Loader2, CheckCircle2, Receipt } from "lucide-react";
 import { generateMembershipPDFClient } from "../members/MembershipCertificateGenerator";
 import { generateAppreciationPDFClient } from "../appreciation/AppreciationCertificateGenerator";
 import { generateCertificatePDFClient } from "../registrations/CertificateGenerator";
 import { generateDonationPDFClient } from "@/app/donate/DonationCertificateGenerator";
+import { generateAshwaniPaymentReceiptAction } from "./actions";
 
 export default function AshwaniCertsPage() {
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -176,15 +179,50 @@ export default function AshwaniCertsPage() {
     }
   };
 
+  const handleDownloadPaymentReceipt = async () => {
+    setDownloading("receipt");
+    setSuccessMsg("");
+    try {
+      const res = await generateAshwaniPaymentReceiptAction();
+      if (!res.success || !res.base64) {
+        throw new Error(res.error || "Failed to generate Payment Receipt");
+      }
+
+      const byteCharacters = atob(res.base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const pdfBlob = new Blob([byteArray], { type: "application/pdf" });
+
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = res.filename || "Payment_Receipt_Ashwani_Baghel.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      setSuccessMsg("Payment Receipt PDF downloaded successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Error generating Payment Receipt");
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-          <Award className="w-5 h-5 text-[#001C55] dark:text-blue-400" /> Certificate Template Previewer
+          <Award className="w-5 h-5 text-[#001C55] dark:text-blue-400" /> Certificate & Receipt Previewer
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-          Generate and download all 4 certificate designs populated with your personal profile info.
+          Generate and download all certificates & payment receipts populated with your personal profile info.
         </p>
       </div>
 
@@ -284,6 +322,28 @@ export default function AshwaniCertsPage() {
           >
             {downloading === "donation" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
             Download PDF
+          </button>
+        </div>
+
+        {/* 5. Official Payment Receipt */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm md:col-span-2">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-100 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 shrink-0">
+              <Receipt className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Official Payment Receipt (NGO / Membership Fee)</h3>
+              <p className="text-[11px] text-slate-500 mt-1">Official E-Receipt generated for ₹1,100 payment with transaction ID TXN9027872803 & NGO seal.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleDownloadPaymentReceipt}
+            disabled={downloading !== null}
+            className="mt-6 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {downloading === "receipt" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            Download Official Payment Receipt PDF
           </button>
         </div>
 

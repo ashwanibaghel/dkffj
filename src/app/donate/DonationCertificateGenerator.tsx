@@ -521,10 +521,10 @@ export async function generateDonationPDFClient(
   // Pre-resolve all local branding assets to Base64 to bypass CORS & html2canvas SVG limitations
   const logoBase64 = await getBase64ImageFromUrl("/logo.png");
     const mcaBase64 = await getBase64ImageFromUrl("/images/mca.png");
-    const nitiBase64 = await getBase64ImageFromUrl("/images/niti aayog.png");
+    const nitiBase64 = await getBase64ImageFromUrl("/images/niti_aayog.png");
   const nsdcBase64 = await getBase64ImageFromUrl("/images/nsdc.png");
   const msmeBase64 = await getBase64ImageFromUrl("/images/msme.png");
-    const emblemBase64 = await getBase64ImageFromUrl("/images/ministry of social justice and empowerment.png");
+    const emblemBase64 = await getBase64ImageFromUrl("/images/ministry_of_social_justice.png");
     const isoSealBase64 = await getBase64ImageFromUrl("/images/iso.png");
   const signatureBase64 = await getBase64ImageFromUrl("/images/director_sig.png");
 
