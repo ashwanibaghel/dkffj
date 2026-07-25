@@ -8,6 +8,35 @@ import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
 import AdminEmptyState from "../components/AdminEmptyState";
+import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
+
+const PROFESSIONS = [
+  "Service", "Business", "Private Sector", "Government Sector", "House Wife", "Retired", "Unemployed", "Student"
+];
+
+const EDUCATION_OPTIONS = [
+  "High School (10th)",
+  "Intermediate (12th)",
+  "Diploma",
+  "B.A. (Bachelor of Arts)",
+  "B.Sc. (Bachelor of Science)",
+  "B.Com. (Bachelor of Commerce)",
+  "B.Tech. (Bachelor of Technology)",
+  "B.C.A. (Bachelor of Computer Applications)",
+  "B.B.A. (Bachelor of Business Administration)",
+  "LLB (Bachelor of Laws)",
+  "BA LLB (Integrated Law)",
+  "B.Ed. (Bachelor of Education)",
+  "M.A. (Master of Arts)",
+  "M.Sc. (Master of Science)",
+  "M.Com. (Master of Commerce)",
+  "M.Tech. (Master of Technology)",
+  "M.C.A. (Master of Computer Applications)",
+  "M.B.A. (Master of Business Administration)",
+  "LLM (Master of Laws)",
+  "Ph.D. (Doctor of Philosophy)",
+  "Other"
+];
 
 const DESIGNATIONS = [
   "DIRECTOR", "ADD DIRECTOR", "National President", "PRESIDENT", "Secretary",
@@ -1349,24 +1378,38 @@ export default function AdminMembersPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium">
                   <div>
                     <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">State *</label>
-                    <input
-                      type="text"
+                    <select
                       required
                       value={addForm.state}
-                      onChange={(e) => setAddForm({ ...addForm, state: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
-                    />
+                      onChange={(e) => {
+                        const newSt = e.target.value;
+                        const distList = indiaStatesDistricts.find(s => s.state === newSt)?.districts || [];
+                        setAddForm({
+                          ...addForm,
+                          state: newSt,
+                          district: distList[0] || ""
+                        });
+                      }}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                    >
+                      {indiaStatesDistricts.map((s) => (
+                        <option key={s.state} value={s.state}>{s.state}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
                     <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">District *</label>
-                    <input
-                      type="text"
+                    <select
                       required
                       value={addForm.district}
                       onChange={(e) => setAddForm({ ...addForm, district: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
-                    />
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                    >
+                      {(indiaStatesDistricts.find(s => s.state === addForm.state)?.districts || []).map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
@@ -1415,24 +1458,28 @@ export default function AdminMembersPage() {
 
                   <div>
                     <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Education</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Graduate"
+                    <select
                       value={addForm.education}
                       onChange={(e) => setAddForm({ ...addForm, education: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
-                    />
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                    >
+                      {EDUCATION_OPTIONS.map((e) => (
+                        <option key={e} value={e}>{e}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
                     <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Profession</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Social Worker"
+                    <select
                       value={addForm.profession}
                       onChange={(e) => setAddForm({ ...addForm, profession: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
-                    />
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                    >
+                      {PROFESSIONS.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
