@@ -1,5 +1,3 @@
-"use server";
-
 "use client";
 
 import React, { useState } from "react";
