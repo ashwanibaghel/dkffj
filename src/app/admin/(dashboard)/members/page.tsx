@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData } from "./actions";
-import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck } from "lucide-react";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction } from "./actions";
+import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
-import { uploadFileToStorage } from "@/lib/uploadToStorage";
+import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
 import AdminEmptyState from "../components/AdminEmptyState";
 
 const DESIGNATIONS = [
@@ -79,6 +79,185 @@ export default function AdminMembersPage() {
   const [editDesignation, setEditDesignation] = useState<string>("");
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState<string>("");
+
+  // Add Member Modal State
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [addForm, setAddForm] = useState({
+    fullName: "",
+    fatherName: "",
+    mobile: "",
+    whatsapp: "",
+    email: "",
+    gender: "Male",
+    dob: "1995-01-01",
+    address: "",
+    state: "Uttar Pradesh",
+    district: "Kanpur Nagar",
+    pincode: "208001",
+    education: "Graduate",
+    profession: "Social Worker",
+    workingArea: "Human Rights & Social Welfare",
+    designation: "Member",
+    policeStation: "",
+    paymentStatus: "DONE" as "DONE" | "NOT_DONE"
+  });
+
+  const [addPhotoFile, setAddPhotoFile] = useState<File | null>(null);
+  const [addAadhaarFile, setAddAadhaarFile] = useState<File | null>(null);
+  const [addSignatureFile, setAddSignatureFile] = useState<File | null>(null);
+  const [addLoading, setAddLoading] = useState<boolean>(false);
+  const [addProgressStep, setAddProgressStep] = useState<string>("");
+  const [addError, setAddError] = useState<string>("");
+  const [addSuccessMsg, setAddSuccessMsg] = useState<string>("");
+
+  const handleAddMemberSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddError("");
+    setAddSuccessMsg("");
+
+    if (!addForm.fullName.trim() || !addForm.fatherName.trim() || !addForm.mobile.trim() || !addForm.email.trim() || !addForm.address.trim()) {
+      setAddError("Please fill in all required personal details.");
+      return;
+    }
+
+    if (!addPhotoFile || !addAadhaarFile || !addSignatureFile) {
+      setAddError("Please upload all 3 required files: Passport Photo, Aadhaar Card, and Signature.");
+      return;
+    }
+
+    setAddLoading(true);
+    try {
+      // 1. Upload files to Supabase Storage
+      const userIdStr = "admin_add_" + Date.now();
+      const docsRes = await uploadMembershipDocs(
+        userIdStr,
+        addPhotoFile,
+        addAadhaarFile,
+        addSignatureFile,
+        (step) => setAddProgressStep(step)
+      );
+
+      if (docsRes.error || !docsRes.photoUrl || !docsRes.aadhaarUrl || !docsRes.signatureUrl) {
+        throw new Error(docsRes.error || "Failed to upload files to cloud storage.");
+      }
+
+      setAddProgressStep("Creating member record in database...");
+
+      // 2. Call server action to create member
+      const createRes = await addMemberByAdminAction({
+        fullName: addForm.fullName,
+        fatherName: addForm.fatherName,
+        gender: addForm.gender,
+        dob: addForm.dob,
+        mobile: addForm.mobile,
+        whatsapp: addForm.whatsapp || addForm.mobile,
+        email: addForm.email,
+        address: addForm.address,
+        state: addForm.state,
+        district: addForm.district,
+        pincode: addForm.pincode,
+        education: addForm.education,
+        profession: addForm.profession,
+        workingArea: addForm.workingArea,
+        designation: addForm.designation,
+        policeStation: addForm.policeStation,
+        photoUrl: docsRes.photoUrl,
+        aadhaarUrl: docsRes.aadhaarUrl,
+        signatureUrl: docsRes.signatureUrl,
+        paymentStatus: addForm.paymentStatus
+      });
+
+      if (!createRes.success || !createRes.member) {
+        throw new Error(createRes.error || "Failed to create member record.");
+      }
+
+      // 3. If Payment Done, generate Certificate & ID Card and dispatch Welcome Email
+      if (addForm.paymentStatus === "DONE" && createRes.membershipNo) {
+        setAddProgressStep("Generating Certificate & ID Card PDFs...");
+        const newMember = createRes.member;
+
+        const certNo = createRes.membershipNo;
+        const verificationUrl = `${window.location.origin}/verify/${certNo}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+
+        const issueDateStr = new Date().toLocaleDateString("en-IN", { year: "numeric", month: "2-digit", day: "2-digit" });
+
+        // Generate Certificate
+        const certRes = await generateMembershipPDFClient({
+          membershipNo: certNo,
+          ackNo: newMember.ack_no,
+          fullName: newMember.full_name,
+          fatherName: newMember.father_name,
+          designation: newMember.designation,
+          workingArea: newMember.working_area || "Human Rights Protection",
+          photoUrl: docsRes.photoUrl,
+          issueDateStr,
+          qrCodeUrl,
+          verificationUrl
+        });
+
+        // Generate ID Card
+        const idCardRes = await generateMembershipIdCardPDFClient({
+          membershipNo: certNo,
+          ackNo: newMember.ack_no,
+          fullName: newMember.full_name,
+          fatherName: newMember.father_name,
+          designation: newMember.designation,
+          workingArea: newMember.working_area || "Human Rights Protection",
+          photoUrl: docsRes.photoUrl,
+          issueDateStr,
+          validFromStr: issueDateStr,
+          validToStr: "LIFE MEMBER",
+          addressStr: newMember.address,
+          districtStr: newMember.district,
+          stateStr: newMember.state,
+          pincodeStr: newMember.pincode,
+          mobileStr: newMember.mobile,
+          qrCodeUrl,
+          verificationUrl
+        });
+
+        // Upload PDFs to Storage
+        setAddProgressStep("Uploading documents for candidate email...");
+        const ts = Date.now();
+        const certPdfFile = new File([certRes.pdfBlob], `cert_${ts}.pdf`, { type: "application/pdf" });
+        const certPngFile = new File([certRes.pngBlob], `cert_${ts}.png`, { type: "image/png" });
+        const idCardPdfFile = new File([idCardRes.pdfBlob], `idcard_${ts}.pdf`, { type: "application/pdf" });
+        const idCardPngFile = new File([idCardRes.pngBlob], `idcard_${ts}.png`, { type: "image/png" });
+
+        const [certPdfRes, certPngRes, idPdfRes, idPngRes] = await Promise.all([
+          uploadFileToStorage(certPdfFile, "documents", `${newMember.id}/cert_${ts}.pdf`),
+          uploadFileToStorage(certPngFile, "documents", `${newMember.id}/cert_${ts}.png`),
+          uploadFileToStorage(idCardPdfFile, "documents", `${newMember.id}/idcard_${ts}.pdf`),
+          uploadFileToStorage(idCardPngFile, "documents", `${newMember.id}/idcard_${ts}.png`)
+        ]);
+
+        // Send Email
+        setAddProgressStep("Sending welcome email with attachments...");
+        await dispatchMembershipWelcomeEmail(newMember.id, {
+          certPdfUrl: certPdfRes.url,
+          certPngUrl: certPngRes.url,
+          idCardPdfUrl: idPdfRes.url,
+          idCardPngUrl: idPngRes.url
+        });
+      }
+
+      setAddSuccessMsg(createRes.message || "Member created successfully!");
+      showToast(createRes.message || "Member created successfully!", "success");
+      await fetchData();
+      setTimeout(() => {
+        setShowAddModal(false);
+        setAddSuccessMsg("");
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      setAddError(getErrorMessage(err));
+      showToast(getErrorMessage(err), "error");
+    } finally {
+      setAddLoading(false);
+      setAddProgressStep("");
+    }
+  };
 
   async function fetchData() {
     setLoading(true);
@@ -549,9 +728,23 @@ export default function AdminMembersPage() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Review applicant profiles, specimen files, and issue membership certificates.</p>
         </div>
-        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
-          <Clock className="w-3.5 h-3.5" />
-          <span>{filteredMembers.length} visible of {tabMembers.length} records</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setAddError("");
+              setAddSuccessMsg("");
+              setShowAddModal(true);
+            }}
+            className="flex items-center gap-2 bg-[#001C55] hover:bg-[#001236] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>+ Add Member</span>
+          </button>
+          <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
+            <Clock className="w-3.5 h-3.5" />
+            <span>{filteredMembers.length} visible of {tabMembers.length} records</span>
+          </div>
         </div>
       </div>
 
@@ -1004,6 +1197,402 @@ export default function AdminMembersPage() {
         )}
         <span>{toast.message}</span>
       </div>
+
+      {/* Add Member Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-8">
+            
+            {/* Modal Header */}
+            <div className="px-6 py-4 bg-[#001C55] text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center font-bold">
+                  <UserPlus className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black tracking-wide uppercase">Add New Member</h2>
+                  <p className="text-[11px] text-blue-200">Manual Entry Form for Member Desk</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleAddMemberSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+              
+              {/* Error / Success Notifications inside Modal */}
+              {addError && (
+                <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 text-rose-700 dark:text-rose-400 text-xs font-semibold rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{addError}</span>
+                </div>
+              )}
+
+              {addSuccessMsg && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 text-emerald-700 dark:text-emerald-400 text-xs font-semibold rounded-xl flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{addSuccessMsg}</span>
+                </div>
+              )}
+
+              {/* Progress Bar when Loading */}
+              {addLoading && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-blue-800 dark:text-blue-300">
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
+                    <span>{addProgressStep || "Processing..."}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-blue-200 dark:bg-blue-900 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-600 animate-pulse rounded-full w-3/4"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Section 1: Personal Details */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-1.5">
+                  1. Personal & Contact Details
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-medium">
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ramesh Kumar"
+                      value={addForm.fullName}
+                      onChange={(e) => setAddForm({ ...addForm, fullName: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Father / Husband Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Shri Suresh Kumar"
+                      value={addForm.fatherName}
+                      onChange={(e) => setAddForm({ ...addForm, fatherName: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Mobile Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. +91 9876543210"
+                      value={addForm.mobile}
+                      onChange={(e) => setAddForm({ ...addForm, mobile: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. ramesh@example.com"
+                      value={addForm.email}
+                      onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Gender *</label>
+                    <select
+                      value={addForm.gender}
+                      onChange={(e) => setAddForm({ ...addForm, gender: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Date of Birth *</label>
+                    <input
+                      type="date"
+                      required
+                      value={addForm.dob}
+                      onChange={(e) => setAddForm({ ...addForm, dob: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Full Address *</label>
+                  <textarea
+                    rows={2}
+                    required
+                    placeholder="House No, Village/Locality, Post..."
+                    value={addForm.address}
+                    onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium">
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">State *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addForm.state}
+                      onChange={(e) => setAddForm({ ...addForm, state: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">District *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addForm.district}
+                      onChange={(e) => setAddForm({ ...addForm, district: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Pincode *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addForm.pincode}
+                      onChange={(e) => setAddForm({ ...addForm, pincode: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: NGO Designation & Profile */}
+              <div className="space-y-3 pt-2">
+                <h3 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-1.5">
+                  2. NGO Designation & Work Field
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-medium">
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Designation *</label>
+                    <select
+                      value={addForm.designation}
+                      onChange={(e) => setAddForm({ ...addForm, designation: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 font-bold"
+                    >
+                      {DESIGNATIONS.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Working Area / Field</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Human Rights Protection"
+                      value={addForm.workingArea}
+                      onChange={(e) => setAddForm({ ...addForm, workingArea: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Education</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Graduate"
+                      value={addForm.education}
+                      onChange={(e) => setAddForm({ ...addForm, education: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 dark:text-slate-300 font-bold mb-1">Profession</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Social Worker"
+                      value={addForm.profession}
+                      onChange={(e) => setAddForm({ ...addForm, profession: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Document Uploads */}
+              <div className="space-y-3 pt-2">
+                <h3 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-1.5">
+                  3. Upload Specimen Files *
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium">
+                  {/* Photo File */}
+                  <div className="border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-3 text-center bg-slate-50 dark:bg-slate-950">
+                    <label className="block font-bold text-slate-800 dark:text-slate-200 mb-1">Passport Photo *</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      required
+                      onChange={(e) => setAddPhotoFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                      id="admin-add-photo-input"
+                    />
+                    <label
+                      htmlFor="admin-add-photo-input"
+                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-[11px] font-bold hover:bg-blue-100 border border-blue-200 dark:border-blue-800"
+                    >
+                      <FileUp className="w-3.5 h-3.5" />
+                      <span>{addPhotoFile ? addPhotoFile.name.substring(0, 14) + "..." : "Choose Photo"}</span>
+                    </label>
+                  </div>
+
+                  {/* Aadhaar File */}
+                  <div className="border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-3 text-center bg-slate-50 dark:bg-slate-950">
+                    <label className="block font-bold text-slate-800 dark:text-slate-200 mb-1">Aadhaar Card *</label>
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      required
+                      onChange={(e) => setAddAadhaarFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                      id="admin-add-aadhaar-input"
+                    />
+                    <label
+                      htmlFor="admin-add-aadhaar-input"
+                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-[11px] font-bold hover:bg-blue-100 border border-blue-200 dark:border-blue-800"
+                    >
+                      <FileUp className="w-3.5 h-3.5" />
+                      <span>{addAadhaarFile ? addAadhaarFile.name.substring(0, 14) + "..." : "Choose Aadhaar"}</span>
+                    </label>
+                  </div>
+
+                  {/* Signature File */}
+                  <div className="border border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-3 text-center bg-slate-50 dark:bg-slate-950">
+                    <label className="block font-bold text-slate-800 dark:text-slate-200 mb-1">Signature Specimen *</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      required
+                      onChange={(e) => setAddSignatureFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                      id="admin-add-signature-input"
+                    />
+                    <label
+                      htmlFor="admin-add-signature-input"
+                      className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-[11px] font-bold hover:bg-blue-100 border border-blue-200 dark:border-blue-800"
+                    >
+                      <FileUp className="w-3.5 h-3.5" />
+                      <span>{addSignatureFile ? addSignatureFile.name.substring(0, 14) + "..." : "Choose Signature"}</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Payment Status & Approval Setting */}
+              <div className="space-y-3 pt-2">
+                <h3 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-1.5">
+                  4. Payment Status & Approval Setting *
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Option 1: Payment Done */}
+                  <label
+                    onClick={() => setAddForm({ ...addForm, paymentStatus: "DONE" })}
+                    className={`cursor-pointer p-4 rounded-xl border flex items-start gap-3 transition-all ${
+                      addForm.paymentStatus === "DONE"
+                        ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-500 ring-2 ring-emerald-500/20"
+                        : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentStatus"
+                      checked={addForm.paymentStatus === "DONE"}
+                      onChange={() => setAddForm({ ...addForm, paymentStatus: "DONE" })}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-xs text-emerald-800 dark:text-emerald-400">Payment Done (Paid)</span>
+                        <span className="bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">Instant Approval</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                        Creates member with <strong>APPROVED</strong> status, generates permanent Membership ID, Certificate, ID Card & emails candidate immediately.
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Option 2: Payment Not Done */}
+                  <label
+                    onClick={() => setAddForm({ ...addForm, paymentStatus: "NOT_DONE" })}
+                    className={`cursor-pointer p-4 rounded-xl border flex items-start gap-3 transition-all ${
+                      addForm.paymentStatus === "NOT_DONE"
+                        ? "bg-amber-50 dark:bg-amber-950/30 border-amber-500 ring-2 ring-amber-500/20"
+                        : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentStatus"
+                      checked={addForm.paymentStatus === "NOT_DONE"}
+                      onChange={() => setAddForm({ ...addForm, paymentStatus: "NOT_DONE" })}
+                      className="mt-0.5"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-xs text-amber-800 dark:text-amber-400">Payment Not Done (Pending)</span>
+                        <span className="bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">Payment Pending</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                        Saves member profile in database with <strong>PAYMENT PENDING</strong> status. No certificate or ID card will be generated.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  disabled={addLoading}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addLoading}
+                  className="px-6 py-2.5 rounded-xl bg-[#001C55] hover:bg-[#001236] text-white font-black text-xs uppercase tracking-wider shadow-md transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {addLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  <span>{addLoading ? "Processing Member..." : "Submit & Save Member"}</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

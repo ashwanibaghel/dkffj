@@ -492,3 +492,139 @@ export async function getMemberPrintData(id: string, qrCodeUrl: string) {
     qrBase64
   };
 }
+
+export type AddMemberAdminPayload = {
+  fullName: string;
+  fatherName: string;
+  gender: string;
+  dob: string;
+  mobile: string;
+  whatsapp?: string;
+  email: string;
+  address: string;
+  state: string;
+  district: string;
+  pincode: string;
+  education?: string;
+  profession?: string;
+  workingArea?: string;
+  designation: string;
+  policeStation?: string;
+  photoUrl: string;
+  aadhaarUrl: string;
+  signatureUrl: string;
+  paymentStatus: "DONE" | "NOT_DONE";
+};
+
+export async function addMemberByAdminAction(payload: AddMemberAdminPayload) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Access Denied. Admin authorization required." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  try {
+    const currentYear = new Date().getFullYear();
+
+    // 1. Generate ACK Number
+    const { data: ackNoData } = await supabase.rpc("generate_next_number", {
+      p_key: "membership_ack",
+      p_prefix: "DKE-MIG-"
+    });
+    const ackNo = ackNoData || `DKE-${currentYear}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    let status = "UNDER_REVIEW";
+    let membershipNo: string | null = null;
+    let approvedAt: string | null = null;
+    let approvedBy: string | null = null;
+
+    // 2. If Payment Done, generate membership_no atomically and set APPROVED
+    if (payload.paymentStatus === "DONE") {
+      status = "APPROVED";
+      approvedAt = new Date().toISOString();
+      approvedBy = user.id;
+
+      const { data: mNoData, error: mNoErr } = await supabase.rpc("generate_next_number", {
+        p_key: "membership_no",
+        p_prefix: `DKFFJ/M/${currentYear}/`
+      });
+
+      if (mNoErr || !mNoData) {
+        console.error("RPC generate_next_number failed:", mNoErr);
+        const { count } = await supabase
+          .from("memberships")
+          .select("*", { count: "exact", head: true });
+        membershipNo = `DKFFJ/M/${currentYear}/${String((count || 0) + 1).padStart(4, "0")}`;
+      } else {
+        membershipNo = mNoData;
+      }
+    }
+
+    // 3. Insert membership record
+    const { data: newMember, error: insertErr } = await supabase
+      .from("memberships")
+      .insert({
+        ack_no: ackNo,
+        full_name: payload.fullName.trim(),
+        father_name: payload.fatherName.trim(),
+        gender: payload.gender,
+        dob: payload.dob,
+        mobile: payload.mobile.trim(),
+        whatsapp: payload.whatsapp ? payload.whatsapp.trim() : payload.mobile.trim(),
+        email: payload.email.trim().toLowerCase(),
+        address: payload.address.trim(),
+        state: payload.state.trim(),
+        district: payload.district.trim(),
+        pincode: payload.pincode.trim(),
+        education: payload.education ? payload.education.trim() : "Graduate",
+        profession: payload.profession ? payload.profession.trim() : "Social Worker",
+        working_area: payload.workingArea ? payload.workingArea.trim() : "Human Rights",
+        designation: payload.designation || "Member",
+        police_station: payload.policeStation ? payload.policeStation.trim() : null,
+        photo_url: payload.photoUrl,
+        aadhaar_url: payload.aadhaarUrl,
+        signature_url: payload.signatureUrl,
+        status: status,
+        membership_no: membershipNo,
+        approved_at: approvedAt,
+        approved_by: approvedBy,
+        remarks: payload.paymentStatus === "DONE" 
+          ? "Added by Administrator with Payment Done (Instant Approval)"
+          : "Added by Administrator with Payment Pending"
+      })
+      .select()
+      .single();
+
+    if (insertErr || !newMember) {
+      console.error("Error creating membership by admin:", insertErr);
+      return { success: false, error: insertErr?.message || "Failed to create member record." };
+    }
+
+    // Log status transition
+    await supabase.from("status_logs").insert({
+      membership_id: newMember.id,
+      from_status: "DRAFT",
+      to_status: status,
+      remarks: payload.paymentStatus === "DONE" ? "Created and Approved directly by Admin" : "Created by Admin (Payment Pending)",
+      updated_by: user.id
+    });
+
+    return {
+      success: true,
+      member: newMember,
+      membershipNo: membershipNo,
+      status: status,
+      message: payload.paymentStatus === "DONE"
+        ? `Member added & approved successfully! Permanent ID: ${membershipNo}`
+        : `Member added with Payment Pending status successfully!`
+    };
+  } catch (err: any) {
+    console.error("Error in addMemberByAdminAction:", err);
+    return { success: false, error: err?.message || "An unexpected error occurred." };
+  }
+}
