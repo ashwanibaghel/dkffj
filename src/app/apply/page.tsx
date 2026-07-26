@@ -10,6 +10,7 @@ import { compressFormFiles } from "@/lib/compressImage";
 import { uploadMembershipDocs } from "@/lib/uploadToStorage";
 
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
+import { MEMBERSHIP_TIERS, MEMBERSHIP_TIERS_LIST, MembershipLevelKey, autoDetectMembershipLevel } from "@/lib/data/membershipTiers";
 
 const DESIGNATIONS = [
   "DIRECTOR", "ADD DIRECTOR", "National President", "PRESIDENT", "Secretary",
@@ -123,6 +124,8 @@ export default function ApplyPage() {
   const [workingArea, setWorkingArea] = useState<string>(draft?.workingArea || "");
   const [designation, setDesignation] = useState<string>(draft?.designation || "Member");
   const [policeStation, setPoliceStation] = useState<string>(draft?.policeStation || "");
+  const [membershipLevel, setMembershipLevel] = useState<MembershipLevelKey>(draft?.membershipLevel || "NORMAL");
+  const [manualTierSelection, setManualTierSelection] = useState<boolean>(!!draft?.membershipLevel);
 
   // Pledge Checkboxes
   const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
@@ -175,6 +178,13 @@ export default function ApplyPage() {
     };
     checkUser();
   }, []);
+
+  useEffect(() => {
+    if (!manualTierSelection) {
+      const detected = autoDetectMembershipLevel(designation, workingArea);
+      setMembershipLevel(detected);
+    }
+  }, [designation, workingArea, manualTierSelection]);
 
   const handleSendOtp = async () => {
     if (!mobile || !email) {
@@ -952,6 +962,63 @@ export default function ApplyPage() {
                     />
                   </div>
                 </div>
+
+                {/* Membership Level Tier Selection UI */}
+                <div className="border-t pt-5 mt-5 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <label className="block text-xs font-bold text-[#001C55] uppercase tracking-wider">
+                      Select Membership Category / Tier Level *
+                    </label>
+                    <span className="text-[11px] text-amber-800 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/80">
+                      Includes 1 Year ₹2 Lakh Incident Security Policy Cover
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
+                    {MEMBERSHIP_TIERS_LIST.map((tier) => {
+                      const isSelected = membershipLevel === tier.key;
+                      return (
+                        <button
+                          key={tier.key}
+                          type="button"
+                          onClick={() => {
+                            setMembershipLevel(tier.key);
+                            setManualTierSelection(true);
+                          }}
+                          className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+                            isSelected
+                              ? "border-[#001C55] bg-blue-50/70 shadow-sm ring-2 ring-[#001C55]/20"
+                              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                          }`}
+                        >
+                          <div>
+                            <span className="text-[10px] font-black uppercase text-slate-500 block">
+                              {tier.hindiLabel}
+                            </span>
+                            <span className="text-xs font-bold text-slate-800 block mt-0.5">
+                              {tier.label.replace(" Membership", "")}
+                            </span>
+                          </div>
+                          <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <span className="text-sm font-black text-[#001C55]">
+                              ₹{tier.fee.toLocaleString("en-IN")}
+                            </span>
+                            {isSelected && (
+                              <Check className="w-4 h-4 text-[#001C55]" />
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="p-3 bg-blue-50/50 border border-blue-200/60 rounded-xl text-xs text-blue-950 leading-relaxed flex items-start gap-2">
+                    <Shield className="w-4 h-4 text-[#001C55] shrink-0 mt-0.5" />
+                    <div>
+                      <strong>Active Security Cover Included:</strong> Registered RTI Activist, Social Activist, and Human Rights Activist with 1 Year ₹2 Lakh incident security policy. Selected Category: <strong className="text-[#001C55]">{MEMBERSHIP_TIERS[membershipLevel].label} (Fee: ₹{MEMBERSHIP_TIERS[membershipLevel].fee.toLocaleString("en-IN")}/-)</strong>.
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1143,13 +1210,16 @@ export default function ApplyPage() {
               </div>
             )}
 
+            {/* Hidden field for Membership Level */}
+            <input type="hidden" name="membershipLevel" value={membershipLevel} />
+
             {/* Form Actions footer */}
             <div className="flex items-center justify-between border-t pt-6 mt-6">
               {step > 1 ? (
                 <button
                   type="button"
                   onClick={handlePrevStep}
-                  className="px-5 py-2.5 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-1.5"
+                  className="px-5 py-2.5 border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" /> Back
                 </button>
@@ -1161,7 +1231,7 @@ export default function ApplyPage() {
                 <button
                   type="button"
                   onClick={handleNextStep}
-                  className="px-5 py-2.5 bg-[#001C55] text-white rounded-lg text-xs font-bold text-white hover:bg-[#001236] transition-colors flex items-center gap-1.5 shadow-sm"
+                  className="px-5 py-2.5 bg-[#001C55] text-white rounded-lg text-xs font-bold hover:bg-[#001236] transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   Next Step <ArrowRight className="w-3.5 h-3.5" />
                 </button>
@@ -1169,10 +1239,10 @@ export default function ApplyPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-3 bg-[#C00000] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#990000] transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(192, 0, 0,0.2)] disabled:opacity-50"
+                  className="px-6 py-3 bg-[#C00000] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#990000] transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(192, 0, 0,0.2)] disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Submit & Pay INR 1,000
+                  Submit & Pay INR {MEMBERSHIP_TIERS[membershipLevel].fee.toLocaleString("en-IN")}
                 </button>
               )}
             </div>

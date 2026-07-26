@@ -9,6 +9,7 @@ import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
 import AdminEmptyState from "../components/AdminEmptyState";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
+import { MEMBERSHIP_TIERS, MEMBERSHIP_TIERS_LIST, autoDetectMembershipLevel, MembershipLevelKey } from "@/lib/data/membershipTiers";
 
 const PROFESSIONS = [
   "Service", "Business", "Private Sector", "Government Sector", "House Wife", "Retired", "Unemployed", "Student"
@@ -1023,10 +1024,19 @@ export default function AdminMembersPage() {
                         {member.membership_no || "NOT GENERATED"}
                       </span>
                     </div>
-                    <div className="self-center flex items-center gap-2">
+                    <div className="self-center flex flex-wrap items-center gap-1.5">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(member.status)}`}>
                         {member.status}
                       </span>
+                      {(() => {
+                        const levelKey = autoDetectMembershipLevel(member.designation, member.working_area);
+                        const tier = MEMBERSHIP_TIERS[levelKey];
+                        return (
+                          <span className={`px-2 py-0.5 rounded-md text-[9px] font-black border ${tier.badgeBg} ${tier.badgeText}`}>
+                            {tier.hindiLabel} (₹{tier.fee.toLocaleString("en-IN")})
+                          </span>
+                        );
+                      })()}
                     </div>
                     <div className="flex items-center justify-start lg:justify-end gap-2">
                       {member.status === "APPROVED" && (
