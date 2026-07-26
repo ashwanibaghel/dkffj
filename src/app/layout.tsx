@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ScrollProgress from "@/components/ScrollProgress";
+import AdminQuickAccessBar from "@/components/AdminQuickAccessBar";
 
 export const metadata: Metadata = {
   title: "DK FOUNDATION OF FREEDOM AND JUSTICE | HUMAN RIGHTS PROTECTION | Regd By Ministry Of Corporate Affairs Govt. Of India",
@@ -20,6 +21,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-[#001C55]/10 selection:text-[#001C55]">
+        <AdminQuickAccessBar />
         {children}
         <ScrollProgress />
       </body>

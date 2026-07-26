@@ -26,7 +26,8 @@ import {
   ChevronDown,
   PanelLeftClose,
   PanelLeftOpen,
-  Share2
+  Share2,
+  Globe2
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { getAdminNotifications, AdminNotification } from "./actions";
@@ -233,7 +234,17 @@ export default function AdminNavWrapper({
           </div>
         </div>
         
-        <div className="flex items-center gap-4 text-xs font-semibold">
+        <div className="flex items-center gap-3 text-xs font-semibold">
+          {/* View Public Website Button */}
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#001C55]/10 dark:bg-red-500/10 text-[#001C55] dark:text-red-400 hover:bg-[#001C55] hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-all duration-200 font-extrabold border border-[#001C55]/20 dark:border-red-500/20 shadow-sm hover:scale-105 active:scale-95"
+            title="View Live Public Website"
+          >
+            <Globe2 className="w-4 h-4 text-[#001C55] dark:text-red-400 group-hover:text-white" />
+            <span className="hidden sm:inline">View Website</span>
+          </Link>
+
           {mounted && (
             <button
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
@@ -343,6 +354,7 @@ export default function AdminNavWrapper({
             <span className={`${isSidebarCollapsed ? "md:hidden" : ""} block text-[9px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-3 mb-4 mt-2`}>Management Modules</span>
 
             {renderNavLink(dashboardItem)}
+            {renderNavLink({ href: "/", label: "View Main Website", icon: Globe2 })}
 
             <div className={`${isSidebarCollapsed ? "pt-2 space-y-1" : "pt-3 space-y-3"}`}>
               {isSidebarCollapsed ? (
