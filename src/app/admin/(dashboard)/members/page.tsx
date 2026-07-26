@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction } from "./actions";
-import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check } from "lucide-react";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction } from "./actions";
+import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check, Calendar, RefreshCw } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
@@ -81,6 +81,7 @@ type MemberRecord = {
   membership_no?: string | null;
   ack_no: string;
   approved_at?: string | null;
+  valid_until?: string | null;
   created_at: string;
   remarks?: string | null;
 };
@@ -441,6 +442,87 @@ export default function AdminMembersPage() {
       showToast(getErrorMessage(err) || "Error updating membership details.", "error");
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  // Renewal Modal state
+  const [renewalMember, setRenewalMember] = useState<MemberRecord | null>(null);
+  const [renewalDateStr, setRenewalDateStr] = useState<string>("");
+  const [renewalLoading, setRenewalLoading] = useState<boolean>(false);
+
+  const getValidityInfo = (member: MemberRecord) => {
+    const joinDate = member.approved_at
+      ? new Date(member.approved_at)
+      : new Date(member.created_at);
+    
+    const validUntil = member.valid_until
+      ? new Date(member.valid_until)
+      : new Date(new Date(joinDate).setFullYear(joinDate.getFullYear() + 1));
+    
+    const today = new Date();
+    const diffTime = validUntil.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    let statusType: "active" | "expiring" | "expired" = "active";
+    let label = `Valid Upto: ${validUntil.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}`;
+    let badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
+
+    if (diffDays <= 0) {
+      statusType = "expired";
+      label = `Expired (${validUntil.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })})`;
+      badgeClass = "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800 animate-pulse";
+    } else if (diffDays <= 30) {
+      statusType = "expiring";
+      label = `Expiring in ${diffDays} days (${validUntil.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })})`;
+      badgeClass = "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
+    }
+
+    return { joinDate, validUntil, diffDays, statusType, label, badgeClass };
+  };
+
+  const openRenewalModal = (member: MemberRecord) => {
+    setRenewalMember(member);
+    const joinDate = member.approved_at ? new Date(member.approved_at) : new Date(member.created_at);
+    const currentValidUntil = member.valid_until
+      ? new Date(member.valid_until)
+      : new Date(new Date(joinDate).setFullYear(joinDate.getFullYear() + 1));
+    setRenewalDateStr(currentValidUntil.toISOString().split("T")[0]);
+  };
+
+  const handleSaveRenewal = async () => {
+    if (!renewalMember || !renewalDateStr) return;
+    setRenewalLoading(true);
+    try {
+      const res = await updateMemberValidityAction(renewalMember.id, renewalDateStr);
+      if (res.success) {
+        showToast(res.message || "Validity date updated!", "success");
+        setRenewalMember(null);
+        await fetchData();
+      } else {
+        showToast(res.error || "Failed to update validity", "error");
+      }
+    } catch (err: any) {
+      showToast(err?.message || "Failed to update validity", "error");
+    } finally {
+      setRenewalLoading(false);
+    }
+  };
+
+  const handleQuickAddOneYear = () => {
+    if (!renewalDateStr) {
+      const baseDate = new Date();
+      baseDate.setFullYear(baseDate.getFullYear() + 1);
+      setRenewalDateStr(baseDate.toISOString().split("T")[0]);
+      return;
+    }
+    const curr = new Date(renewalDateStr);
+    if (isNaN(curr.getTime())) {
+      const baseDate = new Date();
+      baseDate.setFullYear(baseDate.getFullYear() + 1);
+      setRenewalDateStr(baseDate.toISOString().split("T")[0]);
+    } else {
+      curr.setFullYear(curr.getFullYear() + 1);
+      setRenewalDateStr(curr.toISOString().split("T")[0]);
     }
   };
 
@@ -1029,11 +1111,18 @@ export default function AdminMembersPage() {
                         {member.status}
                       </span>
                       {(() => {
-                        const levelKey = autoDetectMembershipLevel(member.designation, member.working_area);
-                        const tier = MEMBERSHIP_TIERS[levelKey];
+                        const { label, badgeClass } = getValidityInfo(member);
                         return (
-                          <span className={`px-2 py-0.5 rounded-md text-[9px] font-black border ${tier.badgeBg} ${tier.badgeText}`}>
-                            {tier.label} (₹{tier.fee.toLocaleString("en-IN")})
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openRenewalModal(member);
+                            }}
+                            className={`px-2 py-0.5 rounded-md text-[9.5px] font-bold border flex items-center gap-1 cursor-pointer transition-all hover:scale-105 ${badgeClass}`}
+                            title="Click to Renew or Edit Validity Date"
+                          >
+                            <Calendar className="w-3 h-3 shrink-0" />
+                            {label}
                           </span>
                         );
                       })()}
@@ -1113,13 +1202,22 @@ export default function AdminMembersPage() {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => startEditing(member)}
-                          className="px-3 py-1.5 border border-[#001C55] hover:bg-[#001C55]/5 text-[#001C55] rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Edit className="w-3.5 h-3.5" /> Edit Profile
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openRenewalModal(member)}
+                            className="px-3 py-1.5 border border-emerald-600 hover:bg-emerald-50 text-emerald-700 dark:text-emerald-300 dark:border-emerald-700 dark:hover:bg-emerald-950/40 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" /> Renew / Edit Validity
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => startEditing(member)}
+                            className="px-3 py-1.5 border border-[#001C55] hover:bg-[#001C55]/5 text-[#001C55] dark:text-blue-300 dark:border-blue-700 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Edit className="w-3.5 h-3.5" /> Edit Profile
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -1997,6 +2095,79 @@ export default function AdminMembersPage() {
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Renewal & Validity Date Modal */}
+      {renewalMember && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-start border-b pb-3 border-slate-100 dark:border-slate-800">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <RefreshCw className="w-4.5 h-4.5 text-[#001C55] dark:text-blue-400" />
+                  Renew Membership & Validity
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Member: <strong>{renewalMember.full_name}</strong> (ID: {renewalMember.membership_no || renewalMember.ack_no})
+                </p>
+              </div>
+              <button
+                onClick={() => setRenewalMember(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Set Valid Upto Date (Expiration Date) *
+                </label>
+                <input
+                  type="date"
+                  value={renewalDateStr}
+                  onChange={(e) => setRenewalDateStr(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-semibold focus:ring-2 focus:ring-[#001C55] outline-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleQuickAddOneYear}
+                  className="flex-1 py-2 px-3 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-200"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  +1 Year Renewal
+                </button>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                💡 Updating this date will automatically reflect on the <strong>Valid Till</strong> date printed on future ID Cards and PDF Certificates for this member.
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setRenewalMember(null)}
+                className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveRenewal}
+                disabled={renewalLoading}
+                className="px-5 py-2 bg-[#001C55] hover:bg-[#001236] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                {renewalLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                Save Renewal Date
+              </button>
+            </div>
           </div>
         </div>
       )}

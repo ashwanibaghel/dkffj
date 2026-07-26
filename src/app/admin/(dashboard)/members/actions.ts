@@ -651,3 +651,52 @@ export async function addMemberByAdminAction(payload: AddMemberAdminPayload) {
     return { success: false, error: err?.message || "An unexpected error occurred." };
   }
 }
+
+// 7. Update member validity / renew membership date
+export async function updateMemberValidityAction(memberId: string, validUntilDateStr: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Authentication failed." };
+
+  const validUntilDate = new Date(validUntilDateStr);
+  if (isNaN(validUntilDate.getTime())) {
+    return { success: false, error: "Invalid date format provided." };
+  }
+
+  const { data: updatedMember, error: updateErr } = await supabase
+    .from("memberships")
+    .update({
+      valid_until: validUntilDate.toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", memberId)
+    .select()
+    .single();
+
+  if (updateErr) {
+    console.error("Error updating member validity:", updateErr);
+    return { success: false, error: updateErr.message || "Failed to update membership validity." };
+  }
+
+  // Log status transition / renewal log
+  await supabase.from("status_logs").insert({
+    membership_id: memberId,
+    from_status: updatedMember.status,
+    to_status: updatedMember.status,
+    remarks: `Membership validity renewed until ${validUntilDate.toISOString().split("T")[0]} by Admin`,
+    updated_by: user.id
+  });
+
+  return {
+    success: true,
+    member: updatedMember,
+    message: `Membership validity updated successfully until ${validUntilDate.toLocaleDateString("en-IN")}!`
+  };
+}
