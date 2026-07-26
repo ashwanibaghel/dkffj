@@ -243,9 +243,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
                   flex: 1,
                   fontWeight: "700",
                   wordBreak: "break-word",
-                  paddingRight: "110px",
-                  maxHeight: "56px",
-                  overflow: "hidden"
+                  paddingRight: "125px"
                 }}
               >
                 {[data.addressStr, data.districtStr, data.stateStr].filter(Boolean).join(", ")}{data.pincodeStr ? ` - ${data.pincodeStr}` : ""}
@@ -269,14 +267,13 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               src={signatureSrc}
               alt="Authorized Signatory"
               style={{
-                height: "38px",
-                maxWidth: "130px",
+                height: "44px",
+                maxWidth: "135px",
                 objectFit: "contain",
-                filter: "invert(80%) sepia(100%) saturate(1000%) hue-rotate(5deg) brightness(1.3) drop-shadow(0px 1.5px 3px rgba(0,0,0,0.85))",
                 marginBottom: "2px"
               }}
             />
-            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#ffd700", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.9)" }}>
+            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
               Authorized Signatory
             </div>
           </div>
@@ -290,10 +287,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               backgroundColor: "#d62828",
               color: "#ffffff",
               textAlign: "center",
-              height: "36px",
-              padding: "3px 8px",
+              height: "38px",
+              padding: "4px 8px",
               fontSize: "8.5px",
-              lineHeight: "1.2",
+              lineHeight: "1.25",
               fontWeight: "600",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
               boxSizing: "border-box",
@@ -452,6 +449,58 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
     </div>
   );
 };
+export async function getNativeWhiteOrGoldSignature(imageUrl: string, targetColor: string = "#FFFFFF"): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        const w = img.naturalWidth || img.width || 300;
+        const h = img.naturalHeight || img.height || 150;
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(imageUrl);
+
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+
+        // Target color (default White #FFFFFF)
+        let r = 255, g = 255, b = 255;
+        if (targetColor === "#FFD700" || targetColor.toLowerCase() === "gold") {
+          r = 255; g = 215; b = 0;
+        }
+
+        for (let i = 0; i < data.length; i += 4) {
+          const alpha = data[i + 3];
+          if (alpha > 15) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            // Dark strokes in original signature -> convert to target color
+            if (avg < 210) {
+              data[i] = r;
+              data[i + 1] = g;
+              data[i + 2] = b;
+              data[i + 3] = 255; // Fully opaque bold stroke
+            } else {
+              // White/light background -> make transparent
+              data[i + 3] = 0;
+            }
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      } catch (e) {
+        console.error("Error in getNativeWhiteOrGoldSignature:", e);
+        resolve(imageUrl);
+      }
+    };
+    img.onerror = () => resolve(imageUrl);
+    img.src = imageUrl;
+  });
+}
+
 // Generates the Landscape ID Card PDF, returns the file blob and png blob
 export async function generateMembershipIdCardPDFClient(
   data: MembershipIdCardData,
@@ -467,7 +516,7 @@ export async function generateMembershipIdCardPDFClient(
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
-    getBase64ImageFromUrl("/images/course_director_sig.png")
+    getNativeWhiteOrGoldSignature("/images/course_director_sig.png", "#FFFFFF")
   ]);
 
   const container = document.createElement("div");
