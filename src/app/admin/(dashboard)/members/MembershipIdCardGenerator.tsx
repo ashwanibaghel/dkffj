@@ -2,6 +2,7 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
+import { autoDetectMembershipLevel, MEMBERSHIP_TIERS } from "@/lib/data/membershipTiers";
 
 // Interface for ID Card Data
 export interface MembershipIdCardData {
@@ -204,6 +205,29 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           >
             {data.designation}
           </div>
+
+          {/* Tier Level Badge */}
+          {(() => {
+            const levelKey = autoDetectMembershipLevel(data.designation, data.workingArea);
+            const tier = MEMBERSHIP_TIERS[levelKey];
+            return (
+              <div
+                style={{
+                  marginTop: "5px",
+                  fontSize: "10.5px",
+                  fontWeight: "800",
+                  backgroundColor: "#ffffff",
+                  color: "#001C55",
+                  padding: "2.5px 12px",
+                  borderRadius: "12px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px"
+                }}
+              >
+                {tier.label.replace(" Membership", "")}
+              </div>
+            );
+          })()}
           
           <div
             style={{
@@ -340,13 +364,30 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               marginTop: "20px",
-              fontSize: "25px",
+              fontSize: "20px",
               fontWeight: "bold",
               letterSpacing: "0.5px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
             Mob. {data.mobileStr}
+          </div>
+
+          <div
+            style={{
+              backgroundColor: "#fffbeb",
+              color: "#92400e",
+              border: "1px solid #fcd34d",
+              borderRadius: "6px",
+              padding: "4px 8px",
+              fontSize: "8.5px",
+              fontWeight: "bold",
+              textAlign: "center",
+              margin: "6px 15px 0 15px",
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            }}
+          >
+            🛡️ 1-Yr ₹2,00,000 Incident Security Cover Included
           </div>
           
           <div
