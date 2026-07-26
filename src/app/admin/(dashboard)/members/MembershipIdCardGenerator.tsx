@@ -218,27 +218,27 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               width: "100%",
-              padding: "0 22px",
+              padding: "0 20px",
               marginTop: "8px",
-              fontSize: "13px",
+              fontSize: "14.5px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
-              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
-              <span style={{ textAlign: "left", flex: 1, fontWeight: "600" }}>{data.workingArea || "N/A"}</span>
+              <span style={{ fontWeight: "bold", width: "105px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
+              <span style={{ textAlign: "left", flex: 1, fontWeight: "700" }}>{data.workingArea || "N/A"}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
-              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
-              <span style={{ textAlign: "left", flex: 1, fontWeight: "600" }}>{data.validFromStr} to {data.validToStr}</span>
+              <span style={{ fontWeight: "bold", width: "105px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
+              <span style={{ textAlign: "left", flex: 1, fontWeight: "700" }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.35" }}>
-              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
+              <span style={{ fontWeight: "bold", width: "105px", textAlign: "left", flexShrink: 0 }}>Address :</span>
               <span
                 style={{
                   textAlign: "left",
                   flex: 1,
-                  fontWeight: "600",
+                  fontWeight: "700",
                   wordBreak: "break-word"
                 }}
               >
@@ -313,9 +313,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             style={{
               marginTop: "14px",
               textAlign: "center",
-              fontSize: "14px",
+              fontSize: "18px",
               fontWeight: "bold",
-              letterSpacing: "0.8px",
+              letterSpacing: "1px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
