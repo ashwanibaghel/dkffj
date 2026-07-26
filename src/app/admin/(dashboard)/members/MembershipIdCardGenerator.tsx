@@ -273,7 +273,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
                 marginBottom: "2px"
               }}
             />
-            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#FFD700", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.9)" }}>
+            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
               Authorized Signatory
             </div>
           </div>
@@ -516,7 +516,7 @@ export async function generateMembershipIdCardPDFClient(
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
-    getNativeWhiteOrGoldSignature("/images/course_director_sig.png", "#FFD700")
+    getNativeWhiteOrGoldSignature("/images/course_director_sig.png", "#FFFFFF")
   ]);
 
   const container = document.createElement("div");
