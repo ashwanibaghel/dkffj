@@ -316,8 +316,9 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
 
     const membershipId = newMembership.id;
 
-    // 4. Create Pending Payment Log
-    const amount = Number(process.env.MEMBERSHIP_FEE || 1000.0);
+    // 4. Create Pending Payment Log (Standard Membership Fee = ₹1000)
+    const envFee = Number(process.env.MEMBERSHIP_FEE);
+    const amount = !isNaN(envFee) && envFee >= 100 ? envFee : 1000;
     const tempTxnId = "MBR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
     
     const { error: paymentError } = await supabase
