@@ -113,8 +113,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              border: "2px solid #ffffff",
               overflow: "hidden",
-              flexShrink: 0
+              flexShrink: 0,
+              boxSizing: "border-box"
             }}
           >
             <img
@@ -344,8 +346,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              border: "2px solid #ffffff",
               overflow: "hidden",
-              flexShrink: 0
+              flexShrink: 0,
+              boxSizing: "border-box"
             }}
           >
             <img
