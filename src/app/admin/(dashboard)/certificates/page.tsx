@@ -17,6 +17,7 @@ type CertificateRecord = {
   course_name: string;
   issue_date: string;
   status: string;
+  pdf_url: string;
   qr_code_url: string;
 };
 
@@ -82,6 +83,25 @@ export default function AdminCertificatesPage() {
   const handleDownloadDynamic = async (cert: CertificateRecord) => {
     setDownloadLoading(cert.id);
     try {
+      if (cert.pdf_url?.startsWith("http")) {
+        const response = await fetch(cert.pdf_url);
+        if (!response.ok) {
+          throw new Error(`Certified PDF download failed (${response.status})`);
+        }
+
+        const pdfBlob = await response.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `Certificate_${cert.certificate_no}.pdf`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        window.URL.revokeObjectURL(url);
+        showToast("Official certified PDF downloaded.");
+        return;
+      }
+
       const metaRes = await getCertificateRegenerationData(cert.registration_id);
       if (!metaRes.success) {
         showToast(metaRes.error || "Failed to load certificate data.", "error");
