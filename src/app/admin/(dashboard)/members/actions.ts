@@ -295,6 +295,8 @@ export type UpdateMemberPayload = {
   policeStation?: string;
   membershipNo?: string;
   photoUrl?: string;
+  aadhaarUrl?: string;
+  signatureUrl?: string;
 };
 
 // 4. Update all membership fields by Admin
@@ -341,6 +343,12 @@ export async function updateMembershipFields(payload: UpdateMemberPayload) {
 
   if (payload.photoUrl) {
     updatePayload.photo_url = payload.photoUrl;
+  }
+  if (payload.aadhaarUrl) {
+    updatePayload.aadhaar_url = payload.aadhaarUrl;
+  }
+  if (payload.signatureUrl) {
+    updatePayload.signature_url = payload.signatureUrl;
   }
 
   const { error: updateErr } = await supabase

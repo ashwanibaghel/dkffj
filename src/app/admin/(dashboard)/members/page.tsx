@@ -127,6 +127,8 @@ export default function AdminMembersPage() {
   });
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState<string>("");
+  const [editAadhaarFile, setEditAadhaarFile] = useState<File | null>(null);
+  const [editSignatureFile, setEditSignatureFile] = useState<File | null>(null);
 
   // Add Member Modal State
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -343,6 +345,8 @@ export default function AdminMembersPage() {
     });
     setEditPhotoFile(null);
     setEditPhotoPreview(member.photo_url || "");
+    setEditAadhaarFile(null);
+    setEditSignatureFile(null);
   };
 
   const handleEditPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -370,6 +374,32 @@ export default function AdminMembersPage() {
         photoUrl = photoRes.url;
       }
 
+      let aadhaarUrl = "";
+      if (editAadhaarFile) {
+        const aadhaarRes = await uploadFileToStorage(
+          editAadhaarFile,
+          "aadhaar",
+          `${memberId}/aadhaar_${Date.now()}.${editAadhaarFile.name.split(".").pop() || "jpg"}`
+        );
+        if (aadhaarRes.error || !aadhaarRes.url) {
+          throw new Error(aadhaarRes.error || "Failed to upload new Aadhaar document.");
+        }
+        aadhaarUrl = aadhaarRes.url;
+      }
+
+      let signatureUrl = "";
+      if (editSignatureFile) {
+        const sigRes = await uploadFileToStorage(
+          editSignatureFile,
+          "signatures",
+          `${memberId}/signature_${Date.now()}.${editSignatureFile.name.split(".").pop() || "jpg"}`
+        );
+        if (sigRes.error || !sigRes.url) {
+          throw new Error(sigRes.error || "Failed to upload new signature specimen.");
+        }
+        signatureUrl = sigRes.url;
+      }
+
       const res = await updateMembershipFields({
         id: memberId,
         fullName: editForm.fullName,
@@ -389,14 +419,18 @@ export default function AdminMembersPage() {
         designation: editForm.designation,
         policeStation: editForm.policeStation,
         membershipNo: editForm.membershipNo,
-        photoUrl: photoUrl || undefined
+        photoUrl: photoUrl || undefined,
+        aadhaarUrl: aadhaarUrl || undefined,
+        signatureUrl: signatureUrl || undefined
       });
 
       if (res.success) {
         setEditingId(null);
         setEditPhotoFile(null);
+        setEditAadhaarFile(null);
+        setEditSignatureFile(null);
         await fetchData(); // Refresh data
-        showToast("Membership profile updated successfully!", "success");
+        showToast("Membership profile & documents updated successfully!", "success");
       } else {
         setActionError(res.error || "Failed to update membership details.");
         showToast(res.error || "Failed to update membership details.", "error");
@@ -1372,26 +1406,67 @@ export default function AdminMembersPage() {
                     </div>
 
                     {/* Private Documents Section */}
-                    <div className="p-4 rounded-xl border border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                        <FileText className="w-4 h-4 text-[#001C55]" /> Supporting Verification Assets
+                    <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                        <FileText className="w-4 h-4 text-[#001C55] dark:text-blue-400" /> Supporting Verification Assets
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenPrivateDoc("aadhaar", member.aadhaar_url)}
-                          className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-[10px] font-bold text-slate-700 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5" /> View Aadhaar Card
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenPrivateDoc("signatures", member.signature_url)}
-                          className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-[10px] font-bold text-slate-700 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5" /> View Signature
-                        </button>
-                      </div>
+                      
+                      {editingId === member.id ? (
+                        <div className="flex flex-wrap items-center gap-3">
+                          {/* Aadhaar Upload/Change Button */}
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="file"
+                              accept="image/*,.pdf"
+                              onChange={(e) => setEditAadhaarFile(e.target.files?.[0] || null)}
+                              className="hidden"
+                              id={`edit-aadhaar-input-${member.id}`}
+                            />
+                            <label
+                              htmlFor={`edit-aadhaar-input-${member.id}`}
+                              className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-[10px] font-bold border border-blue-200 dark:border-blue-800 hover:bg-blue-100"
+                            >
+                              <FileUp className="w-3.5 h-3.5" />
+                              <span>{editAadhaarFile ? editAadhaarFile.name.substring(0, 12) + "..." : "Upload New Aadhaar"}</span>
+                            </label>
+                          </div>
+
+                          {/* Signature Upload/Change Button */}
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => setEditSignatureFile(e.target.files?.[0] || null)}
+                              className="hidden"
+                              id={`edit-sig-input-${member.id}`}
+                            />
+                            <label
+                              htmlFor={`edit-sig-input-${member.id}`}
+                              className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-[10px] font-bold border border-blue-200 dark:border-blue-800 hover:bg-blue-100"
+                            >
+                              <FileUp className="w-3.5 h-3.5" />
+                              <span>{editSignatureFile ? editSignatureFile.name.substring(0, 12) + "..." : "Upload New Signature"}</span>
+                            </label>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPrivateDoc("aadhaar", member.aadhaar_url)}
+                            className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-[10px] font-bold text-slate-700 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> View Aadhaar Card
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPrivateDoc("signatures", member.signature_url)}
+                            className="px-3.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-[10px] font-bold text-slate-700 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> View Signature
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Certificate Desk for APPROVED Members */}
