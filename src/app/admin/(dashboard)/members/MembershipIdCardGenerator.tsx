@@ -213,25 +213,50 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             {data.designation}
           </div>
 
+          {/* Tier Level Text (Golden Accent without white background box) */}
+          {(() => {
+            const levelKey = autoDetectMembershipLevel(data.designation, data.workingArea);
+            const tier = MEMBERSHIP_TIERS[levelKey];
+            return (
+              <div
+                style={{
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                  marginTop: "3px",
+                  color: "#ffe6a7",
+                  textAlign: "center",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                }}
+              >
+                ({tier.label})
+              </div>
+            );
+          })()}
+
           <div
             style={{
               width: "100%",
-              padding: "0 18px",
+              padding: "0 22px",
               marginTop: "10px",
-              fontSize: "13.5px",
-              lineHeight: "1.42",
-              textAlign: "center",
+              fontSize: "13px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            <div style={{ marginBottom: "5px" }}>
-              <span style={{ fontWeight: "bold" }}>Work Area:</span> {data.workingArea}
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
+              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
+              <span style={{ textAlign: "left", flex: 1 }}>{data.workingArea || "N/A"}</span>
             </div>
-            <div style={{ marginBottom: "5px" }}>
-              <span style={{ fontWeight: "bold" }}>Valid Till:</span> {data.validFromStr} to {data.validToStr}
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
+              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
+              <span style={{ textAlign: "left", flex: 1 }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
-            <div style={{ marginBottom: "4px", lineHeight: "1.3" }}>
-              <span style={{ fontWeight: "bold" }}>Add:</span> {data.addressStr} {data.districtStr} {data.stateStr} {data.pincodeStr ? `- ${data.pincodeStr}` : ""}
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.3" }}>
+              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
+              <span style={{ textAlign: "left", flex: 1 }}>
+                {[data.addressStr, data.districtStr, data.stateStr].filter(Boolean).join(", ")}{data.pincodeStr ? ` - ${data.pincodeStr}` : ""}
+              </span>
             </div>
           </div>
           
