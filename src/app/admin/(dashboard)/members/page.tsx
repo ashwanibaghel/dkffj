@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction } from "./actions";
-import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check, Calendar, RefreshCw } from "lucide-react";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction, toggleMemberShowHomeAction, toggleMemberActiveStatusAction } from "./actions";
+import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check, Calendar, RefreshCw, Home } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
@@ -78,6 +78,7 @@ type MemberRecord = {
   aadhaar_url: string;
   signature_url: string;
   status: string;
+  show_home?: boolean;
   membership_no?: string | null;
   ack_no: string;
   approved_at?: string | null;
@@ -537,6 +538,45 @@ export default function AdminMembersPage() {
     setToast({ message, visible: true, type });
   };
 
+  const handleToggleShowHome = async (member: MemberRecord) => {
+    try {
+      const res = await toggleMemberShowHomeAction(member.id, !!member.show_home);
+      if (res.success) {
+        setMembers((prev) =>
+          prev.map((m) => (m.id === member.id ? { ...m, show_home: res.showHome } : m))
+        );
+        showToast(
+          res.showHome ? `${member.full_name} is now visible on Homepage!` : `${member.full_name} is hidden from Homepage!`,
+          "success"
+        );
+      } else {
+        showToast(res.error || "Failed to update homepage visibility", "error");
+      }
+    } catch {
+      showToast("Error updating homepage visibility", "error");
+    }
+  };
+
+  const handleToggleActiveStatus = async (member: MemberRecord) => {
+    try {
+      const res = await toggleMemberActiveStatusAction(member.id, member.status);
+      if (res.success && res.status) {
+        const nextStatus = res.status;
+        setMembers((prev) =>
+          prev.map((m) => (m.id === member.id ? { ...m, status: nextStatus } : m))
+        );
+        showToast(
+          nextStatus === "APPROVED" ? `${member.full_name} status set to Active (APPROVED)!` : `${member.full_name} status set to Inactive!`,
+          "success"
+        );
+      } else {
+        showToast(res.error || "Failed to update active status", "error");
+      }
+    } catch {
+      showToast("Error updating active status", "error");
+    }
+  };
+
   useEffect(() => {
     if (toast.visible) {
       const timer = setTimeout(() => {
@@ -554,7 +594,7 @@ export default function AdminMembersPage() {
     return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
-  const statusFilters = ["ALL", "PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"];
+  const statusFilters = ["ALL", "PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED", "HOMEPAGE"];
 
   const tabMembers = useMemo(() => {
     return members.filter((m) => {
@@ -568,6 +608,7 @@ export default function AdminMembersPage() {
       (acc, member) => {
         acc.ALL += 1;
         acc[member.status] = (acc[member.status] || 0) + 1;
+        if (member.show_home) acc.HOMEPAGE = (acc.HOMEPAGE || 0) + 1;
         return acc;
       },
       { ALL: 0 } as Record<string, number>
@@ -577,7 +618,11 @@ export default function AdminMembersPage() {
   const filteredMembers = useMemo(() => {
     let result = tabMembers;
     if (filter !== "ALL") {
-      result = result.filter((m) => m.status === filter);
+      if (filter === "HOMEPAGE") {
+        result = result.filter((m) => !!m.show_home);
+      } else {
+        result = result.filter((m) => m.status === filter);
+      }
     }
     if (searchQuery.trim() !== "") {
       const queryTerms = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -1107,9 +1152,33 @@ export default function AdminMembersPage() {
                       </span>
                     </div>
                     <div className="self-center flex flex-wrap items-center gap-1.5">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusColor(member.status)}`}>
-                        {member.status}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleActiveStatus(member);
+                        }}
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-transform hover:scale-105 cursor-pointer ${getStatusColor(member.status)}`}
+                        title="Click to Toggle Active/Inactive Status"
+                      >
+                        {member.status === "APPROVED" ? "Active" : member.status}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleShowHome(member);
+                        }}
+                        className={`px-2 py-0.5 rounded-md text-[9.5px] font-bold border flex items-center gap-1 cursor-pointer transition-all hover:scale-105 ${
+                          member.show_home
+                            ? "bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-500/20"
+                            : "bg-slate-50 dark:bg-slate-950 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800"
+                        }`}
+                        title="Toggle Homepage Visibility"
+                      >
+                        <Home className="w-3 h-3 shrink-0" />
+                        {member.show_home ? "Home" : "Hidden"}
+                      </button>
                       {(() => {
                         const { label, badgeClass } = getValidityInfo(member);
                         return (
@@ -1202,7 +1271,31 @@ export default function AdminMembersPage() {
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleShowHome(member)}
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                              member.show_home
+                                ? "bg-sky-50 text-sky-700 border-sky-300 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/30"
+                                : "bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-700"
+                            }`}
+                            title="Show or Hide on Main Website Homepage"
+                          >
+                            <Home className="w-3.5 h-3.5" /> {member.show_home ? "Featured on Homepage" : "Show on Homepage"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActiveStatus(member)}
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                              member.status === "APPROVED"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30"
+                                : "bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/30"
+                            }`}
+                            title="Toggle Active or Inactive Status"
+                          >
+                            {member.status === "APPROVED" ? "Active (APPROVED)" : "Set Active"}
+                          </button>
                           <button
                             type="button"
                             onClick={() => openRenewalModal(member)}

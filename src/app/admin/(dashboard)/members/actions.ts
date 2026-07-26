@@ -700,3 +700,55 @@ export async function updateMemberValidityAction(memberId: string, validUntilDat
     message: `Membership validity updated successfully until ${validUntilDate.toLocaleDateString("en-IN")}!`
   };
 }
+
+// 8. Toggle Home Page Visibility (show_home)
+export async function toggleMemberShowHomeAction(memberId: string, currentShowHome: boolean) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const newShowHome = !currentShowHome;
+
+  const { error } = await supabase
+    .from("memberships")
+    .update({ show_home: newShowHome, updated_at: new Date().toISOString() })
+    .eq("id", memberId);
+
+  if (error) {
+    console.error("Error toggling show_home:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, showHome: newShowHome };
+}
+
+// 9. Toggle Active / Inactive Status
+export async function toggleMemberActiveStatusAction(memberId: string, currentStatus: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // If APPROVED, toggle to REJECTED/UNDER_REVIEW (Inactive), else set APPROVED (Active)
+  const newStatus = currentStatus === "APPROVED" ? "REJECTED" : "APPROVED";
+
+  const { error } = await supabase
+    .from("memberships")
+    .update({ status: newStatus, updated_at: new Date().toISOString() })
+    .eq("id", memberId);
+
+  if (error) {
+    console.error("Error toggling active status:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, status: newStatus };
+}
+

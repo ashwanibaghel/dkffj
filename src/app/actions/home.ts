@@ -14,6 +14,33 @@ const leaderDescriptions: Record<string, string> = {
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
   try {
+    // Primary source: memberships table in Supabase where show_home is true
+    const homeMembers = await prisma.memberships.findMany({
+      where: {
+        show_home: true,
+        status: "APPROVED"
+      },
+      orderBy: {
+        created_at: "asc"
+      }
+    });
+
+    if (homeMembers.length > 0) {
+      return homeMembers.map((m) => ({
+        id: m.membership_no || m.ack_no || m.id,
+        name: m.full_name,
+        role: m.designation || "Executive Member",
+        education: m.education || "",
+        location: m.district || m.state || m.address || "India",
+        mobile: m.mobile,
+        photo: m.photo_url || "",
+        status: 1,
+        showHome: 1,
+        description: leaderDescriptions[m.membership_no || ""] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
+      }));
+    }
+
+    // Fallback source: teamMember table in database
     const dbLeaders = await prisma.teamMember.findMany({
       where: {
         showHome: 1,
