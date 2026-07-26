@@ -254,7 +254,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "44px",
+              bottom: "50px",
               right: "15px",
               textAlign: "center",
               display: "flex",
@@ -267,13 +267,13 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               src={signatureSrc}
               alt="Authorized Signatory"
               style={{
-                height: "44px",
+                height: "46px",
                 maxWidth: "135px",
                 objectFit: "contain",
                 marginBottom: "2px"
               }}
             />
-            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
+            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#FFD700", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.9)" }}>
               Authorized Signatory
             </div>
           </div>
@@ -287,17 +287,17 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               backgroundColor: "#d62828",
               color: "#ffffff",
               textAlign: "center",
-              height: "38px",
-              padding: "4px 8px",
-              fontSize: "8.5px",
-              lineHeight: "1.25",
-              fontWeight: "600",
+              minHeight: "46px",
+              padding: "5px 10px",
+              fontSize: "10px",
+              lineHeight: "1.3",
+              fontWeight: "700",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
               boxSizing: "border-box",
-              borderTop: "1.5px solid #b71c1c"
+              borderTop: "2px solid #b71c1c"
             }}
           >
-            <strong style={{ fontSize: "9.5px", letterSpacing: "0.5px", display: "block", marginBottom: "1px" }}>Head Office Address</strong>
+            <strong style={{ fontSize: "11px", letterSpacing: "0.6px", display: "block", marginBottom: "2px" }}>Head Office Address</strong>
             117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </div>
         </div>
@@ -516,7 +516,7 @@ export async function generateMembershipIdCardPDFClient(
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
-    getNativeWhiteOrGoldSignature("/images/course_director_sig.png", "#FFFFFF")
+    getNativeWhiteOrGoldSignature("/images/course_director_sig.png", "#FFD700")
   ]);
 
   const container = document.createElement("div");
