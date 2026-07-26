@@ -259,7 +259,7 @@ export default function AdminMembersPage() {
           photoUrl: docsRes.photoUrl,
           issueDateStr,
           validFromStr: issueDateStr,
-          validToStr: "LIFE MEMBER",
+          validToStr: newMember.valid_until ? new Date(newMember.valid_until).toISOString().split("T")[0] : new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split("T")[0],
           addressStr: newMember.address,
           districtStr: newMember.district,
           stateStr: newMember.state,
@@ -694,9 +694,9 @@ export default function AdminMembersPage() {
       const issueDateStr = issueDate.toLocaleDateString("en-IN");
       
       const validFromStr = issueDate.toISOString().split("T")[0]; // YYYY-MM-DD
-      const validToDate = new Date(issueDate);
-      validToDate.setFullYear(validToDate.getFullYear() + 1);
-      validToDate.setDate(validToDate.getDate() - 1);
+      const validToDate = latestMember.valid_until
+        ? new Date(latestMember.valid_until)
+        : new Date(new Date(issueDate).setFullYear(issueDate.getFullYear() + 1));
       const validToStr = validToDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
       const idRes = await generateMembershipIdCardPDFClient({

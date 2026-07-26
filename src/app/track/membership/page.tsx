@@ -102,9 +102,9 @@ function MembershipTrackContent() {
       const issueDateStr = issueDate.toLocaleDateString("en-IN");
       
       const validFromStr = issueDate.toISOString().split("T")[0];
-      const validToDate = new Date(issueDate);
-      validToDate.setFullYear(validToDate.getFullYear() + 1);
-      validToDate.setDate(validToDate.getDate() - 1);
+      const validToDate = member.valid_until
+        ? new Date(member.valid_until)
+        : new Date(new Date(issueDate).setFullYear(issueDate.getFullYear() + 1));
       const validToStr = validToDate.toISOString().split("T")[0];
 
       const { pdfBlob, pngBlob } = await generateMembershipIdCardPDFClient({
