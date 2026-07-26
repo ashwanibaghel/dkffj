@@ -92,10 +92,23 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         >
           <div
             style={{
-              fontSize: "20px",
+              fontSize: "10.5px",
+              fontWeight: "bold",
+              letterSpacing: "0.8px",
+              marginTop: "8px",
+              color: "#ffffff",
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+            }}
+          >
+            CIN No. : U88900UP2023NPL185611
+          </div>
+
+          <div
+            style={{
+              fontSize: "19px",
               fontWeight: "bold",
               letterSpacing: "1.2px",
-              marginTop: "12px",
+              marginTop: "3px",
               textTransform: "uppercase",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -105,10 +118,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "62px",
-              height: "62px",
+              width: "60px",
+              height: "60px",
               borderRadius: "50%",
-              marginTop: "4px",
+              marginTop: "3px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -136,7 +149,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               fontSize: "14.5px",
               fontWeight: "bold",
               textAlign: "center",
-              margin: "6px 8px 1px",
+              margin: "5px 8px 1px",
               textTransform: "uppercase",
               fontFamily: "Georgia, 'Times New Roman', serif",
               lineHeight: "1.2"
@@ -148,9 +161,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               fontSize: "12px",
-              color: "#ffe6a7",
+              color: "#ffffff",
               textAlign: "center",
-              fontWeight: "700",
+              fontWeight: "bold",
               textTransform: "uppercase",
               letterSpacing: "0.5px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -161,9 +174,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "8.5px",
-              color: "#e0e0e0",
-              marginBottom: "8px",
+              fontSize: "9.5px",
+              fontWeight: "700",
+              color: "#ffffff",
+              marginBottom: "6px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
@@ -172,8 +186,8 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "132px",
-              height: "132px",
+              width: "130px",
+              height: "130px",
               border: "2px solid #000000",
               backgroundColor: "#ffffff",
               display: "flex",
@@ -188,9 +202,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "21px",
+              fontSize: "20px",
               fontWeight: "bold",
-              marginTop: "8px",
+              marginTop: "6px",
               color: "#ffffff",
               textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -201,9 +215,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "16px",
+              fontSize: "15.5px",
               fontWeight: "700",
-              marginTop: "3px",
+              marginTop: "2px",
               color: "#ffffff",
               textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -216,22 +230,34 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             style={{
               width: "100%",
               padding: "0 22px",
-              marginTop: "12px",
+              marginTop: "8px",
               fontSize: "13px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
-              <span style={{ textAlign: "left", flex: 1 }}>{data.workingArea || "N/A"}</span>
+              <span style={{ textAlign: "left", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{data.workingArea || "N/A"}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
-              <span style={{ textAlign: "left", flex: 1 }}>{data.validFromStr} to {data.validToStr}</span>
+              <span style={{ textAlign: "left", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.3" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
-              <span style={{ textAlign: "left", flex: 1 }}>
+              <span
+                style={{
+                  textAlign: "left",
+                  flex: 1,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxHeight: "34px",
+                  wordBreak: "break-word"
+                }}
+              >
                 {[data.addressStr, data.districtStr, data.stateStr].filter(Boolean).join(", ")}{data.pincodeStr ? ` - ${data.pincodeStr}` : ""}
               </span>
             </div>
@@ -240,7 +266,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "55px",
+              bottom: "52px",
               right: "25px",
               textAlign: "right"
             }}
@@ -301,24 +327,15 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         >
           <div
             style={{
-              marginTop: "17px",
+              marginTop: "14px",
               textAlign: "center",
-              fontSize: "16px",
-              lineHeight: "1.3",
+              fontSize: "14px",
+              fontWeight: "bold",
+              letterSpacing: "0.8px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            Regd. No.
-            <br />
-            <span
-              style={{
-                fontSize: "20px",
-                fontWeight: "bold",
-                letterSpacing: "0.5px"
-              }}
-            >
-              U88900UP2023NPL185611
-            </span>
+            CIN No. : U88900UP2023NPL185611
           </div>
           
           <div
