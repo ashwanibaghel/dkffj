@@ -226,11 +226,11 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           >
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
-              <span style={{ textAlign: "left", flex: 1 }}>{data.workingArea || "N/A"}</span>
+              <span style={{ textAlign: "left", flex: 1, fontWeight: "600" }}>{data.workingArea || "N/A"}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
-              <span style={{ textAlign: "left", flex: 1 }}>{data.validFromStr} to {data.validToStr}</span>
+              <span style={{ textAlign: "left", flex: 1, fontWeight: "600" }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.35" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
@@ -238,6 +238,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
                 style={{
                   textAlign: "left",
                   flex: 1,
+                  fontWeight: "600",
                   wordBreak: "break-word"
                 }}
               >
@@ -318,7 +319,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            CIN No. : U88900UP2023NPL185611
+            CIN : U88900UP2023NPL185611
           </div>
           
           <div
