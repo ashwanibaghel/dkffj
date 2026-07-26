@@ -12,9 +12,27 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
   const handleDownload = async () => {
     setLoading(true);
     try {
+      if (cert.pdfUrl?.startsWith("http")) {
+        const response = await fetch(cert.pdfUrl);
+        if (!response.ok) {
+          throw new Error(`Certified PDF download failed (${response.status})`);
+        }
+
+        const pdfBlob = await response.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `Certificate_${cert.certificateNo}.pdf`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        window.URL.revokeObjectURL(url);
+        return;
+      }
+
       let pdfBlob;
       if (cert.certType === "membership") {
-        pdfBlob = await generateMembershipPDFClient({
+        const resultFiles = await generateMembershipPDFClient({
           membershipNo: cert.certificateNo,
           ackNo: cert.ackNo || "",
           fullName: cert.userName,
@@ -26,6 +44,7 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
           qrCodeUrl: cert.qrCodeUrl,
           verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`
         });
+        pdfBlob = resultFiles.pdfBlob;
       } else {
         const resultFiles = await generateCertificatePDFClient({
           certNo: cert.certificateNo,
@@ -57,9 +76,9 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to generate PDF:", err);
-      alert(`Error generating PDF: ${err.message || err}`);
+      alert(`Error generating PDF: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
