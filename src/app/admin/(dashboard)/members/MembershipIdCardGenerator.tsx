@@ -92,10 +92,11 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         >
           <div
             style={{
-              fontSize: "19px",
+              fontSize: "18px",
               fontWeight: "bold",
               letterSpacing: "1.2px",
-              marginTop: "16px",
+              marginTop: "12px",
+              marginBottom: "8px",
               textTransform: "uppercase",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -105,10 +106,11 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "58px",
-              height: "58px",
+              width: "54px",
+              height: "54px",
               borderRadius: "50%",
-              marginTop: "4px",
+              marginTop: "2px",
+              marginBottom: "6px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
