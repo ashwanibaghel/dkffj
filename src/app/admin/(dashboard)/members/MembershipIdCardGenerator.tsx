@@ -243,7 +243,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
                   flex: 1,
                   fontWeight: "700",
                   wordBreak: "break-word",
-                  paddingRight: "125px"
+                  paddingRight: "140px"
                 }}
               >
                 {[data.addressStr, data.districtStr, data.stateStr].filter(Boolean).join(", ")}{data.pincodeStr ? ` - ${data.pincodeStr}` : ""}
@@ -254,7 +254,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "50px",
+              bottom: "60px",
               right: "15px",
               textAlign: "center",
               display: "flex",
@@ -267,13 +267,13 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               src={signatureSrc}
               alt="Authorized Signatory"
               style={{
-                height: "46px",
-                maxWidth: "135px",
+                height: "56px",
+                maxWidth: "150px",
                 objectFit: "contain",
-                marginBottom: "2px"
+                marginBottom: "3px"
               }}
             />
-            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
+            <div style={{ fontSize: "10.5px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.5px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
               Authorized Signatory
             </div>
           </div>
