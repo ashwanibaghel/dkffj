@@ -93,10 +93,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         >
           <div
             style={{
-              fontSize: "18px",
+              fontSize: "20px",
               fontWeight: "bold",
-              letterSpacing: "1px",
-              marginTop: "14px",
+              letterSpacing: "1.2px",
+              marginTop: "12px",
               textTransform: "uppercase",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -106,10 +106,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "55px",
-              height: "55px",
+              width: "62px",
+              height: "62px",
               borderRadius: "50%",
-              marginTop: "5px",
+              marginTop: "4px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -134,12 +134,13 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "13px",
+              fontSize: "14.5px",
               fontWeight: "bold",
               textAlign: "center",
-              margin: "8px 8px 1px",
+              margin: "6px 8px 1px",
               textTransform: "uppercase",
-              fontFamily: "Georgia, 'Times New Roman', serif"
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              lineHeight: "1.2"
             }}
           >
             DK Foundation of Freedom and Justice
@@ -147,11 +148,12 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "12px",
               color: "#ffe6a7",
               textAlign: "center",
-              fontWeight: "600",
+              fontWeight: "700",
               textTransform: "uppercase",
+              letterSpacing: "0.5px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
@@ -160,9 +162,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "7.5px",
+              fontSize: "8.5px",
               color: "#e0e0e0",
-              marginBottom: "7px",
+              marginBottom: "8px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
@@ -171,14 +173,15 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "120px",
-              height: "120px",
+              width: "132px",
+              height: "132px",
               border: "2px solid #000000",
               backgroundColor: "#ffffff",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              overflow: "hidden"
+              overflow: "hidden",
+              flexShrink: 0
             }}
           >
             <img src={photoSrc} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Profile Photo" />
@@ -186,10 +189,11 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "18px",
+              fontSize: "21px",
               fontWeight: "bold",
               marginTop: "8px",
               color: "#ffffff",
+              textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
@@ -200,55 +204,33 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             style={{
               fontSize: "16px",
               fontWeight: "700",
-              marginTop: "4px",
+              marginTop: "3px",
               color: "#ffffff",
+              textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
             {data.designation}
           </div>
 
-          {/* Tier Level Badge */}
-          {(() => {
-            const levelKey = autoDetectMembershipLevel(data.designation, data.workingArea);
-            const tier = MEMBERSHIP_TIERS[levelKey];
-            return (
-              <div
-                style={{
-                  marginTop: "5px",
-                  fontSize: "10.5px",
-                  fontWeight: "800",
-                  backgroundColor: "#ffffff",
-                  color: "#001C55",
-                  padding: "2.5px 12px",
-                  borderRadius: "12px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.8px"
-                }}
-              >
-                {tier.label.replace(" Membership", "")}
-              </div>
-            );
-          })()}
-          
           <div
             style={{
               width: "100%",
-              padding: "0 16px",
-              marginTop: "12px",
-              fontSize: "13px",
-              lineHeight: "1.38",
+              padding: "0 18px",
+              marginTop: "10px",
+              fontSize: "13.5px",
+              lineHeight: "1.42",
               textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            <div style={{ marginBottom: "7px" }}>
+            <div style={{ marginBottom: "5px" }}>
               <span style={{ fontWeight: "bold" }}>Work Area:</span> {data.workingArea}
             </div>
-            <div style={{ marginBottom: "7px" }}>
+            <div style={{ marginBottom: "5px" }}>
               <span style={{ fontWeight: "bold" }}>Valid Till:</span> {data.validFromStr} to {data.validToStr}
             </div>
-            <div style={{ marginBottom: "5px", lineHeight: "1.3" }}>
+            <div style={{ marginBottom: "4px", lineHeight: "1.3" }}>
               <span style={{ fontWeight: "bold" }}>Add:</span> {data.addressStr} {data.districtStr} {data.stateStr} {data.pincodeStr ? `- ${data.pincodeStr}` : ""}
             </div>
           </div>
