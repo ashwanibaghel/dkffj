@@ -29,6 +29,7 @@ interface MembershipIdCardRendererProps {
   photoBase64?: string;
   qrBase64?: string;
   logoBase64?: string;
+  signatureBase64?: string;
 }
 
 export interface GenerationResult {
@@ -40,11 +41,13 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
   data,
   photoBase64,
   qrBase64,
-  logoBase64
+  logoBase64,
+  signatureBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
+  const signatureSrc = signatureBase64 || "/images/course_director_sig.png";
 
   return (
     <div
@@ -250,46 +253,49 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "52px",
-              right: "25px",
-              textAlign: "right"
+              bottom: "60px",
+              right: "20px",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center"
             }}
           >
-            <span
+            <img
+              src={signatureSrc}
+              alt="Authorized Signatory"
               style={{
-                fontFamily: "'Great Vibes', cursive",
-                fontSize: "22px",
-                color: "#ffffff",
-                transform: "rotate(-5deg)",
-                display: "inline-block"
+                height: "38px",
+                maxWidth: "130px",
+                objectFit: "contain",
+                filter: "brightness(0) invert(1)",
+                marginBottom: "1px"
               }}
-            >
-              Wasim Qureshi
-            </span>
-            <div style={{ fontSize: "7.5px", color: "#e0e0e0", marginTop: "-3px" }}>Authorized Signatory</div>
+            />
+            <div style={{ fontSize: "8px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.3px" }}>Authorized Signatory</div>
           </div>
           
           <div
             style={{
               position: "absolute",
               bottom: 0,
+              left: 0,
               width: "100%",
               backgroundColor: "#d62828",
               color: "#ffffff",
               textAlign: "center",
-              minHeight: "45px",
-              padding: "5px 10px",
-              fontSize: "9px",
-              lineHeight: "1.25",
-              fontWeight: "500",
-              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+              minHeight: "54px",
+              padding: "7px 10px",
+              fontSize: "10.5px",
+              lineHeight: "1.35",
+              fontWeight: "600",
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+              boxSizing: "border-box",
+              borderTop: "2px solid #b71c1c"
             }}
           >
-            <strong>Head Office Address</strong>
-            <br />
-            117/M/29-C Kakadeo M-block, Madhuvan Appt. Road,
-            <br />
-            Kanpur Nagar 208019 (UP)
+            <strong style={{ fontSize: "12px", letterSpacing: "0.5px", display: "block", marginBottom: "2px" }}>Head Office Address</strong>
+            117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </div>
         </div>
 
@@ -451,10 +457,11 @@ export async function generateMembershipIdCardPDFClient(
   const jspdfModule = await import("jspdf");
   const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
-  const [photoBase64, qrBase64, logoBase64] = await Promise.all([
+  const [photoBase64, qrBase64, logoBase64, signatureBase64] = await Promise.all([
     photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
-    getBase64ImageFromUrl("/logo.png")
+    getBase64ImageFromUrl("/logo.png"),
+    getBase64ImageFromUrl("/images/course_director_sig.png")
   ]);
 
   const container = document.createElement("div");
@@ -476,6 +483,7 @@ export async function generateMembershipIdCardPDFClient(
           photoBase64={photoBase64}
           qrBase64={qrBase64}
           logoBase64={logoBase64}
+          signatureBase64={signatureBase64}
         />
       );
       // Wait 1.2 seconds to ensure fonts, photos and QR SVGs are loaded and rendered
