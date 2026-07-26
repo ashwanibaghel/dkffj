@@ -1179,7 +1179,7 @@ export default function AdminMembersPage() {
                         <Home className="w-3 h-3 shrink-0" />
                         {member.show_home ? "Home" : "Hidden"}
                       </button>
-                      {(() => {
+                      {member.status === "APPROVED" && (() => {
                         const { label, badgeClass } = getValidityInfo(member);
                         return (
                           <span
