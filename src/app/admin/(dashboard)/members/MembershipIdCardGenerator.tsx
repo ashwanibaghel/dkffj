@@ -221,28 +221,31 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               width: "100%",
-              padding: "0 20px",
-              marginTop: "8px",
-              fontSize: "14.5px",
+              padding: "0 18px",
+              marginTop: "6px",
+              fontSize: "13.5px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
-              <span style={{ fontWeight: "bold", width: "105px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
+              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
               <span style={{ textAlign: "left", flex: 1, fontWeight: "700" }}>{data.workingArea || "N/A"}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
-              <span style={{ fontWeight: "bold", width: "105px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
+              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
               <span style={{ textAlign: "left", flex: 1, fontWeight: "700" }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.35" }}>
-              <span style={{ fontWeight: "bold", width: "105px", textAlign: "left", flexShrink: 0 }}>Address :</span>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.3" }}>
+              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
               <span
                 style={{
                   textAlign: "left",
                   flex: 1,
                   fontWeight: "700",
-                  wordBreak: "break-word"
+                  wordBreak: "break-word",
+                  paddingRight: "110px",
+                  maxHeight: "56px",
+                  overflow: "hidden"
                 }}
               >
                 {[data.addressStr, data.districtStr, data.stateStr].filter(Boolean).join(", ")}{data.pincodeStr ? ` - ${data.pincodeStr}` : ""}
@@ -253,26 +256,39 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "60px",
-              right: "20px",
+              bottom: "44px",
+              right: "15px",
               textAlign: "center",
               display: "flex",
               flexDirection: "column",
-              alignItems: "center"
+              alignItems: "center",
+              zIndex: 10
             }}
           >
-            <img
-              src={signatureSrc}
-              alt="Authorized Signatory"
+            <div
               style={{
-                height: "38px",
-                maxWidth: "130px",
-                objectFit: "contain",
-                filter: "brightness(0) invert(1)",
-                marginBottom: "1px"
+                backgroundColor: "#ffffff",
+                borderRadius: "4px",
+                padding: "2px 8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.3)"
               }}
-            />
-            <div style={{ fontSize: "8px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.3px" }}>Authorized Signatory</div>
+            >
+              <img
+                src={signatureSrc}
+                alt="Authorized Signatory"
+                style={{
+                  height: "35px",
+                  maxWidth: "120px",
+                  objectFit: "contain"
+                }}
+              />
+            </div>
+            <div style={{ fontSize: "8px", fontWeight: "bold", color: "#ffffff", marginTop: "2px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
+              Authorized Signatory
+            </div>
           </div>
           
           <div
@@ -284,17 +300,17 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               backgroundColor: "#d62828",
               color: "#ffffff",
               textAlign: "center",
-              minHeight: "54px",
-              padding: "7px 10px",
-              fontSize: "10.5px",
-              lineHeight: "1.35",
+              height: "36px",
+              padding: "3px 8px",
+              fontSize: "8.5px",
+              lineHeight: "1.2",
               fontWeight: "600",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
               boxSizing: "border-box",
-              borderTop: "2px solid #b71c1c"
+              borderTop: "1.5px solid #b71c1c"
             }}
           >
-            <strong style={{ fontSize: "12px", letterSpacing: "0.5px", display: "block", marginBottom: "2px" }}>Head Office Address</strong>
+            <strong style={{ fontSize: "9.5px", letterSpacing: "0.5px", display: "block", marginBottom: "1px" }}>Head Office Address</strong>
             117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </div>
         </div>
