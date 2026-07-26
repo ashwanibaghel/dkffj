@@ -332,87 +332,24 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
         }} />
       </div>
 
-      {/* 9.1 Membership Level Tier Badge */}
-      {(() => {
-        const levelKey = autoDetectMembershipLevel(data.designation, data.workingArea);
-        const tier = MEMBERSHIP_TIERS[levelKey];
-        return (
-          <div
-            style={{
-              position: "absolute",
-              left: "0px",
-              top: "392px",
-              width: "1123px",
-              textAlign: "center",
-              zIndex: 4
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "Arial, sans-serif",
-                fontSize: "11.5px",
-                fontWeight: "900",
-                color: "#ffffff",
-                backgroundColor: "#001C55",
-                padding: "3.5px 18px",
-                borderRadius: "20px",
-                textTransform: "uppercase",
-                letterSpacing: "1.2px",
-                boxShadow: "0 2px 6px rgba(0,28,85,0.2)"
-              }}
-            >
-              {tier.label} ({tier.hindiLabel}) &nbsp;|&nbsp; Designation: {data.designation || "Member"}
-            </span>
-          </div>
-        );
-      })()}
-
       {/* 10. Human Rights Pledge Block */}
       <div
         style={{
           position: "absolute",
           left: "105px",
           width: "913px",
-          top: "432px",
+          top: "410px",
           textAlign: "center",
-          fontSize: "15.5px",
+          fontSize: "17px",
           fontStyle: "italic",
           fontWeight: "bold",
           fontFamily: "'Georgia', serif",
           color: "#000000",
-          lineHeight: "1.6",
+          lineHeight: "1.65",
           zIndex: 4
         }}
       >
         Has Solemnly Pledged To Protect And Promote Human Rights Of All Social Activities, At All Times, Without Any Discrimination And Has Also Pledged Not To Violate The Human Rights Of Others, Directly Or Indirectly, Through His/her Actions, Words Or Deeds.
-      </div>
-
-      {/* 10.1 Incident Security Cover Banner */}
-      <div
-        style={{
-          position: "absolute",
-          left: "180px",
-          top: "508px",
-          width: "763px",
-          textAlign: "center",
-          backgroundColor: "#fffbeb",
-          border: "1px solid #fcd34d",
-          borderRadius: "6px",
-          padding: "4px 10px",
-          zIndex: 4
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "Arial, sans-serif",
-            fontSize: "11px",
-            fontWeight: "bold",
-            color: "#92400e",
-            letterSpacing: "0.3px"
-          }}
-        >
-          🛡️ Includes 1-Year ₹2,00,000/- Incident Security Policy Cover (Registered RTI, Social & Human Rights Activist)
-        </span>
       </div>
 
       {/* 11. Bottom Row: Dated */}

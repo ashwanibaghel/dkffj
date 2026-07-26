@@ -967,11 +967,8 @@ export default function ApplyPage() {
                 <div className="border-t pt-5 mt-5 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <label className="block text-xs font-bold text-[#001C55] uppercase tracking-wider">
-                      Select Membership Category / Tier Level *
+                      Select Membership Category / Level Fee *
                     </label>
-                    <span className="text-[11px] text-amber-800 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/80">
-                      Includes 1 Year ₹2 Lakh Incident Security Policy Cover
-                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
@@ -992,11 +989,11 @@ export default function ApplyPage() {
                           }`}
                         >
                           <div>
-                            <span className="text-[10px] font-black uppercase text-slate-500 block">
-                              {tier.hindiLabel}
+                            <span className="text-xs font-bold text-slate-800 block">
+                              {tier.label}
                             </span>
-                            <span className="text-xs font-bold text-slate-800 block mt-0.5">
-                              {tier.label.replace(" Membership", "")}
+                            <span className="text-[10px] text-slate-500 block mt-1">
+                              {tier.description}
                             </span>
                           </div>
                           <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
@@ -1015,7 +1012,7 @@ export default function ApplyPage() {
                   <div className="p-3 bg-blue-50/50 border border-blue-200/60 rounded-xl text-xs text-blue-950 leading-relaxed flex items-start gap-2">
                     <Shield className="w-4 h-4 text-[#001C55] shrink-0 mt-0.5" />
                     <div>
-                      <strong>Active Security Cover Included:</strong> Registered RTI Activist, Social Activist, and Human Rights Activist with 1 Year ₹2 Lakh incident security policy. Selected Category: <strong className="text-[#001C55]">{MEMBERSHIP_TIERS[membershipLevel].label} (Fee: ₹{MEMBERSHIP_TIERS[membershipLevel].fee.toLocaleString("en-IN")}/-)</strong>.
+                      Selected Membership Level: <strong className="text-[#001C55]">{MEMBERSHIP_TIERS[membershipLevel].label} (Fee: ₹{MEMBERSHIP_TIERS[membershipLevel].fee.toLocaleString("en-IN")}/-)</strong>.
                     </div>
                   </div>
                 </div>

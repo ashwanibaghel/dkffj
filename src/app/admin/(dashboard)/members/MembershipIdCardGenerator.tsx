@@ -363,31 +363,14 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              marginTop: "20px",
-              fontSize: "20px",
+              marginTop: "25px",
+              fontSize: "22px",
               fontWeight: "bold",
               letterSpacing: "0.5px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
             Mob. {data.mobileStr}
-          </div>
-
-          <div
-            style={{
-              backgroundColor: "#fffbeb",
-              color: "#92400e",
-              border: "1px solid #fcd34d",
-              borderRadius: "6px",
-              padding: "4px 8px",
-              fontSize: "8.5px",
-              fontWeight: "bold",
-              textAlign: "center",
-              margin: "6px 15px 0 15px",
-              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-            }}
-          >
-            🛡️ 1-Yr ₹2,00,000 Incident Security Cover Included
           </div>
           
           <div

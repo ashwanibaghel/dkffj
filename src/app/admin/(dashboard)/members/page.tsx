@@ -1033,7 +1033,7 @@ export default function AdminMembersPage() {
                         const tier = MEMBERSHIP_TIERS[levelKey];
                         return (
                           <span className={`px-2 py-0.5 rounded-md text-[9px] font-black border ${tier.badgeBg} ${tier.badgeText}`}>
-                            {tier.hindiLabel} (₹{tier.fee.toLocaleString("en-IN")})
+                            {tier.label} (₹{tier.fee.toLocaleString("en-IN")})
                           </span>
                         );
                       })()}
