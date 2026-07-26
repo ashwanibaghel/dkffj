@@ -50,21 +50,21 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
     <div
       id={`membership-idcard-render-container-${data.membershipNo || data.ackNo}`}
       style={{
-        padding: "10px",
-        backgroundColor: "#f8fafc",
+        padding: 0,
+        backgroundColor: "#111827",
         display: "inline-block",
         boxSizing: "border-box"
       }}
     >
       <div
         style={{
-          width: "1000px",
-          height: "600px",
+          width: "764px",
+          height: "570px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          gap: "80px",
-          backgroundColor: "#f8fafc",
+          gap: "4px",
+          backgroundColor: "#111827",
           boxSizing: "border-box",
           position: "relative"
         }}
@@ -78,17 +78,14 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         <div
           style={{
             width: "380px",
-            height: "580px",
+            height: "570px",
             backgroundColor: "#0077b6",
             color: "#ffffff",
-            borderRadius: "12px",
-            boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
             overflow: "hidden",
             position: "relative",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            border: "2px solid #005f96",
             boxSizing: "border-box",
             fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
           }}
@@ -98,7 +95,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               fontSize: "18px",
               fontWeight: "bold",
               letterSpacing: "1px",
-              marginTop: "15px",
+              marginTop: "14px",
               textTransform: "uppercase",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -110,27 +107,36 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             style={{
               width: "55px",
               height: "55px",
-              backgroundColor: "#ffffff",
               borderRadius: "50%",
               marginTop: "5px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              border: "2px solid #d62828",
-              overflow: "hidden"
+              overflow: "hidden",
+              flexShrink: 0
             }}
           >
-            <img src={logoSrc} style={{ width: "80%", height: "80%", objectFit: "contain" }} alt="Logo" />
+            <img
+              src={logoSrc}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "50%",
+                display: "block"
+              }}
+              alt="Logo"
+            />
           </div> 
           
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "13px",
               fontWeight: "bold",
               textAlign: "center",
-              margin: "8px 10px 2px 10px",
+              margin: "8px 8px 1px",
               textTransform: "uppercase",
-              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+              fontFamily: "Georgia, 'Times New Roman', serif"
             }}
           >
             DK Foundation of Freedom and Justice
@@ -138,7 +144,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "10px",
+              fontSize: "11px",
               color: "#ffe6a7",
               textAlign: "center",
               fontWeight: "600",
@@ -153,7 +159,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             style={{
               fontSize: "7.5px",
               color: "#e0e0e0",
-              marginBottom: "12px",
+              marginBottom: "7px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
@@ -162,8 +168,8 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "125px",
-              height: "125px",
+              width: "120px",
+              height: "120px",
               border: "2px solid #000000",
               backgroundColor: "#ffffff",
               display: "flex",
@@ -179,7 +185,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             style={{
               fontSize: "18px",
               fontWeight: "bold",
-              marginTop: "10px",
+              marginTop: "8px",
               color: "#ffffff",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -189,8 +195,8 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "14px",
-              fontWeight: "600",
+              fontSize: "16px",
+              fontWeight: "700",
               marginTop: "4px",
               color: "#ffffff",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -202,17 +208,18 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               width: "100%",
-              padding: "0 25px",
-              marginTop: "15px",
+              padding: "0 16px",
+              marginTop: "12px",
               fontSize: "13px",
-              lineHeight: "1.5",
+              lineHeight: "1.38",
+              textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            <div style={{ marginBottom: "5px" }}>
+            <div style={{ marginBottom: "7px" }}>
               <span style={{ fontWeight: "bold" }}>Work Area:</span> {data.workingArea}
             </div>
-            <div style={{ marginBottom: "5px" }}>
+            <div style={{ marginBottom: "7px" }}>
               <span style={{ fontWeight: "bold" }}>Valid Till:</span> {data.validFromStr} to {data.validToStr}
             </div>
             <div style={{ marginBottom: "5px", lineHeight: "1.3" }}>
@@ -223,7 +230,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "60px",
+              bottom: "55px",
               right: "25px",
               textAlign: "right"
             }}
@@ -250,9 +257,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               backgroundColor: "#d62828",
               color: "#ffffff",
               textAlign: "center",
-              padding: "6px 10px",
-              fontSize: "9.5px",
-              lineHeight: "1.3",
+              minHeight: "45px",
+              padding: "5px 10px",
+              fontSize: "9px",
+              lineHeight: "1.25",
               fontWeight: "500",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -269,26 +277,23 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         <div
           style={{
             width: "380px",
-            height: "580px",
+            height: "570px",
             backgroundColor: "#0077b6",
             color: "#ffffff",
-            borderRadius: "12px",
-            boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
             overflow: "hidden",
             position: "relative",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            border: "2px solid #005f96",
             boxSizing: "border-box",
             fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
           }}
         >
           <div
             style={{
-              marginTop: "20px",
+              marginTop: "17px",
               textAlign: "center",
-              fontSize: "14px",
+              fontSize: "16px",
               lineHeight: "1.3",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -297,7 +302,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             <br />
             <span
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "bold",
                 letterSpacing: "0.5px"
               }}
@@ -308,25 +313,34 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "160px",
-              height: "160px",
-              backgroundColor: "#ffffff",
+              width: "205px",
+              height: "205px",
               borderRadius: "50%",
-              marginTop: "25px",
+              marginTop: "30px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              border: "4px solid #d62828",
-              overflow: "hidden"
+              overflow: "hidden",
+              flexShrink: 0
             }}
           >
-            <img src={logoSrc} style={{ width: "80%", height: "80%", objectFit: "contain" }} alt="Large Logo" />
+            <img
+              src={logoSrc}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "50%",
+                display: "block"
+              }}
+              alt="Large Logo"
+            />
           </div>
           
           <div
             style={{
-              marginTop: "30px",
-              fontSize: "22px",
+              marginTop: "20px",
+              fontSize: "25px",
               fontWeight: "bold",
               letterSpacing: "0.5px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -340,7 +354,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               position: "absolute",
               bottom: 0,
               width: "100%",
-              height: "200px",
+              height: "190px",
               backgroundColor: "#ffffff",
               borderTopLeftRadius: "50% 18%",
               borderTopRightRadius: "50% 18%",
@@ -349,7 +363,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "flex-end",
-              paddingBottom: "25px",
+              paddingBottom: "10px",
               boxSizing: "border-box"
             }}
           >
@@ -357,11 +371,11 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               <img
                 src={qrSrc}
                 style={{
-                  width: "90px",
-                  height: "90px",
-                  backgroundColor: "#eeeeee",
-                  border: "1px solid #cccccc",
-                  marginBottom: "10px",
+                  width: "102px",
+                  height: "102px",
+                  backgroundColor: "#ffffff",
+                  border: 0,
+                  marginBottom: "7px",
                   objectFit: "contain"
                 }}
                 alt="QR Code"
@@ -369,11 +383,11 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             ) : (
               <div
                 style={{
-                  width: "90px",
-                  height: "90px",
+                  width: "102px",
+                  height: "102px",
                   backgroundColor: "#eeeeee",
                   border: "1px solid #cccccc",
-                  marginBottom: "10px",
+                  marginBottom: "7px",
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
@@ -387,10 +401,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             
             <div
               style={{
-                fontSize: "16px",
+                fontSize: "20px",
                 fontWeight: "bold",
                 color: "#000000",
-                marginBottom: "5px",
+                marginBottom: "6px",
                 fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
               }}
             >
@@ -399,7 +413,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             
             <div
               style={{
-                fontSize: "14px",
+                fontSize: "17px",
                 fontWeight: "bold",
                 color: "#000000",
                 fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -464,7 +478,7 @@ export async function generateMembershipIdCardPDFClient(
             useCORS: true,
             allowTaint: false,
             logging: false,
-            backgroundColor: "#f8fafc"
+            backgroundColor: "#111827"
           });
 
           // 1. Get PNG blob
@@ -487,10 +501,19 @@ export async function generateMembershipIdCardPDFClient(
             format: "a4" // 297mm x 210mm
           });
 
-          // Outer wrapper is 1040px wide by 640px high (Aspect ratio: 1.625)
-          // Width on A4 Landscape is 273mm. Height scaled: 273 / 1.625 = 168mm.
-          // Center: x = (297 - 273) / 2 = 12mm. y = (210 - 168) / 2 = 21mm.
-          pdf.addImage(imgData, "JPEG", 12, 21, 273, 168, undefined, "FAST");
+          // Preserve the classic side-by-side 4:3 card-sheet proportions without stretching.
+          const maxWidthMm = 273;
+          const maxHeightMm = 190;
+          const canvasRatio = canvas.width / canvas.height;
+          let imageWidthMm = maxWidthMm;
+          let imageHeightMm = imageWidthMm / canvasRatio;
+          if (imageHeightMm > maxHeightMm) {
+            imageHeightMm = maxHeightMm;
+            imageWidthMm = imageHeightMm * canvasRatio;
+          }
+          const imageX = (297 - imageWidthMm) / 2;
+          const imageY = (210 - imageHeightMm) / 2;
+          pdf.addImage(imgData, "JPEG", imageX, imageY, imageWidthMm, imageHeightMm, undefined, "FAST");
           const pdfBlob = pdf.output("blob");
 
           root.unmount();
