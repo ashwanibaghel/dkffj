@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction, toggleMemberShowHomeAction, toggleMemberActiveStatusAction } from "./actions";
-import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check, Calendar, RefreshCw, Home } from "lucide-react";
+import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check, Calendar, RefreshCw, Home, ToggleLeft, ToggleRight } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
@@ -1151,7 +1151,7 @@ export default function AdminMembersPage() {
                         {member.membership_no || "NOT GENERATED"}
                       </span>
                     </div>
-                    <div className="self-center flex flex-wrap items-center gap-2">
+                    <div className="self-center flex flex-wrap items-center gap-1.5">
                       {/* Active/Inactive Toggle Switch */}
                       <button
                         type="button"
@@ -1159,15 +1159,19 @@ export default function AdminMembersPage() {
                           e.stopPropagation();
                           handleToggleActiveStatus(member);
                         }}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black border transition-all cursor-pointer shadow-sm hover:scale-105 ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer shadow-sm hover:scale-105 ${
                           member.status === "APPROVED"
-                            ? "bg-emerald-600 text-white border-emerald-700 dark:bg-emerald-600"
-                            : "bg-rose-600 text-white border-rose-700 dark:bg-rose-600"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                            : "bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800"
                         }`}
-                        title={member.status === "APPROVED" ? "Click to set INACTIVE (REJECTED)" : "Click to set ACTIVE (APPROVED)"}
+                        title={member.status === "APPROVED" ? "Click to set Inactive" : "Click to set Active"}
                       >
-                        <span className={`w-2 h-2 rounded-full ${member.status === "APPROVED" ? "bg-white animate-pulse" : "bg-white/60"}`} />
-                        <span>Status: {member.status === "APPROVED" ? "ON" : "OFF"}</span>
+                        {member.status === "APPROVED" ? (
+                          <ToggleRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        ) : (
+                          <ToggleLeft className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                        )}
+                        <span>{member.status === "APPROVED" ? "Active" : "Inactive"}</span>
                       </button>
 
                       {/* Homepage Visibility Toggle Switch */}
@@ -1177,15 +1181,19 @@ export default function AdminMembersPage() {
                           e.stopPropagation();
                           handleToggleShowHome(member);
                         }}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black border transition-all cursor-pointer shadow-sm hover:scale-105 ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer shadow-sm hover:scale-105 ${
                           member.show_home
-                            ? "bg-blue-600 text-white border-blue-700 dark:bg-blue-600"
-                            : "bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                            : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800"
                         }`}
-                        title={member.show_home ? "Click to turn OFF Homepage Visibility" : "Click to turn ON Homepage Visibility"}
+                        title={member.show_home ? "Click to hide from Homepage" : "Click to show on Homepage"}
                       >
-                        <Home className="w-3 h-3 shrink-0" />
-                        <span>Home: {member.show_home ? "ON" : "OFF"}</span>
+                        {member.show_home ? (
+                          <ToggleRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        ) : (
+                          <ToggleLeft className="w-4 h-4 text-slate-400 shrink-0" />
+                        )}
+                        <span>{member.show_home ? "Homepage Active" : "Homepage Inactive"}</span>
                       </button>
                       {member.status === "APPROVED" && (() => {
                         const { label, badgeClass } = getValidityInfo(member);
@@ -1280,34 +1288,42 @@ export default function AdminMembersPage() {
                         </div>
                       ) : (
                         <div className="flex flex-wrap items-center gap-2.5">
-                          {/* Homepage Visibility ON/OFF Switch */}
-                          <button
-                            type="button"
-                            onClick={() => handleToggleShowHome(member)}
-                            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black border transition-all cursor-pointer shadow-sm hover:scale-105 ${
-                              member.show_home
-                                ? "bg-blue-600 text-white border-blue-700 shadow-blue-500/20"
-                                : "bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
-                            }`}
-                            title="Turn Homepage Visibility ON or OFF"
-                          >
-                            <Home className="w-4 h-4 shrink-0" />
-                            <span>Homepage: {member.show_home ? "ON (Visible)" : "OFF (Hidden)"}</span>
-                          </button>
-
-                          {/* Active / Inactive ON/OFF Switch */}
+                          {/* Active / Inactive Toggle Switch */}
                           <button
                             type="button"
                             onClick={() => handleToggleActiveStatus(member)}
-                            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black border transition-all cursor-pointer shadow-sm hover:scale-105 ${
+                            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-sm hover:scale-105 ${
                               member.status === "APPROVED"
-                                ? "bg-emerald-600 text-white border-emerald-700 shadow-emerald-500/20"
-                                : "bg-rose-600 text-white border-rose-700 shadow-rose-500/20"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                                : "bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800"
                             }`}
-                            title="Turn Status ACTIVE (APPROVED) or INACTIVE (REJECTED)"
+                            title={member.status === "APPROVED" ? "Click to set Inactive" : "Click to set Active"}
                           >
-                            <span className={`w-2.5 h-2.5 rounded-full ${member.status === "APPROVED" ? "bg-white animate-pulse" : "bg-white/60"}`} />
-                            <span>Status: {member.status === "APPROVED" ? "ACTIVE (ON)" : "INACTIVE (OFF)"}</span>
+                            {member.status === "APPROVED" ? (
+                              <ToggleRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            ) : (
+                              <ToggleLeft className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+                            )}
+                            <span>{member.status === "APPROVED" ? "Active" : "Inactive"}</span>
+                          </button>
+
+                          {/* Homepage Visibility Toggle Switch */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleShowHome(member)}
+                            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-sm hover:scale-105 ${
+                              member.show_home
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                                : "bg-slate-50 text-slate-500 border-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800"
+                            }`}
+                            title={member.show_home ? "Click to hide from Homepage" : "Click to show on Homepage"}
+                          >
+                            {member.show_home ? (
+                              <ToggleRight className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            ) : (
+                              <ToggleLeft className="w-5 h-5 text-slate-400 shrink-0" />
+                            )}
+                            <span>{member.show_home ? "Homepage Active" : "Homepage Inactive"}</span>
                           </button>
                           <button
                             type="button"
