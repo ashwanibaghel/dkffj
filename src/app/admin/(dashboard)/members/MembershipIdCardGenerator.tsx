@@ -265,28 +265,18 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               zIndex: 10
             }}
           >
-            <div
+            <img
+              src={signatureSrc}
+              alt="Authorized Signatory"
               style={{
-                backgroundColor: "#ffffff",
-                borderRadius: "4px",
-                padding: "2px 8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.3)"
+                height: "38px",
+                maxWidth: "130px",
+                objectFit: "contain",
+                filter: "invert(80%) sepia(100%) saturate(1000%) hue-rotate(5deg) brightness(1.3) drop-shadow(0px 1.5px 3px rgba(0,0,0,0.85))",
+                marginBottom: "2px"
               }}
-            >
-              <img
-                src={signatureSrc}
-                alt="Authorized Signatory"
-                style={{
-                  height: "35px",
-                  maxWidth: "120px",
-                  objectFit: "contain"
-                }}
-              />
-            </div>
-            <div style={{ fontSize: "8px", fontWeight: "bold", color: "#ffffff", marginTop: "2px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
+            />
+            <div style={{ fontSize: "8.5px", fontWeight: "bold", color: "#ffd700", letterSpacing: "0.3px", textShadow: "0 1px 2px rgba(0,0,0,0.9)" }}>
               Authorized Signatory
             </div>
           </div>
