@@ -105,7 +105,26 @@ export default function AdminMembersPage() {
 
   // Edit mode states
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDesignation, setEditDesignation] = useState<string>("");
+  const [editForm, setEditForm] = useState({
+    id: "",
+    fullName: "",
+    fatherName: "",
+    mobile: "",
+    whatsapp: "",
+    email: "",
+    gender: "Male",
+    dob: "",
+    address: "",
+    state: "Uttar Pradesh",
+    district: "Kanpur Nagar",
+    pincode: "208001",
+    education: "Graduate",
+    profession: "Social Worker",
+    workingArea: "Human Rights & Social Welfare",
+    designation: "Member",
+    policeStation: "",
+    membershipNo: ""
+  });
   const [editPhotoFile, setEditPhotoFile] = useState<File | null>(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState<string>("");
 
@@ -302,7 +321,26 @@ export default function AdminMembersPage() {
 
   const startEditing = (member: MemberRecord) => {
     setEditingId(member.id);
-    setEditDesignation(member.designation);
+    setEditForm({
+      id: member.id,
+      fullName: member.full_name || "",
+      fatherName: member.father_name || "",
+      mobile: member.mobile || "",
+      whatsapp: member.whatsapp || member.mobile || "",
+      email: member.email || "",
+      gender: member.gender || "Male",
+      dob: member.dob ? member.dob.split("T")[0] : "",
+      address: member.address || "",
+      state: member.state || "Uttar Pradesh",
+      district: member.district || "Kanpur Nagar",
+      pincode: member.pincode || "",
+      education: member.education || "Graduate",
+      profession: member.profession || "Social Worker",
+      workingArea: member.working_area || "Human Rights & Social Welfare",
+      designation: member.designation || "Member",
+      policeStation: member.police_station || "",
+      membershipNo: member.membership_no || ""
+    });
     setEditPhotoFile(null);
     setEditPhotoPreview(member.photo_url || "");
   };
@@ -319,26 +357,53 @@ export default function AdminMembersPage() {
     setActionLoading(true);
     setActionError("");
     try {
-      const formData = new FormData();
-      formData.append("id", memberId);
-      formData.append("designation", editDesignation);
+      let photoUrl = "";
       if (editPhotoFile) {
-        formData.append("photo", editPhotoFile);
+        const photoRes = await uploadFileToStorage(
+          editPhotoFile,
+          "photos",
+          `${memberId}/photo_${Date.now()}.${editPhotoFile.name.split(".").pop() || "jpg"}`
+        );
+        if (photoRes.error || !photoRes.url) {
+          throw new Error(photoRes.error || "Failed to upload new photo.");
+        }
+        photoUrl = photoRes.url;
       }
-      
-      const res = await updateMembershipFields(formData);
+
+      const res = await updateMembershipFields({
+        id: memberId,
+        fullName: editForm.fullName,
+        fatherName: editForm.fatherName,
+        gender: editForm.gender,
+        dob: editForm.dob,
+        mobile: editForm.mobile,
+        whatsapp: editForm.whatsapp,
+        email: editForm.email,
+        address: editForm.address,
+        state: editForm.state,
+        district: editForm.district,
+        pincode: editForm.pincode,
+        education: editForm.education,
+        profession: editForm.profession,
+        workingArea: editForm.workingArea,
+        designation: editForm.designation,
+        policeStation: editForm.policeStation,
+        membershipNo: editForm.membershipNo,
+        photoUrl: photoUrl || undefined
+      });
+
       if (res.success) {
         setEditingId(null);
         setEditPhotoFile(null);
         await fetchData(); // Refresh data
-        showToast("Membership details updated successfully!", "success");
+        showToast("Membership profile updated successfully!", "success");
       } else {
         setActionError(res.error || "Failed to update membership details.");
         showToast(res.error || "Failed to update membership details.", "error");
       }
     } catch (err: unknown) {
       setActionError(getErrorMessage(err) || "Error updating membership details.");
-      showToast("Error updating membership details.", "error");
+      showToast(getErrorMessage(err) || "Error updating membership details.", "error");
     } finally {
       setActionLoading(false);
     }
@@ -1055,44 +1120,254 @@ export default function AdminMembersPage() {
                       </div>
 
                       {/* Middle Column: Personal & Professional Data */}
-                      <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
-                        <div>
-                          <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Father Name</span>
-                          <span className="text-slate-800 mt-0.5 block">{member.father_name}</span>
+                      {editingId === member.id ? (
+                        <div className="md:col-span-2 space-y-4 text-xs font-semibold">
+                          <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-800/40 rounded-xl space-y-4">
+                            <div className="text-[11px] font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider">
+                              Editing Full Profile Details
+                            </div>
+
+                            {/* Row 1: Full Name & Father Name */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Full Name *</label>
+                                <input
+                                  type="text"
+                                  value={editForm.fullName}
+                                  onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Father / Husband Name *</label>
+                                <input
+                                  type="text"
+                                  value={editForm.fatherName}
+                                  onChange={(e) => setEditForm({ ...editForm, fatherName: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Row 2: Mobile, WhatsApp & Email */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Mobile Number *</label>
+                                <input
+                                  type="text"
+                                  value={editForm.mobile}
+                                  onChange={(e) => setEditForm({ ...editForm, mobile: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">WhatsApp</label>
+                                <input
+                                  type="text"
+                                  value={editForm.whatsapp}
+                                  onChange={(e) => setEditForm({ ...editForm, whatsapp: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Email Address *</label>
+                                <input
+                                  type="email"
+                                  value={editForm.email}
+                                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Row 3: Gender & DOB */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Gender *</label>
+                                <select
+                                  value={editForm.gender}
+                                  onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                                >
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                                  <option value="Other">Other</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Date of Birth *</label>
+                                <input
+                                  type="date"
+                                  value={editForm.dob}
+                                  onChange={(e) => setEditForm({ ...editForm, dob: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Row 4: Full Address */}
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Full Address *</label>
+                              <textarea
+                                rows={2}
+                                value={editForm.address}
+                                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                                className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                              />
+                            </div>
+
+                            {/* Row 5: State, District, Pincode */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">State *</label>
+                                <select
+                                  value={editForm.state}
+                                  onChange={(e) => {
+                                    const newSt = e.target.value;
+                                    const dists = indiaStatesDistricts.find(s => s.state === newSt)?.districts || [];
+                                    setEditForm({
+                                      ...editForm,
+                                      state: newSt,
+                                      district: dists[0] || ""
+                                    });
+                                  }}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                                >
+                                  {indiaStatesDistricts.map((s) => (
+                                    <option key={s.state} value={s.state}>{s.state}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">District *</label>
+                                <select
+                                  value={editForm.district}
+                                  onChange={(e) => setEditForm({ ...editForm, district: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                                >
+                                  {(indiaStatesDistricts.find(s => s.state === editForm.state)?.districts || []).map((d) => (
+                                    <option key={d} value={d}>{d}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Pincode *</label>
+                                <input
+                                  type="text"
+                                  value={editForm.pincode}
+                                  onChange={(e) => setEditForm({ ...editForm, pincode: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Row 6: Designation & Working Area */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Designation *</label>
+                                <select
+                                  value={editForm.designation}
+                                  onChange={(e) => setEditForm({ ...editForm, designation: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 font-bold"
+                                >
+                                  {DESIGNATIONS.map((d) => (
+                                    <option key={d} value={d}>{d}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Working Area</label>
+                                <input
+                                  type="text"
+                                  value={editForm.workingArea}
+                                  onChange={(e) => setEditForm({ ...editForm, workingArea: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Row 7: Education & Profession */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Education</label>
+                                <select
+                                  value={editForm.education}
+                                  onChange={(e) => setEditForm({ ...editForm, education: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                                >
+                                  {EDUCATION_OPTIONS.map((e) => (
+                                    <option key={e} value={e}>{e}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Profession</label>
+                                <select
+                                  value={editForm.profession}
+                                  onChange={(e) => setEditForm({ ...editForm, profession: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20 font-semibold"
+                                >
+                                  {PROFESSIONS.map((p) => (
+                                    <option key={p} value={p}>{p}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            {/* Row 8: Membership No & Police Station */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Permanent Membership ID</label>
+                                <input
+                                  type="text"
+                                  placeholder="e.g. DKFFJ/M/2026/0001"
+                                  value={editForm.membershipNo}
+                                  onChange={(e) => setEditForm({ ...editForm, membershipNo: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Police Station</label>
+                                <input
+                                  type="text"
+                                  placeholder="e.g. Kotwali"
+                                  value={editForm.policeStation}
+                                  onChange={(e) => setEditForm({ ...editForm, policeStation: e.target.value })}
+                                  className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                            </div>
+
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Date of Birth (Gender)</span>
-                          <span className="text-slate-800 mt-0.5 block">{new Date(member.dob).toLocaleDateString("en-IN")} ({member.gender})</span>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Residential Address</span>
-                          <span className="text-slate-800 mt-0.5 block leading-normal">{member.address}, {member.district}, {member.state} - {member.pincode}</span>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Professional Credentials</span>
-                          <span className="text-slate-800 mt-0.5 block">{member.profession} | {member.education}</span>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Desired Designation</span>
-                          {editingId === member.id ? (
-                            <select
-                              value={editDesignation}
-                              onChange={(e) => setEditDesignation(e.target.value)}
-                              className="mt-1 w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#001C55] bg-white font-bold text-slate-700 cursor-pointer"
-                            >
-                              {DESIGNATIONS.map((d) => (
-                                <option key={d} value={d}>{d}</option>
-                              ))}
-                            </select>
-                          ) : (
+                      ) : (
+                        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Father Name</span>
+                            <span className="text-slate-800 mt-0.5 block">{member.father_name}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Date of Birth (Gender)</span>
+                            <span className="text-slate-800 mt-0.5 block">{new Date(member.dob).toLocaleDateString("en-IN")} ({member.gender})</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Residential Address</span>
+                            <span className="text-slate-800 mt-0.5 block leading-normal">{member.address}, {member.district}, {member.state} - {member.pincode}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Professional Credentials</span>
+                            <span className="text-slate-800 mt-0.5 block">{member.profession} | {member.education}</span>
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Desired Designation</span>
                             <span className="text-slate-800 mt-0.5 block text-[#001C55] font-bold">{member.designation}</span>
-                          )}
+                          </div>
+                          <div>
+                            <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Working Area</span>
+                            <span className="text-slate-800 mt-0.5 block">{member.working_area}</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Working Area</span>
-                          <span className="text-slate-800 mt-0.5 block">{member.working_area}</span>
-                        </div>
-                      </div>
+                      )}
 
                     </div>
 

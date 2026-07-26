@@ -275,8 +275,30 @@ export async function updateMembershipStatus(
   return { success: true, membershipNo: generatedMembershipNo };
 }
 
-// 4. Update specific membership fields (Photo and Designation) by Admin
-export async function updateMembershipFields(formData: FormData) {
+export type UpdateMemberPayload = {
+  id: string;
+  fullName: string;
+  fatherName: string;
+  gender: string;
+  dob: string;
+  mobile: string;
+  whatsapp?: string;
+  email: string;
+  address: string;
+  state: string;
+  district: string;
+  pincode: string;
+  education?: string;
+  profession?: string;
+  workingArea?: string;
+  designation: string;
+  policeStation?: string;
+  membershipNo?: string;
+  photoUrl?: string;
+};
+
+// 4. Update all membership fields by Admin
+export async function updateMembershipFields(payload: UpdateMemberPayload) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -289,53 +311,46 @@ export async function updateMembershipFields(formData: FormData) {
     return { success: false, error: "Access Denied." };
   }
 
-  const id = formData.get("id") as string;
-  const designation = formData.get("designation") as string;
-  const photo = formData.get("photo") as File | null;
-
-  if (!id || !designation) {
-    return { success: false, error: "Membership ID and designation are required." };
+  if (!payload.id || !payload.fullName || !payload.mobile) {
+    return { success: false, error: "Member ID, full name, and mobile number are required." };
   }
 
   const updatePayload: any = {
-    designation,
+    full_name: payload.fullName.trim(),
+    father_name: payload.fatherName.trim(),
+    gender: payload.gender,
+    dob: payload.dob,
+    mobile: payload.mobile.trim(),
+    whatsapp: payload.whatsapp ? payload.whatsapp.trim() : payload.mobile.trim(),
+    email: payload.email.trim().toLowerCase(),
+    address: payload.address.trim(),
+    state: payload.state.trim(),
+    district: payload.district.trim(),
+    pincode: payload.pincode.trim(),
+    education: payload.education ? payload.education.trim() : "Graduate",
+    profession: payload.profession ? payload.profession.trim() : "Social Worker",
+    working_area: payload.workingArea ? payload.workingArea.trim() : "Human Rights",
+    designation: payload.designation || "Member",
+    police_station: payload.policeStation ? payload.policeStation.trim() : null,
     updated_at: new Date().toISOString()
   };
 
-  // If a new photo was uploaded, process and upload it to Supabase Storage
-  if (photo && photo.size > 0) {
-    // Get the user ID of the membership to store in their folder
-    const { data: memberData } = await supabase.from("memberships").select("user_id").eq("id", id).single();
-    if (!memberData) {
-      return { success: false, error: "Membership record not found." };
-    }
-    const memberUserId = memberData.user_id;
+  if (payload.membershipNo !== undefined) {
+    updatePayload.membership_no = payload.membershipNo ? payload.membershipNo.trim() : null;
+  }
 
-    const photoExt = photo.name.split(".").pop();
-    const photoName = `${memberUserId}/photo_${Date.now()}.${photoExt}`;
-    const photoBuffer = Buffer.from(await photo.arrayBuffer());
-
-    const { error: uploadErr } = await supabase.storage
-      .from("photos")
-      .upload(photoName, photoBuffer, { contentType: photo.type, upsert: true });
-
-    if (uploadErr) {
-      console.error("Admin photo upload failed:", uploadErr);
-      return { success: false, error: `Photo upload failed: ${uploadErr.message}` };
-    }
-
-    const { data: photoUrlData } = supabase.storage.from("photos").getPublicUrl(photoName);
-    updatePayload.photo_url = photoUrlData.publicUrl;
+  if (payload.photoUrl) {
+    updatePayload.photo_url = payload.photoUrl;
   }
 
   const { error: updateErr } = await supabase
     .from("memberships")
     .update(updatePayload)
-    .eq("id", id);
+    .eq("id", payload.id);
 
   if (updateErr) {
-    console.error("Admin membership fields update failed:", updateErr);
-    return { success: false, error: "Failed to update record in database." };
+    console.error("Admin membership update failed:", updateErr);
+    return { success: false, error: `Failed to update member: ${updateErr.message}` };
   }
 
   return { success: true };
