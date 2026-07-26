@@ -2,7 +2,6 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
-import { autoDetectMembershipLevel, MEMBERSHIP_TIERS } from "@/lib/data/membershipTiers";
 
 // Interface for ID Card Data
 export interface MembershipIdCardData {
@@ -213,33 +212,11 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
             {data.designation}
           </div>
 
-          {/* Tier Level Text (Golden Accent without white background box) */}
-          {(() => {
-            const levelKey = autoDetectMembershipLevel(data.designation, data.workingArea);
-            const tier = MEMBERSHIP_TIERS[levelKey];
-            return (
-              <div
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "bold",
-                  marginTop: "3px",
-                  color: "#ffe6a7",
-                  textAlign: "center",
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-                }}
-              >
-                ({tier.label})
-              </div>
-            );
-          })()}
-
           <div
             style={{
               width: "100%",
               padding: "0 22px",
-              marginTop: "10px",
+              marginTop: "12px",
               fontSize: "13px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}

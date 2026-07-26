@@ -2,7 +2,6 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
-import { autoDetectMembershipLevel, MEMBERSHIP_TIERS } from "@/lib/data/membershipTiers";
 
 // Interface for Membership Certificate Data
 export interface MembershipCertificateData {
