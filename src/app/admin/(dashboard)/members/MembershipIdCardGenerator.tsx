@@ -92,23 +92,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
         >
           <div
             style={{
-              fontSize: "10.5px",
-              fontWeight: "bold",
-              letterSpacing: "0.8px",
-              marginTop: "8px",
-              color: "#ffffff",
-              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-            }}
-          >
-            CIN No. : U88900UP2023NPL185611
-          </div>
-
-          <div
-            style={{
               fontSize: "19px",
               fontWeight: "bold",
               letterSpacing: "1.2px",
-              marginTop: "3px",
+              marginTop: "16px",
               textTransform: "uppercase",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
@@ -118,10 +105,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "60px",
-              height: "60px",
+              width: "58px",
+              height: "58px",
               borderRadius: "50%",
-              marginTop: "3px",
+              marginTop: "4px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -160,7 +147,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "12px",
+              fontSize: "11.5px",
               color: "#ffffff",
               textAlign: "center",
               fontWeight: "bold",
@@ -174,10 +161,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "9.5px",
+              fontSize: "9px",
               fontWeight: "700",
               color: "#ffffff",
-              marginBottom: "6px",
+              marginBottom: "12px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
@@ -186,8 +173,8 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "130px",
-              height: "130px",
+              width: "125px",
+              height: "125px",
               border: "2px solid #000000",
               backgroundColor: "#ffffff",
               display: "flex",
@@ -215,7 +202,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "15.5px",
+              fontSize: "15px",
               fontWeight: "700",
               marginTop: "2px",
               color: "#ffffff",
@@ -235,26 +222,20 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
-              <span style={{ textAlign: "left", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{data.workingArea || "N/A"}</span>
+              <span style={{ textAlign: "left", flex: 1 }}>{data.workingArea || "N/A"}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "5px" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
-              <span style={{ textAlign: "left", flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{data.validFromStr} to {data.validToStr}</span>
+              <span style={{ textAlign: "left", flex: 1 }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.3" }}>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.35" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
               <span
                 style={{
                   textAlign: "left",
                   flex: 1,
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  maxHeight: "34px",
                   wordBreak: "break-word"
                 }}
               >
