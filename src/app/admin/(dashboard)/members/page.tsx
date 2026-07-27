@@ -598,7 +598,12 @@ export default function AdminMembersPage() {
 
   const tabMembers = useMemo(() => {
     return members.filter((m) => {
-      const isMigrated = m.remarks === "MIGRATED_PHP";
+      const isMigrated =
+        m.remarks === "MIGRATED_PHP" ||
+        m.remarks === "Migrated from Executive Council Board Registry" ||
+        m.remarks === "MIGRATED_EXECUTIVE_COUNCIL" ||
+        (m.ack_no && m.ack_no.startsWith("DKE-EXEC-")) ||
+        (m.ack_no && m.ack_no.startsWith("DKE-MIG-"));
       return activeTab === "migrated" ? isMigrated : !isMigrated;
     });
   }, [members, activeTab]);
