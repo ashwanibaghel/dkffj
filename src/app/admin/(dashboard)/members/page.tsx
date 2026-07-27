@@ -1137,8 +1137,25 @@ export default function AdminMembersPage() {
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(240px,1.4fr)_minmax(220px,1fr)_minmax(160px,0.8fr)_minmax(150px,0.7fr)_96px] gap-4 flex-1 items-center">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center shrink-0">
-                        <Users className="w-4 h-4 text-blue-700 dark:text-blue-400" />
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden relative shadow-sm">
+                        {member.photo_url ? (
+                          <img
+                            src={member.photo_url}
+                            alt={member.full_name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLElement).style.display = "none";
+                              const fallback = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="w-full h-full flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400"
+                          style={{ display: member.photo_url ? "none" : "flex" }}
+                        >
+                          <Users className="w-4 h-4" />
+                        </div>
                       </div>
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm truncate">{member.full_name}</h4>
