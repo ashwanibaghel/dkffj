@@ -5,6 +5,7 @@ import { Download, Database, ShieldCheck, RefreshCw, HardDrive, CheckCircle2 } f
 
 export default function BackupManagerClient() {
   const [downloading, setDownloading] = useState(false);
+  const [purging, setPurging] = useState(false);
   const [lastBackupTime, setLastBackupTime] = useState<string | null>(null);
 
   const handleDownloadBackup = async () => {
@@ -31,6 +32,28 @@ export default function BackupManagerClient() {
       alert("Failed to download database backup. Please check your admin session.");
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handlePurgeTestData = async () => {
+    if (!confirm("Are you sure you want to purge test data and clear Redis/Next.js cache? (All 389 official migrated members will be safely preserved)")) {
+      return;
+    }
+    setPurging(true);
+    try {
+      const response = await fetch("/api/admin/purge-test-records", { method: "POST" });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        alert("✅ Test data purged and Redis/Next.js cache successfully reset!");
+        window.location.reload();
+      } else {
+        alert(`Error: ${result.error || "Failed to purge test data."}`);
+      }
+    } catch (err) {
+      console.error("Purge error:", err);
+      alert("Failed to purge test data.");
+    } finally {
+      setPurging(false);
     }
   };
 
@@ -83,24 +106,45 @@ export default function BackupManagerClient() {
           Export a complete, timestamped backup of all 389+ memberships, certificates, course enrollments, payments, donations, and complaint records for offline safety.
         </p>
 
-        <button
-          type="button"
-          onClick={handleDownloadBackup}
-          disabled={downloading}
-          className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#001C55] to-[#C00000] text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50 shrink-0"
-        >
-          {downloading ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Exporting Snapshot...</span>
-            </>
-          ) : (
-            <>
-              <Download className="w-4 h-4" />
-              <span>Download Full System Backup (.json)</span>
-            </>
-          )}
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto shrink-0">
+          <button
+            type="button"
+            onClick={handleDownloadBackup}
+            disabled={downloading || purging}
+            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-[#001C55] to-[#C00000] text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+          >
+            {downloading ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Exporting...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>Backup JSON</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePurgeTestData}
+            disabled={downloading || purging}
+            className="w-full sm:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+          >
+            {purging ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Purging...</span>
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                <span>Purge Test Data & Cache</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </section>
   );
