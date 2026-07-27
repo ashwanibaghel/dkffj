@@ -55,7 +55,7 @@ export async function getVersionedCache<T>(
   namespace: string,
   keySuffix: string,
   fetcher: () => Promise<T>,
-  ttlSeconds: number = 600
+  ttlSeconds: number = 86400 // 24 Hours TTL
 ): Promise<T> {
   if (!redis) {
     return await fetcher();
@@ -92,7 +92,7 @@ export async function getVersionedCache<T>(
 export async function getOrSetCache<T>(
   key: string,
   fetcher: () => Promise<T>,
-  ttlSeconds: number = 300
+  ttlSeconds: number = 86400 // 24 Hours TTL
 ): Promise<T> {
   if (!redis) {
     return await fetcher();
