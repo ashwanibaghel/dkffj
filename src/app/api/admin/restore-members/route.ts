@@ -26,10 +26,10 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    // Build complete batch payload: All ACTIVE (APPROVED) + Supabase CDN Photo URLs
+    // Build batch payload preserving original Approved vs Rejected status (status === 1 ? "APPROVED" : "REJECTED")
     const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
-      const status = "APPROVED"; // Set ALL members to APPROVED (Active) by default
+      const status = m.status === 1 ? "APPROVED" : "REJECTED";
       const showHome = m.showHome === 1;
 
       let cleanPhoto = m.photo || "";
@@ -67,27 +67,41 @@ export async function POST() {
       };
     });
 
-    // 1. Clear any existing migrated executive council records
-    await supabase.from("memberships").delete().or("ack_no.like.DKF-EXEC-%,ack_no.like.DKE-EXEC-%");
+    // 1. Fetch existing memberships to avoid deleting or overwriting custom client edits
+    const { data: existingRecords } = await supabase
+      .from("memberships")
+      .select("ack_no");
 
-    // 2. Insert in chunks of 50 records
+    const existingAckSet = new Set(existingRecords?.map((r) => r.ack_no) || []);
+
+    // 2. Insert missing records only
+    const recordsToInsert = batchPayload.filter((r) => !existingAckSet.has(r.ack_no));
+
     const chunkSize = 50;
     let insertedTotal = 0;
     let lastErrMessage = "";
 
-    for (let i = 0; i < batchPayload.length; i += chunkSize) {
-      const chunk = batchPayload.slice(i, i + chunkSize);
-      const { error: insertErr } = await supabase.from("memberships").insert(chunk);
-      if (insertErr) {
-        console.error(`Chunk insertion error at index ${i}:`, insertErr);
-        lastErrMessage = insertErr.message;
-      } else {
-        insertedTotal += chunk.length;
+    if (recordsToInsert.length > 0) {
+      for (let i = 0; i < recordsToInsert.length; i += chunkSize) {
+        const chunk = recordsToInsert.slice(i, i + chunkSize);
+        const { error: insertErr } = await supabase.from("memberships").insert(chunk);
+        if (insertErr) {
+          console.error(`Chunk insertion error at index ${i}:`, insertErr);
+          lastErrMessage = insertErr.message;
+        } else {
+          insertedTotal += chunk.length;
+        }
       }
     }
 
-    if (insertedTotal === 0 && lastErrMessage) {
-      return NextResponse.json({ error: `Insertion failed: ${lastErrMessage}` }, { status: 500 });
+    // 3. Update existing executive council records with exact original status (APPROVED vs REJECTED)
+    for (const m of teamMembers) {
+      const ackNo = `DKF-EXEC-${m.id}`;
+      const origStatus = m.status === 1 ? "APPROVED" : "REJECTED";
+      await supabase
+        .from("memberships")
+        .update({ status: origStatus, show_home: m.showHome === 1 })
+        .eq("ack_no", ackNo);
     }
 
     await incrementNamespaceVersion("members");
@@ -98,7 +112,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Restoration Successful! Successfully activated ${insertedTotal} official Executive Council members into Supabase!`,
+      message: `Restoration Complete! Preserved exact original Approved/Rejected statuses for all members. Inserted missing records: ${insertedTotal}`,
       totalInserted: insertedTotal
     });
   } catch (error: any) {
