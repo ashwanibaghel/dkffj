@@ -13,7 +13,7 @@ export async function POST() {
   }
 
   const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  return NextResponse.redirect(`${origin}/admin/login`, {
+  return NextResponse.redirect(`${origin}/`, {
     status: 302,
   });
 }
