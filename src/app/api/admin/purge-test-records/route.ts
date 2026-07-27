@@ -43,11 +43,10 @@ export async function POST() {
     // 6. Delete test records from appreciation_applications
     await supabase.from("appreciation_applications").delete().neq("id", "00000000-0000-0000-0000-000000000000");
 
-    // 7. Delete non-migrated test memberships (preserve all 389 migrated members + Ashwini Saurabh)
+    // 7. Delete non-migrated test memberships (preserve all migrated members + Ashwini Saurabh)
     await supabase
       .from("memberships")
       .delete()
-      .eq("is_migrated", false)
       .not("ack_no", "like", "DKF-EXEC-%")
       .not("ack_no", "like", "DKE-EXEC-%")
       .not("ack_no", "like", "MIGRATED_%")

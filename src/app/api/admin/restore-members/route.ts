@@ -26,7 +26,7 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    // Build complete batch payload without user_id foreign key constraint
+    // Build complete batch payload matching exact memberships table schema
     const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
       const status = m.status === 1 ? "APPROVED" : "REJECTED";
@@ -54,7 +54,6 @@ export async function POST() {
         status: status,
         show_home: showHome,
         remarks: "MIGRATED_EXECUTIVE_COUNCIL",
-        is_migrated: true,
         updated_at: new Date().toISOString()
       };
     });
