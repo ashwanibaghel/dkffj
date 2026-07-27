@@ -26,14 +26,13 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    // Build complete batch payload for all 365 members
+    // Build complete batch payload without user_id foreign key constraint
     const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
       const status = m.status === 1 ? "APPROVED" : "REJECTED";
       const showHome = m.showHome === 1;
 
       return {
-        user_id: user.id,
         ack_no: ackNo,
         membership_no: `DKFFJ/M/EXEC/${m.id}`,
         full_name: m.name.trim(),
@@ -60,20 +59,27 @@ export async function POST() {
       };
     });
 
-    // 1. Clear any existing migrated executive council records to avoid duplicates
+    // 1. Clear any existing migrated executive council records
     await supabase.from("memberships").delete().or("ack_no.like.DKF-EXEC-%,ack_no.like.DKE-EXEC-%");
 
-    // 2. Insert in chunks of 50 records (100% reliable & ultra-fast)
+    // 2. Insert in chunks of 50 records
     const chunkSize = 50;
     let insertedTotal = 0;
+    let lastErrMessage = "";
+
     for (let i = 0; i < batchPayload.length; i += chunkSize) {
       const chunk = batchPayload.slice(i, i + chunkSize);
       const { error: insertErr } = await supabase.from("memberships").insert(chunk);
       if (insertErr) {
         console.error(`Chunk insertion error at index ${i}:`, insertErr);
+        lastErrMessage = insertErr.message;
       } else {
         insertedTotal += chunk.length;
       }
+    }
+
+    if (insertedTotal === 0 && lastErrMessage) {
+      return NextResponse.json({ error: `Insertion failed: ${lastErrMessage}` }, { status: 500 });
     }
 
     await incrementNamespaceVersion("members");
