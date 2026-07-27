@@ -3665,13 +3665,13 @@ export const teamMembers: TeamMember[] = [
   },
   {
     id: "1049",
-    name: "Mohammad Afzal Chaudhary",
+    name: "Ashwani Baghel",
     role: "Administrative Secretary",
-    education: "SSC",
-    location: "Navi mumbai, India",
+    education: "Graduate",
+    location: "Kanpur, India",
     mobile: "9004609786",
     photo: "/uploads/membership_form/1760344580.jpg",
-    status: 0,
+    status: 1,
     showHome: 0
   },
   {
