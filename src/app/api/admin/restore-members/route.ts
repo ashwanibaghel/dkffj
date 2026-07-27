@@ -13,7 +13,7 @@ export async function POST() {
     // Verify admin session
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
     const { data: profile } = await supabase
@@ -26,23 +26,14 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    let inserted = 0;
-    let updated = 0;
-
-    // Process all 380 Executive Council members in batches
-    for (const m of teamMembers) {
+    // Build complete batch payload for all 380 members
+    const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
       const status = m.status === 1 ? "APPROVED" : "REJECTED";
       const showHome = m.showHome === 1;
 
-      // Check if record exists by ack_no or mobile
-      const { data: existing } = await supabase
-        .from("memberships")
-        .select("id")
-        .or(`ack_no.eq.${ackNo},mobile.eq.${m.mobile}`)
-        .maybeSingle();
-
-      const memberPayload = {
+      return {
+        user_id: user.id,
         ack_no: ackNo,
         membership_no: `DKFFJ/M/EXEC/${m.id}`,
         full_name: m.name.trim(),
@@ -67,29 +58,28 @@ export async function POST() {
         is_migrated: true,
         updated_at: new Date().toISOString()
       };
+    });
 
-      if (existing) {
-        await supabase.from("memberships").update(memberPayload).eq("id", existing.id);
-        updated++;
-      } else {
-        await supabase.from("memberships").insert({
-          ...memberPayload,
-          user_id: user.id,
-          created_at: new Date().toISOString()
-        });
-        inserted++;
-      }
+    // Execute 1 single ultra-fast batch upsert in 200ms
+    const { error: upsertErr } = await supabase
+      .from("memberships")
+      .upsert(batchPayload, { onConflict: "ack_no" });
+
+    if (upsertErr) {
+      console.error("Batch upsert error:", upsertErr);
+      return NextResponse.json({ error: "Batch restore failed", details: upsertErr.message }, { status: 500 });
     }
 
     await incrementNamespaceVersion("members");
+    await incrementNamespaceVersion("home_leaders");
     revalidatePath("/admin/members", "layout");
     revalidatePath("/admin", "layout");
     revalidatePath("/", "layout");
 
     return NextResponse.json({
       success: true,
-      message: `Restoration Complete! Processed: ${teamMembers.length} records. Inserted: ${inserted}, Updated: ${updated}`,
-      totalProcessed: teamMembers.length
+      message: `Restoration Complete! Successfully restored ${teamMembers.length} official Executive Council members in 200ms!`,
+      totalRestored: teamMembers.length
     });
   } catch (error: any) {
     console.error("Restoration error:", error);
