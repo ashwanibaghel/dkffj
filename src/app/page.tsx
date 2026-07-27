@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import VerificationWidget from "@/components/VerificationWidget";
 import HeroSlider from "@/components/HeroSlider";
 import GuidelinesAccordion from "@/components/GuidelinesAccordion";
@@ -48,12 +49,36 @@ function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [courses, setCourses] = useState<any[]>([]);
   const [leaders, setLeaders] = useState<any[]>([]);
   const [news, setNews] = useState<any[]>([]);
   const [showAllLeaders, setShowAllLeaders] = useState(false);
   const [showStickyNav, setShowStickyNav] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Prefetch main website routes in background for instant 0ms navigation
+  useEffect(() => {
+    const mainRoutes = [
+      "/about",
+      "/courses",
+      "/documents",
+      "/news",
+      "/gallery",
+      "/apply-appreciation",
+      "/track",
+      "/my-account",
+      "/apply",
+      "/donate",
+      "/complaint",
+      "/verify"
+    ];
+    mainRoutes.forEach((route) => {
+      try {
+        router.prefetch(route);
+      } catch {}
+    });
+  }, [router]);
 
   useEffect(() => {
     const handleScroll = () => {

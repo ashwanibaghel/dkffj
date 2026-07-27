@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
   Users, 
@@ -54,6 +54,7 @@ export default function AdminNavWrapper({
 }: AdminNavWrapperProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [loadingNotifs, setLoadingNotifs] = useState(true);
@@ -69,6 +70,34 @@ export default function AdminNavWrapper({
     const animationFrame = window.requestAnimationFrame(() => setMounted(true));
     return () => window.cancelAnimationFrame(animationFrame);
   }, []);
+
+  // Prefetch all admin route sections in background for instant 0ms navigation
+  useEffect(() => {
+    const allHrefs = [
+      "/admin",
+      "/",
+      "/admin/members",
+      "/admin/referrals",
+      "/admin/complaints",
+      "/admin/appreciation",
+      "/admin/courses",
+      "/admin/registrations",
+      "/admin/certificates",
+      "/admin/payments",
+      "/admin/donations",
+      "/admin/documents",
+      "/admin/news",
+      "/admin/leaders",
+      "/admin/banners",
+      "/admin/gallery",
+      "/admin/settings",
+    ];
+    allHrefs.forEach((href) => {
+      try {
+        router.prefetch(href);
+      } catch {}
+    });
+  }, [router]);
 
   // Load Admin Notifications
   useEffect(() => {
@@ -168,6 +197,12 @@ export default function AdminNavWrapper({
       <Link
         key={item.href}
         href={item.href}
+        prefetch={true}
+        onPointerEnter={() => {
+          try {
+            router.prefetch(item.href);
+          } catch {}
+        }}
         onClick={() => setIsSidebarOpen(false)}
         title={isSidebarCollapsed ? item.label : undefined}
         className={`flex items-center rounded-xl text-xs font-bold transition-all duration-200 group ${
