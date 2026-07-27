@@ -599,11 +599,12 @@ export default function AdminMembersPage() {
   const tabMembers = useMemo(() => {
     return members.filter((m) => {
       const isMigrated =
+        m.is_migrated ||
         m.remarks === "MIGRATED_PHP" ||
         m.remarks === "Migrated from Executive Council Board Registry" ||
         m.remarks === "MIGRATED_EXECUTIVE_COUNCIL" ||
-        (m.ack_no && m.ack_no.startsWith("DKE-EXEC-")) ||
-        (m.ack_no && m.ack_no.startsWith("DKE-MIG-"));
+        (m.ack_no && (m.ack_no.startsWith("DKE-EXEC-") || m.ack_no.startsWith("DKF-EXEC-") || m.ack_no.startsWith("DKE-MIG-") || m.ack_no.startsWith("DKF-MIG-"))) ||
+        (m.membership_no && (m.membership_no.startsWith("DKE-EXEC-") || m.membership_no.startsWith("DKF-EXEC-")));
       return activeTab === "migrated" ? isMigrated : !isMigrated;
     });
   }, [members, activeTab]);
