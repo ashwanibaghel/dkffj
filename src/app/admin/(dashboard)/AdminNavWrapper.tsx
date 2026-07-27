@@ -71,32 +71,25 @@ export default function AdminNavWrapper({
     return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
-  // Prefetch all admin route sections in background for instant 0ms navigation
+  // Staggered background route preloading for instant 0ms navigation with clean console
   useEffect(() => {
     const allHrefs = [
       "/admin",
-      "/",
       "/admin/members",
-      "/admin/referrals",
-      "/admin/complaints",
-      "/admin/appreciation",
       "/admin/courses",
-      "/admin/registrations",
       "/admin/certificates",
       "/admin/payments",
       "/admin/donations",
-      "/admin/documents",
-      "/admin/news",
-      "/admin/leaders",
-      "/admin/banners",
-      "/admin/gallery",
       "/admin/settings",
     ];
-    allHrefs.forEach((href) => {
-      try {
+    const timeoutIds: NodeJS.Timeout[] = [];
+    allHrefs.forEach((href, idx) => {
+      const tid = setTimeout(() => {
         router.prefetch(href);
-      } catch {}
+      }, idx * 400);
+      timeoutIds.push(tid);
     });
+    return () => timeoutIds.forEach(clearTimeout);
   }, [router]);
 
   // Load Admin Notifications

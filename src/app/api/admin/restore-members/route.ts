@@ -26,11 +26,17 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    // Build complete batch payload satisfying all NOT-NULL constraints
+    // Build complete batch payload: All ACTIVE (APPROVED) + Supabase CDN Photo URLs
     const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
-      const status = m.status === 1 ? "APPROVED" : "REJECTED";
+      const status = "APPROVED"; // Set ALL members to APPROVED (Active) by default
       const showHome = m.showHome === 1;
+
+      let cleanPhoto = m.photo || "";
+      if (cleanPhoto.startsWith("/uploads/membership_form/")) {
+        const fileName = cleanPhoto.replace("/uploads/membership_form/", "");
+        cleanPhoto = `https://tgszzjbvpcznndrfkkov.supabase.co/storage/v1/object/public/photos/membership_form/${fileName}`;
+      }
 
       return {
         user_id: user.id,
@@ -51,7 +57,7 @@ export async function POST() {
         profession: "Social Worker",
         working_area: "Human Rights",
         designation: m.role || "Executive Member",
-        photo_url: m.photo || "",
+        photo_url: cleanPhoto,
         aadhaar_url: "",
         signature_url: "",
         status: status,
@@ -92,7 +98,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Restoration Successful! Successfully inserted ${insertedTotal} official Executive Council members into Supabase!`,
+      message: `Restoration Successful! Successfully activated ${insertedTotal} official Executive Council members into Supabase!`,
       totalInserted: insertedTotal
     });
   } catch (error: any) {
