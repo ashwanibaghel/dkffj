@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { teamMembers as staticMembers } from "@/lib/teamData";
+import { getVersionedCache } from "@/lib/redis";
 
 // Lookup description map for standard leaders to keep descriptions consistent
 const leaderDescriptions: Record<string, string> = {
@@ -13,46 +14,67 @@ const leaderDescriptions: Record<string, string> = {
 
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
-  try {
-    // Primary source: memberships table in Supabase where show_home is true
-    const homeMembers = await prisma.memberships.findMany({
-      where: {
-        show_home: true,
-        status: "APPROVED"
-      },
-      orderBy: {
-        created_at: "asc"
-      }
-    });
+  return getVersionedCache("members", "home_leaders", async () => {
+    try {
+      // Primary source: memberships table in Supabase where show_home is true
+      const homeMembers = await prisma.memberships.findMany({
+        where: {
+          show_home: true,
+          status: "APPROVED"
+        },
+        orderBy: {
+          created_at: "asc"
+        }
+      });
 
-    if (homeMembers.length > 0) {
-      return homeMembers.map((m) => ({
-        id: m.membership_no || m.ack_no || m.id,
-        name: m.full_name,
-        role: m.designation || "Executive Member",
-        education: m.education || "",
-        location: m.district || m.state || m.address || "India",
-        mobile: m.mobile,
-        photo: m.photo_url || "",
-        status: 1,
-        showHome: 1,
-        description: leaderDescriptions[m.membership_no || ""] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
-      }));
+      if (homeMembers.length > 0) {
+        return homeMembers.map((m) => ({
+          id: m.membership_no || m.ack_no || m.id,
+          name: m.full_name,
+          role: m.designation || "Executive Member",
+          education: m.education || "",
+          location: m.district || m.state || m.address || "India",
+          mobile: m.mobile,
+          photo: m.photo_url || "",
+          status: 1,
+          showHome: 1,
+          description: leaderDescriptions[m.membership_no || ""] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
+        }));
+      }
+
+      // Fallback source: teamMember table in database
+      const dbLeaders = await prisma.teamMember.findMany({
+        where: {
+          showHome: 1,
+          status: 1
+        },
+        orderBy: {
+          id: "asc"
+        }
+      });
+
+      if (dbLeaders.length > 0) {
+        return dbLeaders.map((m) => ({
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          education: m.education,
+          location: m.location,
+          mobile: m.mobile,
+          photo: m.photo,
+          status: m.status,
+          showHome: m.showHome,
+          description: m.description || leaderDescriptions[m.id] || `Certified active executive council officer of DKFFJ representing operations in ${m.location}.`
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching homepage leaders from database:", error);
     }
 
-    // Fallback source: teamMember table in database
-    const dbLeaders = await prisma.teamMember.findMany({
-      where: {
-        showHome: 1,
-        status: 1
-      },
-      orderBy: {
-        id: "asc"
-      }
-    });
-
-    if (dbLeaders.length > 0) {
-      return dbLeaders.map((m) => ({
+    // Fallback to static member registry
+    return staticMembers
+      .filter((m) => m.showHome === 1)
+      .map((m) => ({
         id: m.id,
         name: m.name,
         role: m.role,
@@ -62,28 +84,9 @@ export async function getHomeLeaders() {
         photo: m.photo,
         status: m.status,
         showHome: m.showHome,
-        description: m.description || leaderDescriptions[m.id] || `Certified active executive council officer of DKFFJ representing operations in ${m.location}.`
+        description: leaderDescriptions[m.id] || "DKFFJ Executive Council Member."
       }));
-    }
-  } catch (error) {
-    console.error("Error fetching homepage leaders from database:", error);
-  }
-
-  // Fallback to static member registry
-  return staticMembers
-    .filter((m) => m.showHome === 1)
-    .map((m) => ({
-      id: m.id,
-      name: m.name,
-      role: m.role,
-      education: m.education,
-      location: m.location,
-      mobile: m.mobile,
-      photo: m.photo,
-      status: m.status,
-      showHome: m.showHome,
-      description: leaderDescriptions[m.id] || "DKFFJ Executive Council Member."
-    }));
+  });
 }
 
 // 2. Fetch Latest News for Homepage

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
+import { getVersionedCache, incrementNamespaceVersion } from "@/lib/redis";
 
 // 1. Fetch memberships list
 export async function getMemberships(statusFilter?: string) {
@@ -12,25 +13,29 @@ export async function getMemberships(statusFilter?: string) {
     return [];
   }
 
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const keySuffix = `list_${statusFilter || "ALL"}`;
 
-  let query = supabase
-    .from("memberships")
-    .select("*")
-    .neq("status", "PENDING") // Hide unpaid memberships from admin panel
-    .order("created_at", { ascending: false });
+  return getVersionedCache("members", keySuffix, async () => {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
 
-  if (statusFilter && statusFilter !== "ALL") {
-    query = query.eq("status", statusFilter);
-  }
+    let query = supabase
+      .from("memberships")
+      .select("*")
+      .neq("status", "PENDING") // Hide unpaid memberships from admin panel
+      .order("created_at", { ascending: false });
 
-  const { data, error } = await query;
-  if (error) {
-    console.error("Error fetching memberships:", error);
-    return [];
-  }
-  return data || [];
+    if (statusFilter && statusFilter !== "ALL") {
+      query = query.eq("status", statusFilter);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error("Error fetching memberships:", error);
+      return [];
+    }
+    return data || [];
+  });
 }
 
 // 2. Generate signed document URL for secure viewing
@@ -723,6 +728,9 @@ export async function toggleMemberShowHomeAction(memberId: string, currentShowHo
     return { success: false, error: error.message };
   }
 
+  // Increment version to trigger Cache Miss & load fresh data
+  await incrementNamespaceVersion("members");
+
   return { success: true, showHome: newShowHome };
 }
 
@@ -748,6 +756,9 @@ export async function toggleMemberActiveStatusAction(memberId: string, currentSt
     console.error("Error toggling active status:", error);
     return { success: false, error: error.message };
   }
+
+  // Increment version to trigger Cache Miss & load fresh data
+  await incrementNamespaceVersion("members");
 
   return { success: true, status: newStatus };
 }

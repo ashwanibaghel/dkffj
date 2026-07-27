@@ -20,10 +20,74 @@ export const redis =
     : null;
 
 /**
- * Get cached data or execute fallback function and store result in Redis cache.
- * @param key Redis Cache Key
- * @param fetcher Async function to retrieve data if cache misses
- * @param ttlSeconds Time-to-live in seconds (default: 5 minutes / 300s)
+ * Get current version of a namespace (default: 1)
+ */
+export async function getNamespaceVersion(namespace: string): Promise<number> {
+  if (!redis) return 1;
+  try {
+    const version = await redis.get<number>(`ver:${namespace}`);
+    return version || 1;
+  } catch {
+    return 1;
+  }
+}
+
+/**
+ * Increment version for a namespace to invalidate all associated cached keys.
+ * Calling this causes a guaranteed CACHE MISS on the next read request.
+ */
+export async function incrementNamespaceVersion(namespace: string): Promise<number> {
+  if (!redis) return 1;
+  try {
+    const nextVer = await redis.incr(`ver:${namespace}`);
+    console.log(`[Redis Version Bump] Namespace '${namespace}' updated to version ${nextVer}`);
+    return nextVer;
+  } catch (error) {
+    console.warn(`[Redis Version Bump Error] Namespace '${namespace}'`, error);
+    return 1;
+  }
+}
+
+/**
+ * Get cached data or execute fetcher and store in Redis using namespace version tag.
+ */
+export async function getVersionedCache<T>(
+  namespace: string,
+  keySuffix: string,
+  fetcher: () => Promise<T>,
+  ttlSeconds: number = 600
+): Promise<T> {
+  if (!redis) {
+    return await fetcher();
+  }
+
+  const ver = await getNamespaceVersion(namespace);
+  const fullKey = `${namespace}:v${ver}:${keySuffix}`;
+
+  try {
+    const cached = await redis.get<T>(fullKey);
+    if (cached !== null && cached !== undefined) {
+      return cached;
+    }
+  } catch (error) {
+    console.warn(`[Redis Cache Read Error] ${fullKey}`, error);
+  }
+
+  const data = await fetcher();
+
+  try {
+    if (data) {
+      await redis.set(fullKey, data, { ex: ttlSeconds });
+    }
+  } catch (error) {
+    console.warn(`[Redis Cache Set Error] ${fullKey}`, error);
+  }
+
+  return data;
+}
+
+/**
+ * General single key cache helper
  */
 export async function getOrSetCache<T>(
   key: string,
@@ -31,7 +95,6 @@ export async function getOrSetCache<T>(
   ttlSeconds: number = 300
 ): Promise<T> {
   if (!redis) {
-    // If Redis is not configured yet, fallback directly to DB fetcher
     return await fetcher();
   }
 
@@ -57,9 +120,6 @@ export async function getOrSetCache<T>(
   return data;
 }
 
-/**
- * Invalidate a specific Redis cache key or pattern
- */
 export async function invalidateCache(key: string): Promise<void> {
   if (!redis) return;
   try {
