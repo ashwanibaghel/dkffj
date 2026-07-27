@@ -1,0 +1,107 @@
+"use client";
+
+import React, { useState } from "react";
+import { Download, Database, ShieldCheck, RefreshCw, HardDrive, CheckCircle2 } from "lucide-react";
+
+export default function BackupManagerClient() {
+  const [downloading, setDownloading] = useState(false);
+  const [lastBackupTime, setLastBackupTime] = useState<string | null>(null);
+
+  const handleDownloadBackup = async () => {
+    setDownloading(true);
+    try {
+      const response = await fetch("/api/admin/backup");
+      if (!response.ok) {
+        throw new Error("Failed to generate backup");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `dkffj_database_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      setLastBackupTime(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+    } catch (err) {
+      console.error("Backup download error:", err);
+      alert("Failed to download database backup. Please check your admin session.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <section className="bg-[#001C55]/5 dark:bg-slate-900 border border-[#001C55]/20 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none space-y-4">
+      <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#001C55] text-white flex items-center justify-center shadow-md">
+            <Database className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#C00000] dark:text-red-400">Disaster Recovery Desk</span>
+            <h2 className="text-sm font-black text-slate-900 dark:text-slate-100">Automated Database & Records Backup</h2>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/20">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          <span>Database Shield Active</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-semibold text-slate-700 dark:text-slate-300 pt-1">
+        <div className="bg-white dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+          <HardDrive className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold">Scope</p>
+            <p className="font-extrabold text-slate-800 dark:text-slate-200">11 Full Database Tables</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+          <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold">Format</p>
+            <p className="font-extrabold text-slate-800 dark:text-slate-200">Encrypted JSON Snapshot</p>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
+          <RefreshCw className="w-5 h-5 text-purple-600 dark:text-purple-400 shrink-0" />
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase font-bold">Last Downloaded</p>
+            <p className="font-extrabold text-slate-800 dark:text-slate-200">{lastBackupTime || "Ready to Export"}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-slate-200/60 dark:border-slate-800">
+        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+          Export a complete, timestamped backup of all 389+ memberships, certificates, course enrollments, payments, donations, and complaint records for offline safety.
+        </p>
+
+        <button
+          type="button"
+          onClick={handleDownloadBackup}
+          disabled={downloading}
+          className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#001C55] to-[#C00000] text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50 shrink-0"
+        >
+          {downloading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Exporting Snapshot...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" />
+              <span>Download Full System Backup (.json)</span>
+            </>
+          )}
+        </button>
+      </div>
+    </section>
+  );
+}

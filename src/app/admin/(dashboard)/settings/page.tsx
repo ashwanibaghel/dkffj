@@ -1,5 +1,6 @@
 import React from "react";
 import { Building2, CreditCard, Mail, Save, Settings, ShieldCheck } from "lucide-react";
+import BackupManagerClient from "./BackupManagerClient";
 
 export default function AdminSettingsPage() {
   const settingsSections = [
@@ -48,6 +49,7 @@ export default function AdminSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
         <div className="space-y-4">
+          <BackupManagerClient />
           {settingsSections.map((section, index) => {
             const Icon = section.icon;
             return (
