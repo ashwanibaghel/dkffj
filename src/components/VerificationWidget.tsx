@@ -13,36 +13,6 @@ interface Member {
   addedDate: string;
 }
 
-const mockMembers: Record<string, Member> = {
-  "1252": {
-    id: "1252",
-    name: "Sanjay Kumar Singh",
-    role: "Joint Secretary",
-    state: "Uttar Pradesh",
-    mobile: "+91 9839281815",
-    status: "Active Member",
-    addedDate: "2026-03-16",
-  },
-  "1238": {
-    id: "1238",
-    name: "Raj Bahadur Singh",
-    role: "Vice President",
-    state: "Uttar Pradesh",
-    mobile: "+91 8874281876",
-    status: "Active Member",
-    addedDate: "2026-05-06",
-  },
-  "1235": {
-    id: "1235",
-    name: "Zamin Khan",
-    role: "Nodal Officer",
-    state: "Uttar Pradesh",
-    mobile: "+91 9997335392",
-    status: "Active Member",
-    addedDate: "2026-05-20",
-  },
-};
-
 export default function VerificationWidget() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,32 +26,24 @@ export default function VerificationWidget() {
     setLoading(true);
     setResult(undefined);
 
-    // 1. Try mock members
-    const match = mockMembers[query];
-    if (match) {
-      setResult(match);
-      setLoading(false);
-      return;
-    }
-
-    // 2. Query real Supabase certificates database
+    // Query live Supabase database for certificates and memberships
     try {
       const liveCert = await verifyCertificate(query);
       if (liveCert && liveCert.found) {
         setResult({
           id: liveCert.certificateNo,
           name: liveCert.userName,
-          role: liveCert.courseName,
-          state: "All India (Academy)",
-          mobile: "Verified Certificate",
-          status: liveCert.status === "VALID" ? "Active" : "Revoked",
+          role: liveCert.designation || liveCert.courseName,
+          state: liveCert.workingArea || "India",
+          mobile: liveCert.ackNo ? `Ack: ${liveCert.ackNo}` : "Official Record",
+          status: liveCert.status === "VALID" ? "Active Member" : liveCert.status,
           addedDate: liveCert.issueDate,
         });
       } else {
         setResult(null);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Verification search error:", err);
       setResult(null);
     } finally {
       setLoading(false);

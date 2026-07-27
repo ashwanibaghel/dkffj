@@ -46,11 +46,12 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   }
 
   if (!cert) {
-    // Attempt to search in memberships table
+    // Attempt to search in memberships table by membership_no, ack_no, mobile, or aadhaar_no
     const { data: member, error: memberErr } = await supabase
       .from("memberships")
       .select("membership_no, ack_no, full_name, father_name, designation, working_area, photo_url, status, approved_at, created_at")
-      .or(`membership_no.eq.${searchStr},ack_no.eq.${searchStr}`)
+      .or(`membership_no.eq.${searchStr},ack_no.eq.${searchStr},mobile.eq.${searchStr},aadhaar_no.eq.${searchStr},full_name.ilike.%${searchStr}%`)
+      .limit(1)
       .maybeSingle();
 
     if (memberErr || !member) {
