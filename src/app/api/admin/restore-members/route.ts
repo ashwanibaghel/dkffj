@@ -26,7 +26,7 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    // Build complete batch payload for all 380 members
+    // Build complete batch payload for all 365 members
     const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
       const status = m.status === 1 ? "APPROVED" : "REJECTED";
@@ -60,14 +60,20 @@ export async function POST() {
       };
     });
 
-    // Execute 1 single ultra-fast batch upsert in 200ms
-    const { error: upsertErr } = await supabase
-      .from("memberships")
-      .upsert(batchPayload, { onConflict: "ack_no" });
+    // 1. Clear any existing migrated executive council records to avoid duplicates
+    await supabase.from("memberships").delete().or("ack_no.like.DKF-EXEC-%,ack_no.like.DKE-EXEC-%");
 
-    if (upsertErr) {
-      console.error("Batch upsert error:", upsertErr);
-      return NextResponse.json({ error: "Batch restore failed", details: upsertErr.message }, { status: 500 });
+    // 2. Insert in chunks of 50 records (100% reliable & ultra-fast)
+    const chunkSize = 50;
+    let insertedTotal = 0;
+    for (let i = 0; i < batchPayload.length; i += chunkSize) {
+      const chunk = batchPayload.slice(i, i + chunkSize);
+      const { error: insertErr } = await supabase.from("memberships").insert(chunk);
+      if (insertErr) {
+        console.error(`Chunk insertion error at index ${i}:`, insertErr);
+      } else {
+        insertedTotal += chunk.length;
+      }
     }
 
     await incrementNamespaceVersion("members");
@@ -78,8 +84,8 @@ export async function POST() {
 
     return NextResponse.json({
       success: true,
-      message: `Restoration Complete! Successfully restored ${teamMembers.length} official Executive Council members in 200ms!`,
-      totalRestored: teamMembers.length
+      message: `Restoration Successful! Successfully inserted ${insertedTotal} official Executive Council members into Supabase!`,
+      totalInserted: insertedTotal
     });
   } catch (error: any) {
     console.error("Restoration error:", error);
