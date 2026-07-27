@@ -1145,9 +1145,8 @@ export default function AdminMembersPage() {
                             alt={member.full_name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              (e.currentTarget as HTMLElement).style.display = "none";
-                              const fallback = (e.currentTarget as HTMLElement).nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = "flex";
+                              (e.currentTarget as HTMLImageElement).onerror = null;
+                              (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`;
                             }}
                           />
                         ) : null}
@@ -1371,13 +1370,14 @@ export default function AdminMembersPage() {
                       {/* Left Column: Personal Photo */}
                       <div className="flex flex-col items-center border border-slate-200/60 bg-white rounded-xl p-4 text-center">
                         <div className="relative group w-28 h-28">
-                          <Image
-                            src={editingId === member.id ? editPhotoPreview : (member.photo_url || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300")}
+                          <img
+                            src={editingId === member.id ? editPhotoPreview : (member.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`)}
                             alt={member.full_name}
-                            width={112}
-                            height={112}
                             className="h-28 w-28 object-cover rounded-xl border"
-                            unoptimized
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).onerror = null;
+                              (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`;
+                            }}
                           />
                           {editingId === member.id && (
                             <label className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">

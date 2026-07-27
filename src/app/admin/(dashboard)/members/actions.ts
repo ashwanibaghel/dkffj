@@ -34,7 +34,24 @@ export async function getMemberships(statusFilter?: string) {
       console.error("Error fetching memberships:", error);
       return [];
     }
-    return data || [];
+
+    const SUPABASE_CDN_BASE = "https://tgszzjbvpcznndrfkkov.supabase.co/storage/v1/object/public/photos/";
+
+    return (data || []).map((m: any) => {
+      let photo = m.photo_url || "";
+      if (photo && !photo.startsWith("http://") && !photo.startsWith("https://")) {
+        const cleanPath = photo.replace(/^\/+/, "").replace(/^uploads\/membership_form\//, "membership_form/");
+        if (cleanPath.startsWith("membership_form/")) {
+          photo = `${SUPABASE_CDN_BASE}${cleanPath}`;
+        } else {
+          photo = `${SUPABASE_CDN_BASE}membership_form/${cleanPath}`;
+        }
+      }
+      return {
+        ...m,
+        photo_url: photo
+      };
+    });
   });
 }
 

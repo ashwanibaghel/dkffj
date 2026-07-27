@@ -71,25 +71,38 @@ export default function AdminNavWrapper({
     return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
-  // Staggered background route preloading for instant 0ms navigation with clean console
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
+
+  // Clear pending path when route actually changes
+  useEffect(() => {
+    setPendingPath(null);
+  }, [pathname]);
+
+  // Immediate background route preloading for instant 0ms navigation
   useEffect(() => {
     const allHrefs = [
       "/admin",
       "/admin/members",
+      "/admin/referrals",
+      "/admin/complaints",
+      "/admin/appreciation",
       "/admin/courses",
+      "/admin/registrations",
       "/admin/certificates",
       "/admin/payments",
       "/admin/donations",
+      "/admin/documents",
+      "/admin/news",
+      "/admin/leaders",
+      "/admin/banners",
+      "/admin/gallery",
       "/admin/settings",
     ];
-    const timeoutIds: NodeJS.Timeout[] = [];
-    allHrefs.forEach((href, idx) => {
-      const tid = setTimeout(() => {
+    allHrefs.forEach((href) => {
+      try {
         router.prefetch(href);
-      }, idx * 400);
-      timeoutIds.push(tid);
+      } catch {}
     });
-    return () => timeoutIds.forEach(clearTimeout);
   }, [router]);
 
   // Load Admin Notifications
@@ -184,7 +197,7 @@ export default function AdminNavWrapper({
 
   const renderNavLink = (item: AdminNavItem, isCompact = false) => {
     const IconComponent = item.icon;
-    const isActive = pathname === item.href;
+    const isActive = pathname === item.href || pendingPath === item.href;
 
     return (
       <Link
@@ -196,16 +209,21 @@ export default function AdminNavWrapper({
             router.prefetch(item.href);
           } catch {}
         }}
-        onClick={() => setIsSidebarOpen(false)}
+        onClick={() => {
+          setIsSidebarOpen(false);
+          if (pathname !== item.href) {
+            setPendingPath(item.href);
+          }
+        }}
         title={isSidebarCollapsed ? item.label : undefined}
-        className={`flex items-center rounded-xl text-xs font-bold transition-all duration-200 group ${
+        className={`flex items-center rounded-xl text-xs font-bold transition-all duration-150 group ${
           isSidebarCollapsed
             ? "md:justify-center md:px-0 md:py-3 gap-0"
             : `gap-3 ${isCompact ? "px-3 py-2" : "px-3.5 py-2.5"}`
         } ${
           isActive
-            ? "bg-blue-50 dark:bg-gradient-to-r dark:from-blue-600/20 dark:to-blue-600/5 text-blue-700 dark:text-blue-400 shadow-sm dark:shadow-inner"
-            : "hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200"
+            ? "bg-blue-600 text-white shadow-md shadow-blue-900/20 dark:bg-blue-600 dark:text-white"
+            : "hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200 text-slate-700 dark:text-slate-300"
         }`}
       >
         <IconComponent className={`w-4 h-4 transition-transform duration-200 ${isActive ? "scale-110" : "group-hover:scale-110"}`} />
@@ -216,6 +234,9 @@ export default function AdminNavWrapper({
 
   return (
     <div className="min-h-screen bg-[#f4f7fb] dark:bg-slate-950 flex flex-col font-sans relative overflow-x-hidden transition-colors duration-300">
+      {pendingPath && (
+        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#001C55] via-blue-500 to-[#C00000] z-[100] animate-pulse" />
+      )}
       
       {/* Backdrop overlay (mobile only) */}
       {isSidebarOpen && (
