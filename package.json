@@ -13,6 +13,7 @@
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "@types/pdfkit": "^0.17.6",
+    "@upstash/redis": "^1.38.0",
     "firebase": "^12.14.0",
     "firebase-admin": "^13.10.0",
     "html2canvas": "^1.4.1",
