@@ -47,8 +47,10 @@ export async function POST() {
     await supabase
       .from("memberships")
       .delete()
-      .not("ack_no", "like", "MIGRATED_%")
+      .eq("is_migrated", false)
+      .not("ack_no", "like", "DKF-EXEC-%")
       .not("ack_no", "like", "DKE-EXEC-%")
+      .not("ack_no", "like", "MIGRATED_%")
       .neq("ack_no", "DKF-INT-2026-1074");
 
     // 8. Invalidate Redis Cache & Next.js Router Cache

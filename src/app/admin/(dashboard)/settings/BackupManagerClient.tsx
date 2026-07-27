@@ -6,7 +6,30 @@ import { Download, Database, ShieldCheck, RefreshCw, HardDrive, CheckCircle2 } f
 export default function BackupManagerClient() {
   const [downloading, setDownloading] = useState(false);
   const [purging, setPurging] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const [lastBackupTime, setLastBackupTime] = useState<string | null>(null);
+
+  const handleRestoreMembers = async () => {
+    if (!confirm("Are you sure you want to restore all 389 Executive Council & Migrated members into Supabase database?")) {
+      return;
+    }
+    setRestoring(true);
+    try {
+      const response = await fetch("/api/admin/restore-members", { method: "POST" });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        alert(`✅ ${result.message}`);
+        window.location.reload();
+      } else {
+        alert(`Error: ${result.error || "Failed to restore members."}`);
+      }
+    } catch (err) {
+      console.error("Restoration error:", err);
+      alert("Failed to restore members.");
+    } finally {
+      setRestoring(false);
+    }
+  };
 
   const handleDownloadBackup = async () => {
     setDownloading(true);
@@ -110,8 +133,8 @@ export default function BackupManagerClient() {
           <button
             type="button"
             onClick={handleDownloadBackup}
-            disabled={downloading || purging}
-            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-[#001C55] to-[#C00000] text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+            disabled={downloading || purging || restoring}
+            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#001C55] to-[#C00000] text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
           >
             {downloading ? (
               <>
@@ -128,9 +151,28 @@ export default function BackupManagerClient() {
 
           <button
             type="button"
+            onClick={handleRestoreMembers}
+            disabled={downloading || purging || restoring}
+            className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+          >
+            {restoring ? (
+              <>
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Restoring 389 Members...</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="w-4 h-4" />
+                <span>Restore 389 Members</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
             onClick={handlePurgeTestData}
-            disabled={downloading || purging}
-            className="w-full sm:w-auto px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+            disabled={downloading || purging || restoring}
+            className="w-full sm:w-auto px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
           >
             {purging ? (
               <>
@@ -140,7 +182,7 @@ export default function BackupManagerClient() {
             ) : (
               <>
                 <RefreshCw className="w-4 h-4" />
-                <span>Purge Test Data & Cache</span>
+                <span>Purge Test Data</span>
               </>
             )}
           </button>
