@@ -26,7 +26,7 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    // Build complete batch payload with admin user_id satisfying NOT-NULL constraint
+    // Build complete batch payload satisfying all NOT-NULL constraints
     const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
       const status = m.status === 1 ? "APPROVED" : "REJECTED";
@@ -52,6 +52,8 @@ export async function POST() {
         working_area: "Human Rights",
         designation: m.role || "Executive Member",
         photo_url: m.photo || "",
+        aadhaar_url: "",
+        signature_url: "",
         status: status,
         show_home: showHome,
         remarks: "MIGRATED_EXECUTIVE_COUNCIL",
