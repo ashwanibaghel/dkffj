@@ -26,13 +26,14 @@ export async function POST() {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
 
-    // Build complete batch payload matching exact memberships table schema
+    // Build complete batch payload with admin user_id satisfying NOT-NULL constraint
     const batchPayload = teamMembers.map((m) => {
       const ackNo = `DKF-EXEC-${m.id}`;
       const status = m.status === 1 ? "APPROVED" : "REJECTED";
       const showHome = m.showHome === 1;
 
       return {
+        user_id: user.id,
         ack_no: ackNo,
         membership_no: `DKFFJ/M/EXEC/${m.id}`,
         full_name: m.name.trim(),
