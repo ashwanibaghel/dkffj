@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import { sendAppreciationOtp, verifyAppreciationOtp, submitAppreciationApplication } from "./actions";
 import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, Shield, Eye, EyeOff } from "lucide-react";
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
+import { getPricingSettings } from "@/lib/portalSettings";
 
 const SOCIAL_WORK_FIELDS = [
   "Human Rights Protection & Advocacy",
@@ -31,6 +32,17 @@ export default function ApplyAppreciationPage() {
   // User auth state
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [appreciationFee, setAppreciationFee] = useState<number>(49);
+
+  useEffect(() => {
+    async function loadFee() {
+      try {
+        const p = await getPricingSettings();
+        if (p?.appreciationFee) setAppreciationFee(p.appreciationFee);
+      } catch {}
+    }
+    loadFee();
+  }, []);
 
   // Form states
   const [fullName, setFullName] = useState<string>("");
@@ -805,7 +817,7 @@ export default function ApplyAppreciationPage() {
                 )}
 
                 <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl text-[11px] text-slate-500 leading-relaxed">
-                  <p><strong>Note:</strong> Applying for a Certificate of Appreciation requires a processing fee of <strong>INR 1,500.00</strong>. Clicking submit will redirect you to PhonePe secure checkout.</p>
+                  <p><strong>Note:</strong> Applying for a Certificate of Appreciation requires a processing fee of <strong>INR {appreciationFee}.00</strong>. Clicking submit will redirect you to PhonePe secure checkout.</p>
                 </div>
               </div>
             )}

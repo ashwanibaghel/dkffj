@@ -1,35 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, Database, ShieldCheck, RefreshCw, HardDrive, CheckCircle2 } from "lucide-react";
+import { Download, Database, ShieldCheck, HardDrive, CheckCircle2 } from "lucide-react";
 
 export default function BackupManagerClient() {
   const [downloading, setDownloading] = useState(false);
-  const [purging, setPurging] = useState(false);
-  const [restoring, setRestoring] = useState(false);
   const [lastBackupTime, setLastBackupTime] = useState<string | null>(null);
-
-  const handleRestoreMembers = async () => {
-    if (!confirm("Are you sure you want to restore all 389 Executive Council & Migrated members into Supabase database?")) {
-      return;
-    }
-    setRestoring(true);
-    try {
-      const response = await fetch("/api/admin/restore-members", { method: "POST" });
-      const result = await response.json();
-      if (response.ok && result.success) {
-        alert(`✅ ${result.message}`);
-        window.location.reload();
-      } else {
-        alert(`Error: ${result.error || "Failed to restore members."}`);
-      }
-    } catch (err) {
-      console.error("Restoration error:", err);
-      alert("Failed to restore members.");
-    } finally {
-      setRestoring(false);
-    }
-  };
 
   const handleDownloadBackup = async () => {
     setDownloading(true);
@@ -58,28 +34,6 @@ export default function BackupManagerClient() {
     }
   };
 
-  const handlePurgeTestData = async () => {
-    if (!confirm("Are you sure you want to purge test data and clear Redis/Next.js cache? (All 389 official migrated members will be safely preserved)")) {
-      return;
-    }
-    setPurging(true);
-    try {
-      const response = await fetch("/api/admin/purge-test-records", { method: "POST" });
-      const result = await response.json();
-      if (response.ok && result.success) {
-        alert("✅ Test data purged and Redis/Next.js cache successfully reset!");
-        window.location.reload();
-      } else {
-        alert(`Error: ${result.error || "Failed to purge test data."}`);
-      }
-    } catch (err) {
-      console.error("Purge error:", err);
-      alert("Failed to purge test data.");
-    } finally {
-      setPurging(false);
-    }
-  };
-
   return (
     <section className="bg-[#001C55]/5 dark:bg-slate-900 border border-[#001C55]/20 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none space-y-4">
       <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800 pb-3">
@@ -88,7 +42,7 @@ export default function BackupManagerClient() {
             <Database className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#C00000] dark:text-red-400">Disaster Recovery Desk</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#001C55] dark:text-blue-400">Data Vault</span>
             <h2 className="text-sm font-black text-slate-900 dark:text-slate-100">Automated Database & Records Backup</h2>
           </div>
         </div>
@@ -116,7 +70,7 @@ export default function BackupManagerClient() {
         </div>
 
         <div className="bg-white dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
-          <RefreshCw className="w-5 h-5 text-purple-600 dark:text-purple-400 shrink-0" />
+          <Database className="w-5 h-5 text-purple-600 dark:text-purple-400 shrink-0" />
           <div>
             <p className="text-[10px] text-slate-400 uppercase font-bold">Last Downloaded</p>
             <p className="font-extrabold text-slate-800 dark:text-slate-200">{lastBackupTime || "Ready to Export"}</p>
@@ -126,15 +80,15 @@ export default function BackupManagerClient() {
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-slate-200/60 dark:border-slate-800">
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-          Export a complete, timestamped backup of all 389+ memberships, certificates, course enrollments, payments, donations, and complaint records for offline safety.
+          Export a complete, timestamped backup of all memberships, certificates, course enrollments, payments, donations, and complaint records for offline safety.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto shrink-0">
           <button
             type="button"
             onClick={handleDownloadBackup}
-            disabled={downloading || purging || restoring}
-            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#001C55] to-[#C00000] text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+            disabled={downloading}
+            className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-[#001C55] to-[#C00000] text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
           >
             {downloading ? (
               <>
@@ -145,44 +99,6 @@ export default function BackupManagerClient() {
               <>
                 <Download className="w-4 h-4" />
                 <span>Backup JSON</span>
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleRestoreMembers}
-            disabled={downloading || purging || restoring}
-            className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-          >
-            {restoring ? (
-              <>
-                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Restoring 389 Members...</span>
-              </>
-            ) : (
-              <>
-                <ShieldCheck className="w-4 h-4" />
-                <span>Restore 389 Members</span>
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={handlePurgeTestData}
-            disabled={downloading || purging || restoring}
-            className="w-full sm:w-auto px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-          >
-            {purging ? (
-              <>
-                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Purging...</span>
-              </>
-            ) : (
-              <>
-                <RefreshCw className="w-4 h-4" />
-                <span>Purge Test Data</span>
               </>
             )}
           </button>

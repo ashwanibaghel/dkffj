@@ -10,7 +10,8 @@ import { compressFormFiles } from "@/lib/compressImage";
 import { uploadMembershipDocs } from "@/lib/uploadToStorage";
 
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
-import { MEMBERSHIP_TIERS, MEMBERSHIP_TIERS_LIST, MembershipLevelKey, autoDetectMembershipLevel } from "@/lib/data/membershipTiers";
+import { getDynamicMembershipTiers, MembershipLevelKey, autoDetectMembershipLevel } from "@/lib/data/membershipTiers";
+import { getPricingSettings } from "@/lib/portalSettings";
 
 const DESIGNATIONS = [
   "DIRECTOR", "ADD DIRECTOR", "National President", "PRESIDENT", "Secretary",
@@ -91,6 +92,17 @@ export default function ApplyPage() {
   // User auth state
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [membershipTiers, setMembershipTiers] = useState(getDynamicMembershipTiers());
+
+  useEffect(() => {
+    async function loadTiers() {
+      try {
+        const p = await getPricingSettings();
+        if (p) setMembershipTiers(getDynamicMembershipTiers(p));
+      } catch {}
+    }
+    loadTiers();
+  }, []);
 
   // Form states — restored from sessionStorage draft if available
   const [fullName, setFullName] = useState<string>(draft?.fullName || "");
@@ -972,7 +984,7 @@ export default function ApplyPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5">
-                    {MEMBERSHIP_TIERS_LIST.map((tier) => {
+                    {Object.values(membershipTiers).map((tier) => {
                       const isSelected = membershipLevel === tier.key;
                       return (
                         <button

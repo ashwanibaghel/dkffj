@@ -1,8 +1,14 @@
 import React from "react";
-import { Building2, CreditCard, Mail, Save, Settings, ShieldCheck } from "lucide-react";
+import { Building2, Mail, Settings, ShieldCheck } from "lucide-react";
 import BackupManagerClient from "./BackupManagerClient";
+import PricingSettingsClient from "./PricingSettingsClient";
+import { getPricingSettings } from "@/lib/portalSettings";
 
-export default function AdminSettingsPage() {
+export const revalidate = 0;
+
+export default async function AdminSettingsPage() {
+  const currentPricing = await getPricingSettings();
+
   const settingsSections = [
     {
       title: "Organization Details",
@@ -11,14 +17,6 @@ export default function AdminSettingsPage() {
         { label: "Official Name", value: "DK Foundation of Freedom and Justice" },
         { label: "MCA Registry ID", value: "U88900UP2023NPL185611" },
         { label: "Registered Office Address", value: "117/M/29-C Kakadeo M-Block, Madhuvan Appt. Road, Kanpur, UP - 208019", wide: true }
-      ]
-    },
-    {
-      title: "Fee Configuration",
-      icon: CreditCard,
-      fields: [
-        { label: "Membership Fee (INR)", value: "1000" },
-        { label: "Default Gateway", value: "MOCK_PAYMENT" }
       ]
     },
     {
@@ -37,19 +35,21 @@ export default function AdminSettingsPage() {
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2 tracking-tight">
-            <Settings className="w-5 h-5 text-[#001C55] dark:text-blue-400" /> Portal Configuration
+            <Settings className="w-5 h-5 text-[#001C55] dark:text-blue-400" /> Portal Configuration & Fee Management
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Review general portal rules, contact information, communication mode, and fee pricing thresholds.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Manage portal fees, dynamic application pricing for membership tiers and appreciation certificates, and offline database backups.</p>
         </div>
         <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Read-only configuration snapshot</span>
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+          <span>Live Fee Control Active</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
-        <div className="space-y-4">
+        <div className="space-y-6">
           <BackupManagerClient />
+          <PricingSettingsClient initialSettings={currentPricing} />
+
           {settingsSections.map((section, index) => {
             const Icon = section.icon;
             return (
@@ -87,16 +87,9 @@ export default function AdminSettingsPage() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-black text-slate-900 dark:text-slate-100">Configuration Lock</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">These values are displayed for admin visibility. Runtime configuration is controlled by environment variables and backend records.</p>
+            <h2 className="text-sm font-black text-slate-900 dark:text-slate-100">Live Fee Control</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">Fees saved in the control panel update dynamically across public forms instantly. Offline database backups are exported in encrypted JSON format.</p>
           </div>
-          <button
-            type="button"
-            disabled
-            className="w-full px-5 py-2.5 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-not-allowed"
-          >
-            <Save className="w-4 h-4" /> Save Preferences
-          </button>
         </aside>
       </div>
     </div>

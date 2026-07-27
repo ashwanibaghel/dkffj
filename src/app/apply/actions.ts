@@ -6,7 +6,8 @@ import { sendTransactionalEmail } from "@/services/email/service";
 import { getMembershipVerificationTemplate, getMembershipReceiptTemplate } from "@/services/email/templates";
 import { paymentServiceInstance } from "@/lib/payment/service";
 import { sanitizeInput } from "@/lib/sanitize";
-import { MEMBERSHIP_TIERS, autoDetectMembershipLevel, MembershipLevelKey } from "@/lib/data/membershipTiers";
+import { autoDetectMembershipLevel, getFeeForLevel } from "@/lib/data/membershipTiers";
+import { getPricingSettings } from "@/lib/portalSettings";
 
 // 1. Generate and Send OTP
 export async function sendMembershipOtp(mobile: string, email: string) {
@@ -317,16 +318,11 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
 
     const membershipId = newMembership.id;
 
-    // 4. Create Pending Payment Log with Dynamic Tier Amount
+    // 4. Create Pending Payment Log with Dynamic Tier Amount from Admin Settings
+    const pricingSettings = await getPricingSettings();
     const levelKeyInput = sanitizeInput((formData.get("membershipLevel") as string) || "");
-    let amount = 1100;
-
-    if (levelKeyInput && MEMBERSHIP_TIERS[levelKeyInput as MembershipLevelKey]) {
-      amount = MEMBERSHIP_TIERS[levelKeyInput as MembershipLevelKey].fee;
-    } else {
-      const detectedKey = autoDetectMembershipLevel(designation, workingArea);
-      amount = MEMBERSHIP_TIERS[detectedKey].fee;
-    }
+    const targetLevel = levelKeyInput || autoDetectMembershipLevel(designation, workingArea);
+    const amount = getFeeForLevel(targetLevel, pricingSettings);
 
     const tempTxnId = "MBR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
     

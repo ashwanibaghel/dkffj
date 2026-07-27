@@ -6,6 +6,7 @@ import { sendTransactionalEmail } from "@/services/email/service";
 import { getAppreciationVerificationTemplate, getAppreciationReceiptTemplate } from "@/services/email/templates";
 import { paymentServiceInstance } from "@/lib/payment/service";
 import { sanitizeInput } from "@/lib/sanitize";
+import { getPricingSettings } from "@/lib/portalSettings";
 
 // 1. Generate and Send OTP
 export async function sendAppreciationOtp(mobile: string, email: string) {
@@ -273,8 +274,9 @@ export async function submitAppreciationApplication(prevData: any, formData: For
 
     const applicationId = newApplication.id;
 
-    // 4. Create Pending Payment Log
-    const amount = 1500; // Rs. 1500 application fee
+    // 4. Create Pending Payment Log with dynamic fee from Portal Settings
+    const pricingSettings = await getPricingSettings();
+    const amount = pricingSettings.appreciationFee;
     const tempTxnId = "APR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
 
     const { error: paymentError } = await supabase
