@@ -313,9 +313,16 @@ export async function createDirectAppreciationApplication(payload: {
       </div>
     `;
 
-    await sendTransactionalEmail(payload.email, emailSubject, emailHtml);
+    const emailRes = await sendTransactionalEmail(payload.email, emailSubject, emailHtml);
+    console.log("[VIP CERT EMAIL RESULT]", JSON.stringify(emailRes));
 
-    return { success: true, applicationNo: appNo, data: newApp };
+    return { 
+      success: true, 
+      applicationNo: appNo, 
+      data: newApp,
+      emailDelivered: emailRes.success,
+      emailError: emailRes.error || null
+    };
   } catch (err: any) {
     console.error("createDirectAppreciationApplication exception:", err);
     return { success: false, error: err.message || "Failed to create direct appreciation certificate." };

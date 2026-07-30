@@ -360,7 +360,11 @@ export default function AdminAppreciationPage() {
       });
 
       if (res.success && res.data) {
-        showToast(`✅ Appreciation Certificate issued to ${issueForm.fullName}! Email sent with download link.`, "success");
+        if (res.emailDelivered !== false) {
+          showToast(`✅ Appreciation Certificate issued to ${issueForm.fullName}! Email delivered successfully to ${issueForm.email}.`, "success");
+        } else {
+          showToast(`⚠️ Certificate issued, but email delivery note: ${res.emailError || 'Check sender configuration.'}`, "error");
+        }
         setIsIssueModalOpen(false);
         setIssueForm({
           fullName: "",
