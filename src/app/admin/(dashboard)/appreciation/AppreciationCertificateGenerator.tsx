@@ -54,7 +54,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/appreciation-classic-victorian-border-a4.svg";
 
-  const displayRefNo = data.applicationNo;
+  const displayRefNo = (data.applicationNo || "")
+    .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
+    .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
+    .replace(/(\d{4})\/-\1-/g, "$1/");
   const displayFatherName = data.fatherName || "";
   const displayDesignation = data.designation || "Honorable Member";
   const displayWorkingArea = data.socialWorkField;

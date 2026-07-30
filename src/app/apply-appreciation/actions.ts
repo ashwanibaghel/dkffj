@@ -231,16 +231,27 @@ export async function submitAppreciationApplication(prevData: any, formData: For
       achievementProofUrl = `aadhaar/${achievementName}`;
     }
 
-    // 2. Generate Application Number DKFFJ/A/YYYY/XXXX
+    // 2. Generate Application Number DKFFJ/A/YYYY/XXXX cleanly without duplicate year
     const currentYear = new Date().getFullYear();
-    const { data: appNo, error: rpcError } = await supabase.rpc("generate_next_number", {
+    const { data: rawAppNo, error: rpcError } = await supabase.rpc("generate_next_number", {
       p_key: "appreciation_app",
-      p_prefix: `DKFFJ/A/${currentYear}/`
+      p_prefix: "DKFFJ/A/"
     });
 
-    if (rpcError || !appNo) {
+    if (rpcError || !rawAppNo) {
       console.error("RPC sequence generation error:", rpcError);
       throw new Error("Failed to generate application number.");
+    }
+
+    let appNo = rawAppNo
+      .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
+      .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
+      .replace(/(\d{4})\/-\1-/g, "$1/");
+
+    if (!appNo.includes(`/${currentYear}/`)) {
+      const parts = appNo.split("-");
+      const seq = parts[parts.length - 1].padStart(5, "0");
+      appNo = `DKFFJ/A/${currentYear}/${seq}`;
     }
 
     // 3. Save application details to DB
