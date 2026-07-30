@@ -92,21 +92,21 @@ export default function AdminAppreciationPage() {
   const [issueSubmitting, setIssueSubmitting] = useState<boolean>(false);
   const [issueError, setIssueError] = useState<string>("");
 
-  // Direct Issue Form State
+  // Direct Issue Form State (with strict validations and DD/MM/YYYY date)
   const [issueForm, setIssueForm] = useState({
     fullName: "",
     fatherName: "",
     mobile: "",
     email: "",
     gender: "Male",
-    dob: "",
+    dob: "", // DD/MM/YYYY format
     country: "India",
     state: "Uttar Pradesh",
     district: "Kanpur Nagar",
     pincode: "208019",
     address: "",
     socialWorkField: SOCIAL_WORK_FIELDS[9], // Default: VIP / Govt Service
-    description: "Honoris Causa / Distinguished Appreciation Certificate awarded by Board.",
+    description: "Honoris Causa / Distinguished Appreciation Certificate awarded by Executive Board.",
     remarks: "Direct VIP / Free Appreciation Certificate issued by Board."
   });
 
@@ -258,16 +258,67 @@ export default function AdminAppreciationPage() {
     }
   };
 
-  // Direct VIP Issue Submission
+  // Direct VIP Issue Submission with Strict Constraints Validation
   const handleIssueSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!issueForm.fullName || !issueForm.fatherName || !issueForm.mobile || !issueForm.email) {
-      setIssueError("Full Name, Father's Name, Mobile Number, and Email Address are required.");
+    setIssueError("");
+
+    // 1. Required text inputs check
+    if (!issueForm.fullName.trim() || !issueForm.fatherName.trim() || !issueForm.address.trim()) {
+      setIssueError("Full Name, Father's Name, and Full Residential / Official Address are required.");
+      return;
+    }
+
+    // 2. Mobile Constraint: 10 Digits Only, No Alphabets (Starts with 6-9)
+    const cleanMobile = issueForm.mobile.replace(/\D/g, "");
+    if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
+      setIssueError("Mobile number must be a valid 10-digit Indian number starting with 6, 7, 8, or 9 (no letters allowed).");
+      return;
+    }
+
+    // 3. Email Constraint: Valid Email Format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(issueForm.email.trim())) {
+      setIssueError("Please enter a valid email address (e.g. official.email@gov.in).");
+      return;
+    }
+
+    // 4. Date of Birth Constraint: DD/MM/YYYY format with Month <= 12 & Day <= 31
+    let formattedDob = issueForm.dob.trim();
+    if (formattedDob) {
+      if (!/^\d{2}\/\d{2}\/\d{4}$/.test(formattedDob)) {
+        setIssueError("Date of Birth must be in DD/MM/YYYY format (e.g. 15/08/1985).");
+        return;
+      }
+
+      const [dStr, mStr, yStr] = formattedDob.split("/");
+      const day = parseInt(dStr, 10);
+      const month = parseInt(mStr, 10);
+      const year = parseInt(yStr, 10);
+      const currentYear = new Date().getFullYear();
+
+      if (month < 1 || month > 12) {
+        setIssueError("Invalid Month in Date of Birth! Month cannot be greater than 12 (MM <= 12).");
+        return;
+      }
+      if (day < 1 || day > 31) {
+        setIssueError("Invalid Day in Date of Birth! Day must be between 01 and 31 (DD <= 31).");
+        return;
+      }
+      if (year < 1920 || year > currentYear) {
+        setIssueError(`Invalid Year in Date of Birth! Year must be between 1920 and ${currentYear}.`);
+        return;
+      }
+    }
+
+    // 5. Pincode Constraint: 6 Digits
+    const cleanPincode = issueForm.pincode.replace(/\D/g, "");
+    if (cleanPincode && cleanPincode.length !== 6) {
+      setIssueError("Pincode must be exactly 6 digits.");
       return;
     }
 
     setIssueSubmitting(true);
-    setIssueError("");
 
     try {
       const tempId = `vip_${Date.now()}`;
@@ -303,16 +354,16 @@ export default function AdminAppreciationPage() {
       }
 
       const res = await createDirectAppreciationApplication({
-        fullName: issueForm.fullName,
-        fatherName: issueForm.fatherName,
-        mobile: issueForm.mobile,
-        email: issueForm.email,
+        fullName: issueForm.fullName.trim(),
+        fatherName: issueForm.fatherName.trim(),
+        mobile: cleanMobile,
+        email: issueForm.email.trim(),
         gender: issueForm.gender,
-        dob: issueForm.dob,
+        dob: formattedDob,
         country: issueForm.country,
         state: issueForm.state,
         district: issueForm.district,
-        pincode: issueForm.pincode,
+        pincode: cleanPincode,
         socialWorkField: issueForm.socialWorkField,
         description: issueForm.description,
         remarks: issueForm.remarks,
@@ -807,15 +858,20 @@ export default function AdminAppreciationPage() {
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                    Mobile Number *
+                    Mobile Number (10 Digits Only) *
                   </label>
                   <input
                     type="text"
                     required
+                    inputMode="numeric"
+                    maxLength={10}
                     value={issueForm.mobile}
-                    onChange={(e) => setIssueForm({ ...issueForm, mobile: e.target.value })}
-                    placeholder="10-digit mobile number"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                      setIssueForm({ ...issueForm, mobile: digits });
+                    }}
+                    placeholder="10-digit mobile (e.g. 9876543210)"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none font-mono"
                   />
                 </div>
 
@@ -827,7 +883,7 @@ export default function AdminAppreciationPage() {
                     type="email"
                     required
                     value={issueForm.email}
-                    onChange={(e) => setIssueForm({ ...issueForm, email: e.target.value })}
+                    onChange={(e) => setIssueForm({ ...issueForm, email: e.target.value.trim() })}
                     placeholder="official.email@gov.in"
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
                   />
@@ -850,13 +906,20 @@ export default function AdminAppreciationPage() {
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                    Date of Birth
+                    Date of Birth (DD/MM/YYYY)
                   </label>
                   <input
-                    type="date"
+                    type="text"
+                    maxLength={10}
                     value={issueForm.dob}
-                    onChange={(e) => setIssueForm({ ...issueForm, dob: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                    onChange={(e) => {
+                      let val = e.target.value.replace(/[^\d/]/g, "");
+                      if (val.length === 2 && !val.includes("/")) val = val + "/";
+                      if (val.length === 5 && val.split("/").length === 2) val = val + "/";
+                      setIssueForm({ ...issueForm, dob: val });
+                    }}
+                    placeholder="DD/MM/YYYY (e.g. 15/08/1985)"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none font-mono"
                   />
                 </div>
 
@@ -891,6 +954,36 @@ export default function AdminAppreciationPage() {
                 </div>
 
                 <div className="sm:col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Full Residential / Official Address (House/Office No, Street, Area) *
+                  </label>
+                  <textarea
+                    required
+                    rows={2}
+                    value={issueForm.address}
+                    onChange={(e) => setIssueForm({ ...issueForm, address: e.target.value })}
+                    placeholder="Enter complete office or residential address details..."
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Pincode (6 Digits) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={issueForm.pincode}
+                    onChange={(e) => setIssueForm({ ...issueForm, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) })}
+                    placeholder="6-digit pincode"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none font-mono"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                     Social Work Field / Award Category *
                   </label>
