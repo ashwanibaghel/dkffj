@@ -69,6 +69,19 @@ const SOCIAL_WORK_FIELDS = [
   "Other Social Activism / Support Services"
 ];
 
+function cleanText(str?: string | null): string {
+  if (!str) return "";
+  let res = str;
+  while (res.includes("&amp;")) {
+    res = res.replace(/&amp;/g, "&");
+  }
+  return res
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"');
+}
+
 function cleanAppNo(no?: string) {
   if (!no) return "";
   return no
