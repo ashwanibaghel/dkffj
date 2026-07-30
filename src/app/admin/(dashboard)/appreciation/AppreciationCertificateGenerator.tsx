@@ -679,3 +679,118 @@ export async function generateAppreciationPDFClient(
     }
   });
 }
+
+// Generates both PDF and JPG base64 strings for direct email attachments
+export async function generateAppreciationCertFiles(
+  data: AppreciationCertificateData,
+  qrBase64Input?: string
+): Promise<{ pdfBase64: string; jpgBase64: string }> {
+  const html2canvasModule = await import("html2canvas");
+  const html2canvas = html2canvasModule.default || html2canvasModule;
+  const jspdfModule = await import("jspdf");
+  const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
+
+  const [
+    qrBase64,
+    logoBase64,
+    mcaBase64,
+    nitiBase64,
+    nsdcBase64,
+    msmeBase64,
+    emblemBase64,
+    isoSealBase64,
+    signatureBase64,
+    borderBase64
+  ] = await Promise.all([
+    qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
+    getBase64ImageFromUrl("/logo.png"),
+    getBase64ImageFromUrl("/images/mca.png"),
+    getBase64ImageFromUrl("/images/niti_aayog.png"),
+    getBase64ImageFromUrl("/images/nsdc.png"),
+    getBase64ImageFromUrl("/images/msme.png"),
+    getBase64ImageFromUrl("/images/ministry_of_social_justice.png"),
+    getBase64ImageFromUrl("/images/iso.png"),
+    getBase64ImageFromUrl("/images/director_sig.png"),
+    getBase64ImageFromUrl("/images/appreciation-classic-victorian-border-a4.svg")
+  ]);
+
+  const container = document.createElement("div");
+  container.style.position = "absolute";
+  container.style.left = "0px";
+  container.style.top = "0px";
+  container.style.zIndex = "-9999";
+  container.style.pointerEvents = "none";
+  document.body.appendChild(container);
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const { createRoot } = (await import("react-dom/client"));
+      const root = createRoot(container);
+
+      root.render(
+        <AppreciationCertificateRenderer
+          data={data}
+          qrBase64={qrBase64}
+          logoBase64={logoBase64}
+          mcaBase64={mcaBase64}
+          nitiBase64={nitiBase64}
+          nsdcBase64={nsdcBase64}
+          msmeBase64={msmeBase64}
+          emblemBase64={emblemBase64}
+          isoSealBase64={isoSealBase64}
+          signatureBase64={signatureBase64}
+          borderBase64={borderBase64}
+        />
+      );
+
+      setTimeout(async () => {
+        try {
+          await document.fonts.ready;
+          const targetElement = container.firstChild as HTMLElement;
+          if (!targetElement) {
+            throw new Error("Target element not found in offscreen container");
+          }
+
+          const canvas = await html2canvas(targetElement, {
+            scale: 3.5,
+            useCORS: true,
+            allowTaint: false,
+            logging: false,
+            backgroundColor: "#fcf9f2",
+            imageTimeout: 15000
+          });
+
+          // 1. JPG Data Base64
+          const imgData = canvas.toDataURL("image/jpeg", 0.95);
+          const jpgBase64 = imgData.replace(/^data:image\/jpeg;base64,/, "");
+
+          // 2. PDF Base64
+          const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4"
+          });
+
+          pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "NONE");
+          const pdfDataUri = pdf.output("datauristring");
+          const pdfBase64 = pdfDataUri
+            .replace(/^data:application\/pdf;filename=generated\.pdf;base64,/, "")
+            .replace(/^data:application\/pdf;base64,/, "");
+
+          root.unmount();
+          document.body.removeChild(container);
+
+          resolve({ pdfBase64, jpgBase64 });
+        } catch (err) {
+          try {
+            root.unmount();
+            document.body.removeChild(container);
+          } catch (_) {}
+          reject(err);
+        }
+      }, 400);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}

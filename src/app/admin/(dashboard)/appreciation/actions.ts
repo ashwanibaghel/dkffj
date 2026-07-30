@@ -184,6 +184,8 @@ export async function createDirectAppreciationApplication(payload: {
   idProofUrl?: string;
   achievementProofUrl?: string;
   remarks?: string;
+  pdfBase64?: string;
+  jpgBase64?: string;
 }) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
@@ -278,7 +280,25 @@ export async function createDirectAppreciationApplication(payload: {
       updated_by: user.id
     });
 
-    // 5. Send Email with Certificate & Download Link
+    // 5. Build Attachments Array (PDF and JPG)
+    const attachments: Array<{ filename: string; content: Buffer }> = [];
+    const sanitizedAppNo = appNo.replace(/\//g, "_");
+
+    if (payload.pdfBase64) {
+      attachments.push({
+        filename: `Certificate_of_Appreciation_${sanitizedAppNo}.pdf`,
+        content: Buffer.from(payload.pdfBase64, "base64")
+      });
+    }
+
+    if (payload.jpgBase64) {
+      attachments.push({
+        filename: `Certificate_of_Appreciation_${sanitizedAppNo}.jpg`,
+        content: Buffer.from(payload.jpgBase64, "base64")
+      });
+    }
+
+    // 6. Send Email with Certificate & Download Link & Attachments
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
     const trackUrl = `${appUrl}/track?type=appreciation&id=${encodeURIComponent(appNo)}`;
 
@@ -300,9 +320,10 @@ export async function createDirectAppreciationApplication(payload: {
             <p style="margin: 4px 0; font-size: 13px;"><strong>Certificate Reference No:</strong> <span style="color: #C00000; font-family: monospace; font-weight: bold;">${appNo}</span></p>
             <p style="margin: 4px 0; font-size: 13px;"><strong>Social Work Category:</strong> ${payload.socialWorkField}</p>
             <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> <span style="color: #15803d; font-weight: bold;">OFFICIALLY APPROVED & ISSUED</span></p>
+            <p style="margin: 4px 0; font-size: 13px; color: #1E60B4;"><strong>Attachments:</strong> Official Certificate attached in both PDF (.pdf) and Image (.jpg) formats.</p>
           </div>
 
-          <p>You can instantly view, verify, and download your official digital Certificate of Appreciation from the portal:</p>
+          <p>You can also instantly view, verify, and download your official digital Certificate of Appreciation from the portal:</p>
           <div style="margin-top: 24px; text-align: center;">
             <a href="${trackUrl}" style="background-color: #15803d; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">View & Download Certificate</a>
           </div>
@@ -313,7 +334,7 @@ export async function createDirectAppreciationApplication(payload: {
       </div>
     `;
 
-    const emailRes = await sendTransactionalEmail(payload.email, emailSubject, emailHtml);
+    const emailRes = await sendTransactionalEmail(payload.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
     console.log("[VIP CERT EMAIL RESULT]", JSON.stringify(emailRes));
 
     return { 

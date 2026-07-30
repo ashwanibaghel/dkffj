@@ -30,7 +30,7 @@ import {
   UserPlus
 } from "lucide-react";
 import AdminEmptyState from "../components/AdminEmptyState";
-import { AppreciationCertificateRenderer, generateAppreciationPDFClient } from "./AppreciationCertificateGenerator";
+import { AppreciationCertificateRenderer, generateAppreciationPDFClient, generateAppreciationCertFiles } from "./AppreciationCertificateGenerator";
 import { uploadFileToStorage } from "@/lib/uploadToStorage";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 
@@ -339,6 +339,30 @@ export default function AdminAppreciationPage() {
         if (achRes.url) achievementProofUrl = achRes.url;
       }
 
+      let pdfBase64 = "";
+      let jpgBase64 = "";
+      try {
+        const appUrl = typeof window !== "undefined" ? window.location.origin : "https://dkffj.vercel.app";
+        const tempAppNo = `DKFFJ/A/${new Date().getFullYear()}/00000`;
+        const verificationUrl = `${appUrl}/track?type=appreciation&id=${tempAppNo}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+        const issueDateStr = new Date().toLocaleDateString("en-IN");
+
+        const certFiles = await generateAppreciationCertFiles({
+          applicationNo: tempAppNo,
+          fullName: issueForm.fullName.trim(),
+          socialWorkField: issueForm.socialWorkField,
+          issueDateStr,
+          qrCodeUrl,
+          verificationUrl,
+          photoUrl
+        });
+        pdfBase64 = certFiles.pdfBase64;
+        jpgBase64 = certFiles.jpgBase64;
+      } catch (genErr) {
+        console.error("Failed to generate email certificate attachments:", genErr);
+      }
+
       const res = await createDirectAppreciationApplication({
         fullName: issueForm.fullName.trim(),
         fatherName: issueForm.fatherName.trim(),
@@ -356,7 +380,9 @@ export default function AdminAppreciationPage() {
         remarks: issueForm.remarks,
         photoUrl,
         idProofUrl,
-        achievementProofUrl
+        achievementProofUrl,
+        pdfBase64,
+        jpgBase64
       });
 
       if (res.success && res.data) {
