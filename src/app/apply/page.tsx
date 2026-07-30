@@ -230,7 +230,7 @@ export default function ApplyPage() {
     setErrorMsg("");
     try {
       const fullMobile = countryCode + mobile;
-      const res = await verifyMembershipOtp(fullMobile, otpCode);
+      const res = await verifyMembershipOtp(fullMobile, otpCode, email);
       if (res.success) {
         setOtpVerified(true);
         setSuccessMsg("Mobile and Email verified successfully!");

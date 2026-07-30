@@ -11,99 +11,123 @@ import { getPricingSettings } from "@/lib/portalSettings";
 
 // 1. Generate and Send OTP
 export async function sendMembershipOtp(mobile: string, email: string) {
-  if (!mobile || !email) {
-    return { success: false, error: "Mobile number and Email are required." };
+  try {
+    if (!mobile || !email) {
+      return { success: false, error: "Mobile number and Email are required." };
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const cleanMobile = mobile.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Generate 6-digit OTP code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 mins expiry
+
+    // Insert OTP request into DB
+    const { error } = await supabase
+      .from("otp_requests")
+      .insert({
+        mobile: cleanMobile,
+        email: cleanEmail,
+        otp_code: code,
+        expires_at: expiresAt,
+        verified: false
+      });
+
+    if (error) {
+      console.error("Error saving OTP request:", error);
+      return { success: false, error: "Failed to generate OTP. Please try again." };
+    }
+
+    // Send Email with OTP
+    const subject = "Verification OTP - DKFFJ Portal";
+    const htmlContent = getMembershipVerificationTemplate(code);
+    const emailRes = await sendTransactionalEmail(cleanEmail, subject, htmlContent);
+
+    if (!emailRes.success) {
+      console.error("Resend email failed:", emailRes.error);
+      return { success: false, error: `OTP bhejne mein samasya aai. Kuch der baad dobara koshish karein ya support se sampark karein.` };
+    }
+
+    // Log to console for developer debugging/testing
+    console.log(`[OTP SENT] To Mobile: ${cleanMobile}, Email: ${cleanEmail} -> CODE: ${code}`);
+
+    if (emailRes.mock) {
+      return {
+        success: true,
+        message: `[MOCK MODE] OTP: ${code} (Vercel is not reading RESEND_API_KEY).`
+      };
+    }
+
+    return { success: true, message: "OTP sent successfully. Please check your email/mobile." };
+  } catch (err: any) {
+    console.error("sendMembershipOtp exception:", err);
+    return { success: false, error: err?.message || "Failed to send OTP due to a server error. Please try again." };
   }
-
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-
-  // Generate 6-digit OTP code
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 mins expiry
-
-  // Insert OTP request into DB
-  const { error } = await supabase
-    .from("otp_requests")
-    .insert({
-      mobile,
-      email,
-      otp_code: code,
-      expires_at: expiresAt,
-      verified: false
-    });
-
-  if (error) {
-    console.error("Error saving OTP request:", error);
-    return { success: false, error: "Failed to generate OTP. Please try again." };
-  }
-
-  // Send Email with OTP
-  const subject = "Verification OTP - DKFFJ Portal";
-  const htmlContent = getMembershipVerificationTemplate(code);
-  const emailRes = await sendTransactionalEmail(email, subject, htmlContent);
-
-  if (!emailRes.success) {
-    console.error("Resend email failed:", emailRes.error);
-    return { success: false, error: `OTP bhejne mein samasya aai. Kuch der baad dobara koshish karein ya support se sampark karein.` };
-  }
-
-  // Log to console for local developer debugging/testing
-  console.log(`[OTP SENT] To Mobile: ${mobile}, Email: ${email} -> CODE: ${code}`);
-
-  if (emailRes.mock) {
-    return {
-      success: true,
-      message: `[MOCK MODE] OTP: ${code} (Vercel is not reading RESEND_API_KEY).`
-    };
-  }
-
-  return { success: true, message: "OTP sent successfully. Please check your email/mobile." };
 }
 
 // 2. Verify OTP
-export async function verifyMembershipOtp(mobile: string, code: string) {
-  if (!mobile || !code) {
-    return { success: false, error: "Mobile and OTP code are required." };
+export async function verifyMembershipOtp(mobile: string, code: string, email?: string) {
+  try {
+    if (!mobile || !code) {
+      return { success: false, error: "Mobile and OTP code are required." };
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const now = new Date().toISOString();
+
+    const cleanMobile = mobile.trim();
+    const rawMobile = cleanMobile.replace(/\D/g, "").slice(-10);
+    const cleanCode = code.trim();
+    const cleanEmail = email ? email.trim().toLowerCase() : "";
+
+    // Fetch active unverified OTP request for this mobile (matching full or 10-digit raw mobile or email)
+    let query = supabase
+      .from("otp_requests")
+      .select("id, otp_code, expires_at, verified")
+      .eq("otp_code", cleanCode)
+      .eq("verified", false)
+      .gt("expires_at", now)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (cleanEmail) {
+      query = query.or(`mobile.eq.${cleanMobile},mobile.eq.${rawMobile},email.eq.${cleanEmail}`);
+    } else {
+      query = query.or(`mobile.eq.${cleanMobile},mobile.eq.${rawMobile}`);
+    }
+
+    const { data, error } = await query.maybeSingle();
+
+    if (error) {
+      console.error("Error checking OTP:", error);
+      return { success: false, error: "Database error. Please try again." };
+    }
+
+    if (!data) {
+      return { success: false, error: "Invalid or expired OTP. Please request a new one." };
+    }
+
+    // Mark OTP as verified
+    const { error: updateError } = await supabase
+      .from("otp_requests")
+      .update({ verified: true })
+      .eq("id", data.id);
+
+    if (updateError) {
+      console.error("Error updating OTP status:", updateError);
+      return { success: false, error: "Verification failed. Please try again." };
+    }
+
+    return { success: true, message: "OTP verified successfully." };
+  } catch (err: any) {
+    console.error("verifyMembershipOtp exception:", err);
+    return { success: false, error: err?.message || "Verification failed due to a server error." };
   }
-
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  const now = new Date().toISOString();
-
-  // Fetch the latest active OTP request for this mobile
-  const { data, error } = await supabase
-    .from("otp_requests")
-    .select("id, otp_code, expires_at, verified")
-    .eq("mobile", mobile)
-    .eq("otp_code", code)
-    .eq("verified", false)
-    .gt("expires_at", now)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.error("Error checking OTP:", error);
-    return { success: false, error: "Database error. Please try again." };
-  }
-
-  if (!data) {
-    return { success: false, error: "Invalid or expired OTP. Please request a new one." };
-  }
-
-  // Mark OTP as verified
-  const { error: updateError } = await supabase
-    .from("otp_requests")
-    .update({ verified: true })
-    .eq("id", data.id);
-
-  if (updateError) {
-    console.error("Error updating OTP status:", updateError);
-    return { success: false, error: "Verification failed. Please try again." };
-  }
-
-  return { success: true, message: "OTP verified successfully." };
 }
 
 /**
