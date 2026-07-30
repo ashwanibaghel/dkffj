@@ -333,7 +333,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
                  <span style={{ minWidth: "290px", fontSize: "16px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
                   This certificate is proudly presented to Mr./Ms./Mrs.
                 </span>
-                <div className="cert-pill" style={{ minWidth: "230px", textTransform: "uppercase" }}>
+                <div className="cert-pill" style={{ minWidth: "230px", textTransform: "uppercase", fontSize: "21px", fontWeight: "800", color: "#001C55", letterSpacing: "0.5px", minHeight: "32px" }}>
                   {data.fullName}
                 </div>
               </div>
@@ -344,7 +344,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
                    <span style={{ minWidth: "140px", fontSize: "16px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
                     Son/Daughter of Mr.
                   </span>
-                  <div className="cert-pill" style={{ minWidth: "230px" }}>
+                  <div className="cert-pill" style={{ minWidth: "230px", fontWeight: "bold" }}>
                     {displayFatherName}
                   </div>
                 </div>
@@ -363,7 +363,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
 
               {/* Row 4: Designation & Area */}
               <div className="cert-line" style={{ width: "100%", marginLeft: 0, justifyContent: "center", flexWrap: "nowrap" }}>
-                <div className="cert-pill" style={{ width: "100%", minWidth: 0, padding: "0 6px", fontSize: "16px", whiteSpace: "nowrap" }}>
+                <div className="cert-pill" style={{ width: "100%", minWidth: 0, padding: "0 6px", fontSize: "17.5px", fontWeight: "800", color: "#001C55", whiteSpace: "nowrap" }}>
                   {displayDesignation} ({displayWorkingArea})
                 </div>
               </div>
@@ -410,7 +410,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "70px"
+          marginTop: "50px"
         }}>
           {/* Signatory (Left) */}
           <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
@@ -481,9 +481,9 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Footer Logo Band */}
+        {/* Footer Logo Band (Shifted down and enlarged) */}
         <div style={{
-          marginTop: "6px",
+          marginTop: "22px",
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
@@ -497,51 +497,51 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "56px", maxWidth: "160px", objectFit: "contain" }}
+            style={{ height: "64px", maxWidth: "180px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "54px", maxWidth: "115px", objectFit: "contain" }}
+            style={{ height: "62px", maxWidth: "135px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "56px", maxWidth: "125px", objectFit: "contain" }}
+            style={{ height: "64px", maxWidth: "145px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
             alt="Ministry of Social Justice and Empowerment"
-            style={{ height: "58px", maxWidth: "110px", objectFit: "contain" }}
+            style={{ height: "66px", maxWidth: "125px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "54px", maxWidth: "130px", objectFit: "contain" }}
+            style={{ height: "62px", maxWidth: "150px", objectFit: "contain" }}
           />
         </div>
 
-        {/* Verify Footer Link */}
-        <div style={{ marginTop: "4px", textAlign: "center" }}>
+        {/* Verify Footer Link (Shifted down closer to bottom border with larger/bolder font) */}
+        <div style={{ marginTop: "12px", textAlign: "center" }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "10px",
-            fontWeight: "bold",
+            fontSize: "11.5px",
+            fontWeight: "800",
             color: "#001C55",
             margin: 0,
-            letterSpacing: "0.2px"
+            letterSpacing: "0.3px"
           }}>
             Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "10px",
-            fontWeight: "bold",
-            color: "#444444",
+            fontSize: "11px",
+            fontWeight: "800",
+            color: "#333333",
             margin: "3px 0 0 0",
             whiteSpace: "nowrap",
             letterSpacing: "0.3px"
