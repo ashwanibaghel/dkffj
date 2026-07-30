@@ -385,10 +385,9 @@ export default function CourseCard({ course }: { course: Course }) {
       return;
     }
 
-      if (!otpVerified) {
-        setErrorMsg("Please verify your email address via OTP first.");
-        return;
-      }
+    if (!isLoggedIn && !otpVerified) {
+      setErrorMsg("Please verify your email address via OTP first.");
+      return;
     }
 
     setLoading(true);
@@ -423,7 +422,6 @@ export default function CourseCard({ course }: { course: Course }) {
       }
       
       if (!isLoggedIn) {
-        formData.append("password", password);
         formData.append("otpCode", otpCode);
       }
 
