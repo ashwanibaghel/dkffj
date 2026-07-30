@@ -330,12 +330,32 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             
             {/* Left Column: Certification details */}
             <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
-              {/* Row 1: Student Name */}
-              <div className="cert-line" style={{ width: "100%", marginLeft: 0, justifyContent: "center" }}>
-                 <span style={{ minWidth: "290px", fontSize: "16px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
-                  This certificate is proudly presented to Mr./Ms./Mrs.
-                </span>
-                <div className="cert-pill" style={{ minWidth: "230px", textTransform: "uppercase", fontSize: "21px", fontWeight: "800", color: "#001C55", letterSpacing: "0.5px", minHeight: "32px" }}>
+              {/* Row 1: Presentation Lead-in */}
+              <div style={{
+                fontSize: "17px",
+                fontStyle: "italic",
+                fontFamily: "'Playfair Display', serif",
+                color: "#222222",
+                textAlign: "center"
+              }}>
+                This certificate is proudly presented to Mr./Ms./Mrs.
+              </div>
+
+              {/* Row 2: Recipient Name (Dedicated line, 100% unbreakable) */}
+              <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: "2px" }}>
+                <div className="cert-pill" style={{
+                  minWidth: "320px",
+                  maxWidth: "95%",
+                  textTransform: "uppercase",
+                  fontSize: "22px",
+                  fontWeight: "800",
+                  color: "#001C55",
+                  letterSpacing: "0.5px",
+                  minHeight: "34px",
+                  height: "auto",
+                  padding: "0 15px",
+                  whiteSpace: "nowrap"
+                }}>
                   {data.fullName}
                 </div>
               </div>
