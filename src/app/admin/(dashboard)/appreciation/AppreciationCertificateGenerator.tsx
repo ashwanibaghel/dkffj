@@ -526,13 +526,13 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           />
         </div>
 
-        {/* Verify Footer Link (Shifted down right near bottom border, strictly 2 lines) */}
+        {/* Verify Footer Link (Shifted up slightly to create clean gap above bottom border line) */}
         <div style={{
-          marginTop: "25px",
+          marginTop: "15px",
           textAlign: "center",
           width: "100%",
           maxWidth: "700px",
-          margin: "25px auto 0",
+          margin: "15px auto 0",
           padding: "0 10px",
           boxSizing: "border-box"
         }}>
