@@ -322,8 +322,8 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           }
         `}</style>
 
-        {/* Form Fields (Dynamic Rows - Shifted down by 33px to clear crest logo) */}
-        <div style={{ width: "100%", marginTop: "38px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        {/* Form Fields (Dynamic Rows) */}
+        <div style={{ width: "100%", marginTop: "18px", display: "flex", flexDirection: "column", gap: "10px" }}>
           
           {/* Full-width centered recipient details */}
           <div style={{ width: "90%", marginLeft: "5%", display: "flex", justifyContent: "center" }}>
@@ -406,13 +406,13 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Signatures, Seal and QR Code Area (Shifted down) */}
+        {/* Signatures, Seal and QR Code Area */}
         <div style={{
           width: "90%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "95px"
+          marginTop: "32px"
         }}>
           {/* Signatory (Left) */}
           <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
@@ -483,9 +483,9 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Footer Logo Band (Bigger logos & shifted down) */}
+        {/* Footer Logo Band */}
         <div style={{
-          marginTop: "28px",
+          marginTop: "18px",
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
@@ -499,41 +499,41 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "74px", maxWidth: "195px", objectFit: "contain" }}
+            style={{ height: "68px", maxWidth: "185px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "72px", maxWidth: "145px", objectFit: "contain" }}
+            style={{ height: "66px", maxWidth: "140px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "74px", maxWidth: "155px", objectFit: "contain" }}
+            style={{ height: "68px", maxWidth: "150px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
             alt="Ministry of Social Justice and Empowerment"
-            style={{ height: "76px", maxWidth: "135px", objectFit: "contain" }}
+            style={{ height: "70px", maxWidth: "130px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "72px", maxWidth: "160px", objectFit: "contain" }}
+            style={{ height: "66px", maxWidth: "155px", objectFit: "contain" }}
           />
         </div>
 
-        {/* Verify Footer Link (Shifted up slightly to create clean gap above bottom border line) */}
+        {/* Verify Footer Link */}
         <div style={{
-          marginTop: "15px",
+          marginTop: "14px",
           textAlign: "center",
           width: "100%",
           maxWidth: "700px",
-          margin: "15px auto 0",
+          margin: "14px auto 0",
           padding: "0 10px",
           boxSizing: "border-box"
         }}>
