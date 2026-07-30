@@ -14,26 +14,47 @@ export async function uploadFileToStorage(
   bucket: string,
   path: string
 ): Promise<{ url: string; error?: string }> {
-  const supabase = createClient();
+  // Attempt 1: Direct client-side upload to Supabase Storage
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, { upsert: true, cacheControl: "3600" });
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(path, file, { upsert: true, cacheControl: "3600" });
-
-  if (error) {
-    console.error(`[UPLOAD ERROR] ${bucket}/${path}:`, error.message);
-    return { url: "", error: error.message };
+    if (!error && data) {
+      if (bucket === "photos") {
+        const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+        return { url: urlData.publicUrl };
+      }
+      return { url: `${bucket}/${data.path}` };
+    } else if (error) {
+      console.warn(`[DIRECT STORAGE UPLOAD FAILED] ${bucket}/${path}: ${error.message}. Trying API fallback...`);
+    }
+  } catch (err) {
+    console.warn(`[DIRECT STORAGE UPLOAD EXCEPTION] ${bucket}/${path}. Trying API fallback...`, err);
   }
 
-  // For public buckets (photos), return public URL
-  // For private buckets (aadhaar, signatures), return storage path
-  if (bucket === "photos") {
-    const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
-    return { url: urlData.publicUrl };
-  }
+  // Attempt 2: Server-side API Route Fallback (/api/upload-document)
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("bucket", bucket);
+    formData.append("path", path);
 
-  // Private bucket — return the path (server will access via signed URL)
-  return { url: `${bucket}/${data.path}` };
+    const res = await fetch("/api/upload-document", {
+      method: "POST",
+      body: formData,
+    });
+
+    const json = await res.json();
+    if (res.ok && json.url) {
+      return { url: json.url };
+    }
+    return { url: "", error: json.error || "Document upload failed on server fallback." };
+  } catch (apiErr: any) {
+    console.error(`[API UPLOAD FALLBACK EXCEPTION] ${bucket}/${path}:`, apiErr);
+    return { url: "", error: apiErr?.message || "Upload failed. Please check network connection." };
+  }
 }
 
 /**
