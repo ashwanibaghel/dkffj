@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+// Admin Appreciation Panel Page - High Performance Clean Render
 import Image from "next/image";
 import { 
   getAppreciationApplications, 
