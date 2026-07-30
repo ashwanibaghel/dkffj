@@ -385,30 +385,8 @@ export default function CourseCard({ course }: { course: Course }) {
       return;
     }
 
-    if (!isLoggedIn) {
       if (!otpVerified) {
         setErrorMsg("Please verify your email address via OTP first.");
-        return;
-      }
-      if (!password || !confirmPassword) {
-        setErrorMsg("Please choose and confirm your password.");
-        return;
-      }
-      if (password.length < 8) {
-        setErrorMsg("Password must be at least 8 characters long.");
-        return;
-      }
-      const hasUppercase = /[A-Z]/.test(password);
-      const hasLowercase = /[a-z]/.test(password);
-      const hasNumber = /[0-9]/.test(password);
-      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      
-      if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
-        setErrorMsg("Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.");
-        return;
-      }
-      if (password !== confirmPassword) {
-        setErrorMsg("Passwords do not match.");
         return;
       }
     }
@@ -1194,67 +1172,7 @@ export default function CourseCard({ course }: { course: Course }) {
                   </div>
                 )}
 
-                {/* Password Fields - Shown only if not logged in and email verified */}
-                {!isLoggedIn && otpVerified && (
-                  <div className="border-t pt-3 mt-3 space-y-3">
-                    <div className="flex items-center gap-1.5 text-slate-655">
-                      <Shield className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-750">Email Verified - Set Password</span>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Choose Password *</label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          placeholder="Min 8 chars: A-z, 0-9, @#$%"
-                          className={`w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 ${
-                            errorMsg && (errorMsg.toLowerCase().includes("password") || errorMsg.toLowerCase().includes("match"))
-                              ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
-                              : "border-slate-200"
-                          }`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Confirm Password *</label>
-                      <div className="relative">
-                        <input
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          required
-                          placeholder="Retype password"
-                          className={`w-full px-3 py-2 pr-9 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 ${
-                            errorMsg && errorMsg.toLowerCase().includes("match")
-                              ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" 
-                              : "border-slate-200"
-                          }`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                          {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </div>
-                    {errorMsg && (errorMsg.toLowerCase().includes("password") || errorMsg.toLowerCase().includes("match")) && (
-                      <p className="text-[9px] text-rose-600 font-bold mt-1">{errorMsg}</p>
-                    )}
-                  </div>
-                )}
 
                 <div className="flex items-center justify-between border-t pt-4 mt-4 gap-3">
                   <button

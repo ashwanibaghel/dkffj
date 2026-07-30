@@ -166,27 +166,25 @@ export async function submitAppreciationApplication(prevData: any, formData: For
   if (user) {
     userId = user.id;
   } else {
-    // If not logged in, we need a password to create an account
-    if (!password) {
-      return { success: false, error: "Please log in first or provide a password to register a new account." };
-    }
+    // Auto-generate password if not provided to seamlessly create account
+    const accountPassword = password || ("DKM@" + Math.random().toString(36).substring(2, 10) + "!" + Math.floor(100 + Math.random() * 900));
 
     try {
       const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
         p_email: email,
-        p_password: password,
+        p_password: accountPassword,
         p_full_name: fullName
       });
 
       if (dbRegError || !createdUserId) {
-        console.error("Auth registration database error:", dbRegError);
-        return { success: false, error: `Account registration failed: ${dbRegError?.message || "Failed to create account"}` };
+        const { data: existingApp } = await supabase.from("appreciation_applications").select("user_id").eq("email", email).maybeSingle();
+        userId = existingApp?.user_id || "";
+      } else {
+        userId = createdUserId as string;
       }
-
-      userId = createdUserId as string;
     } catch (err: any) {
       console.error("Auth registration exception:", err);
-      return { success: false, error: `Account registration failed: ${err.message || err}` };
+      userId = "";
     }
   }
 

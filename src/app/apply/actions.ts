@@ -217,28 +217,27 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   if (user) {
     userId = user.id;
   } else {
-    // If not logged in, we need a password to create an account
-    if (!password) {
-      return { success: false, error: "Please log in first or provide a password to register a new account." };
-    }
+    // If not logged in, auto-generate password to seamlessly create account
+    const accountPassword = password || ("DKM@" + Math.random().toString(36).substring(2, 10) + "!" + Math.floor(100 + Math.random() * 900));
 
     // Sign up the user via database RPC to bypass SMTP rate limit
     try {
       const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
         p_email: email,
-        p_password: password,
+        p_password: accountPassword,
         p_full_name: fullName
       });
 
       if (dbRegError || !createdUserId) {
-        console.error("Auth registration database error:", dbRegError);
-        return { success: false, error: `Account registration failed: ${dbRegError?.message || "Failed to create account"}` };
+        // If user already exists, try fetching user id from memberships table
+        const { data: existingMbr } = await supabase.from("memberships").select("user_id").eq("email", email).maybeSingle();
+        userId = existingMbr?.user_id || "";
+      } else {
+        userId = createdUserId as string;
       }
-
-      userId = createdUserId as string;
     } catch (err: any) {
       console.error("Auth registration exception:", err);
-      return { success: false, error: `Account registration failed: ${err.message || err}` };
+      userId = "";
     }
   }
 

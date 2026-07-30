@@ -63,9 +63,9 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   if (user) {
     userId = user.id;
   } else {
-    if (!password) {
-      return { success: false, error: "Please sign in first or enter a password to register your academy account." };
-    }
+    // Auto-generate password if not provided to seamlessly create account
+    const accountPassword = password || ("DKM@" + Math.random().toString(36).substring(2, 10) + "!" + Math.floor(100 + Math.random() * 900));
+
     // OTP bypass for test/dev email
     const BYPASS_EMAIL = "ashwanibaghel826@gmail.com";
     const isBypassUser = email.toLowerCase().trim() === BYPASS_EMAIL || email.toLowerCase().includes("bypass");
@@ -93,19 +93,19 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     try {
       const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
         p_email: email,
-        p_password: password,
+        p_password: accountPassword,
         p_full_name: fullName
       });
 
       if (dbRegError || !createdUserId) {
-        console.error("Auth academy registration database error:", dbRegError);
-        return { success: false, error: `Account registration failed: ${dbRegError?.message || "Failed to create account"}` };
+        const { data: existingReg } = await supabase.from("registrations").select("user_id").eq("email", email).maybeSingle();
+        userId = existingReg?.user_id || "";
+      } else {
+        userId = createdUserId as string;
       }
-
-      userId = createdUserId as string;
     } catch (err: any) {
       console.error("Auth academy registration exception:", err);
-      return { success: false, error: `Account registration failed: ${err.message || err}` };
+      userId = "";
     }
   }
 
