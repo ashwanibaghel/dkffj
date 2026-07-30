@@ -46,7 +46,40 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   }
 
   if (!cert) {
-    // Attempt to search in memberships table by membership_no, ack_no, mobile, or aadhaar_no
+    // 1. Search in appreciation_applications table (by application_no, mobile, or email)
+    const { data: appreciationApp } = await supabase
+      .from("appreciation_applications")
+      .select("application_no, full_name, father_name, social_work_field, photo_url, status, created_at")
+      .or(`application_no.eq.${searchStr},mobile.eq.${searchStr},email.eq.${searchStr}`)
+      .limit(1)
+      .maybeSingle();
+
+    if (appreciationApp) {
+      const isApproved = appreciationApp.status === "APPROVED";
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.org";
+      const certNo = appreciationApp.application_no;
+      const verificationUrl = `${appUrl}/verify/${encodeURIComponent(certNo)}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(verificationUrl)}`;
+      const issueDate = new Date(appreciationApp.created_at).toLocaleDateString("en-IN");
+
+      return {
+        found: true,
+        certType: "membership",
+        certificateNo: certNo,
+        userName: appreciationApp.full_name,
+        fatherName: appreciationApp.father_name || "N/A",
+        courseName: `Certificate of Appreciation — ${appreciationApp.social_work_field}`,
+        designation: "Honorable Social Advocate",
+        workingArea: appreciationApp.social_work_field,
+        photoUrl: appreciationApp.photo_url,
+        issueDate,
+        status: isApproved ? "VALID" : (appreciationApp.status === "PENDING" ? "VALID (UNDER REVIEW)" : appreciationApp.status),
+        pdfUrl: "",
+        qrCodeUrl
+      };
+    }
+
+    // 2. Attempt to search in memberships table
     const { data: member, error: memberErr } = await supabase
       .from("memberships")
       .select("membership_no, ack_no, full_name, father_name, designation, working_area, photo_url, status, approved_at, created_at")

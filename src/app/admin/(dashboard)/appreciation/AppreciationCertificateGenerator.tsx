@@ -43,7 +43,11 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   signatureBase64,
   borderBase64
 }) => {
-  const qrSrc = qrBase64 || data.qrCodeUrl || "";
+  const displayRefNo = (data.applicationNo || "")
+    .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
+    .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
+    .replace(/(\d{4})\/-\1-/g, "$1/");
+
   const logoSrc = logoBase64 || "/logo.png";
   const mcaSrc = mcaBase64 || "/images/mca.png";
   const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
@@ -54,10 +58,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/appreciation-classic-victorian-border-a4.svg";
 
-  const displayRefNo = (data.applicationNo || "")
-    .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
-    .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
-    .replace(/(\d{4})\/-\1-/g, "$1/");
+  const appOrigin = typeof window !== "undefined" ? window.location.origin : "https://dkffj.org";
+  const verifyLink = data.verificationUrl || `${appOrigin}/verify/${encodeURIComponent(displayRefNo)}`;
+  const computedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(verifyLink)}`;
+  const qrSrc = qrBase64 || data.qrCodeUrl || computedQrUrl;
   const cleanAmp = (str: string = "") => {
     if (!str) return "";
     let res = str;
