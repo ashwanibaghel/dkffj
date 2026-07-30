@@ -58,9 +58,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
     .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
     .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
     .replace(/(\d{4})\/-\1-/g, "$1/");
-  const displayFatherName = data.fatherName || "";
-  const displayDesignation = data.designation || "Honorable Member";
-  const displayWorkingArea = data.socialWorkField;
+  const cleanAmp = (str: string = "") => str.replace(/&amp;/g, "&");
+  const displayFatherName = cleanAmp(data.fatherName || "");
+  const displayDesignation = cleanAmp(data.designation || "Honorable Member");
+  const displayWorkingArea = cleanAmp(data.socialWorkField || "");
 
   return (
     <div
@@ -321,8 +322,8 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           }
         `}</style>
 
-        {/* Form Fields (Dynamic Rows) */}
-        <div style={{ width: "100%", marginTop: "5px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        {/* Form Fields (Dynamic Rows - Shifted down by 33px to clear crest logo) */}
+        <div style={{ width: "100%", marginTop: "38px", display: "flex", flexDirection: "column", gap: "10px" }}>
           
           {/* Full-width centered recipient details */}
           <div style={{ width: "90%", marginLeft: "5%", display: "flex", justifyContent: "center" }}>
@@ -498,31 +499,31 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "64px", maxWidth: "180px", objectFit: "contain" }}
+            style={{ height: "74px", maxWidth: "195px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "62px", maxWidth: "135px", objectFit: "contain" }}
+            style={{ height: "72px", maxWidth: "145px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "64px", maxWidth: "145px", objectFit: "contain" }}
+            style={{ height: "74px", maxWidth: "155px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
             alt="Ministry of Social Justice and Empowerment"
-            style={{ height: "66px", maxWidth: "125px", objectFit: "contain" }}
+            style={{ height: "76px", maxWidth: "135px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "62px", maxWidth: "150px", objectFit: "contain" }}
+            style={{ height: "72px", maxWidth: "160px", objectFit: "contain" }}
           />
         </div>
 
