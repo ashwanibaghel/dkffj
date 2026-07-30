@@ -322,8 +322,8 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           }
         `}</style>
 
-        {/* Form Fields (Dynamic Rows - Shifted down by 47px to utilize bottom empty space) */}
-        <div style={{ width: "100%", marginTop: "65px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        {/* Form Fields (Dynamic Rows - Centered vertically between DKFFJ logo above and ISO seal below) */}
+        <div style={{ width: "100%", marginTop: "40px", display: "flex", flexDirection: "column", gap: "10px" }}>
           
           {/* Full-width centered recipient details */}
           <div style={{ width: "90%", marginLeft: "5%", display: "flex", justifyContent: "center" }}>
