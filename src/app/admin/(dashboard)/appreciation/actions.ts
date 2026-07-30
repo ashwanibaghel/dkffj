@@ -65,7 +65,13 @@ export async function getSignedDocumentUrl(bucket: string, storagePath: string) 
 }
 
 // 3. Approve or Reject Appreciation Application
-export async function updateAppreciationStatus(id: string, newStatus: string, remarks: string) {
+export async function updateAppreciationStatus(
+  id: string, 
+  newStatus: string, 
+  remarks: string,
+  pdfBase64?: string,
+  jpgBase64?: string
+) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -116,7 +122,25 @@ export async function updateAppreciationStatus(id: string, newStatus: string, re
     updated_by: user.id
   });
 
-  // 3. Send notification email to candidate
+  // 3. Construct attachments if approved
+  const attachments: Array<{ filename: string; content: Buffer }> = [];
+  if (finalStatus === "APPROVED") {
+    const sanitizedAppNo = (app.application_no || "DKFFJ_Appreciation").replace(/\//g, "_");
+    if (pdfBase64) {
+      attachments.push({
+        filename: `Certificate_of_Appreciation_${sanitizedAppNo}.pdf`,
+        content: Buffer.from(pdfBase64, "base64")
+      });
+    }
+    if (jpgBase64) {
+      attachments.push({
+        filename: `Certificate_of_Appreciation_${sanitizedAppNo}.jpg`,
+        content: Buffer.from(jpgBase64, "base64")
+      });
+    }
+  }
+
+  // 4. Send notification email to candidate
   const actionText = finalStatus === "APPROVED" ? "APPROVED" : finalStatus === "REJECTED" ? "REJECTED" : "UNDER BOARD REVIEW";
   const emailSubject = `Appreciation Application ${actionText} - DKFFJ`;
   let emailHtml = `
@@ -136,7 +160,8 @@ export async function updateAppreciationStatus(id: string, newStatus: string, re
   if (finalStatus === "APPROVED") {
     emailHtml += `
       <p>Congratulations! The executive board has approved and issued your Certificate of Appreciation in recognition of your outstanding social contributions.</p>
-      <p>You can verify and download a digital copy of your Certificate of Appreciation from the portal:</p>
+      <p style="margin: 4px 0; font-size: 13px; color: #1E60B4;"><strong>Attachments:</strong> Official Certificate attached in both PDF (.pdf) and Image (.jpg) formats.</p>
+      <p>You can also verify and download a digital copy of your Certificate of Appreciation from the portal:</p>
       <div style="margin-top: 20px;">
         <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/track?type=appreciation&id=${app.application_no}" style="background-color: #15803d; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">View & Download Certificate</a>
       </div>
@@ -160,7 +185,9 @@ export async function updateAppreciationStatus(id: string, newStatus: string, re
     </div>
   `;
 
-  await sendTransactionalEmail(app.email, emailSubject, emailHtml);
+  await sendTransactionalEmail(app.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
+
+  return { success: true };
 
   return { success: true };
 }
