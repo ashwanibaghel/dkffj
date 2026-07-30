@@ -322,8 +322,8 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           }
         `}</style>
 
-        {/* Form Fields (Dynamic Rows - Centered vertically with 35px equal gaps above and below) */}
-        <div style={{ width: "100%", marginTop: "40px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        {/* Form Fields (Dynamic Rows - Centered vertically with exact equal gaps above and below) */}
+        <div style={{ width: "100%", marginTop: "25px", display: "flex", flexDirection: "column", gap: "10px" }}>
           
           {/* Full-width centered recipient details */}
           <div style={{ width: "90%", marginLeft: "5%", display: "flex", justifyContent: "center" }}>
@@ -412,7 +412,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "35px"
+          marginTop: "45px"
         }}>
           {/* Signatory (Left) */}
           <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
