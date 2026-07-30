@@ -302,8 +302,8 @@ function PaymentSuccessContent() {
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-sans mt-0.5">
                         Incorporated under Section 8 of the Companies Act, 2013, Govt. of India
                       </p>
-                      <p className="text-[9px] text-[#C5A880] font-mono font-bold mt-0.5">
-                        CIN: U74999DL2018NPL334888 • Reg No: N-334888
+                      <p className="text-[10px] text-[#001C55] font-mono font-extrabold mt-0.5">
+                        CIN No. U88900UP2023NPL185611
                       </p>
                     </div>
                   </div>
