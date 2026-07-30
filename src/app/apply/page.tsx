@@ -549,8 +549,8 @@ export default function ApplyPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
-                    disabled={isLoggedIn}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] disabled:bg-slate-50"
+                    autoComplete="off"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                     placeholder="e.g. Ramesh Kumar Gupta"
                   />
                 </div>
@@ -661,8 +661,8 @@ export default function ApplyPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    disabled={isLoggedIn}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] disabled:bg-slate-50"
+                    autoComplete="off"
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                     placeholder="e.g. ramesh.gupta@gmail.com"
                   />
                 </div>

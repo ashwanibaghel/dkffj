@@ -852,6 +852,7 @@ export default function AdminAppreciationPage() {
                   <input
                     type="text"
                     required
+                    autoComplete="off"
                     value={issueForm.fullName}
                     onChange={(e) => setIssueForm({ ...issueForm, fullName: e.target.value })}
                     placeholder="Full Name / Designation"
@@ -866,6 +867,7 @@ export default function AdminAppreciationPage() {
                   <input
                     type="text"
                     required
+                    autoComplete="off"
                     value={issueForm.fatherName}
                     onChange={(e) => setIssueForm({ ...issueForm, fatherName: e.target.value })}
                     placeholder="Father's / Spouse Name"
@@ -882,6 +884,7 @@ export default function AdminAppreciationPage() {
                     required
                     inputMode="numeric"
                     maxLength={10}
+                    autoComplete="off"
                     value={issueForm.mobile}
                     onChange={(e) => {
                       const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
@@ -899,6 +902,7 @@ export default function AdminAppreciationPage() {
                   <input
                     type="email"
                     required
+                    autoComplete="off"
                     value={issueForm.email}
                     onChange={(e) => setIssueForm({ ...issueForm, email: e.target.value.trim() })}
                     placeholder="official.email@gov.in"
