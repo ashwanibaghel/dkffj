@@ -338,7 +338,16 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
         `}</style>
 
         {/* Form Fields (Dynamic Rows) */}
-        <div style={{ width: "100%", marginTop: "20px", display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div style={{
+          width: "100%",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "6px",
+          padding: "6px 0"
+        }}>
           
           {/* Full-width centered recipient details */}
           <div style={{ width: "90%", marginLeft: "5%", display: "flex", justifyContent: "center" }}>
@@ -428,7 +437,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             fontStyle: "italic",
             color: "#222222",
             lineHeight: "1.55",
-            marginTop: "2px",
+            marginTop: "4px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -452,161 +461,169 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Signatures, Seal and QR Code Area */}
+        {/* Bottom Section Wrapper (Pushed down close to bottom border without overlapping) */}
         <div style={{
-          width: "90%",
+          width: "100%",
+          marginTop: "auto",
+          marginBottom: "10px",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "22px"
+          flexDirection: "column",
+          alignItems: "center"
         }}>
-          {/* Signatory (Left) */}
-          <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
-            {signatureSrc && (
+          {/* Signatures, Seal and QR Code Area */}
+          <div style={{
+            width: "90%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}>
+            {/* Signatory (Left) */}
+            <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
+              {signatureSrc && (
+                <img
+                  src={signatureSrc}
+                  alt="Director Signature"
+                  style={{
+                    position: "absolute",
+                    bottom: "35px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    height: "75px",
+                    maxWidth: "170px",
+                    objectFit: "contain",
+                    mixBlendMode: "multiply",
+                    pointerEvents: "none"
+                  }}
+                />
+              )}
+              <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
+              <p style={{
+                fontFamily: "Arial, sans-serif",
+                fontSize: "10px",
+                fontWeight: "bold",
+                color: "#333333",
+                margin: 0
+              }}>
+                (Seal & Signature)
+              </p>
+              <p style={{
+                fontFamily: "Arial, sans-serif",
+                fontSize: "11px",
+                fontWeight: "bold",
+                color: "#333333",
+                margin: "2px 0 0 0"
+              }}>
+                CEO
+              </p>
+            </div>
+
+            {/* High-Resolution Gold/Black Ribbon ISO 9001 Seal (Center) */}
+            <div style={{ width: "112px", height: "112px", marginTop: "-20px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
               <img
-                src={signatureSrc}
-                alt="Director Signature"
-                style={{
-                  position: "absolute",
-                  bottom: "35px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  height: "75px",
-                  maxWidth: "170px",
-                  objectFit: "contain",
-                  mixBlendMode: "multiply",
-                  pointerEvents: "none"
-                }}
+                src={isoSealSrc}
+                alt="ISO 9001 Seal"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
-            )}
-            <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
-            <p style={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: "10px",
-              fontWeight: "bold",
-              color: "#333333",
-              margin: 0
-            }}>
-              (Seal & Signature)
-            </p>
-            <p style={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: "11px",
-              fontWeight: "bold",
-              color: "#333333",
-              margin: "2px 0 0 0"
-            }}>
-              CEO
-            </p>
+            </div>
+
+            {/* Verification QR Code (Right Column, matching 230px width for perfect centering) */}
+            <div style={{ width: "230px", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+              <div style={{
+                width: "85px",
+                height: "85px",
+                border: "1px solid #cccccc",
+                padding: "2px",
+                backgroundColor: "#ffffff"
+              }}>
+                {qrSrc && (
+                  <img
+                    src={qrSrc}
+                    alt="Verification QR"
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* High-Resolution Gold/Black Ribbon ISO 9001 Seal (Center) */}
-          <div style={{ width: "112px", height: "112px", marginTop: "-20px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          {/* Footer Logo Band */}
+          <div style={{
+            marginTop: "12px",
+            width: "90%",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            backgroundColor: "transparent",
+            padding: "0 10px",
+            borderRadius: 0,
+            border: "none"
+          }}>
+            {/* MCA Logo */}
             <img
-              src={isoSealSrc}
-              alt="ISO 9001 Seal"
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              src={mcaSrc}
+              alt="Ministry of Corporate Affairs"
+              style={{ height: "64px", maxWidth: "180px", objectFit: "contain" }}
+            />
+            {/* NITI Aayog */}
+            <img
+              src={nitiSrc}
+              alt="NITI Aayog"
+              style={{ height: "62px", maxWidth: "135px", objectFit: "contain" }}
+            />
+            {/* NSDC */}
+            <img
+              src={nsdcSrc}
+              alt="NSDC"
+              style={{ height: "64px", maxWidth: "145px", objectFit: "contain" }}
+            />
+            {/* State Emblem of India */}
+            <img
+              src={emblemSrc}
+              alt="Ministry of Social Justice and Empowerment"
+              style={{ height: "66px", maxWidth: "125px", objectFit: "contain" }}
+            />
+            {/* MSME Logo */}
+            <img
+              src={msmeSrc}
+              alt="Ministry of MSME"
+              style={{ height: "62px", maxWidth: "150px", objectFit: "contain" }}
             />
           </div>
 
-          {/* Verification QR Code (Right Column, matching 230px width for perfect centering) */}
-          <div style={{ width: "230px", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
-            <div style={{
-              width: "85px",
-              height: "85px",
-              border: "1px solid #cccccc",
-              padding: "2px",
-              backgroundColor: "#ffffff"
+          {/* Verify Footer Link (Safely positioned above bottom border) */}
+          <div style={{
+            marginTop: "10px",
+            textAlign: "center",
+            width: "100%",
+            maxWidth: "700px",
+            padding: "0 10px",
+            boxSizing: "border-box"
+          }}>
+            <p style={{
+              fontFamily: "Arial, sans-serif",
+              fontSize: "10px",
+              fontWeight: "800",
+              color: "#001C55",
+              margin: 0,
+              whiteSpace: "nowrap",
+              lineHeight: "1.3",
+              letterSpacing: "0.1px",
+              wordSpacing: "0.5px"
             }}>
-              {qrSrc && (
-                <img
-                  src={qrSrc}
-                  alt="Verification QR"
-                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                />
-              )}
-            </div>
+              Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
+            </p>
+            <p style={{
+              fontFamily: "Arial, sans-serif",
+              fontSize: "10px",
+              fontWeight: "800",
+              color: "#333333",
+              margin: "3px 0 0 0",
+              whiteSpace: "nowrap",
+              letterSpacing: "0.2px"
+            }}>
+              Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
+            </p>
           </div>
-        </div>
-
-        {/* Footer Logo Band */}
-        <div style={{
-          marginTop: "14px",
-          width: "90%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "transparent",
-          padding: "0 10px",
-          borderRadius: 0,
-          border: "none"
-        }}>
-          {/* MCA Logo */}
-          <img
-            src={mcaSrc}
-            alt="Ministry of Corporate Affairs"
-            style={{ height: "66px", maxWidth: "185px", objectFit: "contain" }}
-          />
-          {/* NITI Aayog */}
-          <img
-            src={nitiSrc}
-            alt="NITI Aayog"
-            style={{ height: "64px", maxWidth: "140px", objectFit: "contain" }}
-          />
-          {/* NSDC */}
-          <img
-            src={nsdcSrc}
-            alt="NSDC"
-            style={{ height: "66px", maxWidth: "150px", objectFit: "contain" }}
-          />
-          {/* State Emblem of India */}
-          <img
-            src={emblemSrc}
-            alt="Ministry of Social Justice and Empowerment"
-            style={{ height: "68px", maxWidth: "130px", objectFit: "contain" }}
-          />
-          {/* MSME Logo */}
-          <img
-            src={msmeSrc}
-            alt="Ministry of MSME"
-            style={{ height: "64px", maxWidth: "155px", objectFit: "contain" }}
-          />
-        </div>
-
-        {/* Verify Footer Link (Safely positioned above bottom border) */}
-        <div style={{
-          marginTop: "12px",
-          textAlign: "center",
-          width: "100%",
-          maxWidth: "700px",
-          margin: "12px auto 0",
-          padding: "0 10px",
-          boxSizing: "border-box"
-        }}>
-          <p style={{
-            fontFamily: "Arial, sans-serif",
-            fontSize: "10.2px",
-            fontWeight: "800",
-            color: "#001C55",
-            margin: 0,
-            whiteSpace: "nowrap",
-            lineHeight: "1.3",
-            letterSpacing: "0.1px",
-            wordSpacing: "0.5px"
-          }}>
-            Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
-          </p>
-          <p style={{
-            fontFamily: "Arial, sans-serif",
-            fontSize: "10.2px",
-            fontWeight: "800",
-            color: "#333333",
-            margin: "4px 0 0 0",
-            whiteSpace: "nowrap",
-            letterSpacing: "0.2px"
-          }}>
-            Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
-          </p>
         </div>
 
       </div>
