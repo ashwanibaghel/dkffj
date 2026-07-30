@@ -1,16 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { verifyCertificate, CertificateDetails } from "./actions";
 import { ArrowLeft, Search, Loader2, CheckCircle, XCircle, AlertCircle, FileText, Download, Award } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
-export default function VerifySearchPage() {
-  const [certNo, setCertNo] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [searched, setSearched] = useState<boolean>(false);
+function VerifySearchContent() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("id") || searchParams.get("cert") || searchParams.get("applicationNo") || "";
+
+  const [certNo, setCertNo] = useState<string>(initialQuery);
+  const [loading, setLoading] = useState<boolean>(!!initialQuery);
+  const [searched, setSearched] = useState<boolean>(!!initialQuery);
   const [result, setResult] = useState<CertificateDetails | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  React.useEffect(() => {
+    if (initialQuery) {
+      setLoading(true);
+      setSearched(true);
+      verifyCertificate(initialQuery)
+        .then((res) => setResult(res))
+        .catch(() => setErrorMsg("Failed to verify certificate."))
+        .finally(() => setLoading(false));
+    }
+  }, [initialQuery]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,5 +189,17 @@ export default function VerifySearchPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function VerifySearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin text-[#001C55]" />
+      </div>
+    }>
+      <VerifySearchContent />
+    </Suspense>
   );
 }
