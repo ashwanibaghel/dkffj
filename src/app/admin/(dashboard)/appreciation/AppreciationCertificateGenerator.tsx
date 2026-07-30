@@ -205,50 +205,51 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           width: "90%",
           display: "flex",
           justifyContent: "space-between",
+          alignItems: "center",
           marginTop: "8px",
           fontFamily: "'Playfair Display', serif"
         }}>
           <div style={{
             border: "none",
             borderRadius: 0,
-            padding: "4px 8px",
+            padding: "4px 0",
             backgroundColor: "transparent",
-            width: "210px",
+            minWidth: "280px",
             minHeight: "28px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            columnGap: "4px",
-            textAlign: "center",
+            justifyContent: "flex-start",
+            columnGap: "6px",
             boxSizing: "border-box",
             position: "relative",
-            fontSize: "14px",
+            fontSize: "14.5px",
             fontWeight: "bold",
-            color: "#333333"
+            color: "#333333",
+            whiteSpace: "nowrap"
           }}>
-            <span>Ref No:</span>
-            <span style={{ color: "#a21e1e", fontFamily: "monospace" }}>{displayRefNo}</span>
+            <span style={{ whiteSpace: "nowrap" }}>Ref No:</span>
+            <span style={{ color: "#a21e1e", fontFamily: "monospace", whiteSpace: "nowrap", fontSize: "14.5px" }}>{displayRefNo}</span>
           </div>
           <div style={{
             border: "none",
             borderRadius: 0,
-            padding: "4px 8px",
+            padding: "4px 0",
             backgroundColor: "transparent",
-            width: "210px",
+            minWidth: "200px",
             minHeight: "28px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            columnGap: "4px",
-            textAlign: "center",
+            justifyContent: "flex-end",
+            columnGap: "6px",
             boxSizing: "border-box",
             position: "relative",
-            fontSize: "14px",
+            fontSize: "14.5px",
             fontWeight: "bold",
-            color: "#333333"
+            color: "#333333",
+            whiteSpace: "nowrap"
           }}>
-            <span>Date:</span>
-            <span style={{ color: "#333333" }}>{data.issueDateStr}</span>
+            <span style={{ whiteSpace: "nowrap" }}>Date:</span>
+            <span style={{ color: "#333333", whiteSpace: "nowrap" }}>{data.issueDateStr}</span>
           </div>
         </div>
 
