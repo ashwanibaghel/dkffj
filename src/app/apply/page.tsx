@@ -10,7 +10,7 @@ import { compressFormFiles } from "@/lib/compressImage";
 import { uploadMembershipDocs } from "@/lib/uploadToStorage";
 
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
-import { getDynamicMembershipTiers, MembershipLevelKey, autoDetectMembershipLevel } from "@/lib/data/membershipTiers";
+import { getDynamicMembershipTiers, MEMBERSHIP_TIERS, MembershipLevelKey, autoDetectMembershipLevel } from "@/lib/data/membershipTiers";
 import { getPricingSettings } from "@/lib/portalSettings";
 
 const DESIGNATIONS = [
@@ -1024,7 +1024,7 @@ export default function ApplyPage() {
                   <div className="p-3 bg-blue-50/50 border border-blue-200/60 rounded-xl text-xs text-blue-950 leading-relaxed flex items-start gap-2">
                     <Shield className="w-4 h-4 text-[#001C55] shrink-0 mt-0.5" />
                     <div>
-                      Selected Membership Level: <strong className="text-[#001C55]">{MEMBERSHIP_TIERS[membershipLevel].label} (Fee: ₹{MEMBERSHIP_TIERS[membershipLevel].fee.toLocaleString("en-IN")}/-)</strong>.
+                      Selected Membership Level: <strong className="text-[#001C55]">{(membershipTiers[membershipLevel] || MEMBERSHIP_TIERS[membershipLevel])?.label || "Membership"} (Fee: ₹{((membershipTiers[membershipLevel] || MEMBERSHIP_TIERS[membershipLevel])?.fee || 500).toLocaleString("en-IN")}/-)</strong>.
                     </div>
                   </div>
                 </div>
@@ -1251,7 +1251,7 @@ export default function ApplyPage() {
                   className="px-6 py-3 bg-[#C00000] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#990000] transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(192, 0, 0,0.2)] disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Submit & Pay INR {MEMBERSHIP_TIERS[membershipLevel].fee.toLocaleString("en-IN")}
+                  Submit & Pay INR {((membershipTiers[membershipLevel] || MEMBERSHIP_TIERS[membershipLevel])?.fee || 500).toLocaleString("en-IN")}
                 </button>
               )}
             </div>
