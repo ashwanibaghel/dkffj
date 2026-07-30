@@ -58,7 +58,18 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
     .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
     .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
     .replace(/(\d{4})\/-\1-/g, "$1/");
-  const cleanAmp = (str: string = "") => str.replace(/&amp;/g, "&");
+  const cleanAmp = (str: string = "") => {
+    if (!str) return "";
+    let res = str;
+    while (res.includes("&amp;")) {
+      res = res.replace(/&amp;/g, "&");
+    }
+    return res
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"');
+  };
   const displayFatherName = cleanAmp(data.fatherName || "");
   const displayDesignation = cleanAmp(data.designation || "Honorable Member");
   const displayWorkingArea = cleanAmp(data.socialWorkField || "");

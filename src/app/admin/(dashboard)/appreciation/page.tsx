@@ -207,39 +207,9 @@ export default function AdminAppreciationPage() {
     setActionLoading(true);
     setActionError("");
     try {
-      let pdfBase64 = "";
-      let jpgBase64 = "";
-
-      if (newStatus === "APPROVED") {
-        const targetApp = applications.find((a) => a.id === applicationId);
-        if (targetApp) {
-          try {
-            const appUrl = typeof window !== "undefined" ? window.location.origin : "https://dkffj.vercel.app";
-            const refNo = cleanAppNo(targetApp.application_no);
-            const verificationUrl = `${appUrl}/track?type=appreciation&id=${refNo}`;
-            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
-            const issueDateStr = new Date().toLocaleDateString("en-IN");
-
-            const certFiles = await generateAppreciationCertFiles({
-              applicationNo: refNo,
-              fullName: targetApp.full_name,
-              socialWorkField: targetApp.social_work_field,
-              issueDateStr,
-              qrCodeUrl,
-              verificationUrl,
-              photoUrl: targetApp.photo_url || null
-            });
-            pdfBase64 = certFiles.pdfBase64;
-            jpgBase64 = certFiles.jpgBase64;
-          } catch (genErr) {
-            console.error("Failed to generate approval certificate attachments:", genErr);
-          }
-        }
-      }
-
-      const res = await updateAppreciationStatus(applicationId, newStatus, remarks, pdfBase64, jpgBase64);
+      const res = await updateAppreciationStatus(applicationId, newStatus, remarks);
       if (res.success) {
-        showToast(`✅ Application ${newStatus}! Email sent to candidate with PDF & JPG certificate attachments.`, "success");
+        showToast(`✅ Application ${newStatus}! Candidate notified via email.`, "success");
         setRemarks("");
         await fetchData();
       } else {
@@ -608,7 +578,7 @@ export default function AdminAppreciationPage() {
 
                     <div className="min-w-0 text-xs">
                       <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Field</span>
-                      <span className="text-slate-800 dark:text-slate-200 font-bold block truncate">{app.social_work_field}</span>
+                      <span className="text-slate-800 dark:text-slate-200 font-bold block truncate">{cleanText(app.social_work_field)}</span>
                       <span className="text-slate-500 dark:text-slate-400 block mt-0.5 truncate">{app.district}, {app.state}</span>
                     </div>
 
@@ -648,7 +618,7 @@ export default function AdminAppreciationPage() {
                           <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-xs">
                             <div>
                               <span className="text-[9px] text-slate-500 dark:text-slate-400 block uppercase font-semibold">Social Work Field</span>
-                              <strong className="text-slate-800 dark:text-slate-100">{app.social_work_field}</strong>
+                              <strong className="text-slate-800 dark:text-slate-100">{cleanText(app.social_work_field)}</strong>
                             </div>
                             <div>
                               <span className="text-[9px] text-slate-500 dark:text-slate-400 block uppercase font-semibold">Country</span>
