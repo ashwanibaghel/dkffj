@@ -164,3 +164,155 @@ export async function updateAppreciationStatus(id: string, newStatus: string, re
 
   return { success: true };
 }
+
+// 4. Create Direct VIP / Free Appreciation Certificate (Direct Approval & Email Delivery)
+export async function createDirectAppreciationApplication(payload: {
+  fullName: string;
+  fatherName: string;
+  mobile: string;
+  email: string;
+  gender: string;
+  dob?: string;
+  country?: string;
+  state: string;
+  district: string;
+  pincode: string;
+  socialWorkField: string;
+  description?: string;
+  photoUrl?: string;
+  idProofUrl?: string;
+  achievementProofUrl?: string;
+  remarks?: string;
+}) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Validate admin auth
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  try {
+    // 1. Generate clean application number
+    const currentYear = new Date().getFullYear();
+    const { data: rawAppNo, error: rpcError } = await supabase.rpc("generate_next_number", {
+      p_key: "appreciation_app",
+      p_prefix: "DKFFJ/A/"
+    });
+
+    if (rpcError || !rawAppNo) {
+      console.error("RPC sequence generation error:", rpcError);
+      return { success: false, error: "Failed to generate application number." };
+    }
+
+    let appNo = rawAppNo
+      .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
+      .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
+      .replace(/(\d{4})\/-\1-/g, "$1/");
+
+    if (!appNo.includes(`/${currentYear}/`)) {
+      const parts = appNo.split("-");
+      const seq = parts[parts.length - 1].padStart(5, "0");
+      appNo = `DKFFJ/A/${currentYear}/${seq}`;
+    }
+
+    // 2. Direct insert with APPROVED status
+    const { data: newApp, error: insertError } = await supabase
+      .from("appreciation_applications")
+      .insert({
+        application_no: appNo,
+        user_id: user.id,
+        full_name: payload.fullName,
+        father_name: payload.fatherName,
+        mobile: payload.mobile,
+        email: payload.email,
+        gender: payload.gender || "Male",
+        dob: payload.dob || null,
+        country: payload.country || "India",
+        state: payload.state,
+        district: payload.district,
+        pincode: payload.pincode,
+        social_work_field: payload.socialWorkField,
+        description: payload.description || "Direct VIP Appreciation Certificate issued by Executive Board.",
+        photo_url: payload.photoUrl || null,
+        id_proof_url: payload.idProofUrl || null,
+        achievement_proof_url: payload.achievementProofUrl || null,
+        status: "APPROVED",
+        approved_by: user.id,
+        approved_at: new Date().toISOString(),
+        remarks: payload.remarks || "Direct VIP / Honoris Causa Appreciation Certificate issued by Board."
+      })
+      .select("*")
+      .single();
+
+    if (insertError || !newApp) {
+      console.error("Insert appreciation application error:", insertError);
+      return { success: false, error: `Failed to issue certificate: ${insertError?.message || "DB Insert Error"}` };
+    }
+
+    // 3. Insert payment log with status COMPLETED & amount 0 (Free/VIP)
+    const tempTxnId = "FREE-VIP-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+    await supabase.from("payments").insert({
+      amount: 0,
+      transaction_id: tempTxnId,
+      gateway: "ADMIN_VIP_FREE",
+      status: "COMPLETED",
+      appreciation_id: newApp.id
+    });
+
+    // 4. Log status transition
+    await supabase.from("status_logs").insert({
+      appreciation_id: newApp.id,
+      from_status: "DRAFT",
+      to_status: "APPROVED",
+      remarks: "Direct VIP / Free Appreciation Certificate issued directly by Admin.",
+      updated_by: user.id
+    });
+
+    // 5. Send Email with Certificate & Download Link
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
+    const trackUrl = `${appUrl}/track?type=appreciation&id=${encodeURIComponent(appNo)}`;
+
+    const emailSubject = `Certificate of Appreciation Issued - DKFFJ`;
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+        <div style="background-color: #001C55; padding: 24px; text-align: center;">
+          <img src="${appUrl}/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+          <h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: sans-serif; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+          <div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+          <div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+        </div>
+        <div style="padding: 24px; color: #334155;">
+          <h2 style="color: #001C55; margin-top: 0;">Certificate of Appreciation Issued</h2>
+          <p>Dear <strong>${payload.fullName}</strong>,</p>
+          <p>We are honored to inform you that the executive board of <strong>DK Foundation of Freedom and Justice</strong> has officially awarded and issued your <strong>Certificate of Appreciation</strong> in recognition of your distinguished service and contributions (<em>${payload.socialWorkField}</em>).</p>
+          
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin: 20px 0;">
+            <p style="margin: 4px 0; font-size: 13px;"><strong>Certificate Reference No:</strong> <span style="color: #C00000; font-family: monospace; font-weight: bold;">${appNo}</span></p>
+            <p style="margin: 4px 0; font-size: 13px;"><strong>Social Work Category:</strong> ${payload.socialWorkField}</p>
+            <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> <span style="color: #15803d; font-weight: bold;">OFFICIALLY APPROVED & ISSUED</span></p>
+          </div>
+
+          <p>You can instantly view, verify, and download your official digital Certificate of Appreciation from the portal:</p>
+          <div style="margin-top: 24px; text-align: center;">
+            <a href="${trackUrl}" style="background-color: #15803d; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">View & Download Certificate</a>
+          </div>
+        </div>
+        <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+          &copy; ${new Date().getFullYear()} DK Foundation of Freedom and Justice. All Rights Reserved.
+        </div>
+      </div>
+    `;
+
+    await sendTransactionalEmail(payload.email, emailSubject, emailHtml);
+
+    return { success: true, applicationNo: appNo, data: newApp };
+  } catch (err: any) {
+    console.error("createDirectAppreciationApplication exception:", err);
+    return { success: false, error: err.message || "Failed to create direct appreciation certificate." };
+  }
+}

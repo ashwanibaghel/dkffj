@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getAppreciationApplications, getSignedDocumentUrl, updateAppreciationStatus } from "./actions";
+import { 
+  getAppreciationApplications, 
+  getSignedDocumentUrl, 
+  updateAppreciationStatus,
+  createDirectAppreciationApplication 
+} from "./actions";
 import { 
   FileCheck, 
   XCircle, 
@@ -18,10 +23,16 @@ import {
   Clock, 
   Filter,
   Download,
-  X
+  X,
+  Plus,
+  Sparkles,
+  Upload,
+  UserPlus
 } from "lucide-react";
 import AdminEmptyState from "../components/AdminEmptyState";
 import { AppreciationCertificateRenderer, generateAppreciationPDFClient } from "./AppreciationCertificateGenerator";
+import { uploadFileToStorage } from "@/lib/uploadToStorage";
+import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 
 type AppreciationApplication = {
   id: string;
@@ -43,6 +54,20 @@ type AppreciationApplication = {
   remarks?: string | null;
 };
 
+const SOCIAL_WORK_FIELDS = [
+  "Human Rights Protection & Advocacy",
+  "Women Empowerment & Gender Equality",
+  "Child Rights & Child Welfare",
+  "Education Support & Free Literacy",
+  "Environmental Protection & Conservation",
+  "Anti-Corruption & RTI Activism",
+  "Medical & Disaster Relief Services",
+  "Youth Empowerment & Skill Development",
+  "Consumer Rights & Public Advocacy",
+  "VIP / Government & Distinguished Social Service",
+  "Other Social Activism / Support Services"
+];
+
 function cleanAppNo(no?: string) {
   if (!no) return "";
   return no
@@ -61,6 +86,33 @@ export default function AdminAppreciationPage() {
   // Certificate Modal State
   const [selectedCertApp, setSelectedCertApp] = useState<AppreciationApplication | null>(null);
   const [downloadingCert, setDownloadingCert] = useState<boolean>(false);
+
+  // Direct VIP Issue Modal State
+  const [isIssueModalOpen, setIsIssueModalOpen] = useState<boolean>(false);
+  const [issueSubmitting, setIssueSubmitting] = useState<boolean>(false);
+  const [issueError, setIssueError] = useState<string>("");
+
+  // Direct Issue Form State
+  const [issueForm, setIssueForm] = useState({
+    fullName: "",
+    fatherName: "",
+    mobile: "",
+    email: "",
+    gender: "Male",
+    dob: "",
+    country: "India",
+    state: "Uttar Pradesh",
+    district: "Kanpur Nagar",
+    pincode: "208019",
+    address: "",
+    socialWorkField: SOCIAL_WORK_FIELDS[9], // Default: VIP / Govt Service
+    description: "Honoris Causa / Distinguished Appreciation Certificate awarded by Board.",
+    remarks: "Direct VIP / Free Appreciation Certificate issued by Board."
+  });
+
+  const [issuePhotoFile, setIssuePhotoFile] = useState<File | null>(null);
+  const [issueIdProofFile, setIssueIdProofFile] = useState<File | null>(null);
+  const [issueAchievementFile, setIssueAchievementFile] = useState<File | null>(null);
 
   // Administrative action states
   const [remarks, setRemarks] = useState<string>("");
@@ -107,7 +159,7 @@ export default function AdminAppreciationPage() {
     return () => window.cancelAnimationFrame(animationFrame);
   }, []);
 
-  const statusFilters = ["ALL", "PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"];
+  const statusFilters = ["ALL", "APPROVED", "PENDING", "UNDER_REVIEW", "REJECTED"];
 
   const statusCounts = useMemo(() => {
     return applications.reduce(
@@ -206,6 +258,109 @@ export default function AdminAppreciationPage() {
     }
   };
 
+  // Direct VIP Issue Submission
+  const handleIssueSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!issueForm.fullName || !issueForm.fatherName || !issueForm.mobile || !issueForm.email) {
+      setIssueError("Full Name, Father's Name, Mobile Number, and Email Address are required.");
+      return;
+    }
+
+    setIssueSubmitting(true);
+    setIssueError("");
+
+    try {
+      const tempId = `vip_${Date.now()}`;
+
+      let photoUrl = "";
+      if (issuePhotoFile) {
+        const photoRes = await uploadFileToStorage(
+          issuePhotoFile,
+          "photos",
+          `${tempId}/photo_${Date.now()}.${issuePhotoFile.name.split(".").pop() || "jpg"}`
+        );
+        if (photoRes.url) photoUrl = photoRes.url;
+      }
+
+      let idProofUrl = "";
+      if (issueIdProofFile) {
+        const idRes = await uploadFileToStorage(
+          issueIdProofFile,
+          "aadhaar",
+          `${tempId}/idproof_${Date.now()}.${issueIdProofFile.name.split(".").pop() || "jpg"}`
+        );
+        if (idRes.url) idProofUrl = idRes.url;
+      }
+
+      let achievementProofUrl = "";
+      if (issueAchievementFile) {
+        const achRes = await uploadFileToStorage(
+          issueAchievementFile,
+          "aadhaar",
+          `${tempId}/achievement_${Date.now()}.${issueAchievementFile.name.split(".").pop() || "jpg"}`
+        );
+        if (achRes.url) achievementProofUrl = achRes.url;
+      }
+
+      const res = await createDirectAppreciationApplication({
+        fullName: issueForm.fullName,
+        fatherName: issueForm.fatherName,
+        mobile: issueForm.mobile,
+        email: issueForm.email,
+        gender: issueForm.gender,
+        dob: issueForm.dob,
+        country: issueForm.country,
+        state: issueForm.state,
+        district: issueForm.district,
+        pincode: issueForm.pincode,
+        socialWorkField: issueForm.socialWorkField,
+        description: issueForm.description,
+        remarks: issueForm.remarks,
+        photoUrl,
+        idProofUrl,
+        achievementProofUrl
+      });
+
+      if (res.success && res.data) {
+        showToast(`✅ Appreciation Certificate issued to ${issueForm.fullName}! Email sent with download link.`, "success");
+        setIsIssueModalOpen(false);
+        setIssueForm({
+          fullName: "",
+          fatherName: "",
+          mobile: "",
+          email: "",
+          gender: "Male",
+          dob: "",
+          country: "India",
+          state: "Uttar Pradesh",
+          district: "Kanpur Nagar",
+          pincode: "208019",
+          address: "",
+          socialWorkField: SOCIAL_WORK_FIELDS[9],
+          description: "Honoris Causa / Distinguished Appreciation Certificate awarded by Board.",
+          remarks: "Direct VIP / Free Appreciation Certificate issued by Board."
+        });
+        setIssuePhotoFile(null);
+        setIssueIdProofFile(null);
+        setIssueAchievementFile(null);
+
+        await fetchData();
+        // Open live certificate preview modal for the newly issued VIP certificate
+        setSelectedCertApp(res.data as AppreciationApplication);
+      } else {
+        setIssueError(res.error || "Failed to issue appreciation certificate.");
+      }
+    } catch (err: any) {
+      console.error("Direct issue exception:", err);
+      setIssueError(err.message || "An unexpected error occurred.");
+    } finally {
+      setIssueSubmitting(false);
+    }
+  };
+
+  const activeStateObj = indiaStatesDistricts.find((s) => s.state === issueForm.state);
+  const districtsList = activeStateObj ? activeStateObj.districts : [];
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "APPROVED":
@@ -239,8 +394,17 @@ export default function AdminAppreciationPage() {
           <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2.5 tracking-tight">
             <Award className="w-6 h-6 text-[#001C55] dark:text-blue-400" /> Appreciation Applications & Certificates
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Review submitted social work appreciation certificate applications, generate certificates, and issue board approvals.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 font-medium">Review submitted social work appreciation certificate applications, issue VIP / Free certificates directly, and generate certificates.</p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsIssueModalOpen(true)}
+          className="px-4 py-2.5 bg-gradient-to-r from-[#001C55] to-[#C00000] hover:opacity-95 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all active:scale-95 shrink-0"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Issue VIP / Free Certificate</span>
+        </button>
       </div>
 
       {/* Search and Filters */}
@@ -569,6 +733,263 @@ export default function AdminAppreciationPage() {
           </div>
         )}
       </div>
+
+      {/* Direct VIP / Free Certificate Creation Modal */}
+      {isIssueModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-[#001C55] text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/10 text-amber-400 border border-white/20 flex items-center justify-center shadow-sm">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-white">
+                    Issue VIP / Free Appreciation Certificate
+                  </h3>
+                  <p className="text-[11px] text-blue-200 font-medium">Direct Approval Stage &bull; Automated Email & Certificate Delivery</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsIssueModalOpen(false)}
+                className="p-2 text-white/80 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: Form */}
+            <form onSubmit={handleIssueSubmit} className="p-6 overflow-y-auto space-y-4 text-xs font-semibold">
+              {issueError && (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{issueError}</span>
+                </div>
+              )}
+
+              <div className="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
+                <Sparkles className="w-4 h-4 text-amber-600 inline-block mr-1" />
+                This certificate will be issued directly in <strong>APPROVED</strong> status (bypassing pending queues). An automated email with the certificate link will be sent to the recipient.
+              </div>
+
+              {/* Personal Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Recipient Full Name (e.g. IAS Shri Rajesh Kumar) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={issueForm.fullName}
+                    onChange={(e) => setIssueForm({ ...issueForm, fullName: e.target.value })}
+                    placeholder="Full Name / Designation"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Father&apos;s Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={issueForm.fatherName}
+                    onChange={(e) => setIssueForm({ ...issueForm, fatherName: e.target.value })}
+                    placeholder="Father's / Spouse Name"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Mobile Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={issueForm.mobile}
+                    onChange={(e) => setIssueForm({ ...issueForm, mobile: e.target.value })}
+                    placeholder="10-digit mobile number"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Email Address (Certificate Delivery Target) *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={issueForm.email}
+                    onChange={(e) => setIssueForm({ ...issueForm, email: e.target.value })}
+                    placeholder="official.email@gov.in"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Gender
+                  </label>
+                  <select
+                    value={issueForm.gender}
+                    onChange={(e) => setIssueForm({ ...issueForm, gender: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    value={issueForm.dob}
+                    onChange={(e) => setIssueForm({ ...issueForm, dob: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    State / Province *
+                  </label>
+                  <select
+                    value={issueForm.state}
+                    onChange={(e) => setIssueForm({ ...issueForm, state: e.target.value, district: "" })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  >
+                    {indiaStatesDistricts.map((s) => (
+                      <option key={s.state} value={s.state}>{s.state}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    District / City *
+                  </label>
+                  <select
+                    value={issueForm.district}
+                    onChange={(e) => setIssueForm({ ...issueForm, district: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  >
+                    {districtsList.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Social Work Field / Award Category *
+                  </label>
+                  <select
+                    value={issueForm.socialWorkField}
+                    onChange={(e) => setIssueForm({ ...issueForm, socialWorkField: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none font-bold"
+                  >
+                    {SOCIAL_WORK_FIELDS.map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                    Social Service Citation / Narrative
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={issueForm.description}
+                    onChange={(e) => setIssueForm({ ...issueForm, description: e.target.value })}
+                    placeholder="Enter citation narrative to be printed on records..."
+                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Upload Files Section */}
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-3">
+                <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  Document Attachments (Optional)
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase">Passport Photo</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setIssuePhotoFile(e.target.files?.[0] || null)}
+                      className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-[#001C55] file:text-white cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase">ID Proof Document</label>
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => setIssueIdProofFile(e.target.files?.[0] || null)}
+                      className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-[#001C55] file:text-white cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase">Achievement Proof</label>
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => setIssueAchievementFile(e.target.files?.[0] || null)}
+                      className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-[#001C55] file:text-white cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsIssueModalOpen(false)}
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={issueSubmitting}
+                  className="px-6 py-2.5 bg-gradient-to-r from-[#001C55] to-[#C00000] hover:opacity-95 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50 active:scale-95 transition-all"
+                >
+                  {issueSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Issuing Certificate...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileCheck className="w-4 h-4" />
+                      <span>Issue Certificate & Send Email</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Certificate Preview Modal */}
       {selectedCertApp && (
