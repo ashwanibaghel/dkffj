@@ -173,6 +173,7 @@ export async function createDirectAppreciationApplication(payload: {
   email: string;
   gender: string;
   dob?: string;
+  address?: string;
   country?: string;
   state: string;
   district: string;
@@ -220,24 +221,28 @@ export async function createDirectAppreciationApplication(payload: {
       appNo = `DKFFJ/A/${currentYear}/${seq}`;
     }
 
-    // 2. Direct insert with APPROVED status
+    // Combine supplementary details into narrative description
+    let fullDescription = payload.description || "Direct VIP Appreciation Certificate issued by Executive Board.";
+    if (payload.fatherName || payload.dob || payload.gender) {
+      fullDescription += ` [Father's Name: ${payload.fatherName || 'N/A'}, Gender: ${payload.gender || 'N/A'}, DOB: ${payload.dob || 'N/A'}]`;
+    }
+
+    // 2. Direct insert with APPROVED status using exact table columns
     const { data: newApp, error: insertError } = await supabase
       .from("appreciation_applications")
       .insert({
         application_no: appNo,
         user_id: user.id,
         full_name: payload.fullName,
-        father_name: payload.fatherName,
         mobile: payload.mobile,
         email: payload.email,
-        gender: payload.gender || "Male",
-        dob: payload.dob || null,
+        address: payload.address || `${payload.district}, ${payload.state}`,
         country: payload.country || "India",
         state: payload.state,
         district: payload.district,
         pincode: payload.pincode,
         social_work_field: payload.socialWorkField,
-        description: payload.description || "Direct VIP Appreciation Certificate issued by Executive Board.",
+        description: fullDescription,
         photo_url: payload.photoUrl || null,
         id_proof_url: payload.idProofUrl || null,
         achievement_proof_url: payload.achievementProofUrl || null,

@@ -283,31 +283,17 @@ export default function AdminAppreciationPage() {
       return;
     }
 
-    // 4. Date of Birth Constraint: DD/MM/YYYY format with Month <= 12 & Day <= 31
-    let formattedDob = issueForm.dob.trim();
-    if (formattedDob) {
-      if (!/^\d{2}\/\d{2}\/\d{4}$/.test(formattedDob)) {
-        setIssueError("Date of Birth must be in DD/MM/YYYY format (e.g. 15/08/1985).");
-        return;
-      }
-
-      const [dStr, mStr, yStr] = formattedDob.split("/");
-      const day = parseInt(dStr, 10);
-      const month = parseInt(mStr, 10);
-      const year = parseInt(yStr, 10);
-      const currentYear = new Date().getFullYear();
-
-      if (month < 1 || month > 12) {
-        setIssueError("Invalid Month in Date of Birth! Month cannot be greater than 12 (MM <= 12).");
-        return;
-      }
-      if (day < 1 || day > 31) {
-        setIssueError("Invalid Day in Date of Birth! Day must be between 01 and 31 (DD <= 31).");
-        return;
-      }
-      if (year < 1920 || year > currentYear) {
-        setIssueError(`Invalid Year in Date of Birth! Year must be between 1920 and ${currentYear}.`);
-        return;
+    // 4. Date of Birth Formatting (if provided via calendar date picker YYYY-MM-DD)
+    let formattedDob = "";
+    if (issueForm.dob) {
+      if (issueForm.dob.includes("-")) {
+        // Formatted from HTML date picker YYYY-MM-DD -> DD/MM/YYYY
+        const parts = issueForm.dob.split("-");
+        if (parts.length === 3) {
+          formattedDob = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+      } else if (issueForm.dob.includes("/")) {
+        formattedDob = issueForm.dob;
       }
     }
 
@@ -360,6 +346,7 @@ export default function AdminAppreciationPage() {
         email: issueForm.email.trim(),
         gender: issueForm.gender,
         dob: formattedDob,
+        address: issueForm.address.trim(),
         country: issueForm.country,
         state: issueForm.state,
         district: issueForm.district,
@@ -906,20 +893,13 @@ export default function AdminAppreciationPage() {
 
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                    Date of Birth (DD/MM/YYYY)
+                    Date of Birth (Calendar Select)
                   </label>
                   <input
-                    type="text"
-                    maxLength={10}
+                    type="date"
                     value={issueForm.dob}
-                    onChange={(e) => {
-                      let val = e.target.value.replace(/[^\d/]/g, "");
-                      if (val.length === 2 && !val.includes("/")) val = val + "/";
-                      if (val.length === 5 && val.split("/").length === 2) val = val + "/";
-                      setIssueForm({ ...issueForm, dob: val });
-                    }}
-                    placeholder="DD/MM/YYYY (e.g. 15/08/1985)"
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none font-mono"
+                    onChange={(e) => setIssueForm({ ...issueForm, dob: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-[#001C55] outline-none font-medium cursor-pointer"
                   />
                 </div>
 
