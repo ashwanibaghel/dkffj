@@ -58,9 +58,11 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/appreciation-classic-victorian-border-a4.svg";
 
-  const appOrigin = typeof window !== "undefined" ? window.location.origin : "https://dkffj.org";
-  const verifyLink = data.verificationUrl || `${appOrigin}/verify/${encodeURIComponent(displayRefNo)}`;
-  const computedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(verifyLink)}`;
+  const appOrigin = typeof window !== "undefined" ? window.location.origin : "https://www.dkffj.org";
+  const cleanRef = decodeURIComponent(displayRefNo).replace(/%2F/gi, "/");
+  const rawVerifyLink = data.verificationUrl ? decodeURIComponent(data.verificationUrl) : `${appOrigin}/verify/${cleanRef}`;
+  const cleanVerifyLink = rawVerifyLink.replace(/%2F/gi, "/");
+  const computedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=2&data=${encodeURIComponent(cleanVerifyLink)}`;
   const qrSrc = qrBase64 || data.qrCodeUrl || computedQrUrl;
   const cleanAmp = (str: string = "") => {
     if (!str) return "";
@@ -461,18 +463,18 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Bottom Section Wrapper (Pushed down close to bottom border without overlapping) */}
+        {/* Bottom Section Wrapper (Pushed down close to bottom border with exact safe clearance) */}
         <div style={{
           width: "100%",
           marginTop: "auto",
-          marginBottom: "10px",
+          marginBottom: "56px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center"
         }}>
           {/* Signatures, Seal and QR Code Area */}
           <div style={{
-            width: "90%",
+            width: "92%",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between"
@@ -499,7 +501,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
               <div style={{ borderTop: "1.5px solid #555555", width: "100%", margin: "5px 0" }} />
               <p style={{
                 fontFamily: "Arial, sans-serif",
-                fontSize: "10px",
+                fontSize: "10.5px",
                 fontWeight: "bold",
                 color: "#333333",
                 margin: 0
@@ -508,7 +510,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
               </p>
               <p style={{
                 fontFamily: "Arial, sans-serif",
-                fontSize: "11px",
+                fontSize: "11.5px",
                 fontWeight: "bold",
                 color: "#333333",
                 margin: "2px 0 0 0"
@@ -518,7 +520,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             </div>
 
             {/* High-Resolution Gold/Black Ribbon ISO 9001 Seal (Center) */}
-            <div style={{ width: "112px", height: "112px", marginTop: "-20px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ width: "116px", height: "116px", marginTop: "-20px", zIndex: 10, display: "flex", justifyContent: "center", alignItems: "center" }}>
               <img
                 src={isoSealSrc}
                 alt="ISO 9001 Seal"
@@ -529,32 +531,36 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             {/* Verification QR Code (Right Column, matching 230px width for perfect centering) */}
             <div style={{ width: "230px", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
               <div style={{
-                width: "85px",
-                height: "85px",
-                border: "1px solid #cccccc",
-                padding: "2px",
-                backgroundColor: "#ffffff"
+                width: "96px",
+                height: "96px",
+                border: "1px solid #dcdcdc",
+                padding: "4px",
+                backgroundColor: "#ffffff",
+                boxSizing: "border-box",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
               }}>
                 {qrSrc && (
                   <img
                     src={qrSrc}
                     alt="Verification QR"
-                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                    style={{ width: "100%", height: "100%", objectFit: "contain", imageRendering: "pixelated" }}
                   />
                 )}
               </div>
             </div>
           </div>
 
-          {/* Footer Logo Band */}
+          {/* Footer Logo Band (Bigger, prominent government logos filling space) */}
           <div style={{
-            marginTop: "12px",
-            width: "90%",
+            marginTop: "14px",
+            width: "92%",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             backgroundColor: "transparent",
-            padding: "0 10px",
+            padding: "0 5px",
             borderRadius: 0,
             border: "none"
           }}>
@@ -562,64 +568,64 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             <img
               src={mcaSrc}
               alt="Ministry of Corporate Affairs"
-              style={{ height: "64px", maxWidth: "180px", objectFit: "contain" }}
+              style={{ height: "76px", maxWidth: "205px", objectFit: "contain" }}
             />
             {/* NITI Aayog */}
             <img
               src={nitiSrc}
               alt="NITI Aayog"
-              style={{ height: "62px", maxWidth: "135px", objectFit: "contain" }}
+              style={{ height: "74px", maxWidth: "155px", objectFit: "contain" }}
             />
             {/* NSDC */}
             <img
               src={nsdcSrc}
               alt="NSDC"
-              style={{ height: "64px", maxWidth: "145px", objectFit: "contain" }}
+              style={{ height: "76px", maxWidth: "165px", objectFit: "contain" }}
             />
             {/* State Emblem of India */}
             <img
               src={emblemSrc}
               alt="Ministry of Social Justice and Empowerment"
-              style={{ height: "66px", maxWidth: "125px", objectFit: "contain" }}
+              style={{ height: "78px", maxWidth: "145px", objectFit: "contain" }}
             />
             {/* MSME Logo */}
             <img
               src={msmeSrc}
               alt="Ministry of MSME"
-              style={{ height: "62px", maxWidth: "150px", objectFit: "contain" }}
+              style={{ height: "74px", maxWidth: "175px", objectFit: "contain" }}
             />
           </div>
 
-          {/* Verify Footer Link (Safely positioned above bottom border) */}
+          {/* Verify Footer Link (Bolder, 10.5px address text perfectly clear of side & bottom borders) */}
           <div style={{
             marginTop: "10px",
             textAlign: "center",
             width: "100%",
-            maxWidth: "700px",
+            maxWidth: "640px",
             padding: "0 10px",
             boxSizing: "border-box"
           }}>
             <p style={{
               fontFamily: "Arial, sans-serif",
-              fontSize: "10px",
-              fontWeight: "800",
+              fontSize: "10.5px",
+              fontWeight: "900",
               color: "#001C55",
               margin: 0,
               whiteSpace: "nowrap",
               lineHeight: "1.3",
               letterSpacing: "0.1px",
-              wordSpacing: "0.5px"
+              wordSpacing: "0.2px"
             }}>
               Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
             </p>
             <p style={{
               fontFamily: "Arial, sans-serif",
-              fontSize: "10px",
-              fontWeight: "800",
-              color: "#333333",
+              fontSize: "10.5px",
+              fontWeight: "900",
+              color: "#111111",
               margin: "3px 0 0 0",
               whiteSpace: "nowrap",
-              letterSpacing: "0.2px"
+              letterSpacing: "0.15px"
             }}>
               Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
             </p>

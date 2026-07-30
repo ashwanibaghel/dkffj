@@ -29,7 +29,7 @@ import {
   Share2,
   Globe2
 } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/ThemeProvider";
 import { getAdminNotifications, AdminNotification } from "./actions";
 
 type AdminNavItem = {

@@ -255,10 +255,10 @@ export default function AdminAppreciationPage() {
   const handleDownloadCertificateModal = async (app: AppreciationApplication) => {
     setDownloadingCert(true);
     try {
-      const appUrl = typeof window !== "undefined" ? window.location.origin : "https://dkffj.org";
-      const refNo = cleanAppNo(app.application_no);
-      const verificationUrl = `${appUrl}/verify/${encodeURIComponent(refNo)}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(verificationUrl)}`;
+      const appUrl = typeof window !== "undefined" ? window.location.origin : "https://www.dkffj.org";
+      const refNo = decodeURIComponent(cleanAppNo(app.application_no)).replace(/%2F/gi, "/");
+      const verificationUrl = `${appUrl}/verify/${refNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=2&data=${encodeURIComponent(verificationUrl)}`;
       const issueDateStr = new Date().toLocaleDateString("en-IN");
 
       const pdfBlob = await generateAppreciationPDFClient({
@@ -372,10 +372,10 @@ export default function AdminAppreciationPage() {
       let pdfBase64 = "";
       let jpgBase64 = "";
       try {
-        const appUrl = typeof window !== "undefined" ? window.location.origin : "https://dkffj.org";
+        const appUrl = typeof window !== "undefined" ? window.location.origin : "https://www.dkffj.org";
         const tempAppNo = `DKFFJ/A/${new Date().getFullYear()}/00000`;
-        const verificationUrl = `${appUrl}/verify/${encodeURIComponent(tempAppNo)}`;
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(verificationUrl)}`;
+        const verificationUrl = `${appUrl}/verify/${tempAppNo}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=2&data=${encodeURIComponent(verificationUrl)}`;
         const issueDateStr = new Date().toLocaleDateString("en-IN");
 
         const certFiles = await generateAppreciationCertFiles({
@@ -1178,10 +1178,10 @@ export default function AdminAppreciationPage() {
                     fullName: selectedCertApp.full_name,
                     socialWorkField: selectedCertApp.social_work_field,
                     issueDateStr: new Date().toLocaleDateString("en-IN"),
-                    qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-                      `${typeof window !== "undefined" ? window.location.origin : "https://dkffj.org"}/verify/${encodeURIComponent(cleanAppNo(selectedCertApp.application_no))}`
+                    qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=2&data=${encodeURIComponent(
+                      `${typeof window !== "undefined" ? window.location.origin : "https://www.dkffj.org"}/verify/${decodeURIComponent(cleanAppNo(selectedCertApp.application_no)).replace(/%2F/gi, "/")}`
                     )}`,
-                    verificationUrl: `${typeof window !== "undefined" ? window.location.origin : "https://dkffj.org"}/verify/${encodeURIComponent(cleanAppNo(selectedCertApp.application_no))}`,
+                    verificationUrl: `${typeof window !== "undefined" ? window.location.origin : "https://www.dkffj.org"}/verify/${decodeURIComponent(cleanAppNo(selectedCertApp.application_no)).replace(/%2F/gi, "/")}`,
                     photoUrl: selectedCertApp.photo_url || null
                   }}
                 />
