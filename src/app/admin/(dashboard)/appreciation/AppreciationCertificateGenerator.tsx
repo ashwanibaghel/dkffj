@@ -482,10 +482,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Footer Logo Band (Shifted down and enlarged) */}
+        {/* Footer Logo Band */}
         <div style={{
-          marginTop: "22px",
-          width: "90%",
+          marginTop: "16px",
+          width: "88%",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -498,54 +498,65 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "64px", maxWidth: "180px", objectFit: "contain" }}
+            style={{ height: "54px", maxWidth: "160px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "62px", maxWidth: "135px", objectFit: "contain" }}
+            style={{ height: "52px", maxWidth: "125px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "64px", maxWidth: "145px", objectFit: "contain" }}
+            style={{ height: "54px", maxWidth: "135px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
             alt="Ministry of Social Justice and Empowerment"
-            style={{ height: "66px", maxWidth: "125px", objectFit: "contain" }}
+            style={{ height: "56px", maxWidth: "115px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "62px", maxWidth: "150px", objectFit: "contain" }}
+            style={{ height: "52px", maxWidth: "135px", objectFit: "contain" }}
           />
         </div>
 
-        {/* Verify Footer Link (Shifted down closer to bottom border with larger/bolder font) */}
-        <div style={{ marginTop: "12px", textAlign: "center" }}>
+        {/* Verify Footer Link (Shifted down into empty bottom space, strictly inside side borders) */}
+        <div style={{
+          marginTop: "24px",
+          textAlign: "center",
+          width: "100%",
+          maxWidth: "650px",
+          margin: "24px auto 0",
+          padding: "0 20px",
+          boxSizing: "border-box"
+        }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "11.5px",
+            fontSize: "10.5px",
             fontWeight: "800",
             color: "#001C55",
             margin: 0,
-            letterSpacing: "0.3px"
+            lineHeight: "1.35",
+            letterSpacing: "0.2px",
+            wordSpacing: "1px"
           }}>
             Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "11px",
+            fontSize: "10.5px",
             fontWeight: "800",
             color: "#333333",
-            margin: "3px 0 0 0",
+            margin: "4px 0 0 0",
             whiteSpace: "nowrap",
-            letterSpacing: "0.3px"
+            letterSpacing: "0.3px",
+            wordSpacing: "1px"
           }}>
             Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
           </p>
