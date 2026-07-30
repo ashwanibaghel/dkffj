@@ -405,13 +405,13 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Signatures, Seal and QR Code Area */}
+        {/* Signatures, Seal and QR Code Area (Shifted down) */}
         <div style={{
           width: "90%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginTop: "50px"
+          marginTop: "95px"
         }}>
           {/* Signatory (Left) */}
           <div style={{ width: "230px", textAlign: "center", flexShrink: 0, position: "relative", paddingTop: "40px" }}>
@@ -482,10 +482,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           </div>
         </div>
 
-        {/* Footer Logo Band */}
+        {/* Footer Logo Band (Bigger logos & shifted down) */}
         <div style={{
-          marginTop: "16px",
-          width: "88%",
+          marginTop: "28px",
+          width: "90%",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -498,65 +498,65 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
           <img
             src={mcaSrc}
             alt="Ministry of Corporate Affairs"
-            style={{ height: "54px", maxWidth: "160px", objectFit: "contain" }}
+            style={{ height: "64px", maxWidth: "180px", objectFit: "contain" }}
           />
           {/* NITI Aayog */}
           <img
             src={nitiSrc}
             alt="NITI Aayog"
-            style={{ height: "52px", maxWidth: "125px", objectFit: "contain" }}
+            style={{ height: "62px", maxWidth: "135px", objectFit: "contain" }}
           />
           {/* NSDC */}
           <img
             src={nsdcSrc}
             alt="NSDC"
-            style={{ height: "54px", maxWidth: "135px", objectFit: "contain" }}
+            style={{ height: "64px", maxWidth: "145px", objectFit: "contain" }}
           />
           {/* State Emblem of India */}
           <img
             src={emblemSrc}
             alt="Ministry of Social Justice and Empowerment"
-            style={{ height: "56px", maxWidth: "115px", objectFit: "contain" }}
+            style={{ height: "66px", maxWidth: "125px", objectFit: "contain" }}
           />
           {/* MSME Logo */}
           <img
             src={msmeSrc}
             alt="Ministry of MSME"
-            style={{ height: "52px", maxWidth: "135px", objectFit: "contain" }}
+            style={{ height: "62px", maxWidth: "150px", objectFit: "contain" }}
           />
         </div>
 
-        {/* Verify Footer Link (Shifted down into empty bottom space, strictly inside side borders) */}
+        {/* Verify Footer Link (Shifted down right near bottom border, strictly 2 lines) */}
         <div style={{
-          marginTop: "24px",
+          marginTop: "25px",
           textAlign: "center",
           width: "100%",
-          maxWidth: "650px",
-          margin: "24px auto 0",
-          padding: "0 20px",
+          maxWidth: "700px",
+          margin: "25px auto 0",
+          padding: "0 10px",
           boxSizing: "border-box"
         }}>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "10.5px",
+            fontSize: "10.2px",
             fontWeight: "800",
             color: "#001C55",
             margin: 0,
-            lineHeight: "1.35",
-            letterSpacing: "0.2px",
-            wordSpacing: "1px"
+            whiteSpace: "nowrap",
+            lineHeight: "1.3",
+            letterSpacing: "0.1px",
+            wordSpacing: "0.5px"
           }}>
             Head Office Address : 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP)
           </p>
           <p style={{
             fontFamily: "Arial, sans-serif",
-            fontSize: "10.5px",
+            fontSize: "10.2px",
             fontWeight: "800",
             color: "#333333",
             margin: "4px 0 0 0",
             whiteSpace: "nowrap",
-            letterSpacing: "0.3px",
-            wordSpacing: "1px"
+            letterSpacing: "0.2px"
           }}>
             Website : www.dkffj.org &nbsp;|&nbsp; Contact No.: +91 9871219033, +91 7080403333
           </p>
