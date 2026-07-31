@@ -15,6 +15,28 @@ export async function getAppreciationApplications(statusFilter?: string) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
+  // Auto-heal: Ensure any appreciation application with a completed payment is promoted to UNDER_REVIEW
+  try {
+    const { data: completedPayments } = await supabase
+      .from("payments")
+      .select("appreciation_id")
+      .eq("status", "COMPLETED")
+      .not("appreciation_id", "is", null);
+
+    if (completedPayments && completedPayments.length > 0) {
+      const appIds = Array.from(new Set(completedPayments.map((p) => p.appreciation_id).filter(Boolean)));
+      if (appIds.length > 0) {
+        await supabase
+          .from("appreciation_applications")
+          .update({ status: "UNDER_REVIEW" })
+          .in("id", appIds)
+          .eq("status", "PENDING");
+      }
+    }
+  } catch (err) {
+    console.error("Auto-heal appreciation status error:", err);
+  }
+
   let query = supabase
     .from("appreciation_applications")
     .select("*")
@@ -186,8 +208,6 @@ export async function updateAppreciationStatus(
   `;
 
   await sendTransactionalEmail(app.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
-
-  return { success: true };
 
   return { success: true };
 }
