@@ -250,3 +250,78 @@ export async function deletePayment(paymentId: string) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to delete payment record." };
   }
 }
+
+export async function syncPendingPaymentsWithPhonePe() {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  try {
+    const { verifyPhonePeOrder } = await import("@/lib/payment/phonepe");
+
+    const { data: pendingPayments } = await supabase
+      .from("payments")
+      .select("id, transaction_id, amount, status, created_at, membership_id, registration_id, donation_id, appreciation_id")
+      .eq("status", "PENDING");
+
+    if (!pendingPayments || pendingPayments.length === 0) {
+      return { success: true, message: "No pending payments to reconcile.", syncedCount: 0 };
+    }
+
+    let syncedCount = 0;
+
+    for (const payment of pendingPayments) {
+      try {
+        const verifyRes = await verifyPhonePeOrder(payment.transaction_id);
+
+        if (verifyRes.success || verifyRes.state === "PAYMENT_SUCCESS" || verifyRes.state === "COMPLETED") {
+          await supabase
+            .from("payments")
+            .update({
+              status: "COMPLETED",
+              gateway_transaction_id: verifyRes.transactionId || payment.transaction_id
+            })
+            .eq("id", payment.id);
+
+          if (payment.membership_id) {
+            await supabase.from("memberships").update({ status: "UNDER_REVIEW" }).eq("id", payment.membership_id);
+          }
+          if (payment.appreciation_id) {
+            await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", payment.appreciation_id);
+          }
+          if (payment.registration_id) {
+            await supabase.from("course_registrations").update({ status: "APPROVED" }).eq("id", payment.registration_id);
+          }
+          if (payment.donation_id) {
+            await prisma.donations.update({
+              where: { id: payment.donation_id },
+              data: { status: "COMPLETED", transaction_id: verifyRes.transactionId }
+            });
+          }
+          syncedCount++;
+        }
+      } catch (err) {
+        console.error(`Error checking PhonePe order ${payment.transaction_id}:`, err);
+      }
+    }
+
+    revalidatePath("/admin/payments");
+    revalidatePath("/admin/members");
+    revalidatePath("/admin/appreciation");
+
+    return {
+      success: true,
+      message: syncedCount > 0 
+        ? `Successfully reconciled and approved ${syncedCount} payment(s) from PhonePe!` 
+        : `Checked ${pendingPayments.length} pending payment(s). No new completed transactions found on PhonePe.`,
+      syncedCount
+    };
+  } catch (err: unknown) {
+    console.error("Error syncing pending payments:", err);
+    return { success: false, error: err instanceof Error ? err.message : "Failed to sync pending payments." };
+  }
+}
