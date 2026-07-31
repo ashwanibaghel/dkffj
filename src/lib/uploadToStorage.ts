@@ -108,3 +108,59 @@ export async function uploadMembershipDocs(
     signatureUrl: signatureRes.url,
   };
 }
+
+/**
+ * Uploads all appreciation certificate documents directly from browser to Supabase Storage.
+ * Bypasses Vercel Server Action 4.5MB limits entirely — no 413 Payload Too Large errors possible.
+ */
+export async function uploadAppreciationDocs(
+  tempId: string,
+  photo: File,
+  idProof: File,
+  achievementProof?: File | null,
+  onProgress?: (step: string) => void
+): Promise<{
+  photoUrl: string;
+  idProofUrl: string;
+  achievementProofUrl?: string | null;
+  error?: string;
+}> {
+  const ts = Date.now();
+  const photoExt = photo.name.split(".").pop() || "jpg";
+  const idProofExt = idProof.name.split(".").pop() || "jpg";
+
+  onProgress?.("Uploading passport photo...");
+  const photoRes = await uploadFileToStorage(
+    photo,
+    "photos",
+    `${tempId}/photo_${ts}.${photoExt}`
+  );
+  if (photoRes.error) return { photoUrl: "", idProofUrl: "", error: `Photo upload failed: ${photoRes.error}` };
+
+  onProgress?.("Uploading Identity Proof...");
+  const idProofRes = await uploadFileToStorage(
+    idProof,
+    "aadhaar",
+    `${tempId}/idproof_${ts}.${idProofExt}`
+  );
+  if (idProofRes.error) return { photoUrl: "", idProofUrl: "", error: `ID Proof upload failed: ${idProofRes.error}` };
+
+  let achievementProofUrl: string | null = null;
+  if (achievementProof && achievementProof.size > 0) {
+    onProgress?.("Uploading Achievement Proof...");
+    const achievementExt = achievementProof.name.split(".").pop() || "jpg";
+    const achievementRes = await uploadFileToStorage(
+      achievementProof,
+      "aadhaar",
+      `${tempId}/achievement_${ts}.${achievementExt}`
+    );
+    if (achievementRes.error) return { photoUrl: "", idProofUrl: "", error: `Achievement Proof upload failed: ${achievementRes.error}` };
+    achievementProofUrl = achievementRes.url;
+  }
+
+  return {
+    photoUrl: photoRes.url,
+    idProofUrl: idProofRes.url,
+    achievementProofUrl,
+  };
+}

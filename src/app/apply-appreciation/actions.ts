@@ -201,56 +201,61 @@ export async function submitAppreciationApplication(prevData: any, formData: For
   const socialWorkField = sanitizeInput(formData.get("socialWorkField") as string);
   const description = sanitizeInput(formData.get("description") as string);
 
-  // Extract Upload Files
-  const photo = formData.get("photo") as File;
-  const idProof = formData.get("idProof") as File;
-  const achievementProof = formData.get("achievementProof") as File;
-
-  if (!photo || photo.size === 0 || !idProof || idProof.size === 0) {
-    return { success: false, error: "All required files (Photo, ID Proof) must be uploaded." };
-  }
+  // Extract Upload Files / Pre-uploaded Storage URLs
+  let photoUrl = sanitizeInput((formData.get("photoUrl") as string) || "");
+  let idProofUrl = sanitizeInput((formData.get("idProofUrl") as string) || "");
+  let achievementProofUrl: string | null = sanitizeInput((formData.get("achievementProofUrl") as string) || "");
 
   try {
-    // 1. Upload files to Supabase Storage
-    const photoExt = photo.name.split(".").pop();
-    const idProofExt = idProof.name.split(".").pop();
-    const photoName = `${userId}/photo_${Date.now()}.${photoExt}`;
-    const idProofName = `${userId}/idproof_${Date.now()}.${idProofExt}`;
+    // If not pre-uploaded from browser, handle server-side upload fallback
+    if (!photoUrl || !idProofUrl) {
+      const photo = formData.get("photo") as File;
+      const idProof = formData.get("idProof") as File;
+      const achievementProof = formData.get("achievementProof") as File;
 
-    const photoBuffer = Buffer.from(await photo.arrayBuffer());
-    const idProofBuffer = Buffer.from(await idProof.arrayBuffer());
+      if (!photo || photo.size === 0 || !idProof || idProof.size === 0) {
+        return { success: false, error: "All required files (Photo, ID Proof) must be uploaded." };
+      }
 
-    // Upload to 'photos' bucket (public)
-    const { error: photoErr } = await supabase.storage
-      .from("photos")
-      .upload(photoName, photoBuffer, { contentType: photo.type, upsert: true });
+      const photoExt = photo.name.split(".").pop();
+      const idProofExt = idProof.name.split(".").pop();
+      const photoName = `${userId}/photo_${Date.now()}.${photoExt}`;
+      const idProofName = `${userId}/idproof_${Date.now()}.${idProofExt}`;
 
-    if (photoErr) throw new Error(`Photo upload failed: ${photoErr.message}`);
+      const photoBuffer = Buffer.from(await photo.arrayBuffer());
+      const idProofBuffer = Buffer.from(await idProof.arrayBuffer());
 
-    const { data: photoUrlData } = supabase.storage.from("photos").getPublicUrl(photoName);
-    const photoUrl = photoUrlData.publicUrl;
+      // Upload to 'photos' bucket (public)
+      const { error: photoErr } = await supabase.storage
+        .from("photos")
+        .upload(photoName, photoBuffer, { contentType: photo.type, upsert: true });
 
-    // Upload to 'aadhaar' bucket (private, secure for ID proofs)
-    const { error: idProofErr } = await supabase.storage
-      .from("aadhaar")
-      .upload(idProofName, idProofBuffer, { contentType: idProof.type, upsert: true });
+      if (photoErr) throw new Error(`Photo upload failed: ${photoErr.message}`);
 
-    if (idProofErr) throw new Error(`ID Proof upload failed: ${idProofErr.message}`);
-    const idProofUrl = `aadhaar/${idProofName}`;
+      const { data: photoUrlData } = supabase.storage.from("photos").getPublicUrl(photoName);
+      photoUrl = photoUrlData.publicUrl;
 
-    // Upload achievement proof if present
-    let achievementProofUrl: string | null = null;
-    if (achievementProof && achievementProof.size > 0) {
-      const achievementExt = achievementProof.name.split(".").pop();
-      const achievementName = `${userId}/achievement_${Date.now()}.${achievementExt}`;
-      const achievementBuffer = Buffer.from(await achievementProof.arrayBuffer());
+      // Upload to 'aadhaar' bucket (private, secure for ID proofs)
+      const { error: idProofErr } = await supabase.storage
+        .from("aadhaar")
+        .upload(idProofName, idProofBuffer, { contentType: idProof.type, upsert: true });
 
-      const { error: achievementErr } = await supabase.storage
-        .from("aadhaar") // Save securely in aadhaar private bucket
-        .upload(achievementName, achievementBuffer, { contentType: achievementProof.type, upsert: true });
+      if (idProofErr) throw new Error(`ID Proof upload failed: ${idProofErr.message}`);
+      idProofUrl = `aadhaar/${idProofName}`;
 
-      if (achievementErr) throw new Error(`Achievement Proof upload failed: ${achievementErr.message}`);
-      achievementProofUrl = `aadhaar/${achievementName}`;
+      // Upload achievement proof if present
+      if (achievementProof && achievementProof.size > 0) {
+        const achievementExt = achievementProof.name.split(".").pop();
+        const achievementName = `${userId}/achievement_${Date.now()}.${achievementExt}`;
+        const achievementBuffer = Buffer.from(await achievementProof.arrayBuffer());
+
+        const { error: achievementErr } = await supabase.storage
+          .from("aadhaar")
+          .upload(achievementName, achievementBuffer, { contentType: achievementProof.type, upsert: true });
+
+        if (achievementErr) throw new Error(`Achievement Proof upload failed: ${achievementErr.message}`);
+        achievementProofUrl = `aadhaar/${achievementName}`;
+      }
     }
 
     // 2. Generate Application Number DKFFJ/A/YYYY/XXXX cleanly without duplicate year

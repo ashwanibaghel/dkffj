@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, S
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
 import { getPricingSettings } from "@/lib/portalSettings";
 import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
+import { uploadAppreciationDocs } from "@/lib/uploadToStorage";
 
 export default function ApplyAppreciationPage() {
   const router = useRouter();
@@ -223,9 +224,28 @@ export default function ApplyAppreciationPage() {
     }
 
     setLoading(true);
-    setSuccessMsg("Processing your application and initializing payment gateway...");
+    setSuccessMsg("Uploading verification documents securely...");
 
     try {
+      // Direct client upload from browser to Supabase Storage (bypasses Vercel 4.5MB Server Action limit entirely)
+      const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();
+      const uploadRes = await uploadAppreciationDocs(
+        tempUserId,
+        photo,
+        idProof,
+        achievementProof,
+        (msg) => setSuccessMsg(msg)
+      );
+
+      if (uploadRes.error) {
+        setErrorMsg(uploadRes.error);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setLoading(false);
+        return;
+      }
+
+      setSuccessMsg("Processing application and initializing payment gateway...");
+
       const formData = new FormData();
       formData.append("fullName", fullName);
       formData.append("fatherName", fatherName);
@@ -242,10 +262,12 @@ export default function ApplyAppreciationPage() {
       formData.append("pincode", pincode);
       formData.append("socialWorkField", socialWorkField === "Other Social Activism / Support Services" ? customSocialWorkField : socialWorkField);
       formData.append("description", description);
-      formData.append("photo", photo);
-      formData.append("idProof", idProof);
-      if (achievementProof) {
-        formData.append("achievementProof", achievementProof);
+      
+      // Pass pre-uploaded storage URLs instead of heavy raw files to prevent 413 Payload Too Large errors
+      formData.append("photoUrl", uploadRes.photoUrl);
+      formData.append("idProofUrl", uploadRes.idProofUrl);
+      if (uploadRes.achievementProofUrl) {
+        formData.append("achievementProofUrl", uploadRes.achievementProofUrl);
       }
 
       const res = await submitAppreciationApplication(null, formData);
