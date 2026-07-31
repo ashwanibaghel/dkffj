@@ -249,8 +249,24 @@ export default function ApplyPage() {
     setErrorMsg("");
     setSuccessMsg("");
     if (step === 1) {
-      if (!fullName || !fatherName || !dob || !mobile || !email) {
-        setErrorMsg("Please fill in all personal details.");
+      if (!fullName.trim()) {
+        setErrorMsg("Please enter your Full Name.");
+        return;
+      }
+      if (!fatherName.trim()) {
+        setErrorMsg("Please enter your Father's / Spouse's Name.");
+        return;
+      }
+      if (!dob) {
+        setErrorMsg("Please select a valid Date of Birth from the calendar picker (Note: invalid dates like 31st Feb are rejected).");
+        return;
+      }
+      if (!mobile.trim()) {
+        setErrorMsg("Please enter your 10-digit Mobile Number.");
+        return;
+      }
+      if (!email.trim()) {
+        setErrorMsg("Please enter your Email Address.");
         return;
       }
       if (!/^\d{10}$/.test(mobile)) {
