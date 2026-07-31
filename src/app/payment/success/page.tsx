@@ -404,23 +404,19 @@ function PaymentSuccessContent() {
                     <p>This document is a computer-generated official payment receipt issued under the authority of DK Foundation of Freedom & Justice. No signature is legally required for digital validation. System transaction references have been recorded securely in the audit trails.</p>
                   </div>
                   
-                  {/* Official Blue Stamp and Signature */}
+                  {/* Director Signature */}
                   <div className="flex items-center gap-4">
-                    {/* Stamp */}
-                    <div className="w-20 h-20 rounded-full border-4 border-dashed border-[#1565C0]/40 flex flex-col items-center justify-center p-1 text-center transform -rotate-6 scale-90 select-none">
-                      <span className="text-[6px] font-bold text-[#1565C0]/60 uppercase tracking-widest leading-none">DK FOUNDATION</span>
-                      <span className="text-[9px] font-black text-[#1565C0]/80 leading-none my-0.5">OFFICIAL</span>
-                      <span className="text-[7px] font-bold text-[#1565C0]/70 uppercase leading-none">SEAL</span>
-                    </div>
-                    
-                    {/* Signature block */}
                     <div className="text-center font-sans">
-                      <div className="h-10 flex items-center justify-center">
-                        <span className="font-serif italic text-slate-700 text-lg select-none opacity-90 font-bold"></span>
+                      <div className="h-14 flex items-center justify-center mb-1">
+                        <img 
+                          src="/images/director_sig.png" 
+                          alt="Director Signature" 
+                          className="h-12 object-contain mix-blend-multiply filter contrast-125" 
+                        />
                       </div>
-                      <div className="border-t border-slate-300 w-36 pt-1 text-center">
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Authorized Signatory</p>
-                        <p className="text-[8px] text-slate-400">DK Foundation of Freedom & Justice</p>
+                      <div className="border-t-2 border-slate-700 w-48 pt-1 text-center">
+                        <p className="text-[10px] font-black text-[#001C55] uppercase tracking-wider">Authorized Signatory</p>
+                        <p className="text-[8px] text-slate-500 font-bold">DK Foundation of Freedom & Justice</p>
                       </div>
                     </div>
                   </div>
