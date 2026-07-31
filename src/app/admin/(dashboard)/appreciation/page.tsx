@@ -1339,10 +1339,10 @@ export default function AdminAppreciationPage() {
       {/* Premium Confirmation Dialog */}
       <AdminConfirmDialog
         open={!!deleteConfirmState?.isOpen}
-        title="Application Delete Karein?"
-        message={`Kya aap sach me "${deleteConfirmState?.name}" ki application permanently delete karna chahte hain? Delete karne par iska saara record aur payment logs database se hamesha ke liye hat jaayega.`}
-        confirmLabel="Haan, Delete Karein"
-        cancelLabel="Nahi, Galti Se Daba"
+        title="Delete Application Record?"
+        message={`Are you sure you want to permanently delete the application for "${deleteConfirmState?.name}"? This action cannot be undone and will erase all associated records and payment logs.`}
+        confirmLabel="Yes, Delete Permanently"
+        cancelLabel="Cancel"
         tone="danger"
         loading={!!deletingId}
         onConfirm={async () => {
