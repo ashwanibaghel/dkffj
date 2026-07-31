@@ -2375,7 +2375,6 @@ export default function AdminMembersPage() {
                 Save Renewal Date
               </button>
             </div>
-            </div>
           </div>
         </div>
       )}

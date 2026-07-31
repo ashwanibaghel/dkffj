@@ -1332,7 +1332,6 @@ export default function AdminAppreciationPage() {
                 />
               </div>
             </div>
-            </div>
           </div>
         </div>
       )}
