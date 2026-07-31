@@ -150,10 +150,9 @@ export default function MyAccountPage() {
   const handleDownloadCertificate = async (member: any) => {
     setDownloadingId(member.id);
     try {
-      const appUrl = window.location.origin;
       const certNo = member.membership_no || member.ack_no;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       const issueDateStr = member.approved_at 
         ? new Date(member.approved_at).toLocaleDateString("en-IN")
@@ -200,9 +199,8 @@ export default function MyAccountPage() {
     try {
       const { generateCertificatePDFClient } = await import("@/app/admin/(dashboard)/registrations/CertificateGenerator");
       
-      const appUrl = window.location.origin;
-      const verificationUrl = `${appUrl}/verify/${cert.certificate_no}`;
-      const qrCodeUrl = cert.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `https://www.dkffj.org/verify/${cert.certificate_no}`;
+      const qrCodeUrl = cert.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       const issueDateStr = cert.issue_date 
         ? new Date(cert.issue_date).toLocaleDateString("en-IN")
@@ -243,10 +241,9 @@ export default function MyAccountPage() {
   const handleDownloadIdCard = async (member: any) => {
     setDownloadingId(member.id + "-card");
     try {
-      const appUrl = window.location.origin;
       const certNo = member.membership_no || member.ack_no;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       const issueDate = member.approved_at ? new Date(member.approved_at) : (member.created_at ? new Date(member.created_at) : new Date());
       const issueDateStr = issueDate.toLocaleDateString("en-IN");

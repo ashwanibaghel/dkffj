@@ -362,11 +362,8 @@ export async function issueCertificateForRegistration(
       certNo = `DKFFJ/C/${currentYear}/` + certNo.split("-").pop()?.padStart(4, "0");
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const verificationUrl = `${appUrl}/verify/${certNo}`;
-
-    // 2. Generate QR Code API URL
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+    const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
 
     // 3. Save certificate record in DB with temporary pdf_url (to be filled by client)
     const tempPdfUrl = "";

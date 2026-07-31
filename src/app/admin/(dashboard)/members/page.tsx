@@ -230,8 +230,8 @@ export default function AdminMembersPage() {
         const newMember = createRes.member;
 
         const certNo = createRes.membershipNo;
-        const verificationUrl = `${window.location.origin}/verify/${certNo}`;
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+        const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
 
         const issueDateStr = new Date().toLocaleDateString("en-IN", { year: "numeric", month: "2-digit", day: "2-digit" });
 
@@ -678,10 +678,9 @@ export default function AdminMembersPage() {
   const handleDownloadCertificate = async (member: MemberRecord) => {
     setDownloadingId(member.id);
     try {
-      const appUrl = window.location.origin;
       const certNo = member.membership_no || member.ack_no;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       // Fetch latest database status and pre-resolve images to base64
       const printRes = await getMemberPrintData(member.id, qrCodeUrl);
@@ -729,10 +728,9 @@ export default function AdminMembersPage() {
   const handleDownloadIdCard = async (member: MemberRecord) => {
     setDownloadingIdCardId(member.id);
     try {
-      const appUrl = window.location.origin;
       const certNo = member.membership_no || member.ack_no;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       // Fetch latest database status and pre-resolve images to base64
       const printRes = await getMemberPrintData(member.id, qrCodeUrl);
@@ -841,10 +839,9 @@ export default function AdminMembersPage() {
           (async () => {
             showToast("Generating official ID card & certificate in background...", "success");
             try {
-              const appUrl = window.location.origin;
               const certNo = generatedMembershipNo || member.ack_no;
-              const verificationUrl = `${appUrl}/verify/${certNo}`;
-              const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+              const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+              const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
               
               // Fetch latest print data (incl. base64 photo and QR) from the server
               const printRes = await getMemberPrintData(id, qrCodeUrl);

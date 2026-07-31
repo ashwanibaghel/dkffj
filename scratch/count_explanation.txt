@@ -1,0 +1,44 @@
+Total Executive Council Leaders: 97
+Total Memberships in DB: 389
+
+Leaders ALREADY present in Member Desk before migration: 88
+Leaders newly created during migration: 9
+
+Sample Common Members (Executive Council & Member Desk both):
+[
+  {
+    "leaderName": "Adarsh Lodhi",
+    "leaderMobile": "8400007777",
+    "existingMemberName": "Adarsh Lodhi",
+    "existingMemberMobile": "8400007777",
+    "ackNo": "DKE-MIG-1028"
+  },
+  {
+    "leaderName": "Vipin Kumar Sharma",
+    "leaderMobile": "9458830001",
+    "existingMemberName": "Vipin Kumar Sharma",
+    "existingMemberMobile": "9458830001",
+    "ackNo": "DKE-MIG-1010"
+  },
+  {
+    "leaderName": "RISHI KUMAR",
+    "leaderMobile": "9839809923",
+    "existingMemberName": "RISHI KUMAR",
+    "existingMemberMobile": "9839809923",
+    "ackNo": "DKE-MIG-1076"
+  },
+  {
+    "leaderName": "Adv Vikky Raj",
+    "leaderMobile": "9458728586",
+    "existingMemberName": "Adv Vikky Raj",
+    "existingMemberMobile": "9458728586",
+    "ackNo": "DKE-MIG-1106"
+  },
+  {
+    "leaderName": "Adv. Sumit Saxena",
+    "leaderMobile": "+97954 77775",
+    "existingMemberName": "Adv. Sumit Saxena",
+    "existingMemberMobile": "9795477775",
+    "ackNo": "DKE-MIG-1027"
+  }
+]

@@ -104,8 +104,8 @@ export default function AdminRegistrationsPage() {
     const certNo = certificate.certificate_no;
     setDownloadingCertNo(certNo);
     try {
-      const verificationUrl = `${window.location.origin}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       const issueDate = new Date(certificate.issue_date).toLocaleDateString("en-IN");
 
       const { pdfBlob } = await generateCertificatePDFClient({

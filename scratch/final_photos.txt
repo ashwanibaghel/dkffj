@@ -1,0 +1,3 @@
+Total Leaders: 97
+Leaders WITH Photo: 95
+Leaders WITHOUT Photo: 2

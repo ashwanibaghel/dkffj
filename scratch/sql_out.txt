@@ -1,0 +1,30 @@
+Tables: [
+  "CREATE TABLE `blog`",
+  "CREATE TABLE `complaint_form`",
+  "CREATE TABLE `contact`",
+  "CREATE TABLE `document`",
+  "CREATE TABLE `donation`",
+  "CREATE TABLE `gallery`",
+  "CREATE TABLE `logo`",
+  "CREATE TABLE `membership_form`",
+  "CREATE TABLE `site_setting`",
+  "CREATE TABLE `slider`",
+  "CREATE TABLE `state`",
+  "CREATE TABLE `tbl_admin`",
+  "CREATE TABLE `testimonials`",
+  "CREATE TABLE `videos`"
+]
+Inserts: [
+  "INSERT INTO `blog`",
+  "INSERT INTO `complaint_form`",
+  "INSERT INTO `contact`",
+  "INSERT INTO `document`",
+  "INSERT INTO `gallery`",
+  "INSERT INTO `logo`",
+  "INSERT INTO `membership_form`",
+  "INSERT INTO `site_setting`",
+  "INSERT INTO `slider`",
+  "INSERT INTO `state`",
+  "INSERT INTO `tbl_admin`",
+  "INSERT INTO `videos`"
+]

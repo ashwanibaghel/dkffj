@@ -199,8 +199,8 @@ function CourseTrackContent() {
                           
                           const resultFiles = await generateCertificatePDFClient({
                             certNo: result.certificate.certificate_no,
-                            qrCodeUrl: result.certificate.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/verify/${result.certificate.certificate_no}`)}`,
-                            verificationUrl: `${window.location.origin}/verify/${result.certificate.certificate_no}`,
+                            qrCodeUrl: result.certificate.qr_code_url || `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=https://www.dkffj.org/verify/${result.certificate.certificate_no}`,
+                            verificationUrl: `https://www.dkffj.org/verify/${result.certificate.certificate_no}`,
                             studentName: result.certificate.user_name || "",
                             courseTitle: result.certificate.course_name || "",
                             photoUrl: result.certificate.photoUrl,
