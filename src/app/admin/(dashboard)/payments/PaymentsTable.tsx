@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import React, { useMemo, useState } from "react";
 import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle, Phone, Mail } from "lucide-react";
 import { manuallyApprovePayment } from "./actions";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
