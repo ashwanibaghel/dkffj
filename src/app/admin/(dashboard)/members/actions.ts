@@ -13,16 +13,42 @@ export async function getMemberships(statusFilter?: string) {
     return [];
   }
 
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Auto-heal: Ensure any membership with a completed payment is at least UNDER_REVIEW
+  try {
+    const { data: completedPayments } = await supabase
+      .from("payments")
+      .select("membership_id")
+      .eq("status", "COMPLETED")
+      .not("membership_id", "is", null);
+
+    if (completedPayments && completedPayments.length > 0) {
+      const membershipIds = Array.from(new Set(completedPayments.map((p) => p.membership_id).filter(Boolean)));
+      if (membershipIds.length > 0) {
+        await supabase
+          .from("memberships")
+          .update({ status: "UNDER_REVIEW" })
+          .in("id", membershipIds)
+          .eq("status", "PENDING");
+      }
+    }
+  } catch (err) {
+    console.error("Auto-heal membership status error:", err);
+  }
+
+  // Force cache bust to ensure fresh data
+  try {
+    await incrementNamespaceVersion("members");
+  } catch (_) {}
+
   const keySuffix = `list_${statusFilter || "ALL"}`;
 
   return getVersionedCache("members", keySuffix, async () => {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
     let query = supabase
       .from("memberships")
       .select("*")
-      .neq("status", "PENDING") // Hide unpaid memberships from admin panel
       .order("created_at", { ascending: false });
 
     if (statusFilter && statusFilter !== "ALL") {
