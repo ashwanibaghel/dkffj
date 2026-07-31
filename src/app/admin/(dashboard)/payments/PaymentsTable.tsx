@@ -1,8 +1,6 @@
-"use client";
-
 import React, { useMemo, useState } from "react";
-import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle, Phone, Mail } from "lucide-react";
-import { manuallyApprovePayment } from "./actions";
+import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle, Phone, Mail, Trash2 } from "lucide-react";
+import { manuallyApprovePayment, deletePayment } from "./actions";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
 import AdminEmptyState from "../components/AdminEmptyState";
 
@@ -110,7 +108,6 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
     try {
       const res = await manuallyApprovePayment(id);
       if (res.success) {
-        // Update local state
         setPayments((prev) =>
           prev.map((p) => (p.id === id ? { ...p, status: "COMPLETED" } : p))
         );
@@ -133,6 +130,33 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
       confirmLabel: "Verify",
       tone: "primary",
       onConfirm: () => verifyPaymentById(id)
+    });
+  };
+
+  const removePaymentById = async (id: string) => {
+    setLoadingId(id);
+    try {
+      const res = await deletePayment(id);
+      if (res.success) {
+        setPayments((prev) => prev.filter((p) => p.id !== id));
+        showToast("Payment record deleted successfully.", "success");
+      } else {
+        showToast(res.error || "Failed to delete payment record.", "error");
+      }
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Error deleting payment.", "error");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleDeletePayment = (id: string) => {
+    requestConfirm({
+      title: "Delete Payment Record",
+      message: "Are you sure you want to permanently delete this payment transaction? Total ledger collections will recalculate automatically.",
+      confirmLabel: "Yes, Delete Record",
+      tone: "danger",
+      onConfirm: () => removePaymentById(id)
     });
   };
 
@@ -179,73 +203,47 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
   }, [payments, searchQuery, statusFilter]);
 
   const statusIcon = (status: string) => {
-    const normalized = status.toUpperCase();
-    if (normalized === "COMPLETED") return <CheckCircle2 className="w-3 h-3" />;
-    if (normalized === "PENDING") return <Clock className="w-3 h-3" />;
-    return <XCircle className="w-3 h-3" />;
+    const s = status.toUpperCase();
+    if (s === "COMPLETED") return <CheckCircle2 className="w-3 h-3 text-emerald-600" />;
+    if (s === "PENDING") return <Clock className="w-3 h-3 text-amber-600" />;
+    return <XCircle className="w-3 h-3 text-rose-600" />;
   };
 
   return (
-    <div className="space-y-6">
-      <AdminToast toast={toast} />
-      <AdminConfirmDialog
-        open={Boolean(confirmDialog)}
-        title={confirmDialog?.title}
-        message={confirmDialog?.message}
-        confirmLabel={confirmDialog?.confirmLabel}
-        cancelLabel={confirmDialog?.cancelLabel}
-        tone={confirmDialog?.tone}
-        loading={confirming}
-        onConfirm={handleConfirm}
-        onCancel={closeConfirm}
-      />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {statusFilters.map((status) => {
-          const isActive = statusFilter === status;
-          const count = statusCounts[status] || 0;
-          return (
-            <button
-              key={status}
-              type="button"
-              onClick={() => setStatusFilter(status)}
-              className={`text-left rounded-2xl border p-4 transition-all ${
-                isActive
-                  ? "bg-[#001C55] text-white border-[#001C55] shadow-lg shadow-blue-950/10"
-                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-500/40 hover:-translate-y-0.5"
-              }`}
-            >
-              <span className={`text-[10px] font-black uppercase tracking-[0.14em] ${isActive ? "text-blue-100" : "text-slate-400 dark:text-slate-500"}`}>
-                {status === "ALL" ? "All Payments" : status}
-              </span>
-              <span className="block text-2xl font-black mt-2 tracking-tight">{count}</span>
-            </button>
-          );
-        })}
-      </div>
+    <div className="space-y-4">
+      {toast && <AdminToast message={toast.message} type={toast.type} />}
 
-      {/* Search & Filter Controls */}
-      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row gap-4 lg:items-center justify-between shadow-sm dark:shadow-none">
-        <div className="relative w-full lg:max-w-md">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-            <Search className="w-4 h-4" />
-          </span>
+      {confirmDialog && (
+        <AdminConfirmDialog
+          isOpen={true}
+          title={confirmDialog.title}
+          description={confirmDialog.message}
+          confirmLabel={confirmDialog.confirmLabel}
+          tone={confirmDialog.tone}
+          loading={confirming}
+          onConfirm={handleConfirm}
+          onClose={closeConfirm}
+        />
+      )}
+
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by ID, name, mobile, email, or category..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 font-semibold transition-all"
+            placeholder="Search by transaction ID, name, email, phone, category..."
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#001C55]/20 font-medium"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto shrink-0 justify-start lg:justify-end">
-          <span className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5" /> Status:
-          </span>
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {statusFilters.map((status) => (
             <button
               key={status}
-              type="button"
               onClick={() => setStatusFilter(status)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 statusFilter === status
@@ -330,23 +328,36 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
                       </td>
                       <td className="p-4 text-[10px] text-slate-400 dark:text-slate-500">{new Date(pay.created_at).toLocaleString("en-IN")}</td>
                       <td className="p-4 text-right">
-                        {pay.status === "PENDING" ? (
+                        <div className="flex items-center justify-end gap-2">
+                          {pay.status === "PENDING" && (
+                            <button
+                              type="button"
+                              onClick={() => handleManualVerify(pay.id)}
+                              disabled={loadingId !== null}
+                              className="px-3 py-1.5 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all shadow-sm hover:shadow disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                            >
+                              {loadingId === pay.id ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <ShieldCheck className="w-3 h-3" />
+                              )}
+                              Verify
+                            </button>
+                          )}
                           <button
                             type="button"
-                            onClick={() => handleManualVerify(pay.id)}
+                            onClick={() => handleDeletePayment(pay.id)}
                             disabled={loadingId !== null}
-                            className="px-3 py-1.5 bg-[#1565C0] hover:bg-[#0D47A1] text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all shadow-sm hover:shadow disabled:opacity-50 cursor-pointer flex items-center gap-1 ml-auto"
+                            title="Delete Payment Record"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-500/20 cursor-pointer disabled:opacity-50"
                           >
                             {loadingId === pay.id ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-600" />
                             ) : (
-                              <ShieldCheck className="w-3 h-3" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             )}
-                            Verify Manually
                           </button>
-                        ) : (
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium pr-2">No actions</span>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   );

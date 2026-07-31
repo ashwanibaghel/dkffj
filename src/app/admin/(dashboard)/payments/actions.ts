@@ -219,3 +219,34 @@ export async function manuallyApprovePayment(paymentId: string) {
     return { success: false, error: error instanceof Error ? error.message : "Failed to process approval." };
   }
 }
+
+export async function deletePayment(paymentId: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  if (!paymentId) {
+    return { success: false, error: "Payment ID is required." };
+  }
+
+  try {
+    const payment = await prisma.payments.findUnique({
+      where: { id: paymentId }
+    });
+
+    if (!payment) {
+      return { success: false, error: "Payment record not found." };
+    }
+
+    await prisma.payments.delete({
+      where: { id: paymentId }
+    });
+
+    revalidatePath("/admin/payments");
+    return { success: true, message: "Payment record deleted successfully." };
+  } catch (err: unknown) {
+    console.error("Error deleting payment:", err);
+    return { success: false, error: err instanceof Error ? err.message : "Failed to delete payment record." };
+  }
+}
