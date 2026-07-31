@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { verifyCertificate } from "../actions";
-import { ArrowLeft, CheckCircle, XCircle, Download, Award, ShieldAlert } from "lucide-react";
+import { ArrowLeft, CheckCircle, Award, ShieldAlert, Sparkles, BookOpen, ShieldCheck } from "lucide-react";
 import VerifyDownloadButton from "./VerifyDownloadButton";
 
 export const dynamic = "force-dynamic";
@@ -40,19 +40,40 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
         {result && result.found ? (
           <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xl animate-scaleUp">
             
-            {/* Top Shield indicator */}
-            <div className="bg-[#001C55] text-white p-8 text-center relative">
+            {/* Top Shield indicator tailored by Certificate Type */}
+            <div className={`p-8 text-center relative text-white ${
+              result.certType === "appreciation"
+                ? "bg-gradient-to-br from-[#85581A] via-[#B8860B] to-[#754C16]"
+                : result.certType === "membership"
+                ? "bg-gradient-to-br from-[#001C55] to-[#0d2a6b]"
+                : "bg-gradient-to-br from-[#0F5257] to-[#0B3C40]"
+            }`}>
               <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Award className="w-8 h-8 text-sky-300" />
+                {result.certType === "appreciation" ? (
+                  <Sparkles className="w-8 h-8 text-amber-200" />
+                ) : result.certType === "membership" ? (
+                  <ShieldCheck className="w-8 h-8 text-sky-300" />
+                ) : (
+                  <BookOpen className="w-8 h-8 text-emerald-200" />
+                )}
               </div>
-              <span className="text-[10px] font-bold text-sky-200 uppercase tracking-widest bg-sky-950/30 border border-sky-400/20 px-3 py-1 rounded-full">
-                Registry Verification Passed
+
+              <span className="text-[10px] font-extrabold uppercase tracking-widest bg-white/15 border border-white/25 px-3.5 py-1 rounded-full inline-block">
+                {result.certType === "appreciation"
+                  ? "Certificate of Appreciation Verified"
+                  : result.certType === "membership"
+                  ? "Official Membership Registry"
+                  : "Academic Course Certificate Verified"}
               </span>
-              <h2 className="text-xl font-bold font-serif mt-4 leading-snug">{result.userName}</h2>
-              <p className="text-xs text-sky-100/80 mt-1">
-                {result.certType === "membership"
-                  ? "Is an officially registered member and officer of DKFFJ"
-                  : "Has successfully completed all academic prerequisites"}
+
+              <h2 className="text-xl sm:text-2xl font-extrabold font-serif mt-4 leading-snug tracking-wide">{result.userName}</h2>
+              
+              <p className="text-xs text-white/90 mt-1.5 max-w-md mx-auto font-medium">
+                {result.certType === "appreciation"
+                  ? "Honored by the Executive Board for Distinguished Social Contribution & Human Rights Advocacy"
+                  : result.certType === "membership"
+                  ? "Is an officially registered member and executive officer of DKFFJ"
+                  : "Has successfully completed all academic and practical training prerequisites"}
               </p>
             </div>
 
@@ -63,12 +84,31 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
                 <CheckCircle className="w-6 h-6 text-emerald-500 shrink-0" />
                 <div className="text-xs font-semibold">
                   <span>Certificate status: <strong className="text-emerald-700 font-bold uppercase">{result.status}</strong></span>
-                  <p className="text-slate-500 font-normal mt-0.5">This document is verified and officially recorded in our registry vault.</p>
+                  <p className="text-slate-500 font-normal mt-0.5">This document is verified and officially recorded in our national registry vault.</p>
                 </div>
               </div>
 
               <div className="border-b border-slate-100 pb-5 space-y-4 text-xs font-semibold text-slate-700">
-                {result.certType === "membership" ? (
+                {result.certType === "appreciation" ? (
+                  <>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Social Work Field</span>
+                      <span className="text-slate-900 text-right font-extrabold max-w-[280px]">{result.workingArea}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Designation / Honor</span>
+                      <span className="text-slate-800 text-right font-bold">{result.designation || "Honorable Social Advocate"}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Certificate Serial</span>
+                      <span className="text-slate-900 font-mono font-black text-sm">{result.certificateNo}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Date of Issuance</span>
+                      <span className="text-slate-800 font-bold">{result.issueDate}</span>
+                    </div>
+                  </>
+                ) : result.certType === "membership" ? (
                   <>
                     <div className="flex justify-between items-center py-1.5">
                       <span className="text-slate-400 text-[10px] uppercase tracking-wider">Designation</span>
@@ -80,11 +120,11 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
                     </div>
                     <div className="flex justify-between items-center py-1.5">
                       <span className="text-slate-400 text-[10px] uppercase tracking-wider">Membership ID</span>
-                      <span className="text-slate-800 font-mono font-bold">{result.certificateNo}</span>
+                      <span className="text-slate-900 font-mono font-black text-sm">{result.certificateNo}</span>
                     </div>
                     <div className="flex justify-between items-center py-1.5">
                       <span className="text-slate-400 text-[10px] uppercase tracking-wider">Date of Joining</span>
-                      <span className="text-slate-800">{result.issueDate}</span>
+                      <span className="text-slate-800 font-bold">{result.issueDate}</span>
                     </div>
                   </>
                 ) : (
@@ -95,11 +135,15 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
                     </div>
                     <div className="flex justify-between items-center py-1.5">
                       <span className="text-slate-400 text-[10px] uppercase tracking-wider">Certificate Serial</span>
-                      <span className="text-slate-800 font-mono font-bold">{result.certificateNo}</span>
+                      <span className="text-slate-900 font-mono font-black text-sm">{result.certificateNo}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider">Grade / Performance</span>
+                      <span className="text-slate-800 font-bold">{result.grade || "A"} ({result.performance || "Excellent"})</span>
                     </div>
                     <div className="flex justify-between items-center py-1.5">
                       <span className="text-slate-400 text-[10px] uppercase tracking-wider">Date of Issue</span>
-                      <span className="text-slate-800">{result.issueDate}</span>
+                      <span className="text-slate-800 font-bold">{result.issueDate}</span>
                     </div>
                   </>
                 )}
@@ -145,6 +189,10 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
           </div>
         )}
       </main>
+
+      <footer className="bg-white border-t border-slate-200/60 py-6 text-center text-xs text-slate-400">
+        <p>&copy; {new Date().getFullYear()} DK Foundation of Freedom and Justice. Official Registry Portal.</p>
+      </footer>
     </div>
   );
 }

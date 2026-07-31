@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { generateCertificatePDFClient } from "@/app/admin/(dashboard)/registrations/CertificateGenerator";
 import { generateMembershipPDFClient } from "@/app/admin/(dashboard)/members/MembershipCertificateGenerator";
+import { generateAppreciationPDFClient } from "@/app/admin/(dashboard)/appreciation/AppreciationCertificateGenerator";
 import { CertificateDetails } from "../actions";
 
 export default function VerifyDownloadButton({ cert }: { cert: CertificateDetails }) {
@@ -22,7 +23,7 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
         const url = window.URL.createObjectURL(pdfBlob);
         const anchor = document.createElement("a");
         anchor.href = url;
-        anchor.download = `Certificate_${cert.certificateNo}.pdf`;
+        anchor.download = `Certificate_${cert.certificateNo.replace(/\//g, "_")}.pdf`;
         document.body.appendChild(anchor);
         anchor.click();
         anchor.remove();
@@ -31,7 +32,19 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
       }
 
       let pdfBlob;
-      if (cert.certType === "membership") {
+      if (cert.certType === "appreciation") {
+        pdfBlob = await generateAppreciationPDFClient({
+          applicationNo: cert.certificateNo,
+          fullName: cert.userName,
+          socialWorkField: cert.workingArea || cert.courseName.replace(/^Certificate of Appreciation — /, ""),
+          issueDateStr: cert.issueDate,
+          qrCodeUrl: cert.qrCodeUrl,
+          verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`,
+          fatherName: cert.fatherName || null,
+          designation: cert.designation || null,
+          photoUrl: cert.photoUrl || null
+        });
+      } else if (cert.certType === "membership") {
         const resultFiles = await generateMembershipPDFClient({
           membershipNo: cert.certificateNo,
           ackNo: cert.ackNo || "",
@@ -69,9 +82,11 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
       const url = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = cert.certType === "membership"
-        ? `Membership_Certificate_${cert.certificateNo}.pdf`
-        : `Certificate_${cert.certificateNo}.pdf`;
+      a.download = cert.certType === "appreciation"
+        ? `Appreciation_Certificate_${cert.certificateNo.replace(/\//g, "_")}.pdf`
+        : cert.certType === "membership"
+        ? `Membership_Certificate_${cert.certificateNo.replace(/\//g, "_")}.pdf`
+        : `Course_Certificate_${cert.certificateNo.replace(/\//g, "_")}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -88,7 +103,7 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="w-full text-center py-3 rounded-xl bg-[#C00000] text-white hover:bg-[#990000] text-xs font-bold uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(192, 0, 0,0.15)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+      className="w-full text-center py-3 rounded-xl bg-[#C00000] text-white hover:bg-[#990000] text-xs font-bold uppercase tracking-wider transition-all shadow-[0_4px_12px_rgba(192,0,0,0.15)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
     >
       {loading ? (
         <Loader2 className="w-4 h-4 animate-spin" />

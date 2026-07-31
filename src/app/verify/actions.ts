@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export interface CertificateDetails {
   found: boolean;
-  certType: "course" | "membership";
+  certType: "course" | "membership" | "appreciation";
   certificateNo: string;
   userName: string;
   courseName: string;
@@ -25,6 +25,19 @@ export interface CertificateDetails {
   ackNo?: string;
 }
 
+function cleanAmpText(str?: string | null): string {
+  if (!str) return "";
+  let res = str;
+  while (res.includes("&amp;")) {
+    res = res.replace(/&amp;/g, "&");
+  }
+  return res
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"');
+}
+
 export async function verifyCertificate(certificateNo: string): Promise<CertificateDetails | null> {
   const rawSearch = decodeURIComponent(certificateNo || "").trim();
 
@@ -42,7 +55,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dkffj.org";
 
   try {
-    // 1. Search in `certificates` table
+    // 1. Search in `certificates` table (Course Certificates)
     const cert = await prisma.certificates.findFirst({
       where: {
         OR: variants.map((v) => ({
@@ -52,7 +65,6 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
     });
 
     if (cert) {
-      // Fetch student registration metadata if available
       let fatherName = "N/A";
       let enrollmentNo = "";
       let photoUrl = null;
@@ -66,7 +78,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
         });
 
         if (reg) {
-          fatherName = reg.father_name || "N/A";
+          fatherName = cleanAmpText(reg.father_name) || "N/A";
           enrollmentNo = reg.enrollment_no || "";
           photoUrl = reg.photo_url;
 
@@ -97,8 +109,8 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
         found: true,
         certType: "course",
         certificateNo: certNo,
-        userName: cert.user_name,
-        courseName: cert.course_name,
+        userName: cleanAmpText(cert.user_name),
+        courseName: cleanAmpText(cert.course_name),
         issueDate: new Date(cert.issue_date).toLocaleDateString("en-IN"),
         status: cert.status,
         pdfUrl: cert.pdf_url || "",
@@ -114,7 +126,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
       };
     }
 
-    // 2. Search in `appreciation_applications` table
+    // 2. Search in `appreciation_applications` table (Appreciation Certificates)
     const appreciationApp = await prisma.appreciation_applications.findFirst({
       where: {
         OR: [
@@ -135,13 +147,13 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
 
       return {
         found: true,
-        certType: "membership",
+        certType: "appreciation",
         certificateNo: certNo,
-        userName: appreciationApp.full_name,
-        fatherName: appreciationApp.father_name || "N/A",
-        courseName: `Certificate of Appreciation — ${appreciationApp.social_work_field}`,
+        userName: cleanAmpText(appreciationApp.full_name),
+        fatherName: cleanAmpText(appreciationApp.father_name) || "N/A",
+        courseName: `Certificate of Appreciation — ${cleanAmpText(appreciationApp.social_work_field)}`,
         designation: "Honorable Social Advocate",
-        workingArea: appreciationApp.social_work_field,
+        workingArea: cleanAmpText(appreciationApp.social_work_field),
         photoUrl: appreciationApp.photo_url,
         issueDate,
         status: isApproved ? "VALID" : (appreciationApp.status === "PENDING" ? "VALID (UNDER REVIEW)" : appreciationApp.status),
@@ -150,7 +162,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
       };
     }
 
-    // 3. Search in `memberships` table
+    // 3. Search in `memberships` table (Membership Certificates)
     const member = await prisma.memberships.findFirst({
       where: {
         OR: [
@@ -179,11 +191,11 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
         certType: "membership",
         certificateNo: certNo,
         ackNo: member.ack_no || "",
-        userName: member.full_name,
-        fatherName: member.father_name || "N/A",
+        userName: cleanAmpText(member.full_name),
+        fatherName: cleanAmpText(member.father_name) || "N/A",
         courseName: "Membership / Executive Council Certificate",
-        designation: member.designation || "Executive Member",
-        workingArea: member.working_area || member.district || member.state || "India",
+        designation: cleanAmpText(member.designation) || "Executive Member",
+        workingArea: cleanAmpText(member.working_area || member.district || member.state || "India"),
         photoUrl: member.photo_url,
         issueDate,
         status: isApproved ? "VALID" : member.status,
