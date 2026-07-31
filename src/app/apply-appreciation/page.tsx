@@ -201,35 +201,13 @@ export default function ApplyAppreciationPage() {
     setSuccessMsg("");
 
     if (!photo || !idProof) {
-      setErrorMsg("Please upload your Passport Photo and Govt Identity Proof.");
+      setErrorMsg("Please upload your Passport Photo and Govt Identity Proof (Aadhaar / Passport).");
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
-    if (!isLoggedIn) {
-      if (!password || !confirmPassword) {
-        setErrorMsg("Please select and confirm a password for your account.");
-        return;
-      }
-      if (password.length < 8) {
-        setErrorMsg("Password must be at least 8 characters long.");
-        return;
-      }
-      const hasUppercase = /[A-Z]/.test(password);
-      const hasLowercase = /[a-z]/.test(password);
-      const hasNumber = /[0-9]/.test(password);
-      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      
-      if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
-        setErrorMsg("Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.");
-        return;
-      }
-      if (password !== confirmPassword) {
-        setErrorMsg("Passwords do not match.");
-        return;
-      }
-    }
-
     setLoading(true);
+    setSuccessMsg("Processing your application and initializing payment gateway...");
 
     try {
       const formData = new FormData();
@@ -253,22 +231,23 @@ export default function ApplyAppreciationPage() {
       if (achievementProof) {
         formData.append("achievementProof", achievementProof);
       }
-      if (!isLoggedIn) {
-        formData.append("password", password);
-      }
 
       const res = await submitAppreciationApplication(null, formData);
 
       if (res.success && res.checkoutUrl) {
-        setSuccessMsg(res.message || "Application logged. Redirecting to payment...");
-        setTimeout(() => {
+        setSuccessMsg(res.message || "Application submitted successfully! Redirecting to secure payment...");
+        if (typeof window !== "undefined") {
+          window.location.href = res.checkoutUrl;
+        } else {
           router.push(res.checkoutUrl);
-        }, 1500);
+        }
       } else {
-        setErrorMsg(res.error || "Submission failed. Please check details.");
+        setErrorMsg(res.error || "Submission failed. Please check your details and try again.");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "An error occurred during submission.");
+      setErrorMsg(err.message || "An unexpected error occurred during submission.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setLoading(false);
     }
