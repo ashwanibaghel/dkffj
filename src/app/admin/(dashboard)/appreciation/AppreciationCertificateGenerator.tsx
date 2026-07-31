@@ -822,7 +822,7 @@ export async function generateAppreciationCertFiles(
           }
 
           const canvas = await html2canvas(targetElement, {
-            scale: 3.5,
+            scale: 2.0,
             useCORS: true,
             allowTaint: false,
             logging: false,
@@ -831,7 +831,7 @@ export async function generateAppreciationCertFiles(
           });
 
           // 1. JPG Data Base64
-          const imgData = canvas.toDataURL("image/jpeg", 0.95);
+          const imgData = canvas.toDataURL("image/jpeg", 0.88);
           const jpgBase64 = imgData.replace(/^data:image\/jpeg;base64,/, "");
 
           // 2. PDF Base64
