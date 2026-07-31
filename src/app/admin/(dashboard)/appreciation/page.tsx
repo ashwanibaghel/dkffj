@@ -59,6 +59,7 @@ type AppreciationApplication = {
   achievement_proof_url?: string | null;
   status: string;
   remarks?: string | null;
+  created_at?: string;
 };
 
 import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
@@ -666,58 +667,71 @@ export default function AdminAppreciationPage() {
             {filteredApplications.map((app) => {
               const isExpanded = expandedId === app.id;
               const cleanedNo = cleanAppNo(app.application_no);
+              const formattedDate = app.created_at
+                ? new Date(app.created_at).toLocaleString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true
+                  })
+                : "Recent";
+
+              const photoSrc = app.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(app.full_name || "Applicant")}&background=001C55&color=fff&size=128`;
+
               return (
                 <div key={app.id} className="transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
                   {/* Summary row */}
                   <div
                     onClick={() => setExpandedId(isExpanded ? null : app.id)}
-                    className={`p-4 lg:px-5 lg:py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-3 cursor-pointer ${
+                    className={`p-4 lg:px-5 lg:py-3.5 flex flex-wrap md:flex-nowrap items-center justify-between gap-3 cursor-pointer ${
                       isExpanded ? "bg-blue-50/40 dark:bg-blue-500/5 border-b border-slate-100 dark:border-slate-800" : ""
                     }`}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-3 flex-1 min-w-0 items-center">
-                      <div className="md:col-span-5 flex items-center gap-3 min-w-0">
+                      <div className="md:col-span-5 flex items-start sm:items-center gap-3 min-w-0">
                       {/* Photo preview */}
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden shrink-0 flex items-center justify-center">
-                        {app.photo_url ? (
-                          <img
-                            src={app.photo_url}
-                            className="h-full w-full object-cover"
-                            alt=""
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).onerror = null;
-                              (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(app.full_name || "Applicant")}&background=001C55&color=fff`;
-                            }}
-                          />
-                        ) : (
-                          <Award className="w-4 h-4 text-slate-400" />
-                        )}
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-blue-900/10 dark:border-blue-500/20 overflow-hidden shrink-0 shadow-sm flex items-center justify-center">
+                        <img
+                          src={photoSrc}
+                          className="h-full w-full object-cover"
+                          alt={app.full_name}
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).onerror = null;
+                            (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(app.full_name || "Applicant")}&background=001C55&color=fff&size=128`;
+                          }}
+                        />
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                          <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight truncate">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
                             {app.full_name}
                           </span>
-                          <span className="text-[9.5px] font-mono font-bold text-[#001C55] dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-1.5 py-0.5 rounded w-fit shrink-0">
+                          <span className="text-[9.5px] font-mono font-bold text-[#001C55] dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-2 py-0.5 rounded-md shrink-0">
                             {cleanedNo}
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
+                        <div className="text-[11px] text-slate-600 dark:text-slate-300 font-medium mt-1 truncate">
                           {app.email} &bull; {app.mobile}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10.5px] text-slate-500 dark:text-slate-400 font-semibold mt-1">
+                          <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                          <span>Applied: {formattedDate}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="md:col-span-4 min-w-0 text-xs">
+                    <div className="md:col-span-4 min-w-0 text-xs space-y-0.5">
                       <span className="md:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Field</span>
-                      <span className="text-slate-800 dark:text-slate-200 font-bold block truncate">{cleanText(app.social_work_field)}</span>
-                      <span className="text-slate-500 dark:text-slate-400 block mt-0.5 truncate">{app.district}, {app.state}</span>
+                      <span className="text-slate-800 dark:text-slate-200 font-bold block">{cleanText(app.social_work_field)}</span>
+                      <span className="text-slate-500 dark:text-slate-400 block font-medium">{app.district}, {app.state}</span>
                     </div>
 
                     <div className="md:col-span-3 flex items-center gap-3">
                       {/* Status pill */}
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusBadge(app.status)}`}>
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${getStatusBadge(app.status)}`}>
                         {app.status === "UNDER_REVIEW" ? "Awaiting Review" : app.status}
                       </span>
                     </div>
