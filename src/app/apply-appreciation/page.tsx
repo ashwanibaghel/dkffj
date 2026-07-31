@@ -224,6 +224,19 @@ export default function ApplyAppreciationPage() {
       return;
     }
 
+    // PDF size check (PDFs cannot be canvas-compressed)
+    if (idProof.type === "application/pdf" && idProof.size > 4.5 * 1024 * 1024) {
+      setErrorMsg(`Identity Proof PDF file size is too large (${(idProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 4.5 MB. Please select a smaller PDF or a JPG/PNG image.`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (achievementProof && achievementProof.type === "application/pdf" && achievementProof.size > 4.5 * 1024 * 1024) {
+      setErrorMsg(`Achievement Proof PDF file size is too large (${(achievementProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 4.5 MB. Please select a smaller PDF or a JPG/PNG image.`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     setLoading(true);
     setSuccessMsg("Optimizing & compressing documents...");
 

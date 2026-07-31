@@ -46,11 +46,21 @@ export async function uploadFileToStorage(
       body: formData,
     });
 
-    const json = await res.json();
+    const text = await res.text();
+    let json: any = {};
+    try {
+      json = JSON.parse(text);
+    } catch {
+      if (res.status === 413) {
+        return { url: "", error: "File size is too large (exceeds 4.5MB limit). Please select a file or photo under 4.5MB." };
+      }
+      return { url: "", error: `Upload server error (${res.status}): Unable to process document.` };
+    }
+
     if (res.ok && json.url) {
       return { url: json.url };
     }
-    return { url: "", error: json.error || "Document upload failed on server fallback." };
+    return { url: "", error: json.error || "Document upload failed." };
   } catch (apiErr: any) {
     console.error(`[API UPLOAD FALLBACK EXCEPTION] ${bucket}/${path}:`, apiErr);
     return { url: "", error: apiErr?.message || "Upload failed. Please check network connection." };
