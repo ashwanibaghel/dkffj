@@ -1,2 +1,0 @@
-Tables: ['blog', 'complaint_form', 'contact', 'document', 'donation', 'gallery', 'logo', 'membership_form', 'site_setting', 'slider', 'state', 'tbl_admin', 'testimonials', 'videos']
-Inserts: ['slider', 'site_setting', 'blog', 'membership_form', 'tbl_admin', 'state', 'contact', 'complaint_form', 'gallery', 'videos', 'logo', 'document']

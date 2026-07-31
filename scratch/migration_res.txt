@@ -1,5 +1,0 @@
-Migration Completed Successfully!
-Total Leaders: 97
-Newly Inserted Memberships: 9
-Updated Existing Memberships: 88
-Total Memberships in DB now: 389
