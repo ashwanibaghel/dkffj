@@ -49,3 +49,27 @@ export async function adminLoginAction(email: string, password: string) {
     return { success: false, error: err.message || "An unexpected login error occurred." };
   }
 }
+
+export async function checkAdminSessionAction() {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      const { data: profile } = await supabase
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile && (profile.role === "ADMIN" || profile.role === "SUPERADMIN")) {
+        return { isLoggedIn: true };
+      }
+    }
+    return { isLoggedIn: false };
+  } catch (err) {
+    return { isLoggedIn: false };
+  }
+}
+

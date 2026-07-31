@@ -228,9 +228,40 @@ export default function AdminAppreciationPage() {
     setActionLoading(true);
     setActionError("");
     try {
-      const res = await updateAppreciationStatus(applicationId, newStatus, remarks);
+      let pdfBase64: string | undefined;
+      let jpgBase64: string | undefined;
+
+      // If approving, generate the certificate PDF & JPG to attach to the notification email
+      if (newStatus === "APPROVED") {
+        const appToApprove = applications.find((a) => a.id === applicationId);
+        if (appToApprove) {
+          try {
+            const refNo = decodeURIComponent(cleanAppNo(appToApprove.application_no)).replace(/%2F/gi, "/");
+            const verificationUrl = `https://www.dkffj.org/verify/${refNo}`;
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
+            const issueDateStr = new Date().toLocaleDateString("en-IN");
+
+            showToast("Generating certificate for email attachment...", "success");
+            const certFiles = await generateAppreciationCertFiles({
+              applicationNo: refNo,
+              fullName: appToApprove.full_name,
+              socialWorkField: appToApprove.social_work_field,
+              issueDateStr,
+              qrCodeUrl,
+              verificationUrl,
+              photoUrl: appToApprove.photo_url || null
+            });
+            pdfBase64 = certFiles.pdfBase64;
+            jpgBase64 = certFiles.jpgBase64;
+          } catch (genErr) {
+            console.error("Certificate generation failed, approving without attachment:", genErr);
+          }
+        }
+      }
+
+      const res = await updateAppreciationStatus(applicationId, newStatus, remarks, pdfBase64, jpgBase64);
       if (res.success) {
-        showToast(`✅ Application ${newStatus}! Candidate notified via email.`, "success");
+        showToast(`✅ Application ${newStatus}! Candidate notified via email${pdfBase64 ? " with certificate attached" : ""}.`, "success");
         setRemarks("");
         await fetchData();
       } else {

@@ -368,45 +368,32 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
             {/* Certification details */}
             <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
               
-              {/* Row 1 & 2: Recipient Name (Dynamic: inline for short names, dedicated line for long names) */}
-              {(data.fullName || "").length <= 18 ? (
-                <div className="cert-line" style={{ width: "100%", marginLeft: 0, justifyContent: "center" }}>
-                  <span style={{ minWidth: "290px", fontSize: "16px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
-                    This certificate is proudly presented to Mr./Ms./Mrs.
-                  </span>
-                  <div className="cert-pill" style={{ minWidth: "230px", textTransform: "uppercase", fontSize: "21px", fontWeight: "800", color: "#001C55", letterSpacing: "0.5px", minHeight: "32px" }}>
-                    {data.fullName}
-                  </div>
+              {/* Row 1 & 2: Recipient Name (Always on a dedicated separate line as requested by client) */}
+              <div style={{
+                fontSize: "16.5px",
+                fontStyle: "italic",
+                fontFamily: "'Playfair Display', serif",
+                color: "#222222",
+                textAlign: "center"
+              }}>
+                This certificate is proudly presented to Mr./Ms./Mrs.
+              </div>
+              <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: "1px" }}>
+                <div className="cert-pill" style={{
+                  minWidth: "300px",
+                  maxWidth: "95%",
+                  textTransform: "uppercase",
+                  fontSize: "20px",
+                  fontWeight: "800",
+                  color: "#001C55",
+                  letterSpacing: "0.5px",
+                  minHeight: "32px",
+                  padding: "0 12px",
+                  whiteSpace: "nowrap"
+                }}>
+                  {data.fullName}
                 </div>
-              ) : (
-                <>
-                  <div style={{
-                    fontSize: "16.5px",
-                    fontStyle: "italic",
-                    fontFamily: "'Playfair Display', serif",
-                    color: "#222222",
-                    textAlign: "center"
-                  }}>
-                    This certificate is proudly presented to Mr./Ms./Mrs.
-                  </div>
-                  <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: "1px" }}>
-                    <div className="cert-pill" style={{
-                      minWidth: "300px",
-                      maxWidth: "95%",
-                      textTransform: "uppercase",
-                      fontSize: "20px",
-                      fontWeight: "800",
-                      color: "#001C55",
-                      letterSpacing: "0.5px",
-                      minHeight: "32px",
-                      padding: "0 12px",
-                      whiteSpace: "nowrap"
-                    }}>
-                      {data.fullName}
-                    </div>
-                  </div>
-                </>
-              )}
+              </div>
 
 
 

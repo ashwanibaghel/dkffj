@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 import { ShieldAlert, Lock, Mail, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { adminLoginAction } from "./actions";
+import { adminLoginAction, checkAdminSessionAction } from "./actions";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -15,25 +14,23 @@ export default function AdminLoginPage() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  // Check if already logged in and has admin role
+  // Check if already logged in and has admin role via server action
   useEffect(() => {
+    let isMounted = true;
     const checkSession = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // Query profile to check if ADMIN
-        const { data: profile } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (profile && (profile.role === "ADMIN" || profile.role === "SUPERADMIN")) {
+      try {
+        const res = await checkAdminSessionAction();
+        if (isMounted && res?.isLoggedIn) {
           router.push("/admin");
         }
+      } catch (_) {
+        // Silently bypass any network errors on session check
       }
     };
     checkSession();
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
