@@ -10,6 +10,7 @@ import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistr
 import { getPricingSettings } from "@/lib/portalSettings";
 import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
 import { uploadAppreciationDocs } from "@/lib/uploadToStorage";
+import { compressImage } from "@/lib/compressImage";
 
 export default function ApplyAppreciationPage() {
   const router = useRouter();
@@ -224,16 +225,21 @@ export default function ApplyAppreciationPage() {
     }
 
     setLoading(true);
-    setSuccessMsg("Uploading verification documents securely...");
+    setSuccessMsg("Optimizing & compressing documents...");
 
     try {
-      // Direct client upload from browser to Supabase Storage (bypasses Vercel 4.5MB Server Action limit entirely)
+      // Step 1: Compress images client-side to be ultra-fast (reduces 5-10MB photos down to ~300KB)
+      const compressedPhoto = await compressImage(photo, 1600, 0.85, 600);
+      const compressedIdProof = await compressImage(idProof, 1800, 0.85, 1000);
+      const compressedAchievement = achievementProof ? await compressImage(achievementProof, 1800, 0.85, 1000) : null;
+
+      // Step 2: Direct client upload from browser to Supabase Storage (bypasses Vercel 4.5MB Server Action limit entirely)
       const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();
       const uploadRes = await uploadAppreciationDocs(
         tempUserId,
-        photo,
-        idProof,
-        achievementProof,
+        compressedPhoto,
+        compressedIdProof,
+        compressedAchievement,
         (msg) => setSuccessMsg(msg)
       );
 
