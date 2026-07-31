@@ -213,20 +213,19 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
 
   return (
     <div className="space-y-4">
-      {toast && <AdminToast message={toast.message} type={toast.type} />}
+      <AdminToast toast={toast} />
 
-      {confirmDialog && (
-        <AdminConfirmDialog
-          isOpen={true}
-          title={confirmDialog.title}
-          description={confirmDialog.message}
-          confirmLabel={confirmDialog.confirmLabel}
-          tone={confirmDialog.tone}
-          loading={confirming}
-          onConfirm={handleConfirm}
-          onClose={closeConfirm}
-        />
-      )}
+      <AdminConfirmDialog
+        open={Boolean(confirmDialog)}
+        title={confirmDialog?.title}
+        message={confirmDialog?.message}
+        confirmLabel={confirmDialog?.confirmLabel}
+        cancelLabel={confirmDialog?.cancelLabel}
+        tone={confirmDialog?.tone}
+        loading={confirming}
+        onConfirm={handleConfirm}
+        onCancel={closeConfirm}
+      />
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
