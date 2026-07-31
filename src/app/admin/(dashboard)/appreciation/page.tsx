@@ -9,7 +9,8 @@ import {
   updateAppreciationStatus,
   createDirectAppreciationApplication,
   resendAppreciationCertificateEmail,
-  deleteAppreciationApplication
+  deleteAppreciationApplication,
+  updateAppreciationDetails
 } from "./actions";
 import { 
   FileCheck, 
@@ -33,7 +34,9 @@ import {
   UserPlus,
   Mail,
   Send,
-  Trash2
+  Trash2,
+  Pencil,
+  Save
 } from "lucide-react";
 import AdminEmptyState from "../components/AdminEmptyState";
 import { AdminConfirmDialog } from "../components/AdminFeedback";
@@ -99,12 +102,392 @@ function getStatusBadge(status?: string) {
   }
 }
 
+function EditAppreciationModal({
+  app,
+  onClose,
+  onSaved,
+  showToast
+}: {
+  app: AppreciationApplication;
+  onClose: () => void;
+  onSaved: () => void;
+  showToast: (msg: string, type?: "success" | "error") => void;
+}) {
+  const [fullName, setFullName] = useState(app.full_name || "");
+  const [email, setEmail] = useState(app.email || "");
+  const [mobile, setMobile] = useState(app.mobile || "");
+  const [address, setAddress] = useState(app.address || "");
+  const [country, setCountry] = useState(app.country || "India");
+  const [stateName, setStateName] = useState(app.state || "");
+  const [district, setDistrict] = useState(app.district || "");
+  const [pincode, setPincode] = useState(app.pincode || "");
+  const [socialWorkField, setSocialWorkField] = useState(app.social_work_field || "");
+  const [description, setDescription] = useState(app.description || "");
+
+  const [photoUrl, setPhotoUrl] = useState(app.photo_url || "");
+  const [idProofUrl, setIdProofUrl] = useState(app.id_proof_url || "");
+  const [achievementProofUrl, setAchievementProofUrl] = useState(app.achievement_proof_url || "");
+
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingIdProof, setUploadingIdProof] = useState(false);
+  const [uploadingAchievement, setUploadingAchievement] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleFileUpload = async (file: File, bucket: string, pathPrefix: string): Promise<string> => {
+    const ext = file.name.split(".").pop() || "png";
+    const path = `${pathPrefix}/${app.id}_${Date.now()}.${ext}`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("bucket", bucket);
+    formData.append("path", path);
+
+    const res = await fetch("/api/upload-document", {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) {
+      throw new Error(data.error || "File upload failed.");
+    }
+    return data.url;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await updateAppreciationDetails({
+        id: app.id,
+        fullName,
+        email,
+        mobile,
+        address,
+        country,
+        state: stateName,
+        district,
+        pincode,
+        socialWorkField,
+        description,
+        photoUrl,
+        idProofUrl,
+        achievementProofUrl: achievementProofUrl || null
+      });
+
+      if (res.success) {
+        showToast("Application details updated successfully!", "success");
+        onSaved();
+        onClose();
+      } else {
+        showToast(res.error || "Failed to update details.", "error");
+      }
+    } catch (err: any) {
+      showToast(err?.message || "Error saving application details.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-950/80">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 border border-blue-500/20 flex items-center justify-center shadow-sm">
+              <Pencil className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                Edit Application Record
+              </h3>
+              <p className="text-[11px] text-slate-500 font-medium">
+                Application No: <span className="font-mono font-bold text-[#001C55] dark:text-blue-400">{cleanAppNo(app.application_no)}</span>
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Body Form */}
+        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6">
+          {/* Section: Candidate Information */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <UserPlus className="w-4 h-4" /> Personal & Contact Details
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Mobile Number *</label>
+                <input
+                  type="text"
+                  required
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Location Details */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <FileText className="w-4 h-4" /> Location & Postal Details
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Country</label>
+                <input
+                  type="text"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">State *</label>
+                <input
+                  type="text"
+                  required
+                  value={stateName}
+                  onChange={(e) => setStateName(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">District *</label>
+                <input
+                  type="text"
+                  required
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Address *</label>
+                <input
+                  type="text"
+                  required
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Pincode *</label>
+                <input
+                  type="text"
+                  required
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Social Work Field */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <Award className="w-4 h-4" /> Social Work & Contribution Details
+            </h4>
+
+            <div className="space-y-3 text-xs font-semibold">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Social Work Field *</label>
+                <input
+                  type="text"
+                  required
+                  value={socialWorkField}
+                  onChange={(e) => setSocialWorkField(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Contribution Description *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Documents & Uploads */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-black text-[#001C55] dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-2">
+              <Upload className="w-4 h-4" /> Application Upload Documents
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              {/* Photo Upload */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Passport Photo</span>
+                {photoUrl && (
+                  <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 bg-white">
+                    <img src={photoUrl} className="w-full h-full object-cover" alt="" />
+                  </div>
+                )}
+                <label className="block text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-500/20 text-center cursor-pointer hover:bg-blue-100">
+                  {uploadingPhoto ? "Uploading..." : "Change Photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploadingPhoto}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadingPhoto(true);
+                        try {
+                          const url = await handleFileUpload(file, "photos", "appreciation_photos");
+                          setPhotoUrl(url);
+                          showToast("Photo uploaded successfully.");
+                        } catch (err: any) {
+                          showToast(err.message || "Failed to upload photo", "error");
+                        } finally {
+                          setUploadingPhoto(false);
+                        }
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              {/* ID Proof Upload */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Government ID Proof</span>
+                <span className="text-[10px] text-slate-500 block truncate">{idProofUrl || "No file attached"}</span>
+                <label className="block text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-500/20 text-center cursor-pointer hover:bg-blue-100">
+                  {uploadingIdProof ? "Uploading..." : "Change ID Proof"}
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    disabled={uploadingIdProof}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadingIdProof(true);
+                        try {
+                          const url = await handleFileUpload(file, "aadhaar", "appreciation_idproofs");
+                          setIdProofUrl(url);
+                          showToast("ID proof uploaded successfully.");
+                        } catch (err: any) {
+                          showToast(err.message || "Failed to upload ID proof", "error");
+                        } finally {
+                          setUploadingIdProof(false);
+                        }
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              {/* Achievement Proof Upload */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Achievement Evidence</span>
+                <span className="text-[10px] text-slate-500 block truncate">{achievementProofUrl || "No file attached"}</span>
+                <label className="block text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-500/20 text-center cursor-pointer hover:bg-blue-100">
+                  {uploadingAchievement ? "Uploading..." : "Change Achievement Proof"}
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    disabled={uploadingAchievement}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setUploadingAchievement(true);
+                        try {
+                          const url = await handleFileUpload(file, "aadhaar", "appreciation_achievements");
+                          setAchievementProofUrl(url);
+                          showToast("Achievement proof uploaded successfully.");
+                        } catch (err: any) {
+                          showToast(err.message || "Failed to upload achievement proof", "error");
+                        } finally {
+                          setUploadingAchievement(false);
+                        }
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Submit Buttons */}
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving || uploadingPhoto || uploadingIdProof || uploadingAchievement}
+              className="px-6 py-2 bg-[#001C55] hover:bg-[#001236] text-white text-xs font-extrabold uppercase tracking-wider rounded-xl flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <span>Save Changes</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminAppreciationPage() {
   const [applications, setApplications] = useState<AppreciationApplication[]>([]);
   const [filter, setFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Edit Modal State
+  const [editingApp, setEditingApp] = useState<AppreciationApplication | null>(null);
 
   // Certificate Modal State
   const [selectedCertApp, setSelectedCertApp] = useState<AppreciationApplication | null>(null);
@@ -708,6 +1091,19 @@ export default function AdminAppreciationPage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0 ml-auto">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingApp(app);
+                        }}
+                        className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-500/30 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer shrink-0"
+                        title="Edit Application Details & Upload Documents"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                        <span className="hidden sm:inline">Edit Details</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1318,6 +1714,16 @@ export default function AdminAppreciationPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit Application Modal */}
+      {editingApp && (
+        <EditAppreciationModal
+          app={editingApp}
+          onClose={() => setEditingApp(null)}
+          onSaved={() => fetchData()}
+          showToast={showToast}
+        />
       )}
 
       {/* Premium Confirmation Dialog */}

@@ -306,7 +306,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
         .from("memberships")
         .insert({
           ack_no: ackNo,
-          user_id: userId,
+          user_id: (userId && userId.trim() !== "") ? userId.trim() : null,
           full_name: fullName,
           father_name: fatherName,
           gender,

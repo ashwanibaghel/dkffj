@@ -505,3 +505,77 @@ export async function deleteAppreciationApplication(id: string) {
   return { success: true, message: "Appreciation application deleted successfully." };
 }
 
+export interface UpdateAppreciationPayload {
+  id: string;
+  fullName: string;
+  email: string;
+  mobile: string;
+  address: string;
+  country: string;
+  state: string;
+  district: string;
+  pincode: string;
+  socialWorkField: string;
+  description: string;
+  photoUrl?: string;
+  idProofUrl?: string;
+  achievementProofUrl?: string | null;
+}
+
+export async function updateAppreciationDetails(payload: UpdateAppreciationPayload) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  if (!payload.id) {
+    return { success: false, error: "Application ID is required." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  try {
+    const updateData: Record<string, any> = {
+      full_name: payload.fullName,
+      email: payload.email,
+      mobile: payload.mobile,
+      address: payload.address,
+      country: payload.country,
+      state: payload.state,
+      district: payload.district,
+      pincode: payload.pincode,
+      social_work_field: payload.socialWorkField,
+      description: payload.description,
+      updated_at: new Date().toISOString()
+    };
+
+    if (payload.photoUrl !== undefined) {
+      updateData.photo_url = payload.photoUrl;
+    }
+    if (payload.idProofUrl !== undefined) {
+      updateData.id_proof_url = payload.idProofUrl;
+    }
+    if (payload.achievementProofUrl !== undefined) {
+      updateData.achievement_proof_url = payload.achievementProofUrl;
+    }
+
+    const { error } = await supabase
+      .from("appreciation_applications")
+      .update(updateData)
+      .eq("id", payload.id);
+
+    if (error) {
+      console.error("Failed to update appreciation details:", error);
+      return { success: false, error: "Failed to update record in database: " + error.message };
+    }
+
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/admin/appreciation");
+    return { success: true, message: "Appreciation application details updated successfully." };
+  } catch (err: unknown) {
+    console.error("Unhandled error updating appreciation details:", err);
+    return { success: false, error: err instanceof Error ? err.message : "An unexpected error occurred." };
+  }
+}
+
