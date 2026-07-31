@@ -890,7 +890,9 @@ export default function Home() {
                               className="w-full h-full object-cover" 
                               alt={leader.name} 
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/members/default.jpg";
+                                const img = e.currentTarget as HTMLImageElement;
+                                img.onerror = null;
+                                img.src = "/members/default.jpg";
                               }}
                             />
                           </div>

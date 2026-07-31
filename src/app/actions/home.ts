@@ -12,6 +12,13 @@ const leaderDescriptions: Record<string, string> = {
   "1012": "Leading administrative operations, registrations compliance, and national coordinate activities from Ayodhya, UP." // Jay Prakash Tiwari
 };
 
+const leaderPhotos: Record<string, string> = {
+  "1000": "/members/danish.jpg",
+  "1004": "/members/wasim.jpg",
+  "1010": "/members/vipin.jpg",
+  "1012": "/members/tiwari.jpg"
+};
+
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
   return getVersionedCache("members", "home_leaders", async () => {
@@ -28,18 +35,26 @@ export async function getHomeLeaders() {
       });
 
       if (homeMembers.length > 0) {
-        return homeMembers.map((m) => ({
-          id: m.membership_no || m.ack_no || m.id,
-          name: m.full_name,
-          role: m.designation || "Executive Member",
-          education: m.education || "",
-          location: m.district || m.state || m.address || "India",
-          mobile: m.mobile,
-          photo: m.photo_url || "",
-          status: 1,
-          showHome: 1,
-          description: leaderDescriptions[m.membership_no || ""] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
-        }));
+        return homeMembers.map((m) => {
+          const mNo = m.membership_no || "";
+          let photoPath = leaderPhotos[mNo] || m.photo_url || "";
+          if (photoPath.startsWith("/uploads/")) {
+            // Local upload path missing on production, fallback to default.jpg
+            photoPath = "/members/default.jpg";
+          }
+          return {
+            id: m.membership_no || m.ack_no || m.id,
+            name: m.full_name,
+            role: m.designation || "Executive Member",
+            education: m.education || "",
+            location: m.district || m.state || m.address || "India",
+            mobile: m.mobile,
+            photo: photoPath,
+            status: 1,
+            showHome: 1,
+            description: leaderDescriptions[mNo] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
+          };
+        });
       }
 
       // Fallback source: teamMember table in database
@@ -54,18 +69,22 @@ export async function getHomeLeaders() {
       });
 
       if (dbLeaders.length > 0) {
-        return dbLeaders.map((m) => ({
-          id: m.id,
-          name: m.name,
-          role: m.role,
-          education: m.education,
-          location: m.location,
-          mobile: m.mobile,
-          photo: m.photo,
-          status: m.status,
-          showHome: m.showHome,
-          description: m.description || leaderDescriptions[m.id] || `Certified active executive council officer of DKFFJ representing operations in ${m.location}.`
-        }));
+        return dbLeaders.map((m) => {
+          let p = leaderPhotos[m.id] || m.photo || "";
+          if (p.startsWith("/uploads/")) p = "/members/default.jpg";
+          return {
+            id: m.id,
+            name: m.name,
+            role: m.role,
+            education: m.education,
+            location: m.location,
+            mobile: m.mobile,
+            photo: p,
+            status: m.status,
+            showHome: m.showHome,
+            description: m.description || leaderDescriptions[m.id] || `Certified active executive council officer of DKFFJ representing operations in ${m.location}.`
+          };
+        });
       }
     } catch (error) {
       console.error("Error fetching homepage leaders from database:", error);
@@ -74,18 +93,22 @@ export async function getHomeLeaders() {
     // Fallback to static member registry
     return staticMembers
       .filter((m) => m.showHome === 1)
-      .map((m) => ({
-        id: m.id,
-        name: m.name,
-        role: m.role,
-        education: m.education,
-        location: m.location,
-        mobile: m.mobile,
-        photo: m.photo,
-        status: m.status,
-        showHome: m.showHome,
-        description: leaderDescriptions[m.id] || "DKFFJ Executive Council Member."
-      }));
+      .map((m) => {
+        let p = leaderPhotos[m.id] || m.photo || "";
+        if (p.startsWith("/uploads/")) p = "/members/default.jpg";
+        return {
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          education: m.education,
+          location: m.location,
+          mobile: m.mobile,
+          photo: p,
+          status: m.status,
+          showHome: m.showHome,
+          description: leaderDescriptions[m.id] || "DKFFJ Executive Council Member."
+        };
+      });
   });
 }
 
