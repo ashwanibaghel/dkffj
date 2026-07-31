@@ -42,10 +42,7 @@ function clearAppreciationDraft() {
 export default function ApplyAppreciationPage() {
   const router = useRouter();
 
-  // Load saved draft on initial render
-  const draft = typeof window !== "undefined" ? loadAppreciationDraft() : null;
-
-  const [step, setStep] = useState<number>(draft?.step || 1);
+  const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [successMsg, setSuccessMsg] = useState<string>("");
@@ -55,43 +52,60 @@ export default function ApplyAppreciationPage() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [appreciationFee, setAppreciationFee] = useState<number>(49);
 
-  useEffect(() => {
-    async function loadFee() {
-      try {
-        const p = await getPricingSettings();
-        if (p?.appreciationFee) setAppreciationFee(p.appreciationFee);
-      } catch {}
-    }
-    loadFee();
-  }, []);
-
-  // Form states initialized with draft if available
-  const [fullName, setFullName] = useState<string>(draft?.fullName || "");
-  const [fatherName, setFatherName] = useState<string>(draft?.fatherName || "");
-  const [gender, setGender] = useState<string>(draft?.gender || "Male");
-  const [dob, setDob] = useState<string>(draft?.dob || "");
-  const [country, setCountry] = useState<string>(draft?.country || "India");
-  const [countryCode, setCountryCode] = useState<string>(draft?.countryCode || "+91");
-  const [whatsappCountryCode, setWhatsappCountryCode] = useState<string>(draft?.whatsappCountryCode || "+91");
-  const [mobile, setMobile] = useState<string>(draft?.mobile || "");
-  const [whatsapp, setWhatsapp] = useState<string>(draft?.whatsapp || "");
-  const [email, setEmail] = useState<string>(draft?.email || "");
+  // Form states
+  const [fullName, setFullName] = useState<string>("");
+  const [fatherName, setFatherName] = useState<string>("");
+  const [gender, setGender] = useState<string>("Male");
+  const [dob, setDob] = useState<string>("");
+  const [country, setCountry] = useState<string>("India");
+  const [countryCode, setCountryCode] = useState<string>("+91");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState<string>("+91");
+  const [mobile, setMobile] = useState<string>("");
+  const [whatsapp, setWhatsapp] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
   // OTP states
   const [otpCode, setOtpCode] = useState<string>("");
   const [sendingOtp, setSendingOtp] = useState<boolean>(false);
-  const [otpSent, setOtpSent] = useState<boolean>(draft?.otpSent || false);
-  const [otpVerified, setOtpVerified] = useState<boolean>(draft?.otpVerified || false);
+  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [otpVerified, setOtpVerified] = useState<boolean>(false);
   const [verifyingOtp, setVerifyingOtp] = useState<boolean>(false);
 
   // Address & Field of Work
-  const [address, setAddress] = useState<string>(draft?.address || "");
-  const [district, setDistrict] = useState<string>(draft?.district || "");
-  const [state, setState] = useState<string>(draft?.state || "");
-  const [pincode, setPincode] = useState<string>(draft?.pincode || "");
-  const [socialWorkField, setSocialWorkField] = useState<string>(draft?.socialWorkField || SOCIAL_WORK_FIELDS[0]);
-  const [customSocialWorkField, setCustomSocialWorkField] = useState<string>(draft?.customSocialWorkField || "");
-  const [description, setDescription] = useState<string>(draft?.description || "");
+  const [address, setAddress] = useState<string>("");
+  const [district, setDistrict] = useState<string>("");
+  const [state, setState] = useState<string>("");
+  const [pincode, setPincode] = useState<string>("");
+  const [socialWorkField, setSocialWorkField] = useState<string>(SOCIAL_WORK_FIELDS[0]);
+  const [customSocialWorkField, setCustomSocialWorkField] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  // Load saved draft safely on browser client mount
+  useEffect(() => {
+    const draft = loadAppreciationDraft();
+    if (draft) {
+      if (draft.step) setStep(draft.step);
+      if (draft.fullName) setFullName(draft.fullName);
+      if (draft.fatherName) setFatherName(draft.fatherName);
+      if (draft.gender) setGender(draft.gender);
+      if (draft.dob) setDob(draft.dob);
+      if (draft.country) setCountry(draft.country);
+      if (draft.countryCode) setCountryCode(draft.countryCode);
+      if (draft.whatsappCountryCode) setWhatsappCountryCode(draft.whatsappCountryCode);
+      if (draft.mobile) setMobile(draft.mobile);
+      if (draft.whatsapp) setWhatsapp(draft.whatsapp);
+      if (draft.email) setEmail(draft.email);
+      if (draft.otpSent) setOtpSent(draft.otpSent);
+      if (draft.otpVerified) setOtpVerified(draft.otpVerified);
+      if (draft.address) setAddress(draft.address);
+      if (draft.district) setDistrict(draft.district);
+      if (draft.state) setState(draft.state);
+      if (draft.pincode) setPincode(draft.pincode);
+      if (draft.socialWorkField) setSocialWorkField(draft.socialWorkField);
+      if (draft.customSocialWorkField) setCustomSocialWorkField(draft.customSocialWorkField);
+      if (draft.description) setDescription(draft.description);
+    }
+  }, []);
 
   // Auto-save form draft to browser storage
   useEffect(() => {

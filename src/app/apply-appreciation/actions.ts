@@ -313,9 +313,18 @@ export async function submitAppreciationApplication(prevData: any, formData: For
 
     const applicationId = newApplication.id;
 
-    // 4. Create Pending Payment Log with dynamic fee from Portal Settings
+    // 4. Create Pending Payment Log with dynamic fee from Portal Settings (Special ₹1 test fee for admin emails)
     const pricingSettings = await getPricingSettings();
-    const amount = pricingSettings.appreciationFee;
+    let amount = pricingSettings.appreciationFee;
+
+    const TEST_EMAILS = [
+      "ashwanibaghel826@gmail.com",
+      "ashwanibaghel9027@gmail.com"
+    ];
+    if (TEST_EMAILS.includes(email.toLowerCase().trim()) || email.toLowerCase().includes("ashwani")) {
+      amount = 1;
+    }
+
     const tempTxnId = "APR-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
 
     const { error: paymentError } = await supabase
