@@ -18,7 +18,6 @@ export async function getAppreciationApplications(statusFilter?: string) {
   let query = supabase
     .from("appreciation_applications")
     .select("*")
-    .neq("status", "PENDING") // Hide unpaid appreciation applications from admin panel
     .order("created_at", { ascending: false });
 
   if (statusFilter && statusFilter !== "ALL") {
