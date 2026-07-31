@@ -30,6 +30,10 @@ type PaymentLedgerRow = {
     order_id: string;
     purpose: string;
   } | null;
+  appreciation_applications?: {
+    full_name: string;
+    application_no: string;
+  } | null;
 };
 
 interface PaymentsTableProps {
@@ -58,6 +62,14 @@ function getPaymentMeta(payment: PaymentLedgerRow) {
       payerName: payment.donations.donor_name,
       category: "Donation",
       reference: `${payment.donations.order_id} · ${payment.donations.purpose}`
+    };
+  }
+
+  if (payment.appreciation_applications) {
+    return {
+      payerName: payment.appreciation_applications.full_name,
+      category: "Appreciation Fee",
+      reference: payment.appreciation_applications.application_no
     };
   }
 

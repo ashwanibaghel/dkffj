@@ -28,6 +28,12 @@ const paymentLedgerInclude = {
       order_id: true,
       purpose: true
     }
+  },
+  appreciation_applications: {
+    select: {
+      full_name: true,
+      application_no: true
+    }
   }
 } satisfies Prisma.paymentsInclude;
 

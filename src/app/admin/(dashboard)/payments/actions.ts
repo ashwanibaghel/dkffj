@@ -164,6 +164,58 @@ export async function manuallyApprovePayment(paymentId: string) {
       }
     }
 
+    // Handle appreciation application payment
+    if ((payment as any).appreciation_id) {
+      const { data: appRecord, error: appErr } = await supabase
+        .from("appreciation_applications")
+        .select("id, full_name, email, application_no, status")
+        .eq("id", (payment as any).appreciation_id)
+        .maybeSingle();
+
+      if (!appErr && appRecord && appRecord.status === "PENDING") {
+        // Move appreciation to UNDER_REVIEW now that payment is verified
+        await supabase
+          .from("appreciation_applications")
+          .update({ status: "UNDER_REVIEW" })
+          .eq("id", appRecord.id);
+
+        // Log status transition
+        await supabase.from("status_logs").insert({
+          appreciation_id: appRecord.id,
+          from_status: appRecord.status,
+          to_status: "UNDER_REVIEW",
+          remarks: "Appreciation fee manually verified by administrator. Application submitted for board review."
+        });
+
+        // Send confirmation email to applicant
+        const subject = "Appreciation Application Received & Fee Verified - DKFFJ";
+        const emailHtml = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #001C55; padding: 24px; text-align: center;">
+              <img src="https://www.dkffj.org/logo.png" alt="DKFFJ Logo" style="width: 60px; height: 60px; margin-bottom: 10px; display: inline-block;" />
+              <h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">DK Foundation of Freedom and Justice</h1>
+              <div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+            </div>
+            <div style="padding: 24px; color: #334155;">
+              <h2 style="color: #001C55; margin-top: 0;">Application Received & Payment Verified</h2>
+              <p>Dear <strong>${appRecord.full_name}</strong>,</p>
+              <p>Your application for a <strong>Certificate of Appreciation</strong> has been received and your payment has been verified by our administration team.</p>
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin: 20px 0;">
+                <p style="margin: 4px 0; font-size: 13px;"><strong>Application No:</strong> <span style="color: #C00000; font-family: monospace; font-weight: bold;">${appRecord.application_no}</span></p>
+                <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> <span style="color: #d97706; font-weight: bold;">UNDER BOARD REVIEW</span></p>
+                <p style="margin: 4px 0; font-size: 13px;"><strong>Payment:</strong> <span style="color: #15803d; font-weight: bold;">VERIFIED ✓</span></p>
+              </div>
+              <p>Your application has been forwarded to the executive board for review. You will be notified via email once a decision has been reached.</p>
+            </div>
+            <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+              &copy; ${new Date().getFullYear()} DK Foundation of Freedom and Justice. All Rights Reserved.
+            </div>
+          </div>
+        `;
+        await sendTransactionalEmail(appRecord.email, subject, emailHtml);
+      }
+    }
+
     revalidatePath("/admin/payments");
     return { success: true };
   } catch (error: unknown) {
