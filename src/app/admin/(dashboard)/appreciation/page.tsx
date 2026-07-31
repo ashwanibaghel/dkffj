@@ -7,7 +7,8 @@ import {
   getAppreciationApplications, 
   getSignedDocumentUrl, 
   updateAppreciationStatus,
-  createDirectAppreciationApplication 
+  createDirectAppreciationApplication,
+  resendAppreciationCertificateEmail
 } from "./actions";
 import { 
   FileCheck, 
@@ -28,7 +29,9 @@ import {
   Plus,
   Sparkles,
   Upload,
-  UserPlus
+  UserPlus,
+  Mail,
+  Send
 } from "lucide-react";
 import AdminEmptyState from "../components/AdminEmptyState";
 import { AppreciationCertificateRenderer, generateAppreciationPDFClient, generateAppreciationCertFiles } from "./AppreciationCertificateGenerator";
@@ -272,6 +275,57 @@ export default function AdminAppreciationPage() {
       showToast(`Error generating certificate: ${err.message || err}`, "error");
     } finally {
       setDownloadingCert(false);
+    }
+  };
+
+  const [resendingId, setResendingId] = useState<string | null>(null);
+
+  const handleResendCertificateEmail = async (app: AppreciationApplication) => {
+    if (!app.email) {
+      showToast("Candidate does not have an email address specified.", "error");
+      return;
+    }
+
+    setResendingId(app.id);
+    showToast(`Generating updated certificate & sending email to ${app.email}...`, "success");
+
+    try {
+      const refNo = decodeURIComponent(cleanAppNo(app.application_no)).replace(/%2F/gi, "/");
+      const verificationUrl = `https://www.dkffj.org/verify/${refNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
+      const issueDateStr = new Date().toLocaleDateString("en-IN");
+
+      // Generate client-side PDF & JPG files using updated renderer template & canonical QR code
+      const certFiles = await generateAppreciationCertFiles({
+        applicationNo: refNo,
+        fullName: app.full_name,
+        socialWorkField: app.social_work_field,
+        issueDateStr,
+        qrCodeUrl,
+        verificationUrl,
+        photoUrl: app.photo_url || null
+      });
+
+      // Call server action to send transactional email with PDF & JPG attachments
+      const res = await resendAppreciationCertificateEmail({
+        applicationNo: refNo,
+        fullName: app.full_name,
+        email: app.email,
+        socialWorkField: app.social_work_field,
+        pdfBase64: certFiles.pdfBase64,
+        jpgBase64: certFiles.jpgBase64
+      });
+
+      if (res.success) {
+        showToast(`Certificate email resent successfully to ${app.email}!`, "success");
+      } else {
+        showToast(`Email delivery error: ${res.error || "Failed to deliver email."}`, "error");
+      }
+    } catch (err: any) {
+      console.error("Resend certificate email failed:", err);
+      showToast(`Error: ${err.message || String(err)}`, "error");
+    } finally {
+      setResendingId(null);
     }
   };
 
@@ -609,6 +663,24 @@ export default function AdminAppreciationPage() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
+                        disabled={resendingId === app.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleResendCertificateEmail(app);
+                        }}
+                        className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-500/30 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer shrink-0 disabled:opacity-50"
+                        title="Resend Certificate Email to Candidate"
+                      >
+                        {resendingId === app.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Mail className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                        )}
+                        <span className="hidden sm:inline">Resend Email</span>
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedCertApp(app);
@@ -680,7 +752,7 @@ export default function AdminAppreciationPage() {
                           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                             Generate and preview the official high-resolution Certificate of Appreciation for {app.full_name}.
                           </p>
-                          <div className="flex items-center gap-2 pt-1">
+                          <div className="flex flex-wrap items-center gap-2 pt-1">
                             <button
                               type="button"
                               onClick={() => setSelectedCertApp(app)}
@@ -698,6 +770,21 @@ export default function AdminAppreciationPage() {
                             >
                               {downloadingCert ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                               <span>Download PDF</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={resendingId === app.id}
+                              onClick={() => handleResendCertificateEmail(app)}
+                              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 shadow-sm cursor-pointer transition-all disabled:opacity-50"
+                              title="Resend Certificate Email with attachments to candidate"
+                            >
+                              {resendingId === app.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Mail className="w-4 h-4" />
+                              )}
+                              <span>Resend Email</span>
                             </button>
                           </div>
                         </div>
@@ -1135,6 +1222,17 @@ export default function AdminAppreciationPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={resendingId === selectedCertApp.id}
+                  onClick={() => handleResendCertificateEmail(selectedCertApp)}
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-95 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+                  title="Resend Certificate to Candidate Email"
+                >
+                  {resendingId === selectedCertApp.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+                  <span>Resend Email</span>
+                </button>
+
                 <button
                   type="button"
                   disabled={downloadingCert}

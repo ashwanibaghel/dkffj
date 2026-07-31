@@ -376,3 +376,83 @@ export async function createDirectAppreciationApplication(payload: {
     return { success: false, error: err.message || "Failed to create direct appreciation certificate." };
   }
 }
+
+// 5. Resend Appreciation Certificate Email with PDF & JPG attachments
+export async function resendAppreciationCertificateEmail(payload: {
+  applicationNo: string;
+  fullName: string;
+  email: string;
+  socialWorkField: string;
+  pdfBase64?: string;
+  jpgBase64?: string;
+}) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  if (!payload.email) {
+    return { success: false, error: "Candidate email is missing." };
+  }
+
+  const appNo = payload.applicationNo;
+  const sanitizedAppNo = appNo.replace(/[\/\\]/g, "_");
+
+  const attachments: any[] = [];
+  if (payload.pdfBase64) {
+    attachments.push({
+      filename: `Certificate_of_Appreciation_${sanitizedAppNo}.pdf`,
+      content: Buffer.from(payload.pdfBase64, "base64")
+    });
+  }
+  if (payload.jpgBase64) {
+    attachments.push({
+      filename: `Certificate_of_Appreciation_${sanitizedAppNo}.jpg`,
+      content: Buffer.from(payload.jpgBase64, "base64")
+    });
+  }
+
+  const appUrl = "https://www.dkffj.org";
+  const trackUrl = `${appUrl}/verify/${sanitizedAppNo.replace(/_/g, "/")}`;
+
+  const emailSubject = `Official Certificate of Appreciation - DKFFJ (Updated Copy)`;
+  const emailHtml = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #001C55; padding: 24px; text-align: center;">
+        <img src="${appUrl}/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+        <h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: sans-serif; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+        <div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+        <div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
+      </div>
+      <div style="padding: 24px; color: #334155;">
+        <h2 style="color: #001C55; margin-top: 0;">Official Certificate of Appreciation (Updated Copy)</h2>
+        <p>Dear <strong>${payload.fullName}</strong>,</p>
+        <p>Please find attached your updated official <strong>Certificate of Appreciation</strong> issued by the executive board of <strong>DK Foundation of Freedom and Justice</strong> in recognition of your distinguished service (<em>${payload.socialWorkField}</em>).</p>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin: 20px 0;">
+          <p style="margin: 4px 0; font-size: 13px;"><strong>Certificate Serial:</strong> <span style="color: #C00000; font-family: monospace; font-weight: bold;">${appNo}</span></p>
+          <p style="margin: 4px 0; font-size: 13px;"><strong>Social Work Category:</strong> ${payload.socialWorkField}</p>
+          <p style="margin: 4px 0; font-size: 13px;"><strong>Status:</strong> <span style="color: #15803d; font-weight: bold;">OFFICIALLY VERIFIED &amp; ISSUED</span></p>
+          <p style="margin: 4px 0; font-size: 13px; color: #1E60B4;"><strong>Attachments Included:</strong> High-Resolution Certificate attached in both PDF (.pdf) and Image (.jpg) formats.</p>
+        </div>
+
+        <p>You can also verify your certificate live online at any time by scanning the QR code or visiting our official registry portal:</p>
+        <div style="margin-top: 24px; text-align: center;">
+          <a href="${trackUrl}" style="background-color: #15803d; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Verify Certificate Online</a>
+        </div>
+      </div>
+      <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+        &copy; ${new Date().getFullYear()} DK Foundation of Freedom and Justice. All Rights Reserved.
+      </div>
+    </div>
+  `;
+
+  const emailRes = await sendTransactionalEmail(payload.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
+
+  if (emailRes.success) {
+    return { success: true, message: `Certificate email resent successfully to ${payload.email}` };
+  } else {
+    return { success: false, error: emailRes.error || "Failed to deliver email." };
+  }
+}
+
