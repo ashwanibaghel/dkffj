@@ -49,6 +49,7 @@ export async function getMemberships(statusFilter?: string) {
     let query = supabase
       .from("memberships")
       .select("*")
+      .neq("status", "PENDING") // Completely filter out unpaid PENDING applications to prevent accidental admin approval
       .order("created_at", { ascending: false });
 
     if (statusFilter && statusFilter !== "ALL") {
