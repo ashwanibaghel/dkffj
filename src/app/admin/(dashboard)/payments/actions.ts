@@ -27,14 +27,12 @@ export async function manuallyApprovePayment(paymentId: string) {
   const supabase = createClient(cookieStore);
 
   try {
-    // 1. Fetch payment record
-    const { data: payment, error: fetchError } = await supabase
-      .from("payments")
-      .select("id, amount, status, transaction_id, membership_id, registration_id, donation_id")
-      .eq("id", paymentId)
-      .maybeSingle();
+    // 1. Fetch payment record via Prisma (bypassing RLS)
+    const payment = await prisma.payments.findUnique({
+      where: { id: paymentId }
+    });
 
-    if (fetchError || !payment) {
+    if (!payment) {
       return { success: false, error: "Payment record not found." };
     }
 
@@ -42,19 +40,14 @@ export async function manuallyApprovePayment(paymentId: string) {
       return { success: false, error: "Payment is already marked as completed." };
     }
 
-    // 2. Update payment status to COMPLETED
-    const { error: updatePayError } = await supabase
-      .from("payments")
-      .update({ 
+    // 2. Update payment status to COMPLETED via Prisma (bypassing RLS)
+    await prisma.payments.update({
+      where: { id: payment.id },
+      data: {
         status: "COMPLETED",
         remarks: "Manually approved by Administrator"
-      })
-      .eq("id", payment.id);
-
-    if (updatePayError) {
-      console.error("Failed to update payment status:", updatePayError);
-      return { success: false, error: "Failed to finalize payment status." };
-    }
+      }
+    });
 
     // 3. Process linked membership or course registration
     if (payment.membership_id) {
