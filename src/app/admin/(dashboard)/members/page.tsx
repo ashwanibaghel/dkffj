@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction, toggleMemberShowHomeAction, toggleMemberActiveStatusAction } from "./actions";
-import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check, Calendar, RefreshCw, Home, ToggleLeft, ToggleRight } from "lucide-react";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction, toggleMemberShowHomeAction, toggleMemberActiveStatusAction, deleteMembership } from "./actions";
+import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, FileUp, Check, Calendar, RefreshCw, Home, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
@@ -506,6 +506,25 @@ export default function AdminMembersPage() {
       showToast(err?.message || "Failed to update validity", "error");
     } finally {
       setRenewalLoading(false);
+  const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
+
+  const handleDeleteMember = async (memberId: string, memberName: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete test member "${memberName}"?`)) {
+      return;
+    }
+    setDeletingMemberId(memberId);
+    try {
+      const res = await deleteMembership(memberId);
+      if (res.success) {
+        setMembers((prev) => prev.filter((m) => m.id !== memberId));
+        showToast("Member application deleted successfully.", "success");
+      } else {
+        showToast(res.error || "Failed to delete member.", "error");
+      }
+    } catch (err: any) {
+      showToast(err?.message || "An error occurred while deleting.", "error");
+    } finally {
+      setDeletingMemberId(null);
     }
   };
 
@@ -1289,8 +1308,23 @@ export default function AdminMembersPage() {
                       <ShieldCheck className={`hidden lg:block w-4 h-4 ${member.status === "APPROVED" ? "text-emerald-500" : "text-slate-300 dark:text-slate-600"}`} />
                     </div>
                   </div>
-                  <div className="text-slate-400 shrink-0 ml-4">
-                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  <div className="flex items-center gap-1.5 shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteMember(member.id, member.full_name)}
+                      disabled={deletingMemberId === member.id}
+                      className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 dark:border dark:border-rose-500/20 transition-colors inline-flex items-center justify-center cursor-pointer disabled:opacity-50"
+                      title="Delete Test Member Application"
+                    >
+                      {deletingMemberId === member.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                    <div onClick={() => setExpandedId(isExpanded ? null : member.id)} className="cursor-pointer text-slate-400 p-1">
+                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
                   </div>
                 </div>
 

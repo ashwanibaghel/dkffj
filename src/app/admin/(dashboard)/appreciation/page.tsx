@@ -8,7 +8,8 @@ import {
   getSignedDocumentUrl, 
   updateAppreciationStatus,
   createDirectAppreciationApplication,
-  resendAppreciationCertificateEmail
+  resendAppreciationCertificateEmail,
+  deleteAppreciationApplication
 } from "./actions";
 import { 
   FileCheck, 
@@ -31,7 +32,8 @@ import {
   Upload,
   UserPlus,
   Mail,
-  Send
+  Send,
+  Trash2
 } from "lucide-react";
 import AdminEmptyState from "../components/AdminEmptyState";
 import { AppreciationCertificateRenderer, generateAppreciationPDFClient, generateAppreciationCertFiles } from "./AppreciationCertificateGenerator";
@@ -137,6 +139,27 @@ export default function AdminAppreciationPage() {
   const [remarks, setRemarks] = useState<string>("");
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string>("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteAppreciation = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete test application for "${name}"?`)) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await deleteAppreciationApplication(id);
+      if (res.success) {
+        setApplications((prev) => prev.filter((a) => a.id !== id));
+        showToast("Application deleted successfully.", "success");
+      } else {
+        showToast(res.error || "Failed to delete application.", "error");
+      }
+    } catch (err: any) {
+      showToast(err?.message || "An error occurred while deleting.", "error");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   // Toast notification state
   const [toast, setToast] = useState<{ message: string; visible: boolean; type: 'success' | 'error' }>({
@@ -707,6 +730,20 @@ export default function AdminAppreciationPage() {
                       >
                         <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                         <span className="hidden sm:inline">View Certificate</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteAppreciation(app.id, app.full_name);
+                        }}
+                        disabled={deletingId === app.id}
+                        className="p-1.5 sm:px-2.5 sm:py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 rounded-xl text-xs font-extrabold flex items-center gap-1 transition-all shadow-sm cursor-pointer shrink-0 disabled:opacity-50"
+                        title="Delete Test Application"
+                      >
+                        {deletingId === app.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                        <span className="hidden sm:inline">Delete</span>
                       </button>
 
                       {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}

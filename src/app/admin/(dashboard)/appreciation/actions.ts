@@ -476,3 +476,31 @@ export async function resendAppreciationCertificateEmail(payload: {
   }
 }
 
+// 5. Delete Appreciation Application
+export async function deleteAppreciationApplication(id: string) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized access." };
+
+  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+    return { success: false, error: "Access Denied." };
+  }
+
+  // Delete linked payments and logs first
+  await supabase.from("payments").delete().eq("appreciation_id", id);
+  await supabase.from("status_logs").delete().eq("appreciation_id", id);
+  
+  const { error } = await supabase.from("appreciation_applications").delete().eq("id", id);
+  if (error) {
+    console.error("Error deleting appreciation application:", error);
+    return { success: false, error: error.message || "Failed to delete appreciation record." };
+  }
+
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/admin/appreciation");
+  return { success: true, message: "Appreciation application deleted successfully." };
+}
+

@@ -807,3 +807,29 @@ export async function toggleMemberActiveStatusAction(memberId: string, currentSt
   return { success: true, status: newStatus };
 }
 
+// 10. Delete Membership Record
+export async function deleteMembership(memberId: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Delete linked payments and logs first
+  await supabase.from("payments").delete().eq("membership_id", memberId);
+  await supabase.from("status_logs").delete().eq("membership_id", memberId);
+
+  const { error } = await supabase.from("memberships").delete().eq("id", memberId);
+  if (error) {
+    console.error("Error deleting membership:", error);
+    return { success: false, error: error.message || "Failed to delete membership." };
+  }
+
+  await incrementNamespaceVersion("members");
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/admin/members");
+  return { success: true, message: "Membership deleted successfully." };
+}
+
