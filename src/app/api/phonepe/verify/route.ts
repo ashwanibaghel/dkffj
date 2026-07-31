@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
     const isBypassCheck = (email: string) => {
       const e = email.toLowerCase().trim();
-      return e.includes("bypass") || e === "ashwanibaghel826@gmail.com";
+      return e.includes("bypass");
     };
 
     if (payment.membership_id) {
@@ -305,7 +305,7 @@ export async function GET(req: NextRequest) {
                 <p>A new membership application fee of <strong>INR ${payment.amount}</strong> has been verified via bypass for candidate: <strong>${customerName}</strong>.</p>
                 <p><strong>Acknowledgement Number:</strong> ${ackOrEnrollmentNo}</p>
                 <div style="margin-top: 24px; text-align: center;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/members" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.org'}/admin/members" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
                 </div>
               </div>
             </div>
@@ -425,7 +425,7 @@ export async function GET(req: NextRequest) {
                 <p>A new student enrollment fee of <strong>INR ${payment.amount}</strong> has been verified via bypass for: <strong>${customerName}</strong> for the course: <strong>${courseTitle}</strong>.</p>
                 <p><strong>Enrollment Number:</strong> ${ackOrEnrollmentNo}</p>
                 <div style="margin-top: 24px; text-align: center;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.org'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
                 </div>
               </div>
             </div>
@@ -506,7 +506,7 @@ export async function GET(req: NextRequest) {
                 <p>An appreciation application fee of <strong>INR ${payment.amount}</strong> has been verified via bypass for: <strong>${customerName}</strong>.</p>
                 <p><strong>Application Number:</strong> ${ackOrEnrollmentNo}</p>
                 <div style="margin-top: 24px; text-align: center;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/appreciation" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.org'}/admin/appreciation" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
                 </div>
               </div>
             </div>

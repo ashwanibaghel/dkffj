@@ -202,7 +202,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
               <p><strong>Acknowledgement Number:</strong> ${membership.ack_no}</p>
               <p>Please review the applicant's profile and documents from the admin dashboard to proceed with membership approval and ID card generation.</p>
               <div style="margin-top: 24px; text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/members" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.org'}/admin/members" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
               </div>
             </div>
           </div>
@@ -349,7 +349,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
                 <p><strong>Enrollment Number:</strong> ${registration.enrollment_no}</p>
                 <p>The student's enrollment has been approved. Please manage this registration from the academy admin panel.</p>
                 <div style="margin-top: 24px; text-align: center;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.org'}/admin/registrations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
                 </div>
               </div>
             </div>
@@ -445,7 +445,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
               <p><strong>Application Number:</strong> ${app.application_no}</p>
               <p>Please review the applicant's profile and documents from the admin dashboard to proceed with certificate approval.</p>
               <div style="margin-top: 24px; text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/admin/appreciation" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.org'}/admin/appreciation" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Go to Admin Portal</a>
               </div>
             </div>
           </div>

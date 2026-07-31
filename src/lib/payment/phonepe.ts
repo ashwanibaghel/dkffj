@@ -52,15 +52,16 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
   const merchantId = getMerchantId();
   const saltKey = process.env.PHONEPE_API_KEY;
   const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
-  console.log(`[PHONEPE DEBUG] PHONEPE_MODE raw: "${process.env.PHONEPE_MODE}" | isProduction?: ${isProductionMode()}`);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
-  const isVercelOrLocal = appUrl.includes("localhost") || appUrl.includes("vercel.app");
+  let appUrl = (process.env.NEXT_PUBLIC_APP_URL || "").trim().replace(/\/$/, "");
+  if (!appUrl || appUrl.includes("dkffj.vercel.app")) {
+    appUrl = "https://dkffj.org";
+  }
 
-  // Permanent bypass for whitelisted test emails - no condition check
-  const isBypassEmail = details.customerEmail.toLowerCase().includes("bypass") || details.customerEmail.toLowerCase().trim() === "ashwanibaghel826@gmail.com";
+  // Bypass only for test emails containing "bypass"
+  const isBypassEmail = details.customerEmail.toLowerCase().includes("bypass");
 
   if (isBypassEmail) {
-    console.log(`[PAYMENT BYPASS] Whitelisted email detected - skipping PhonePe entirely`);
+    console.log(`[PAYMENT BYPASS] Bypass email detected - skipping PhonePe payment gateway`);
     return `${appUrl}/payment/success?orderId=${details.orderId}`;
   }
 
