@@ -506,6 +506,9 @@ export default function AdminMembersPage() {
       showToast(err?.message || "Failed to update validity", "error");
     } finally {
       setRenewalLoading(false);
+    }
+  };
+
   const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
 
   const handleDeleteMember = async (memberId: string, memberName: string) => {
