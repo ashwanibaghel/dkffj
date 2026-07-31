@@ -8,19 +8,7 @@ import { sendAppreciationOtp, verifyAppreciationOtp, submitAppreciationApplicati
 import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, Shield, Eye, EyeOff } from "lucide-react";
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
 import { getPricingSettings } from "@/lib/portalSettings";
-
-const SOCIAL_WORK_FIELDS = [
-  "Human Rights Protection & Advocacy",
-  "Women Empowerment & Gender Equality",
-  "Child Rights & Child Welfare",
-  "Education Support & Free Literacy",
-  "Environmental Protection & Conservation",
-  "Anti-Corruption & RTI Activism",
-  "Medical & Disaster Relief Services",
-  "Youth Empowerment & Skill Development",
-  "Consumer Rights & Public Advocacy",
-  "Other Social Activism / Support Services"
-];
+import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
 
 export default function ApplyAppreciationPage() {
   const router = useRouter();

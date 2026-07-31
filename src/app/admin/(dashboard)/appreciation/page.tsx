@@ -55,19 +55,7 @@ type AppreciationApplication = {
   remarks?: string | null;
 };
 
-const SOCIAL_WORK_FIELDS = [
-  "Human Rights Protection & Advocacy",
-  "Women Empowerment & Gender Equality",
-  "Child Rights & Child Welfare",
-  "Education Support & Free Literacy",
-  "Environmental Protection & Conservation",
-  "Anti-Corruption & RTI Activism",
-  "Medical & Disaster Relief Services",
-  "Youth Empowerment & Skill Development",
-  "Consumer Rights & Public Advocacy",
-  "VIP / Government & Distinguished Social Service",
-  "Other Social Activism / Support Services"
-];
+import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
 
 function cleanText(str?: string | null): string {
   if (!str) return "";
