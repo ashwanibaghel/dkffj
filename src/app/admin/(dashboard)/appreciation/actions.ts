@@ -94,122 +94,144 @@ export async function updateAppreciationStatus(
   pdfBase64?: string,
   jpgBase64?: string
 ) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
 
-  // Validate admin auth
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Unauthorized access." };
+    // Validate admin auth
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Unauthorized access." };
 
-  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
-  if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
-    return { success: false, error: "Access Denied." };
-  }
-
-  // Fetch current application details
-  const { data: app, error: appErr } = await supabase
-    .from("appreciation_applications")
-    .select("id, status, full_name, email, application_no")
-    .eq("id", id)
-    .single();
-
-  if (appErr || !app) {
-    return { success: false, error: "Appreciation application record not found." };
-  }
-
-  const finalStatus = newStatus as "APPROVED" | "REJECTED" | "UNDER_REVIEW";
-
-  // 1. Perform updates
-  const { error: updateError } = await supabase
-    .from("appreciation_applications")
-    .update({
-      status: finalStatus,
-      approved_by: user.id,
-      approved_at: newStatus === "APPROVED" ? new Date().toISOString() : null,
-      remarks: remarks || null
-    })
-    .eq("id", id);
-
-  if (updateError) {
-    console.error("Failed to update appreciation status:", updateError);
-    return { success: false, error: "Failed to update record status in database." };
-  }
-
-  // 2. Log status transition
-  await supabase.from("status_logs").insert({
-    appreciation_id: id,
-    from_status: app.status,
-    to_status: finalStatus,
-    remarks: remarks || `Application status updated to ${finalStatus} by administrator.`,
-    updated_by: user.id
-  });
-
-  // 3. Construct attachments if approved
-  const attachments: Array<{ filename: string; content: Buffer }> = [];
-  if (finalStatus === "APPROVED") {
-    const sanitizedAppNo = (app.application_no || "DKFFJ_Appreciation").replace(/\//g, "_");
-    if (pdfBase64) {
-      attachments.push({
-        filename: `Certificate_of_Appreciation_${sanitizedAppNo}.pdf`,
-        content: Buffer.from(pdfBase64, "base64")
-      });
+    const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+    if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+      return { success: false, error: "Access Denied." };
     }
-    if (jpgBase64) {
-      attachments.push({
-        filename: `Certificate_of_Appreciation_${sanitizedAppNo}.jpg`,
-        content: Buffer.from(jpgBase64, "base64")
-      });
+
+    // Verify if user.id exists in public.users to prevent FK constraint failure
+    let validUserId: string | null = null;
+    if (user?.id) {
+      const { data: dbUser } = await supabase.from("users").select("id").eq("id", user.id).maybeSingle();
+      if (dbUser) {
+        validUserId = user.id;
+      }
     }
-  }
 
-  // 4. Send notification email to candidate
-  const actionText = finalStatus === "APPROVED" ? "APPROVED" : finalStatus === "REJECTED" ? "REJECTED" : "UNDER BOARD REVIEW";
-  const emailSubject = `Appreciation Application ${actionText} - DKFFJ`;
-  let emailHtml = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-      <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
-<img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
-<h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
-<div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
-<div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
-</div>
-      <div style="padding: 24px; color: #334155;">
-        <h2>Application Status: ${actionText}</h2>
-        <p>Dear ${app.full_name},</p>
-        <p>Your application for a Certificate of Appreciation (Application No: ${app.application_no}) has been reviewed by the board and was <strong>${actionText}</strong>.</p>
-  `;
+    // Fetch current application details
+    const { data: app, error: appErr } = await supabase
+      .from("appreciation_applications")
+      .select("id, status, full_name, email, application_no")
+      .eq("id", id)
+      .single();
 
-  if (finalStatus === "APPROVED") {
-    emailHtml += `
-      <p>Congratulations! The executive board has approved and issued your Certificate of Appreciation in recognition of your outstanding social contributions.</p>
-      <p style="margin: 4px 0; font-size: 13px; color: #1E60B4;"><strong>Attachments:</strong> Official Certificate attached in both PDF (.pdf) and Image (.jpg) formats.</p>
-      <p>You can also verify and download a digital copy of your Certificate of Appreciation from the portal:</p>
-      <div style="margin-top: 20px;">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/track?type=appreciation&id=${app.application_no}" style="background-color: #15803d; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">View & Download Certificate</a>
-      </div>
-    `;
-  } else if (finalStatus === "REJECTED") {
-    emailHtml += `
-      <p><strong>Remarks from board:</strong> ${remarks || "No specific reason specified."}</p>
-      <p>If you have any queries or additional achievements evidence to submit, please get in touch with our coordinating team.</p>
-    `;
-  } else {
-    emailHtml += `
-      <p>Your application is currently under detailed board review. We will notify you as soon as a final decision is reached.</p>
-    `;
-  }
+    if (appErr || !app) {
+      return { success: false, error: "Appreciation application record not found." };
+    }
 
-  emailHtml += `
-      </div>
-      <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
-        &copy; ${new Date().getFullYear()} DK Foundation. All Rights Reserved.
-      </div>
+    const finalStatus = newStatus as "APPROVED" | "REJECTED" | "UNDER_REVIEW";
+
+    // 1. Perform updates
+    const { error: updateError } = await supabase
+      .from("appreciation_applications")
+      .update({
+        status: finalStatus,
+        approved_by: validUserId,
+        approved_at: newStatus === "APPROVED" ? new Date().toISOString() : null,
+        remarks: remarks || null
+      })
+      .eq("id", id);
+
+    if (updateError) {
+      console.error("Failed to update appreciation status:", updateError);
+      return { success: false, error: "Failed to update record status in database: " + updateError.message };
+    }
+
+    // 2. Log status transition safely
+    try {
+      await supabase.from("status_logs").insert({
+        appreciation_id: id,
+        from_status: app.status,
+        to_status: finalStatus,
+        remarks: remarks || `Application status updated to ${finalStatus} by administrator.`,
+        updated_by: validUserId
+      });
+    } catch (logErr) {
+      console.error("Failed to insert appreciation status log:", logErr);
+    }
+
+    // 3. Construct attachments if approved
+    const attachments: Array<{ filename: string; content: Buffer }> = [];
+    if (finalStatus === "APPROVED") {
+      const sanitizedAppNo = (app.application_no || "DKFFJ_Appreciation").replace(/\//g, "_");
+      if (pdfBase64) {
+        attachments.push({
+          filename: `Certificate_of_Appreciation_${sanitizedAppNo}.pdf`,
+          content: Buffer.from(pdfBase64, "base64")
+        });
+      }
+      if (jpgBase64) {
+        attachments.push({
+          filename: `Certificate_of_Appreciation_${sanitizedAppNo}.jpg`,
+          content: Buffer.from(jpgBase64, "base64")
+        });
+      }
+    }
+
+    // 4. Send notification email to candidate safely in background
+    try {
+      const actionText = finalStatus === "APPROVED" ? "APPROVED" : finalStatus === "REJECTED" ? "REJECTED" : "UNDER BOARD REVIEW";
+      const emailSubject = `Appreciation Application ${actionText} - DKFFJ`;
+      let emailHtml = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+          <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+    <img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
+    <h1 style="color: #ffffff; margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 0.5px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.3; text-transform: uppercase;">DK FOUNDATION OF FREEDOM AND JUSTICE</h1>
+    <div style="color: #ffffff; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase;">HUMAN RIGHTS PROTECTION</div>
+    <div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
     </div>
-  `;
+          <div style="padding: 24px; color: #334155;">
+            <h2>Application Status: ${actionText}</h2>
+            <p>Dear ${app.full_name},</p>
+            <p>Your application for a Certificate of Appreciation (Application No: ${app.application_no}) has been reviewed by the board and was <strong>${actionText}</strong>.</p>
+      `;
 
-  await sendTransactionalEmail(app.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
+      if (finalStatus === "APPROVED") {
+        emailHtml += `
+          <p>Congratulations! The executive board has approved and issued your Certificate of Appreciation in recognition of your outstanding social contributions.</p>
+          <p style="margin: 4px 0; font-size: 13px; color: #1E60B4;"><strong>Attachments:</strong> Official Certificate attached in both PDF (.pdf) and Image (.jpg) formats.</p>
+          <p>You can also verify and download a digital copy of your Certificate of Appreciation from the portal:</p>
+          <div style="margin-top: 20px;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.vercel.app'}/track?type=appreciation&id=${app.application_no}" style="background-color: #15803d; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">View & Download Certificate</a>
+          </div>
+        `;
+      } else if (finalStatus === "REJECTED") {
+        emailHtml += `
+          <p><strong>Remarks from board:</strong> ${remarks || "No specific reason specified."}</p>
+          <p>If you have any queries or additional achievements evidence to submit, please get in touch with our coordinating team.</p>
+        `;
+      } else {
+        emailHtml += `
+          <p>Your application is currently under detailed board review. We will notify you as soon as a final decision is reached.</p>
+        `;
+      }
 
-  return { success: true };
+      emailHtml += `
+          </div>
+          <div style="background-color: #f8fafc; padding: 12px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+            &copy; ${new Date().getFullYear()} DK Foundation. All Rights Reserved.
+          </div>
+        </div>
+      `;
+
+      await sendTransactionalEmail(app.email, emailSubject, emailHtml, attachments.length > 0 ? attachments : undefined);
+    } catch (emailErr) {
+      console.error("Failed to send appreciation notification email:", emailErr);
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error("Unhandled error in updateAppreciationStatus:", err);
+    return { success: false, error: err?.message || "An unexpected error occurred during appreciation approval." };
+  }
 }
 
 // 4. Create Direct VIP / Free Appreciation Certificate (Direct Approval & Email Delivery)
