@@ -54,8 +54,8 @@ function MembershipTrackContent() {
     try {
       const appUrl = window.location.origin;
       const certNo = member.membership_no || member.ack_no || result?.number;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `${appUrl}/verify/${certNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       const issueDateStr = member.approved_at 
         ? new Date(member.approved_at).toLocaleDateString("en-IN")
@@ -95,8 +95,8 @@ function MembershipTrackContent() {
     try {
       const appUrl = window.location.origin;
       const certNo = member.membership_no || member.ack_no || result?.number;
-      const verificationUrl = `${appUrl}/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `${appUrl}/verify/${certNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       const issueDate = member.approved_at ? new Date(member.approved_at) : (member.created_at ? new Date(member.created_at) : new Date());
       const issueDateStr = issueDate.toLocaleDateString("en-IN");

@@ -52,8 +52,8 @@ function AppreciationTrackContent() {
     try {
       const appUrl = window.location.origin;
       const refNo = app.ack_no || result?.number;
-      const verificationUrl = `${appUrl}/verify/${refNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `${appUrl}/verify/${refNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       const issueDateStr = app.approved_at 
         ? new Date(app.approved_at).toLocaleDateString("en-IN")

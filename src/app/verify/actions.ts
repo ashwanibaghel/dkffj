@@ -90,8 +90,8 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
       }
 
       const certNo = cert.certificate_no;
-      const verificationUrl = `${appUrl}/verify/${encodeURIComponent(certNo)}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `${appUrl}/verify/${certNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
 
       return {
         found: true,
@@ -129,8 +129,8 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
     if (appreciationApp) {
       const isApproved = appreciationApp.status === "APPROVED";
       const certNo = appreciationApp.application_no;
-      const verificationUrl = `${appUrl}/verify/${encodeURIComponent(certNo)}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `${appUrl}/verify/${certNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       const issueDate = new Date(appreciationApp.created_at).toLocaleDateString("en-IN");
 
       return {
@@ -167,8 +167,8 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
     if (member) {
       const isApproved = member.status === "APPROVED";
       const certNo = member.membership_no || member.ack_no || "";
-      const verificationUrl = `${appUrl}/verify/${encodeURIComponent(certNo)}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${encodeURIComponent(verificationUrl)}`;
+      const verificationUrl = `${appUrl}/verify/${certNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
       const issueDate = member.approved_at 
         ? new Date(member.approved_at).toLocaleDateString("en-IN")
