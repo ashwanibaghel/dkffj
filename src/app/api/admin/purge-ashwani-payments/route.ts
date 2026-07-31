@@ -14,6 +14,7 @@ export async function GET() {
 
     const ashwaniPaymentIds: string[] = [];
     const matchedRecords: any[] = [];
+    const debugAll: any[] = [];
 
     for (const p of allPayments) {
       const name = (
@@ -22,7 +23,7 @@ export async function GET() {
         p.course_registrations?.full_name ||
         p.donations?.donor_name ||
         ""
-      ).toLowerCase();
+      );
 
       const email = (
         p.memberships?.email ||
@@ -30,7 +31,7 @@ export async function GET() {
         p.course_registrations?.email ||
         p.donations?.donor_email ||
         ""
-      ).toLowerCase();
+      );
 
       const mobile = (
         p.memberships?.mobile ||
@@ -40,10 +41,25 @@ export async function GET() {
         ""
       );
 
+      debugAll.push({
+        id: p.id,
+        tx: p.transaction_id,
+        amount: p.amount,
+        status: p.status,
+        name,
+        email,
+        mobile
+      });
+
+      const lowerName = name.toLowerCase();
+      const lowerEmail = email.toLowerCase();
+
       if (
-        name.includes("ashwani") ||
-        email.includes("ashwanibaghel") ||
-        mobile.includes("9027872803")
+        lowerName.includes("ashwani") ||
+        lowerName.includes("baghel") ||
+        lowerEmail.includes("ashwani") ||
+        mobile.includes("9027872803") ||
+        mobile.includes("873894")
       ) {
         ashwaniPaymentIds.push(p.id);
         matchedRecords.push({ id: p.id, name, amount: p.amount, tx: p.transaction_id });
@@ -61,7 +77,8 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       deletedCount: ashwaniPaymentIds.length,
-      deletedRecords: matchedRecords
+      deletedRecords: matchedRecords,
+      debugAll
     });
   } catch (err: any) {
     console.error("Purge error:", err);
