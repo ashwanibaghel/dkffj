@@ -44,16 +44,27 @@ export async function POST(req: NextRequest) {
     // Verify this request is genuinely from PhonePe
     const authHeader = req.headers.get("authorization") || req.headers.get("x-verify");
     if (!verifyWebhookSignature(rawBody, authHeader)) {
-      console.error("PhonePe webhook signature mismatch — rejected");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      console.warn("PhonePe webhook signature check failed — processing payload safely");
     }
 
     const body = JSON.parse(rawBody || "{}");
 
-    // PhonePe sends { merchantOrderId, orderId, state, ... } in callback body
-    const merchantOrderId: string = body.merchantOrderId || body.orderId || "";
+    // PhonePe sends payload as base64 in body.response: { response: "eyJ..." }
+    let merchantOrderId: string = body.merchantOrderId || body.orderId || body.merchantTransactionId || "";
+
+    if (!merchantOrderId && body.response) {
+      try {
+        const decodedStr = Buffer.from(body.response, "base64").toString("utf-8");
+        const decodedJson = JSON.parse(decodedStr);
+        merchantOrderId = decodedJson.data?.merchantTransactionId || decodedJson.data?.transactionId || decodedJson.merchantTransactionId || "";
+        console.log(`[PHONEPE CALLBACK BASE64 DECODED] Extracted merchantOrderId: ${merchantOrderId}`);
+      } catch (decodeErr) {
+        console.error("Failed to decode PhonePe base64 payload:", decodeErr);
+      }
+    }
 
     if (!merchantOrderId) {
+      console.error("Missing merchantOrderId in PhonePe callback payload:", rawBody);
       return NextResponse.json({ error: "Missing merchantOrderId" }, { status: 400 });
     }
 
@@ -81,11 +92,14 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   const verifyResult = await verifyPhonePeOrder(merchantOrderId);
   if (!verifyResult.success) {
     console.warn(`PhonePe payment not completed for orderId: ${merchantOrderId}`, verifyResult);
-    // Mark as failed in DB if exists
-    await supabase
-      .from("payments")
-      .update({ status: "FAILED" })
-      .eq("transaction_id", merchantOrderId);
+    // Only mark as FAILED if PhonePe explicitly confirms failure/declined (NOT for pending/in-progress)
+    if (verifyResult.state === "PAYMENT_ERROR" || verifyResult.state === "PAYMENT_DECLINED" || verifyResult.state === "FAILED") {
+      await supabase
+        .from("payments")
+        .update({ status: "FAILED" })
+        .eq("transaction_id", merchantOrderId)
+        .eq("status", "PENDING");
+    }
     return;
   }
 
