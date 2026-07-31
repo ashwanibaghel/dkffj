@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle, Phone, Mail, Trash2 } from "lucide-react";
 import { manuallyApprovePayment, deletePayment } from "./actions";
