@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle, Phone, Mail } from "lucide-react";
 import { manuallyApprovePayment } from "./actions";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
 import AdminEmptyState from "../components/AdminEmptyState";
@@ -17,10 +18,14 @@ type PaymentLedgerRow = {
   memberships?: {
     full_name: string;
     ack_no: string;
+    mobile?: string | null;
+    email?: string | null;
   } | null;
   course_registrations?: {
     full_name: string;
     enrollment_no?: string | null;
+    mobile?: string | null;
+    email?: string | null;
     courses?: {
       title: string;
     } | null;
@@ -29,10 +34,14 @@ type PaymentLedgerRow = {
     donor_name: string;
     order_id: string;
     purpose: string;
+    donor_mobile?: string | null;
+    donor_email?: string | null;
   } | null;
   appreciation_applications?: {
     full_name: string;
     application_no: string;
+    mobile?: string | null;
+    email?: string | null;
   } | null;
 };
 
@@ -44,6 +53,8 @@ function getPaymentMeta(payment: PaymentLedgerRow) {
   if (payment.memberships) {
     return {
       payerName: payment.memberships.full_name,
+      payerMobile: payment.memberships.mobile || "",
+      payerEmail: payment.memberships.email || "",
       category: "Membership",
       reference: payment.memberships.ack_no
     };
@@ -52,6 +63,8 @@ function getPaymentMeta(payment: PaymentLedgerRow) {
   if (payment.course_registrations) {
     return {
       payerName: payment.course_registrations.full_name,
+      payerMobile: payment.course_registrations.mobile || "",
+      payerEmail: payment.course_registrations.email || "",
       category: "Academy Course",
       reference: payment.course_registrations.courses?.title || payment.course_registrations.enrollment_no || "Course Fee"
     };
@@ -60,6 +73,8 @@ function getPaymentMeta(payment: PaymentLedgerRow) {
   if (payment.donations) {
     return {
       payerName: payment.donations.donor_name,
+      payerMobile: payment.donations.donor_mobile || "",
+      payerEmail: payment.donations.donor_email || "",
       category: "Donation",
       reference: `${payment.donations.order_id} · ${payment.donations.purpose}`
     };
@@ -68,6 +83,8 @@ function getPaymentMeta(payment: PaymentLedgerRow) {
   if (payment.appreciation_applications) {
     return {
       payerName: payment.appreciation_applications.full_name,
+      payerMobile: payment.appreciation_applications.mobile || "",
+      payerEmail: payment.appreciation_applications.email || "",
       category: "Appreciation Fee",
       reference: payment.appreciation_applications.application_no
     };
@@ -75,6 +92,8 @@ function getPaymentMeta(payment: PaymentLedgerRow) {
 
   return {
     payerName: "Unknown Payer",
+    payerMobile: "",
+    payerEmail: "",
     category: "General Fee",
     reference: payment.gateway_transaction_id || payment.transaction_id
   };
@@ -149,6 +168,8 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
         payment.transaction_id.toLowerCase().includes(query) ||
         payment.gateway.toLowerCase().includes(query) ||
         meta.payerName.toLowerCase().includes(query) ||
+        meta.payerMobile.toLowerCase().includes(query) ||
+        meta.payerEmail.toLowerCase().includes(query) ||
         meta.category.toLowerCase().includes(query) ||
         meta.reference.toLowerCase().includes(query);
 
@@ -211,7 +232,7 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
           </span>
           <input
             type="text"
-            placeholder="Search by ID, name, or category..."
+            placeholder="Search by ID, name, mobile, email, or category..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/10 font-semibold transition-all"
@@ -284,7 +305,19 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
                         <span className="font-mono text-slate-900 dark:text-slate-100 block">{pay.transaction_id}</span>
                         <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black mt-1 block">{pay.gateway}</span>
                       </td>
-                      <td className="p-4 text-slate-900 dark:text-slate-100 font-extrabold">{meta.payerName}</td>
+                      <td className="p-4">
+                        <span className="text-slate-900 dark:text-slate-100 font-extrabold block">{meta.payerName}</span>
+                        {meta.payerMobile && (
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 mt-0.5">
+                            <Phone className="w-3 h-3 text-slate-400 shrink-0" /> {meta.payerMobile}
+                          </span>
+                        )}
+                        {meta.payerEmail && (
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 mt-0.5">
+                            <Mail className="w-3 h-3 text-slate-400 shrink-0" /> {meta.payerEmail}
+                          </span>
+                        )}
+                      </td>
                       <td className="p-4">
                         <span className="text-slate-700 dark:text-slate-200 font-bold block">{meta.category}</span>
                         <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-1 max-w-[260px] truncate">{meta.reference}</span>

@@ -10,11 +10,17 @@ const paymentLedgerInclude = {
   memberships: {
     select: {
       full_name: true,
-      ack_no: true
+      ack_no: true,
+      mobile: true,
+      email: true
     }
   },
   course_registrations: {
-    include: {
+    select: {
+      full_name: true,
+      enrollment_no: true,
+      mobile: true,
+      email: true,
       courses: {
         select: {
           title: true
@@ -25,6 +31,8 @@ const paymentLedgerInclude = {
   donations: {
     select: {
       donor_name: true,
+      donor_mobile: true,
+      donor_email: true,
       order_id: true,
       purpose: true
     }
@@ -32,7 +40,9 @@ const paymentLedgerInclude = {
   appreciation_applications: {
     select: {
       full_name: true,
-      application_no: true
+      application_no: true,
+      mobile: true,
+      email: true
     }
   }
 } satisfies Prisma.paymentsInclude;
