@@ -663,24 +663,6 @@ export default function AdminAppreciationPage() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        disabled={resendingId === app.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleResendCertificateEmail(app);
-                        }}
-                        className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-500/30 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer shrink-0 disabled:opacity-50"
-                        title="Resend Certificate Email to Candidate"
-                      >
-                        {resendingId === app.id ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Mail className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                        )}
-                        <span className="hidden sm:inline">Resend Email</span>
-                      </button>
-
-                      <button
-                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedCertApp(app);
