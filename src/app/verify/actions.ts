@@ -1,7 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
+import prisma from "@/lib/prisma";
 
 export interface CertificateDetails {
   found: boolean;
@@ -27,39 +26,111 @@ export interface CertificateDetails {
 }
 
 export async function verifyCertificate(certificateNo: string): Promise<CertificateDetails | null> {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  const searchStr = certificateNo.trim();
+  const rawSearch = decodeURIComponent(certificateNo || "").trim();
 
-  if (!searchStr) return null;
+  if (!rawSearch) return null;
 
-  // Fetch certificate details including registration_id
-  const { data: cert, error } = await supabase
-    .from("certificates")
-    .select("certificate_no, registration_id, user_name, course_name, issue_date, status, pdf_url, qr_code_url, grade, performance, venue, duration_from, duration_to")
-    .eq("certificate_no", searchStr)
-    .maybeSingle();
+  // Clean trailing slashes & normalize variations (e.g. /A/ vs /APP/ vs 00014)
+  const cleanSearch = rawSearch.replace(/%2F/gi, "/").trim();
+  const rawNum = cleanSearch.split("/").pop() || cleanSearch;
+  const altApp = cleanSearch.replace("/A/", "/APP/");
+  const altA = cleanSearch.replace("/APP/", "/A/");
 
-  if (error) {
-    console.error("Error verifying certificate:", error);
-    return { found: false, certType: "course", certificateNo: searchStr, userName: "", courseName: "", issueDate: "", status: "", pdfUrl: "", qrCodeUrl: "" };
-  }
+  // Array of search variants to ensure 100% matching regardless of format
+  const variants = Array.from(new Set([cleanSearch, altApp, altA, rawNum])).filter((s) => s.length > 0);
 
-  if (!cert) {
-    // 1. Search in appreciation_applications table (by application_no, mobile, or email)
-    const { data: appreciationApp } = await supabase
-      .from("appreciation_applications")
-      .select("application_no, full_name, father_name, social_work_field, photo_url, status, created_at")
-      .or(`application_no.eq.${searchStr},mobile.eq.${searchStr},email.eq.${searchStr}`)
-      .limit(1)
-      .maybeSingle();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dkffj.org";
+
+  try {
+    // 1. Search in `certificates` table
+    const cert = await prisma.certificates.findFirst({
+      where: {
+        OR: variants.map((v) => ({
+          certificate_no: { equals: v, mode: "insensitive" as const }
+        }))
+      }
+    });
+
+    if (cert) {
+      // Fetch student registration metadata if available
+      let fatherName = "N/A";
+      let enrollmentNo = "";
+      let photoUrl = null;
+      let fromDateStr = cert.duration_from || new Date(cert.issue_date).toLocaleDateString("en-IN");
+      let toDateStr = cert.duration_to || new Date(cert.issue_date).toLocaleDateString("en-IN");
+
+      if (cert.registration_id) {
+        const reg = await prisma.course_registrations.findUnique({
+          where: { id: cert.registration_id },
+          include: { courses: true }
+        });
+
+        if (reg) {
+          fatherName = reg.father_name || "N/A";
+          enrollmentNo = reg.enrollment_no || "";
+          photoUrl = reg.photo_url;
+
+          const createdDate = new Date(reg.created_at);
+          fromDateStr = createdDate.toLocaleDateString("en-IN");
+          const endDate = new Date(createdDate);
+          const durationText = reg.courses?.duration || "";
+          let months = 1;
+          const match = durationText.match(/(\d+)/);
+          if (match) {
+            const val = parseInt(match[1]);
+            if (durationText.toLowerCase().includes("year")) {
+              months = val * 12;
+            } else {
+              months = val;
+            }
+          }
+          endDate.setMonth(endDate.getMonth() + months);
+          toDateStr = endDate.toLocaleDateString("en-IN");
+        }
+      }
+
+      const certNo = cert.certificate_no;
+      const verificationUrl = `${appUrl}/verify/${encodeURIComponent(certNo)}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${encodeURIComponent(verificationUrl)}`;
+
+      return {
+        found: true,
+        certType: "course",
+        certificateNo: certNo,
+        userName: cert.user_name,
+        courseName: cert.course_name,
+        issueDate: new Date(cert.issue_date).toLocaleDateString("en-IN"),
+        status: cert.status,
+        pdfUrl: cert.pdf_url || "",
+        qrCodeUrl: cert.qr_code_url || qrCodeUrl,
+        fatherName,
+        enrollmentNo,
+        photoUrl,
+        durationFrom: fromDateStr,
+        durationTo: toDateStr,
+        grade: cert.grade || "A",
+        venue: cert.venue || "Online (DKFFJ Portal)",
+        performance: cert.performance || "Excellent"
+      };
+    }
+
+    // 2. Search in `appreciation_applications` table
+    const appreciationApp = await prisma.appreciation_applications.findFirst({
+      where: {
+        OR: [
+          ...variants.map((v) => ({ application_no: { equals: v, mode: "insensitive" as const } })),
+          ...variants.map((v) => ({ application_no: { contains: v, mode: "insensitive" as const } })),
+          { mobile: cleanSearch },
+          { email: cleanSearch }
+        ]
+      }
+    });
 
     if (appreciationApp) {
       const isApproved = appreciationApp.status === "APPROVED";
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.org";
       const certNo = appreciationApp.application_no;
       const verificationUrl = `${appUrl}/verify/${encodeURIComponent(certNo)}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(verificationUrl)}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${encodeURIComponent(verificationUrl)}`;
       const issueDate = new Date(appreciationApp.created_at).toLocaleDateString("en-IN");
 
       return {
@@ -79,121 +150,62 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
       };
     }
 
-    // 2. Attempt to search in memberships table
-    const { data: member, error: memberErr } = await supabase
-      .from("memberships")
-      .select("membership_no, ack_no, full_name, father_name, designation, working_area, photo_url, status, approved_at, created_at")
-      .or(`membership_no.eq.${searchStr},ack_no.eq.${searchStr},mobile.eq.${searchStr},aadhaar_no.eq.${searchStr},full_name.ilike.%${searchStr}%`)
-      .limit(1)
-      .maybeSingle();
+    // 3. Search in `memberships` table
+    const member = await prisma.memberships.findFirst({
+      where: {
+        OR: [
+          ...variants.map((v) => ({ membership_no: { equals: v, mode: "insensitive" as const } })),
+          ...variants.map((v) => ({ ack_no: { equals: v, mode: "insensitive" as const } })),
+          ...variants.map((v) => ({ membership_no: { contains: v, mode: "insensitive" as const } })),
+          { mobile: cleanSearch },
+          { aadhaar_no: cleanSearch },
+          { full_name: { contains: cleanSearch, mode: "insensitive" as const } }
+        ]
+      }
+    });
 
-    if (memberErr || !member) {
+    if (member) {
+      const isApproved = member.status === "APPROVED";
+      const certNo = member.membership_no || member.ack_no || "";
+      const verificationUrl = `${appUrl}/verify/${encodeURIComponent(certNo)}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${encodeURIComponent(verificationUrl)}`;
+      
+      const issueDate = member.approved_at 
+        ? new Date(member.approved_at).toLocaleDateString("en-IN")
+        : new Date(member.created_at).toLocaleDateString("en-IN");
+
       return {
-        found: false,
-        certType: "course",
-        certificateNo: searchStr,
-        userName: "",
-        courseName: "",
-        issueDate: "",
-        status: "",
+        found: true,
+        certType: "membership",
+        certificateNo: certNo,
+        ackNo: member.ack_no || "",
+        userName: member.full_name,
+        fatherName: member.father_name || "N/A",
+        courseName: "Membership / Executive Council Certificate",
+        designation: member.designation || "Executive Member",
+        workingArea: member.working_area || member.district || member.state || "India",
+        photoUrl: member.photo_url,
+        issueDate,
+        status: isApproved ? "VALID" : member.status,
         pdfUrl: "",
-        qrCodeUrl: ""
+        qrCodeUrl
       };
     }
 
-    const isApproved = member.status === "APPROVED";
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const certNo = member.membership_no || member.ack_no;
-    const verificationUrl = `${appUrl}/verify/${certNo}`;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
-    
-    const issueDate = member.approved_at 
-      ? new Date(member.approved_at).toLocaleDateString("en-IN")
-      : new Date(member.created_at).toLocaleDateString("en-IN");
-
-    return {
-      found: true,
-      certType: "membership",
-      certificateNo: certNo,
-      ackNo: member.ack_no,
-      userName: member.full_name,
-      fatherName: member.father_name,
-      courseName: "Membership / Certificate of Appreciation",
-      designation: member.designation,
-      workingArea: member.working_area,
-      photoUrl: member.photo_url,
-      issueDate,
-      status: isApproved ? "VALID" : member.status,
-      pdfUrl: "",
-      qrCodeUrl
-    };
+  } catch (err) {
+    console.error("Error verifying certificate:", err);
   }
 
-  // Fetch student registration metadata using registration_id
-  const { data: reg, error: regErr } = await supabase
-    .from("course_registrations")
-    .select(`
-      id,
-      enrollment_no,
-      created_at,
-      father_name,
-      photo_url,
-      courses (
-        duration
-      )
-    `)
-    .eq("id", cert.registration_id)
-    .maybeSingle();
-
-  let fatherName = "N/A";
-  let enrollmentNo = "";
-  let photoUrl = null;
-  let fromDateStr = cert.duration_from || new Date(cert.issue_date).toLocaleDateString("en-IN");
-  let toDateStr = cert.duration_to || new Date(cert.issue_date).toLocaleDateString("en-IN");
-
-  if (reg) {
-    fatherName = reg.father_name || "N/A";
-    enrollmentNo = reg.enrollment_no || "";
-    photoUrl = reg.photo_url;
-
-    // Calculate course duration
-    const createdDate = new Date(reg.created_at);
-    fromDateStr = createdDate.toLocaleDateString("en-IN");
-
-    const endDate = new Date(createdDate);
-    const durationText = (reg.courses as any)?.duration || "";
-    let months = 1;
-    const match = durationText.match(/(\d+)/);
-    if (match) {
-      const val = parseInt(match[1]);
-      if (durationText.toLowerCase().includes("year")) {
-        months = val * 12;
-      } else {
-        months = val;
-      }
-    }
-    endDate.setMonth(endDate.getMonth() + months);
-    toDateStr = endDate.toLocaleDateString("en-IN");
-  }
-
+  // Not found
   return {
-    found: true,
+    found: false,
     certType: "course",
-    certificateNo: cert.certificate_no,
-    userName: cert.user_name,
-    courseName: cert.course_name,
-    issueDate: new Date(cert.issue_date).toLocaleDateString("en-IN"),
-    status: cert.status,
-    pdfUrl: cert.pdf_url,
-    qrCodeUrl: cert.qr_code_url,
-    fatherName,
-    enrollmentNo,
-    photoUrl,
-    durationFrom: fromDateStr,
-    durationTo: toDateStr,
-    grade: cert.grade || "A",
-    venue: cert.venue || "Online (DKFFJ Portal)",
-    performance: cert.performance || "Excellent"
+    certificateNo: cleanSearch,
+    userName: "",
+    courseName: "",
+    issueDate: "",
+    status: "",
+    pdfUrl: "",
+    qrCodeUrl: ""
   };
 }
-

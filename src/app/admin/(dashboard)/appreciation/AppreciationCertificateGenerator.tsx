@@ -62,7 +62,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   const cleanRef = decodeURIComponent(displayRefNo).replace(/%2F/gi, "/");
   const rawVerifyLink = data.verificationUrl ? decodeURIComponent(data.verificationUrl) : `${appOrigin}/verify/${cleanRef}`;
   const cleanVerifyLink = rawVerifyLink.replace(/%2F/gi, "/");
-  const computedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=2&data=${encodeURIComponent(cleanVerifyLink)}`;
+  const computedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${encodeURIComponent(cleanVerifyLink)}`;
   const qrSrc = qrBase64 || data.qrCodeUrl || computedQrUrl;
   const cleanAmp = (str: string = "") => {
     if (!str) return "";
