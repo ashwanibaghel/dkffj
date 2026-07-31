@@ -12,9 +12,40 @@ import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
 import { uploadAppreciationDocs } from "@/lib/uploadToStorage";
 import { compressImage } from "@/lib/compressImage";
 
+const APPRECIATION_DRAFT_KEY = "appreciation_form_draft";
+const DRAFT_TTL_MS = 60 * 60 * 1000; // 1 Hour
+
+function loadAppreciationDraft() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(APPRECIATION_DRAFT_KEY) || localStorage.getItem(APPRECIATION_DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - (parsed.__savedAt || 0) > DRAFT_TTL_MS) {
+      sessionStorage.removeItem(APPRECIATION_DRAFT_KEY);
+      localStorage.removeItem(APPRECIATION_DRAFT_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function clearAppreciationDraft() {
+  try {
+    sessionStorage.removeItem(APPRECIATION_DRAFT_KEY);
+    localStorage.removeItem(APPRECIATION_DRAFT_KEY);
+  } catch {}
+}
+
 export default function ApplyAppreciationPage() {
   const router = useRouter();
-  const [step, setStep] = useState<number>(1);
+
+  // Load saved draft on initial render
+  const draft = typeof window !== "undefined" ? loadAppreciationDraft() : null;
+
+  const [step, setStep] = useState<number>(draft?.step || 1);
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [successMsg, setSuccessMsg] = useState<string>("");
@@ -34,33 +65,69 @@ export default function ApplyAppreciationPage() {
     loadFee();
   }, []);
 
-  // Form states
-  const [fullName, setFullName] = useState<string>("");
-  const [fatherName, setFatherName] = useState<string>("");
-  const [gender, setGender] = useState<string>("Male");
-  const [dob, setDob] = useState<string>("");
-  const [country, setCountry] = useState<string>("India");
-  const [countryCode, setCountryCode] = useState<string>("+91");
-  const [whatsappCountryCode, setWhatsappCountryCode] = useState<string>("+91");
-  const [mobile, setMobile] = useState<string>("");
-  const [whatsapp, setWhatsapp] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  // Form states initialized with draft if available
+  const [fullName, setFullName] = useState<string>(draft?.fullName || "");
+  const [fatherName, setFatherName] = useState<string>(draft?.fatherName || "");
+  const [gender, setGender] = useState<string>(draft?.gender || "Male");
+  const [dob, setDob] = useState<string>(draft?.dob || "");
+  const [country, setCountry] = useState<string>(draft?.country || "India");
+  const [countryCode, setCountryCode] = useState<string>(draft?.countryCode || "+91");
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState<string>(draft?.whatsappCountryCode || "+91");
+  const [mobile, setMobile] = useState<string>(draft?.mobile || "");
+  const [whatsapp, setWhatsapp] = useState<string>(draft?.whatsapp || "");
+  const [email, setEmail] = useState<string>(draft?.email || "");
 
   // OTP states
   const [otpCode, setOtpCode] = useState<string>("");
   const [sendingOtp, setSendingOtp] = useState<boolean>(false);
-  const [otpSent, setOtpSent] = useState<boolean>(false);
-  const [otpVerified, setOtpVerified] = useState<boolean>(false);
+  const [otpSent, setOtpSent] = useState<boolean>(draft?.otpSent || false);
+  const [otpVerified, setOtpVerified] = useState<boolean>(draft?.otpVerified || false);
   const [verifyingOtp, setVerifyingOtp] = useState<boolean>(false);
 
   // Address & Field of Work
-  const [address, setAddress] = useState<string>("");
-  const [district, setDistrict] = useState<string>("");
-  const [state, setState] = useState<string>("");
-  const [pincode, setPincode] = useState<string>("");
-  const [socialWorkField, setSocialWorkField] = useState<string>(SOCIAL_WORK_FIELDS[0]);
-  const [customSocialWorkField, setCustomSocialWorkField] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [address, setAddress] = useState<string>(draft?.address || "");
+  const [district, setDistrict] = useState<string>(draft?.district || "");
+  const [state, setState] = useState<string>(draft?.state || "");
+  const [pincode, setPincode] = useState<string>(draft?.pincode || "");
+  const [socialWorkField, setSocialWorkField] = useState<string>(draft?.socialWorkField || SOCIAL_WORK_FIELDS[0]);
+  const [customSocialWorkField, setCustomSocialWorkField] = useState<string>(draft?.customSocialWorkField || "");
+  const [description, setDescription] = useState<string>(draft?.description || "");
+
+  // Auto-save form draft to browser storage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const draftData = {
+      step,
+      fullName,
+      fatherName,
+      gender,
+      dob,
+      country,
+      countryCode,
+      whatsappCountryCode,
+      mobile,
+      whatsapp,
+      email,
+      otpVerified,
+      otpSent,
+      address,
+      district,
+      state,
+      pincode,
+      socialWorkField,
+      customSocialWorkField,
+      description,
+      __savedAt: Date.now()
+    };
+    try {
+      sessionStorage.setItem(APPRECIATION_DRAFT_KEY, JSON.stringify(draftData));
+      localStorage.setItem(APPRECIATION_DRAFT_KEY, JSON.stringify(draftData));
+    } catch {}
+  }, [
+    step, fullName, fatherName, gender, dob, country, countryCode, whatsappCountryCode,
+    mobile, whatsapp, email, otpVerified, otpSent, address, district, state, pincode,
+    socialWorkField, customSocialWorkField, description
+  ]);
 
   // Documents
   const [photo, setPhoto] = useState<File | null>(null);
@@ -292,6 +359,7 @@ export default function ApplyAppreciationPage() {
       const res = await submitAppreciationApplication(null, formData);
 
       if (res.success && res.checkoutUrl) {
+        clearAppreciationDraft();
         setSuccessMsg(res.message || "Application submitted successfully! Redirecting to secure payment...");
         if (typeof window !== "undefined") {
           window.location.href = res.checkoutUrl;
