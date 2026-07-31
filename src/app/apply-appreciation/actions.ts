@@ -266,6 +266,7 @@ export async function submitAppreciationApplication(prevData: any, formData: For
     }
 
     let appNo = rawAppNo
+      .replace(/DKFFJ\/APP\//g, "DKFFJ/A/")
       .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
       .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
       .replace(/(\d{4})\/-\1-/g, "$1/");
