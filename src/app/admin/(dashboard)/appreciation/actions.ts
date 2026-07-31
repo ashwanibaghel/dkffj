@@ -326,7 +326,7 @@ export async function createDirectAppreciationApplication(payload: {
     }
 
     // 6. Send Email with Certificate & Download Link & Attachments
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.vercel.app";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dkffj.org";
     const trackUrl = `${appUrl}/track?type=appreciation&id=${encodeURIComponent(appNo)}`;
 
     const emailSubject = `Certificate of Appreciation Issued - DKFFJ`;

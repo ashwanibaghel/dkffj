@@ -39,7 +39,7 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
           socialWorkField: cert.workingArea || cert.courseName.replace(/^Certificate of Appreciation — /, ""),
           issueDateStr: cert.issueDate,
           qrCodeUrl: cert.qrCodeUrl,
-          verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`,
+          verificationUrl: `https://www.dkffj.org/verify/${cert.certificateNo}`.replace(/%2F/gi, "/"),
           fatherName: cert.fatherName || null,
           designation: cert.designation || null,
           photoUrl: cert.photoUrl || null
@@ -55,14 +55,14 @@ export default function VerifyDownloadButton({ cert }: { cert: CertificateDetail
           photoUrl: cert.photoUrl,
           issueDateStr: cert.issueDate,
           qrCodeUrl: cert.qrCodeUrl,
-          verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`
+          verificationUrl: `https://www.dkffj.org/verify/${cert.certificateNo}`.replace(/%2F/gi, "/")
         });
         pdfBlob = resultFiles.pdfBlob;
       } else {
         const resultFiles = await generateCertificatePDFClient({
           certNo: cert.certificateNo,
           qrCodeUrl: cert.qrCodeUrl,
-          verificationUrl: `${window.location.origin}/verify/${cert.certificateNo}`,
+          verificationUrl: `https://www.dkffj.org/verify/${cert.certificateNo}`.replace(/%2F/gi, "/"),
           studentName: cert.userName,
           courseTitle: cert.courseName,
           photoUrl: cert.photoUrl,

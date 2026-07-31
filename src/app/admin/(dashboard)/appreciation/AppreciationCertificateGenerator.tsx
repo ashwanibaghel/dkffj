@@ -58,9 +58,12 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/appreciation-classic-victorian-border-a4.svg";
 
-  const appOrigin = typeof window !== "undefined" ? window.location.origin : "https://www.dkffj.org";
   const cleanRef = decodeURIComponent(displayRefNo).replace(/%2F/gi, "/");
-  const rawVerifyLink = data.verificationUrl ? decodeURIComponent(data.verificationUrl) : `${appOrigin}/verify/${cleanRef}`;
+  let rawVerifyLink = data.verificationUrl ? decodeURIComponent(data.verificationUrl) : `https://www.dkffj.org/verify/${cleanRef}`;
+  // Enforce production domain https://www.dkffj.org on all QR codes
+  rawVerifyLink = rawVerifyLink
+    .replace(/https?:\/\/localhost:\d+/gi, "https://www.dkffj.org")
+    .replace(/https?:\/\/[^/]*vercel\.app/gi, "https://www.dkffj.org");
   const cleanVerifyLink = rawVerifyLink.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
   const computedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${cleanVerifyLink}`;
   const qrSrc = qrBase64 || data.qrCodeUrl || computedQrUrl;
@@ -397,17 +400,7 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
                 </>
               )}
 
-              {/* Row 2: Father Name */}
-              {displayFatherName && (
-                <div className="cert-line" style={{ width: "100%", marginLeft: 0, justifyContent: "center" }}>
-                   <span style={{ minWidth: "140px", fontSize: "16px", fontStyle: "italic", fontFamily: "'Playfair Display', serif" }}>
-                    Son/Daughter of Mr.
-                  </span>
-                  <div className="cert-pill" style={{ minWidth: "230px", fontWeight: "bold" }}>
-                    {displayFatherName}
-                  </div>
-                </div>
-              )}
+
 
               {/* Row 3: Dedication Lead-in */}
               <div style={{
