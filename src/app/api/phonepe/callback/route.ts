@@ -145,6 +145,11 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         remarks: "Fee payment verified via PhonePe. Application forwarded to review board.",
       });
 
+      try {
+        const { incrementNamespaceVersion } = await import("@/lib/redis");
+        await incrementNamespaceVersion("members");
+      } catch (_) {}
+
       const emailHtml = getMembershipReceiptTemplate(
         membership.full_name,
         membership.ack_no,

@@ -83,6 +83,10 @@ export async function manuallyApprovePayment(paymentId: string) {
         const subject = "Payment Verified (Manual) & Membership Submitted - DKFFJ";
         const emailHtml = getMembershipReceiptTemplate(membership.full_name, membership.ack_no, Number(payment.amount));
         await sendTransactionalEmail(membership.email, subject, emailHtml);
+
+        // Invalidate members cache
+        const { incrementNamespaceVersion } = await import("@/lib/redis");
+        await incrementNamespaceVersion("members");
       }
     }
 
