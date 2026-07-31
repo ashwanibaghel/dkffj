@@ -635,14 +635,18 @@ export default function AdminAppreciationPage() {
                         )}
                       </div>
 
-                      <div className="min-w-0">
-                        <div className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 min-w-0">
-                          <span className="truncate">{app.full_name}</span>
-                          <span className="text-[9.5px] font-mono font-bold text-[#001C55] dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-1.5 py-0.5 rounded shrink-0">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                          <span className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
+                            {app.full_name}
+                          </span>
+                          <span className="text-[9.5px] font-mono font-bold text-[#001C55] dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-1.5 py-0.5 rounded w-fit shrink-0">
                             {cleanedNo}
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">{app.email} &bull; {app.mobile}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1 truncate">
+                          {app.email} &bull; {app.mobile}
+                        </div>
                       </div>
                     </div>
 
