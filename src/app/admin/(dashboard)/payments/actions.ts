@@ -44,8 +44,7 @@ export async function manuallyApprovePayment(paymentId: string) {
     await prisma.payments.update({
       where: { id: payment.id },
       data: {
-        status: "COMPLETED",
-        remarks: "Manually approved by Administrator"
+        status: "COMPLETED"
       }
     });
 
