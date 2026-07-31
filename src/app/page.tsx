@@ -11,6 +11,7 @@ import { getHomeLeaders, getHomeNews } from "@/app/actions/home";
 import DocumentsFilter from "@/components/DocumentsFilter";
 import CourseCard from "@/app/courses/CourseCard";
 import InquiryFormClient from "@/components/InquiryFormClient";
+import HomeNewsSlider from "@/components/HomeNewsSlider";
 import { 
   Shield, 
   FileText, 
@@ -655,157 +656,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 2. Official Recognition & Registration Credentials Bar */}
-        <section className="bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] border-y border-slate-200 py-12 px-6">
-          <div className="max-w-6xl mx-auto w-full">
-            <p className="text-center text-[10px] text-slate-400 font-extrabold uppercase tracking-[0.35em] mb-8">Officially Recognised &amp; Registered By</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-
-              {/* MCA */}
-              <a
-                href="https://www.mca.gov.in/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-[#1565C0]/40 transition-all cursor-pointer group"
-              >
-                <div className="w-12 h-12 rounded-full bg-[#1565C0]/5 flex items-center justify-center group-hover:bg-[#1565C0]/10 transition-colors">
-                  <svg className="w-6 h-6 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
-                </div>
-                <div className="text-center">
-                  <p className="text-[12px] font-black text-[#001C55] uppercase tracking-wide group-hover:text-[#1565C0] transition-colors">Section 8 Company</p>
-                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Ministry of Corporate Affairs</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-1">CIN: U88900UP2023NPL185611</p>
-                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-[#1565C0] mt-2 group-hover:underline">Verify Profile ↗</span>
-                </div>
-              </a>
-
-              {/* NITI Aayog */}
-              <a
-                href="https://ngodarpan.gov.in/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-[#1565C0]/40 transition-all cursor-pointer group"
-              >
-                <div className="w-12 h-12 rounded-full bg-[#1565C0]/5 flex items-center justify-center group-hover:bg-[#1565C0]/10 transition-colors">
-                  <svg className="w-6 h-6 text-[#1565C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" /></svg>
-                </div>
-                <div className="text-center">
-                  <p className="text-[12px] font-black text-[#001C55] uppercase tracking-wide group-hover:text-[#1565C0] transition-colors">NITI Aayog</p>
-                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Govt. of India NGO Registry</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-1">ID: UP/2023/0351342</p>
-                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-[#1565C0] mt-2 group-hover:underline">Verify Registry ↗</span>
-                </div>
-              </a>
-
-              {/* 12A */}
-              <a
-                href="https://www.incometaxindia.gov.in/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-green-300 transition-all cursor-pointer group"
-              >
-                <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
-                  <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
-                </div>
-                <div className="text-center">
-                  <p className="text-[12px] font-black text-green-700 uppercase tracking-wide group-hover:text-green-800 transition-colors">12A Registered</p>
-                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Income Tax Exemption</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-1">Income Tax Act, 1961</p>
-                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-green-600 mt-2 group-hover:underline">Know More ↗</span>
-                </div>
-              </a>
-
-              {/* 80G */}
-              <a
-                href="https://www.incometaxindia.gov.in/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-slate-200/80 bg-white hover:shadow-lg hover:scale-[1.02] hover:border-amber-300 transition-all cursor-pointer group"
-              >
-                <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
-                  <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div className="text-center">
-                  <p className="text-[12px] font-black text-amber-700 uppercase tracking-wide group-hover:text-amber-800 transition-colors">80G Certified</p>
-                  <p className="text-[9px] text-slate-500 font-bold mt-0.5">Donations Tax Deductible</p>
-                  <p className="text-[9px] text-slate-400 font-mono mt-1">Income Tax Act, 1961</p>
-                  <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-600 mt-2 group-hover:underline">Know More ↗</span>
-                </div>
-              </a>
-
-            </div>
-
-            {/* Expandable Accreditations & Verification Table */}
-            <div className="mt-8 border border-slate-200 rounded-2xl bg-white p-5 md:p-6 shadow-sm text-left">
-              <h4 className="text-[11px] font-extrabold text-[#001C55] uppercase tracking-wider mb-5 flex items-center gap-2 font-sans border-b border-slate-100 pb-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#C00000]"></span> Legal Registrations &amp; Accreditations Directory
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-3 text-[11px] text-slate-600 font-semibold">
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">Section 8 Company:</span>
-                  <span className="text-slate-800">DK Foundation of Freedom and Justice</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">Section 8 Licence No:</span>
-                  <span className="font-mono text-slate-800">146043</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">CIN:</span>
-                  <span className="font-mono text-[#001C55]">U88900UP2023NPL185611</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">PAN Number:</span>
-                  <span className="font-mono text-slate-800">AAKCD1596R</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">TAN Number:</span>
-                  <span className="font-mono text-slate-800">LKND10615D</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">Unique ID NITI Aayog:</span>
-                  <span className="font-mono text-slate-800">UP/2023/0351342</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">NGO ID (Min of Social Justice):</span>
-                  <span className="font-mono text-slate-800">UP/00034249</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">ISO 9001:2015 Cert No:</span>
-                  <span className="font-mono text-slate-800">QCCI/23Q/DOE/2909</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">CSR Registration No:</span>
-                  <span className="font-mono text-slate-800">CSR00068100</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">12A Document ID No:</span>
-                  <span className="font-mono text-slate-800">AAKCD1596RE2024101</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">80G Document ID No:</span>
-                  <span className="font-mono text-slate-800">AAKCD1596RF2024101</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">MSME Registration No:</span>
-                  <span className="font-mono text-slate-800">UDYAM-UP-43-0117271</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">Min of Education ISBN:</span>
-                  <span className="font-mono text-slate-800">28791/ISBN/2024/P</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">UN Affiliation Status:</span>
-                  <span className="font-bold text-[#C00000] tracking-wide">Under Process</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="text-slate-400">Official Website:</span>
-                  <a href="https://www.dkffj.org" target="_blank" rel="noopener noreferrer" className="font-mono font-bold text-[#1565C0] hover:underline">www.dkffj.org</a>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
+        {/* 2. Latest Press & News Horizontal Infinite Carousel Section */}
+        <HomeNewsSlider />
 
         {/* 3. About Organization Section */}
         <section id="about" className="py-12 md:py-24 px-6 bg-[#f0f7ff]">

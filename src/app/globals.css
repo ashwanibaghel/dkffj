@@ -61,6 +61,23 @@ body {
   animation-play-state: paused;
 }
 
+/* Infinite Scrolling News Cards Marquee */
+@keyframes news-marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-news-marquee {
+  display: flex;
+  width: max-content;
+  animation: news-marquee 32s linear infinite;
+}
+
+.animate-news-marquee:hover,
+.group:hover .animate-news-marquee {
+  animation-play-state: paused;
+}
+
 /* Premium Gold Text and Border Gradients */
 .text-gold-gradient {
   background: linear-gradient(135deg, #f3d08a 0%, #c5a880 50%, #b29363 100%);
