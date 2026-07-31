@@ -36,6 +36,7 @@ import {
   Trash2
 } from "lucide-react";
 import AdminEmptyState from "../components/AdminEmptyState";
+import { AdminConfirmDialog } from "../components/AdminFeedback";
 import { AppreciationCertificateRenderer, generateAppreciationPDFClient, generateAppreciationCertFiles } from "./AppreciationCertificateGenerator";
 import { uploadFileToStorage } from "@/lib/uploadToStorage";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
@@ -141,10 +142,14 @@ export default function AdminAppreciationPage() {
   const [actionError, setActionError] = useState<string>("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const handleDeleteAppreciation = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete test application for "${name}"?`)) {
-      return;
-    }
+  // Custom Delete Confirm State
+  const [deleteConfirmState, setDeleteConfirmState] = useState<{
+    isOpen: boolean;
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const handleDeleteAppreciation = async (id: string) => {
     setDeletingId(id);
     try {
       const res = await deleteAppreciationApplication(id);
@@ -736,7 +741,11 @@ export default function AdminAppreciationPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteAppreciation(app.id, app.full_name);
+                          setDeleteConfirmState({
+                            isOpen: true,
+                            id: app.id,
+                            name: app.full_name
+                          });
                         }}
                         disabled={deletingId === app.id}
                         className="p-1.5 sm:px-2.5 sm:py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 rounded-xl text-xs font-extrabold flex items-center gap-1 transition-all shadow-sm cursor-pointer shrink-0 disabled:opacity-50"
@@ -1323,9 +1332,28 @@ export default function AdminAppreciationPage() {
                 />
               </div>
             </div>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Premium Confirmation Dialog */}
+      <AdminConfirmDialog
+        open={!!deleteConfirmState?.isOpen}
+        title="Application Delete Karein?"
+        message={`Kya aap sach me "${deleteConfirmState?.name}" ki application permanently delete karna chahte hain? Delete karne par iska saara record aur payment logs database se hamesha ke liye hat jaayega.`}
+        confirmLabel="Haan, Delete Karein"
+        cancelLabel="Nahi, Galti Se Daba"
+        tone="danger"
+        loading={!!deletingId}
+        onConfirm={async () => {
+          if (deleteConfirmState) {
+            await handleDeleteAppreciation(deleteConfirmState.id);
+            setDeleteConfirmState(null);
+          }
+        }}
+        onCancel={() => setDeleteConfirmState(null)}
+      />
     </div>
   );
 }

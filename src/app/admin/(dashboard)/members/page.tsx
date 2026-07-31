@@ -8,6 +8,7 @@ import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
 import AdminEmptyState from "../components/AdminEmptyState";
+import { AdminConfirmDialog } from "../components/AdminFeedback";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 import { MEMBERSHIP_TIERS, MEMBERSHIP_TIERS_LIST, autoDetectMembershipLevel, MembershipLevelKey } from "@/lib/data/membershipTiers";
 
@@ -511,10 +512,13 @@ export default function AdminMembersPage() {
 
   const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
 
-  const handleDeleteMember = async (memberId: string, memberName: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete test member "${memberName}"?`)) {
-      return;
-    }
+  const [deleteConfirmState, setDeleteConfirmState] = useState<{
+    isOpen: boolean;
+    id: string;
+    name: string;
+  } | null>(null);
+
+  const handleDeleteMember = async (memberId: string) => {
     setDeletingMemberId(memberId);
     try {
       const res = await deleteMembership(memberId);
@@ -1314,7 +1318,11 @@ export default function AdminMembersPage() {
                   <div className="flex items-center gap-1.5 shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
-                      onClick={() => handleDeleteMember(member.id, member.full_name)}
+                      onClick={() => setDeleteConfirmState({
+                        isOpen: true,
+                        id: member.id,
+                        name: member.full_name
+                      })}
                       disabled={deletingMemberId === member.id}
                       className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 dark:border dark:border-rose-500/20 transition-colors inline-flex items-center justify-center cursor-pointer disabled:opacity-50"
                       title="Delete Test Member Application"
@@ -2367,10 +2375,28 @@ export default function AdminMembersPage() {
                 Save Renewal Date
               </button>
             </div>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Premium Confirmation Dialog */}
+      <AdminConfirmDialog
+        open={!!deleteConfirmState?.isOpen}
+        title="Member Application Delete Karein?"
+        message={`Kya aap sach me member "${deleteConfirmState?.name}" ki application permanently delete karna chahte hain? Delete karne par iska saara record aur payment logs database se hamesha ke liye hat jaayega.`}
+        confirmLabel="Haan, Delete Karein"
+        cancelLabel="Nahi, Galti Se Daba"
+        tone="danger"
+        loading={!!deletingMemberId}
+        onConfirm={async () => {
+          if (deleteConfirmState) {
+            await handleDeleteMember(deleteConfirmState.id);
+            setDeleteConfirmState(null);
+          }
+        }}
+        onCancel={() => setDeleteConfirmState(null)}
+      />
     </div>
   );
 }
