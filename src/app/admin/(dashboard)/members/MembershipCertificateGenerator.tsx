@@ -35,7 +35,15 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   borderBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
-  const qrSrc = qrBase64 || data.qrCodeUrl || "";
+  let rawQrUrl = qrBase64 || data.qrCodeUrl || "";
+  if (!qrBase64 && rawQrUrl) {
+    rawQrUrl = rawQrUrl
+      .replace(/https%3A%2F%2F[^%]*vercel\.app/gi, "https%3A%2F%2Fwww.dkffj.org")
+      .replace(/https%3A%2F%2Flocalhost%3A\d+/gi, "https%3A%2F%2Fwww.dkffj.org")
+      .replace(/https?:\/\/[^/]*vercel\.app/gi, "https://www.dkffj.org")
+      .replace(/https?:\/\/localhost:\d+/gi, "https://www.dkffj.org");
+  }
+  const qrSrc = rawQrUrl;
   const logoSrc = logoBase64 || "/logo.png";
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/membership-heritage-damask-border-a4-landscape.svg";

@@ -52,7 +52,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   // Array of search variants to ensure 100% matching regardless of format
   const variants = Array.from(new Set([cleanSearch, altApp, altA, rawNum])).filter((s) => s.length > 0);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.dkffj.org";
+  const appUrl = "https://www.dkffj.org";
 
   try {
     // 1. Search in `certificates` table (Course Certificates)

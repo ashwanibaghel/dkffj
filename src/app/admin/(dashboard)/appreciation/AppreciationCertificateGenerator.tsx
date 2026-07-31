@@ -66,7 +66,15 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
     .replace(/https?:\/\/[^/]*vercel\.app/gi, "https://www.dkffj.org");
   const cleanVerifyLink = rawVerifyLink.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
   const computedQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${cleanVerifyLink}`;
-  const qrSrc = qrBase64 || data.qrCodeUrl || computedQrUrl;
+  let rawQrUrl = qrBase64 || data.qrCodeUrl || computedQrUrl;
+  if (!qrBase64 && rawQrUrl) {
+    rawQrUrl = rawQrUrl
+      .replace(/https%3A%2F%2F[^%]*vercel\.app/gi, "https%3A%2F%2Fwww.dkffj.org")
+      .replace(/https%3A%2F%2Flocalhost%3A\d+/gi, "https%3A%2F%2Fwww.dkffj.org")
+      .replace(/https?:\/\/[^/]*vercel\.app/gi, "https://www.dkffj.org")
+      .replace(/https?:\/\/localhost:\d+/gi, "https://www.dkffj.org");
+  }
+  const qrSrc = rawQrUrl;
   const cleanAmp = (str: string = "") => {
     if (!str) return "";
     let res = str;

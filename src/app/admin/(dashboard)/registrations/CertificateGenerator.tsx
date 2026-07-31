@@ -79,7 +79,15 @@ export const CertificateRenderer: React.FC<CertificateRendererProps> = ({
   borderBase64
 }) => {
   const photoSrc = photoBase64 || data.photoUrl || "";
-  const qrSrc = qrBase64 || data.qrCodeUrl || "";
+  let rawQrUrl = qrBase64 || data.qrCodeUrl || "";
+  if (!qrBase64 && rawQrUrl) {
+    rawQrUrl = rawQrUrl
+      .replace(/https%3A%2F%2F[^%]*vercel\.app/gi, "https%3A%2F%2Fwww.dkffj.org")
+      .replace(/https%3A%2F%2Flocalhost%3A\d+/gi, "https%3A%2F%2Fwww.dkffj.org")
+      .replace(/https?:\/\/[^/]*vercel\.app/gi, "https://www.dkffj.org")
+      .replace(/https?:\/\/localhost:\d+/gi, "https://www.dkffj.org");
+  }
+  const qrSrc = rawQrUrl;
   const logoSrc = logoBase64 || "/logo.png";
   const mcaSrc = mcaBase64 || "/images/mca.png";
   const nitiSrc = nitiBase64 || "/images/niti_aayog.png";
