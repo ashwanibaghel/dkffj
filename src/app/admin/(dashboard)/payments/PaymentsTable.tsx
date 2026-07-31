@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle, Phone, Mail, Trash2 } from "lucide-react";
-import { manuallyApprovePayment, deletePayment } from "./actions";
+import { Clock, ShieldCheck, Loader2, Search, Filter, ReceiptText, CheckCircle2, XCircle, Phone, Mail, Trash2, RefreshCw } from "lucide-react";
+import { manuallyApprovePayment, deletePayment, syncPendingPaymentsWithPhonePe } from "./actions";
 import { AdminConfirmDialog, AdminToast, useAdminFeedback } from "../components/AdminFeedback";
 import AdminEmptyState from "../components/AdminEmptyState";
 
@@ -152,6 +152,25 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
     }
   };
 
+  const [syncing, setSyncing] = useState<boolean>(false);
+
+  const handleSyncPhonePe = async () => {
+    setSyncing(true);
+    try {
+      const res = await syncPendingPaymentsWithPhonePe();
+      if (res.success) {
+        showToast(res.message, "success");
+        window.location.reload();
+      } else {
+        showToast(res.error || "Sync failed.", "error");
+      }
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : "Error during sync.", "error");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const handleDeletePayment = (id: string) => {
     requestConfirm({
       title: "Delete Payment Record",
@@ -249,12 +268,23 @@ export default function PaymentsTable({ initialPayments }: PaymentsTableProps) {
               className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                 statusFilter === status
                   ? "bg-[#001C55] text-white border-[#001C55]"
-                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-100"
               }`}
             >
-              {status === "ALL" ? "All" : status}
+              {status === "ALL" ? "All" : status} ({statusCounts[status] || 0})
             </button>
           ))}
+
+          <button
+            type="button"
+            disabled={syncing}
+            onClick={handleSyncPhonePe}
+            className="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:opacity-95 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50 transition-all shrink-0 ml-1"
+            title="Query PhonePe live status for all pending payments and auto-approve confirmed ones"
+          >
+            {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+            <span>Sync PhonePe Payments</span>
+          </button>
         </div>
       </div>
 
