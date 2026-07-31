@@ -221,17 +221,8 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   const fees = Number(course.fees);
 
   try {
-    // 3. Atomically generate Enrollment Number DKFFJ/C/YYYY/XXXX
-    const currentYear = new Date().getFullYear();
-    const { data: enrollmentNo, error: rpcError } = await supabase.rpc("generate_next_number", {
-      p_key: "course_reg",
-      p_prefix: `DKFFJ/C/${currentYear}/`
-    });
-
-    if (rpcError || !enrollmentNo) {
-      console.error("Enrollment sequence error:", rpcError);
-      throw new Error("Failed to generate academy enrollment number.");
-    }
+    // 3. Generate temporary Draft Enrollment Number (official sequence ID assigned on payment completion)
+    const enrollmentNo = `DKFFJ/C/DRAFT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     // 4. Insert registration record
     const { data: registration, error: insertError } = await supabase

@@ -281,16 +281,8 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   }
 
   try {
-    // 2. Generate Acknowledgement Number using SQL Stored Procedure
-    const { data: ackNo, error: rpcError } = await supabase.rpc("generate_next_number", {
-      p_key: "membership_ack",
-      p_prefix: "ACK"
-    });
-
-    if (rpcError) {
-      console.error("RPC sequence generation error:", rpcError);
-      throw new Error("Failed to generate acknowledgement number.");
-    }
+    // 2. Generate temporary Draft Acknowledgement Number (sequence ID assigned on payment completion)
+    const ackNo = `ACK-DRAFT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     // 3. Save application details to DB
     const { data: membership, error: dbError } = await supabase

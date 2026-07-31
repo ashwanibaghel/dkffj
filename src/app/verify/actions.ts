@@ -126,14 +126,20 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
       };
     }
 
-    // 2. Search in `appreciation_applications` table (Appreciation Certificates)
+    // 2. Search in `appreciation_applications` table (Appreciation Certificates) - Only Paid/Reviewed records
     const appreciationApp = await prisma.appreciation_applications.findFirst({
       where: {
-        OR: [
-          ...variants.map((v) => ({ application_no: { equals: v, mode: "insensitive" as const } })),
-          ...variants.map((v) => ({ application_no: { contains: v, mode: "insensitive" as const } })),
-          { mobile: cleanSearch },
-          { email: cleanSearch }
+        AND: [
+          { status: { in: ["UNDER_REVIEW", "APPROVED"] } },
+          { NOT: { application_no: { contains: "DRAFT" } } },
+          {
+            OR: [
+              ...variants.map((v) => ({ application_no: { equals: v, mode: "insensitive" as const } })),
+              ...variants.map((v) => ({ application_no: { contains: v, mode: "insensitive" as const } })),
+              { mobile: cleanSearch },
+              { email: cleanSearch }
+            ]
+          }
         ]
       }
     });
@@ -156,22 +162,27 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
         workingArea: cleanAmpText(appreciationApp.social_work_field),
         photoUrl: appreciationApp.photo_url,
         issueDate,
-        status: isApproved ? "VALID" : (appreciationApp.status === "PENDING" ? "VALID (UNDER REVIEW)" : appreciationApp.status),
+        status: isApproved ? "VALID" : "VALID (UNDER REVIEW)",
         pdfUrl: "",
         qrCodeUrl
       };
     }
 
-    // 3. Search in `memberships` table (Membership Certificates)
+    // 3. Search in `memberships` table (Membership Certificates) - Only Paid/Reviewed records
     const member = await prisma.memberships.findFirst({
       where: {
-        OR: [
-          ...variants.map((v) => ({ membership_no: { equals: v, mode: "insensitive" as const } })),
-          ...variants.map((v) => ({ ack_no: { equals: v, mode: "insensitive" as const } })),
-          ...variants.map((v) => ({ membership_no: { contains: v, mode: "insensitive" as const } })),
-          { mobile: cleanSearch },
-          { aadhaar_no: cleanSearch },
-          { full_name: { contains: cleanSearch, mode: "insensitive" as const } }
+        AND: [
+          { status: { in: ["UNDER_REVIEW", "APPROVED"] } },
+          { NOT: { ack_no: { contains: "DRAFT" } } },
+          {
+            OR: [
+              ...variants.map((v) => ({ membership_no: { equals: v, mode: "insensitive" as const } })),
+              ...variants.map((v) => ({ ack_no: { equals: v, mode: "insensitive" as const } })),
+              ...variants.map((v) => ({ membership_no: { contains: v, mode: "insensitive" as const } })),
+              { mobile: cleanSearch },
+              { full_name: { contains: cleanSearch, mode: "insensitive" as const } }
+            ]
+          }
         ]
       }
     });

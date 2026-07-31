@@ -147,16 +147,27 @@ export async function processPaymentCompletion(merchantOrderId: string) {
       .single();
 
     if (membership) {
-      await supabase
-        .from("memberships")
-        .update({ status: "UNDER_REVIEW" })
-        .eq("id", membership.id);
+      let finalAckNo = membership.ack_no;
+      if (!finalAckNo || finalAckNo.includes("DRAFT")) {
+        const { data: officialAckNo } = await supabase.rpc("generate_next_number", {
+          p_key: "membership_ack",
+          p_prefix: "ACK"
+        });
+        if (officialAckNo) {
+          finalAckNo = officialAckNo;
+          await supabase.from("memberships").update({ ack_no: officialAckNo, status: "UNDER_REVIEW" }).eq("id", membership.id);
+        } else {
+          await supabase.from("memberships").update({ status: "UNDER_REVIEW" }).eq("id", membership.id);
+        }
+      } else {
+        await supabase.from("memberships").update({ status: "UNDER_REVIEW" }).eq("id", membership.id);
+      }
 
       await supabase.from("status_logs").insert({
         membership_id: membership.id,
         from_status: membership.status,
         to_status: "UNDER_REVIEW",
-        remarks: "Fee payment verified via PhonePe. Application forwarded to review board.",
+        remarks: "Fee payment verified via PhonePe. Sequence number assigned and application forwarded to review board.",
       });
 
       try {
@@ -293,17 +304,28 @@ export async function processPaymentCompletion(merchantOrderId: string) {
       .single();
 
     if (registration) {
-      // Critical: update DB first — email/PDF failures must NOT undo this
-      await supabase
-        .from("course_registrations")
-        .update({ status: "APPROVED" })
-        .eq("id", registration.id);
+      let finalEnrollmentNo = registration.enrollment_no;
+      if (!finalEnrollmentNo || finalEnrollmentNo.includes("DRAFT")) {
+        const currentYear = new Date().getFullYear();
+        const { data: officialEnrollmentNo } = await supabase.rpc("generate_next_number", {
+          p_key: "course_reg",
+          p_prefix: `DKFFJ/C/${currentYear}/`
+        });
+        if (officialEnrollmentNo) {
+          finalEnrollmentNo = officialEnrollmentNo;
+          await supabase.from("course_registrations").update({ enrollment_no: officialEnrollmentNo, status: "APPROVED" }).eq("id", registration.id);
+        } else {
+          await supabase.from("course_registrations").update({ status: "APPROVED" }).eq("id", registration.id);
+        }
+      } else {
+        await supabase.from("course_registrations").update({ status: "APPROVED" }).eq("id", registration.id);
+      }
 
       await supabase.from("status_logs").insert({
         registration_id: registration.id,
         from_status: registration.status,
         to_status: "APPROVED",
-        remarks: "Course fee payment verified via PhonePe. Enrollment approved.",
+        remarks: "Course fee payment verified via PhonePe. Enrollment sequence number assigned & approved.",
       });
 
       // Email + PDF are best-effort — failures must not crash the function
@@ -394,16 +416,38 @@ export async function processPaymentCompletion(merchantOrderId: string) {
       .single();
 
     if (app) {
-      await supabase
-        .from("appreciation_applications")
-        .update({ status: "UNDER_REVIEW" })
-        .eq("id", app.id);
+      let finalAppNo = app.application_no;
+      if (!finalAppNo || finalAppNo.includes("DRAFT")) {
+        const currentYear = new Date().getFullYear();
+        const { data: rawAppNo } = await supabase.rpc("generate_next_number", {
+          p_key: "appreciation_app",
+          p_prefix: "DKFFJ/A/"
+        });
+        if (rawAppNo) {
+          let cleanAppNo = rawAppNo
+            .replace(/DKFFJ\/APP\//g, "DKFFJ/A/")
+            .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
+            .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
+            .replace(/(\d{4})\/-\1-/g, "$1/");
+          if (!cleanAppNo.includes(`/${currentYear}/`)) {
+            const parts = cleanAppNo.split("-");
+            const seq = parts[parts.length - 1].padStart(5, "0");
+            cleanAppNo = `DKFFJ/A/${currentYear}/${seq}`;
+          }
+          finalAppNo = cleanAppNo;
+          await supabase.from("appreciation_applications").update({ application_no: cleanAppNo, status: "UNDER_REVIEW" }).eq("id", app.id);
+        } else {
+          await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", app.id);
+        }
+      } else {
+        await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", app.id);
+      }
 
       await supabase.from("status_logs").insert({
         appreciation_id: app.id,
         from_status: app.status,
         to_status: "UNDER_REVIEW",
-        remarks: "Appreciation fee payment verified via PhonePe. Forwarded to board review.",
+        remarks: "Appreciation fee payment verified via PhonePe. Application sequence number assigned.",
       });
 
       const { getAppreciationReceiptTemplate } = await import("@/services/email/templates");
