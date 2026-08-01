@@ -333,6 +333,16 @@ export default function ApplyAppreciationPage() {
     setErrorMsg("");
     setSuccessMsg("");
 
+    // If user presses Enter key on Step 1, 2, or 3, handle step navigation or OTP verification instead of Step 4 submission
+    if (step < 4) {
+      if (step === 2 && !otpVerified) {
+        handleVerifyOtp();
+      } else {
+        handleNextStep();
+      }
+      return;
+    }
+
     if (!photo) {
       setErrorMsg("Please select your Passport Photo.");
       window.scrollTo({ top: 0, behavior: "smooth" });
