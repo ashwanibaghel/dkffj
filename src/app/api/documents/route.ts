@@ -5,96 +5,105 @@ import { cookies } from "next/headers";
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const pathParam = searchParams.get("path") || searchParams.get("url") || "";
+    const rawParam = searchParams.get("path") || searchParams.get("url") || "";
 
-    if (!pathParam) {
+    if (!rawParam) {
       return NextResponse.json({ error: "Missing document path or URL parameter." }, { status: 400 });
     }
 
-    let bucket = "photos";
-    let storagePath = pathParam.trim();
+    let inputPath = rawParam.trim();
+    
+    // Safely decode URI parameters
+    try {
+      inputPath = decodeURIComponent(inputPath);
+    } catch {}
 
-    // Clean leading slashes
-    if (storagePath.startsWith("/")) {
-      storagePath = storagePath.substring(1);
+    const currentSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tgszzjbvpcznndrfkkov.supabase.co";
+    const oldSupabaseUrl = "https://ydfeyymikxndqijykyly.supabase.co";
+
+    // Build candidate URLs to attempt in order
+    const urlsToTry: string[] = [];
+
+    if (inputPath.startsWith("http://") || inputPath.startsWith("https://")) {
+      urlsToTry.push(inputPath);
+      // Try cross-domain fallbacks (old project domain <-> new live project domain)
+      if (inputPath.includes("ydfeyymikxndqijykyly.supabase.co")) {
+        urlsToTry.push(inputPath.replace("ydfeyymikxndqijykyly.supabase.co", "tgszzjbvpcznndrfkkov.supabase.co"));
+      } else if (inputPath.includes("tgszzjbvpcznndrfkkov.supabase.co")) {
+        urlsToTry.push(inputPath.replace("tgszzjbvpcznndrfkkov.supabase.co", "ydfeyymikxndqijykyly.supabase.co"));
+      }
+    } else {
+      let cleanPath = inputPath.replace(/^\/+/, "");
+      if (cleanPath.startsWith("photos/")) cleanPath = cleanPath.substring(7);
+      else if (cleanPath.startsWith("aadhaar/")) cleanPath = cleanPath.substring(8);
+      else if (cleanPath.startsWith("signatures/")) cleanPath = cleanPath.substring(11);
+
+      urlsToTry.push(`${currentSupabaseUrl}/storage/v1/object/public/photos/${cleanPath}`);
+      urlsToTry.push(`${oldSupabaseUrl}/storage/v1/object/public/photos/${cleanPath}`);
+      urlsToTry.push(`${currentSupabaseUrl}/storage/v1/object/public/aadhaar/${cleanPath}`);
+      urlsToTry.push(`${oldSupabaseUrl}/storage/v1/object/public/aadhaar/${cleanPath}`);
     }
 
-    // Handle full URLs (e.g., https://tgszzjbvpcznndrfkkov.supabase.co/storage/v1/object/public/photos/...)
-    if (storagePath.startsWith("http://") || storagePath.startsWith("https://")) {
-      try {
-        const parsed = new URL(storagePath);
-        const match = parsed.pathname.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+    // 1. Attempt direct Supabase Storage client download
+    try {
+      const cookieStore = await cookies();
+      const supabase = createClient(cookieStore);
+
+      let bucket = "photos";
+      let relPath = inputPath;
+
+      if (relPath.startsWith("http://") || relPath.startsWith("https://")) {
+        const match = relPath.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
         if (match) {
           bucket = match[1];
-          storagePath = match[2];
-        } else {
-          // Direct fetch fallback for external HTTP URLs
-          const extRes = await fetch(storagePath, { cache: "force-cache" });
-          if (extRes.ok) {
-            const blob = await extRes.arrayBuffer();
-            const contentType = extRes.headers.get("content-type") || "image/jpeg";
-            return new Response(blob, {
-              headers: {
-                "Content-Type": contentType,
-                "Cache-Control": "public, max-age=31536000, immutable",
-              },
-            });
-          }
+          relPath = match[2];
         }
-      } catch (e) {
-        console.warn("URL parse fallback for proxy:", e);
+      } else {
+        relPath = relPath.replace(/^\/+/, "");
+        if (relPath.startsWith("photos/")) {
+          bucket = "photos";
+          relPath = relPath.substring(7);
+        } else if (relPath.startsWith("aadhaar/")) {
+          bucket = "aadhaar";
+          relPath = relPath.substring(8);
+        }
       }
-    }
 
-    // Determine bucket from path prefix
-    if (storagePath.startsWith("photos/")) {
-      bucket = "photos";
-      storagePath = storagePath.substring(7);
-    } else if (storagePath.startsWith("aadhaar/")) {
-      bucket = "aadhaar";
-      storagePath = storagePath.substring(8);
-    } else if (storagePath.startsWith("signatures/")) {
-      bucket = "signatures";
-      storagePath = storagePath.substring(11);
-    }
-
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
-    // Download directly from Supabase Storage via server TCP stream
-    const { data, error } = await supabase.storage.from(bucket).download(storagePath);
-
-    if (error || !data) {
-      console.warn(`[DOC PROXY] Storage download miss for ${bucket}/${storagePath}:`, error?.message);
-      
-      // Fallback HTTP fetch to public storage endpoint
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tgszzjbvpcznndrfkkov.supabase.co";
-      const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`;
-      
-      const fallbackRes = await fetch(publicUrl, { cache: "force-cache" });
-      if (fallbackRes.ok) {
-        const buffer = await fallbackRes.arrayBuffer();
-        const contentType = fallbackRes.headers.get("content-type") || "image/jpeg";
-        return new Response(buffer, {
+      const { data, error } = await supabase.storage.from(bucket).download(relPath);
+      if (data && !error) {
+        const arrayBuffer = await data.arrayBuffer();
+        const contentType = data.type || (relPath.endsWith(".png") ? "image/png" : relPath.endsWith(".pdf") ? "application/pdf" : "image/jpeg");
+        return new Response(arrayBuffer, {
           headers: {
             "Content-Type": contentType,
             "Cache-Control": "public, max-age=31536000, immutable",
           },
         });
       }
-
-      return NextResponse.json({ error: "Document not found or inaccessible." }, { status: 404 });
+    } catch (e) {
+      console.warn("[DOC PROXY] Supabase client download exception:", e);
     }
 
-    const arrayBuffer = await data.arrayBuffer();
-    const contentType = data.type || (storagePath.endsWith(".png") ? "image/png" : storagePath.endsWith(".pdf") ? "application/pdf" : "image/jpeg");
+    // 2. Multi-Candidate HTTP Fetch Loop (tries current domain, legacy domain, and alternate storage buckets)
+    for (const url of urlsToTry) {
+      try {
+        const res = await fetch(url, { cache: "force-cache" });
+        if (res.ok) {
+          const buffer = await res.arrayBuffer();
+          const contentType = res.headers.get("content-type") || "image/jpeg";
+          return new Response(buffer, {
+            headers: {
+              "Content-Type": contentType,
+              "Cache-Control": "public, max-age=31536000, immutable",
+            },
+          });
+        }
+      } catch (fetchErr) {
+        console.warn(`[DOC PROXY] Fetch error for ${url}:`, fetchErr);
+      }
+    }
 
-    return new Response(arrayBuffer, {
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=31536000, immutable",
-      },
-    });
+    return NextResponse.json({ error: "Document file not found in storage." }, { status: 404 });
   } catch (err: any) {
     console.error("Document Proxy Exception:", err);
     return NextResponse.json({ error: err?.message || "Internal document proxy error." }, { status: 500 });
