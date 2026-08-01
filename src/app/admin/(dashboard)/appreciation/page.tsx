@@ -43,6 +43,8 @@ import { AdminConfirmDialog } from "../components/AdminFeedback";
 import { AppreciationCertificateRenderer, generateAppreciationPDFClient, generateAppreciationCertFiles } from "./AppreciationCertificateGenerator";
 import { uploadFileToStorage } from "@/lib/uploadToStorage";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
+import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
+import { cleanAmpText } from "@/lib/sanitize";
 
 type AppreciationApplication = {
   id: string;
@@ -65,8 +67,7 @@ type AppreciationApplication = {
   created_at?: string;
 };
 
-import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
-import { cleanAmpText } from "@/lib/sanitize";
+
 
 function cleanText(str?: string | null): string {
   return cleanAmpText(str);
