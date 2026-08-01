@@ -196,14 +196,27 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   const isBypassUser = email.toLowerCase().trim() === BYPASS_EMAIL || email.toLowerCase().includes("bypass");
 
   if (!isBypassUser) {
-    const { data: verifiedOtp, error: otpCheckError } = await supabase
+    const rawMobile = mobile.replace(/\D/g, "").slice(-10);
+    const cleanEmail = email.toLowerCase().trim();
+
+    let otpQuery = supabase
       .from("otp_requests")
       .select("id")
-      .eq("mobile", mobile)
-      .eq("otp_code", otpCode)
       .eq("verified", true)
-      .limit(1)
-      .maybeSingle();
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (otpCode && otpCode.trim()) {
+      otpQuery = otpQuery.eq("otp_code", otpCode.trim());
+    }
+
+    if (cleanEmail) {
+      otpQuery = otpQuery.or(`mobile.eq.${mobile},mobile.eq.${rawMobile},email.eq.${cleanEmail}`);
+    } else {
+      otpQuery = otpQuery.or(`mobile.eq.${mobile},mobile.eq.${rawMobile}`);
+    }
+
+    const { data: verifiedOtp, error: otpCheckError } = await otpQuery.maybeSingle();
 
     if (otpCheckError || !verifiedOtp) {
       return { success: false, error: "Please verify your mobile/email using OTP first." };

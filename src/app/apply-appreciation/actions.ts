@@ -151,9 +151,13 @@ export async function submitAppreciationApplication(prevData: any, formData: For
     let otpQuery = supabase
       .from("otp_requests")
       .select("id")
-      .eq("otp_code", otpCode)
       .eq("verified", true)
+      .order("created_at", { ascending: false })
       .limit(1);
+
+    if (otpCode && otpCode.trim()) {
+      otpQuery = otpQuery.eq("otp_code", otpCode.trim());
+    }
 
     if (cleanEmail) {
       otpQuery = otpQuery.or(`mobile.eq.${mobile},mobile.eq.${rawMobile},email.eq.${cleanEmail}`);

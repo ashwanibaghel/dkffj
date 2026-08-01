@@ -95,8 +95,9 @@ export default function ApplyAppreciationPage() {
       if (draft.mobile) setMobile(draft.mobile);
       if (draft.whatsapp) setWhatsapp(draft.whatsapp);
       if (draft.email) setEmail(draft.email);
-      if (draft.otpSent) setOtpSent(draft.otpSent);
-      if (draft.otpVerified) setOtpVerified(draft.otpVerified);
+      if (draft.otpCode) setOtpCode(draft.otpCode);
+      if (draft.otpSent !== undefined) setOtpSent(draft.otpSent);
+      if (draft.otpVerified !== undefined) setOtpVerified(draft.otpVerified);
       if (draft.address) setAddress(draft.address);
       if (draft.district) setDistrict(draft.district);
       if (draft.state) setState(draft.state);
@@ -122,6 +123,7 @@ export default function ApplyAppreciationPage() {
       mobile,
       whatsapp,
       email,
+      otpCode,
       otpVerified,
       otpSent,
       address,
@@ -139,7 +141,7 @@ export default function ApplyAppreciationPage() {
     } catch {}
   }, [
     step, fullName, fatherName, gender, dob, country, countryCode, whatsappCountryCode,
-    mobile, whatsapp, email, otpVerified, otpSent, address, district, state, pincode,
+    mobile, whatsapp, email, otpCode, otpVerified, otpSent, address, district, state, pincode,
     socialWorkField, customSocialWorkField, description
   ]);
 

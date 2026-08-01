@@ -63,11 +63,12 @@ const STORAGE_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
 function loadDraft() {
   if (typeof window === "undefined") return null;
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = sessionStorage.getItem(STORAGE_KEY) || localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (Date.now() - (parsed.__savedAt || 0) > STORAGE_TTL_MS) {
       sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
       return null;
     }
     return parsed;
@@ -75,7 +76,10 @@ function loadDraft() {
 }
 
 function clearDraft() {
-  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {}
 }
 
 export default function ApplyPage() {
@@ -119,7 +123,7 @@ export default function ApplyPage() {
   const [referralCode, setReferralCode] = useState<string>(draft?.referralCode || "");
 
   // OTP states
-  const [otpCode, setOtpCode] = useState<string>("");
+  const [otpCode, setOtpCode] = useState<string>(draft?.otpCode || "");
   const [sendingOtp, setSendingOtp] = useState<boolean>(false);
   const [otpSent, setOtpSent] = useState<boolean>(draft?.otpSent || false);
   const [otpVerified, setOtpVerified] = useState<boolean>(draft?.otpVerified || false);
@@ -156,25 +160,26 @@ export default function ApplyPage() {
   const activeStateObj = indiaStatesDistricts.find((s) => s.state === state);
   const districtsList = activeStateObj ? activeStateObj.districts : [];
 
-  // ── Auto-save draft to sessionStorage whenever key fields change ──
+  // ── Auto-save draft to sessionStorage & localStorage ──
   useEffect(() => {
     try {
       const toSave = {
         step, fullName, fatherName, gender, dob, country, countryCode,
         whatsappCountryCode, mobile, whatsapp, email, joiningType, referralCode,
-        otpSent, otpVerified,
+        otpCode, otpSent, otpVerified,
         address, district, state, pincode, education, profession,
-        workingArea, designation, policeStation,
+        workingArea, designation, policeStation, membershipLevel,
         __savedAt: Date.now(),
       };
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch {}
   }, [
     step, fullName, fatherName, gender, dob, country, countryCode,
     whatsappCountryCode, mobile, whatsapp, email, joiningType, referralCode,
-    otpSent, otpVerified,
+    otpCode, otpSent, otpVerified,
     address, district, state, pincode, education, profession,
-    workingArea, designation, policeStation,
+    workingArea, designation, policeStation, membershipLevel,
   ]);
 
   // ── Check login status on load ──
