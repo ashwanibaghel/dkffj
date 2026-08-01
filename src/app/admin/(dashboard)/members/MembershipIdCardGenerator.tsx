@@ -235,7 +235,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
               <span style={{ textAlign: "left", flex: 1, fontWeight: "700" }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.3" }}>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.25" }}>
               <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
               <span
                 style={{
@@ -243,10 +243,13 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
                   flex: 1,
                   fontWeight: "700",
                   wordBreak: "break-word",
-                  paddingRight: "140px"
+                  paddingRight: "110px",
+                  fontSize: "12.5px",
+                  maxHeight: "58px",
+                  overflow: "hidden"
                 }}
               >
-                {[data.addressStr, data.districtStr, data.stateStr].filter(Boolean).join(", ")}{data.pincodeStr ? ` - ${data.pincodeStr}` : ""}
+                {data.addressStr || "N/A"}
               </span>
             </div>
           </div>
