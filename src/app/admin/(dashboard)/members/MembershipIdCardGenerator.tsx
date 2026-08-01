@@ -178,8 +178,8 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              width: "125px",
-              height: "125px",
+              width: "116px",
+              height: "116px",
               border: "2px solid #000000",
               backgroundColor: "#ffffff",
               display: "flex",
@@ -194,9 +194,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "20px",
+              fontSize: "19px",
               fontWeight: "bold",
-              marginTop: "6px",
+              marginTop: "4px",
               color: "#ffffff",
               textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -207,9 +207,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           
           <div
             style={{
-              fontSize: "15px",
+              fontSize: "14px",
               fontWeight: "700",
-              marginTop: "2px",
+              marginTop: "1px",
               color: "#ffffff",
               textAlign: "center",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
@@ -221,32 +221,30 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               width: "100%",
-              padding: "0 18px",
-              marginTop: "6px",
-              fontSize: "13.5px",
+              padding: "0 14px",
+              marginTop: "4px",
+              fontSize: "13px",
               fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
             }}
           >
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
-              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "3px" }}>
+              <span style={{ fontWeight: "bold", width: "85px", textAlign: "left", flexShrink: 0 }}>Work Area :</span>
               <span style={{ textAlign: "left", flex: 1, fontWeight: "700" }}>{data.workingArea || "N/A"}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px" }}>
-              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "3px" }}>
+              <span style={{ fontWeight: "bold", width: "85px", textAlign: "left", flexShrink: 0 }}>Valid Till :</span>
               <span style={{ textAlign: "left", flex: 1, fontWeight: "700" }}>{data.validFromStr} to {data.validToStr}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "4px", lineHeight: "1.25" }}>
-              <span style={{ fontWeight: "bold", width: "95px", textAlign: "left", flexShrink: 0 }}>Address :</span>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "3px", lineHeight: "1.25" }}>
+              <span style={{ fontWeight: "bold", width: "85px", textAlign: "left", flexShrink: 0 }}>Address :</span>
               <span
                 style={{
                   textAlign: "left",
                   flex: 1,
                   fontWeight: "700",
                   wordBreak: "break-word",
-                  paddingRight: "110px",
-                  fontSize: "12.5px",
-                  maxHeight: "58px",
-                  overflow: "hidden"
+                  paddingRight: "105px",
+                  fontSize: "12.5px"
                 }}
               >
                 {data.addressStr || "N/A"}
@@ -257,8 +255,8 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "60px",
-              right: "15px",
+              bottom: "52px",
+              right: "12px",
               textAlign: "center",
               display: "flex",
               flexDirection: "column",
@@ -270,13 +268,13 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               src={signatureSrc}
               alt="Authorized Signatory"
               style={{
-                height: "56px",
-                maxWidth: "150px",
+                height: "50px",
+                maxWidth: "130px",
                 objectFit: "contain",
-                marginBottom: "3px"
+                marginBottom: "2px"
               }}
             />
-            <div style={{ fontSize: "10.5px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.5px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
+            <div style={{ fontSize: "10px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.5px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
               Authorized Signatory
             </div>
           </div>
