@@ -305,15 +305,17 @@ export default function ApplyAppreciationPage() {
       return;
     }
 
-    // PDF size check (PDFs cannot be canvas-compressed)
-    if (idProof.type === "application/pdf" && idProof.size > 4.5 * 1024 * 1024) {
-      setErrorMsg(`Identity Proof PDF file size is too large (${(idProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 4.5 MB. Please select a smaller PDF or a JPG/PNG image.`);
+    const MAX_3MB_BYTES = 3 * 1024 * 1024;
+
+    // Check PDF file sizes before upload (PDFs cannot be canvas-compressed)
+    if (idProof.type === "application/pdf" && idProof.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Identity Proof PDF file size is too large (${(idProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 3 MB. Please select a smaller PDF under 3 MB or upload a JPG/PNG image.`);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
-    if (achievementProof && achievementProof.type === "application/pdf" && achievementProof.size > 4.5 * 1024 * 1024) {
-      setErrorMsg(`Achievement Proof PDF file size is too large (${(achievementProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 4.5 MB. Please select a smaller PDF or a JPG/PNG image.`);
+    if (achievementProof && achievementProof.type === "application/pdf" && achievementProof.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Achievement Proof PDF file size is too large (${(achievementProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 3 MB. Please select a smaller PDF under 3 MB or upload a JPG/PNG image.`);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -326,6 +328,28 @@ export default function ApplyAppreciationPage() {
       const compressedPhoto = await compressImage(photo, 1600, 0.85, 600);
       const compressedIdProof = await compressImage(idProof, 1800, 0.85, 1000);
       const compressedAchievement = achievementProof ? await compressImage(achievementProof, 1800, 0.85, 1000) : null;
+
+      if (compressedPhoto.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Passport Photo file size exceeds 3 MB limit (${(compressedPhoto.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      if (compressedIdProof.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Identity Proof file size exceeds 3 MB limit (${(compressedIdProof.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      if (compressedAchievement && compressedAchievement.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Achievement Proof file size exceeds 3 MB limit (${(compressedAchievement.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
 
       // Step 2: Direct client upload from browser to Supabase Storage (bypasses Vercel 4.5MB Server Action limit entirely)
       const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();

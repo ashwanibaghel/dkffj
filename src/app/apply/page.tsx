@@ -350,6 +350,26 @@ export default function ApplyPage() {
       // PDFs are left as-is, and images will stay high-quality but compressed
       const compressed = await compressFormFiles({ photo, aadhaar, signature });
 
+      const MAX_3MB_BYTES = 3 * 1024 * 1024;
+      if (compressed.photo && compressed.photo.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Passport Photo file size exceeds 3 MB limit (${(compressed.photo.size / (1024 * 1024)).toFixed(1)} MB). Please select a smaller photo or document under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        return;
+      }
+      if (compressed.aadhaar && compressed.aadhaar.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Aadhaar Card file size exceeds 3 MB limit (${(compressed.aadhaar.size / (1024 * 1024)).toFixed(1)} MB). Please select a smaller file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        return;
+      }
+      if (compressed.signature && compressed.signature.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Signature file size exceeds 3 MB limit (${(compressed.signature.size / (1024 * 1024)).toFixed(1)} MB). Please select a smaller file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        return;
+      }
+
       // Step 2: Upload files directly from browser to Supabase Storage (bypasses Vercel 4.5MB limit entirely)
       setSuccessMsg("Uploading documents securely...");
       const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();

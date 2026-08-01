@@ -863,7 +863,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       if (file && file.size > 3 * 1024 * 1024) {
-                        setErrorMsg("Maximum qualification document size is 3 MB.");
+                        setErrorMsg(`Qualification Document file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 3 MB. Please select a smaller document under 3 MB.`);
                         e.target.value = "";
                         setQualificationDoc(null);
                       } else {
@@ -892,7 +892,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       if (file && file.size > 3 * 1024 * 1024) {
-                        setErrorMsg("Maximum Aadhaar file size is 3 MB.");
+                        setErrorMsg(`Aadhaar Card file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 3 MB. Please select a smaller document under 3 MB.`);
                         e.target.value = "";
                         setAadhaarDoc(null);
                       } else {
@@ -1004,7 +1004,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       onChange={(e) => {
                         const file = e.target.files?.[0] || null;
                         if (file && file.size > 3 * 1024 * 1024) {
-                          setErrorMsg("Maximum certificate file size is 3 MB.");
+                          setErrorMsg(`Experience Certificate file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 3 MB. Please select a smaller document under 3 MB.`);
                           e.target.value = "";
                           setExperienceCert(null);
                         } else {
