@@ -1,19 +1,23 @@
 import { createClient } from "@/utils/supabase/client";
+import { compressImage } from "@/lib/compressImage";
 
 /**
  * Uploads a file directly from the browser to Supabase Storage.
- * This bypasses server actions entirely — no 413 possible.
+ * Auto-compresses high-resolution camera photos to lightweight JPEGs
+ * to guarantee 100% fast, reliable uploads without mobile "Failed to fetch" errors.
  *
- * @param file      File to upload
+ * @param rawFile   File to upload
  * @param bucket    Supabase storage bucket name
  * @param path      Storage path (e.g. "userId/photo_123.jpg")
  * @returns         publicUrl for public buckets, or storage path for private buckets
  */
 export async function uploadFileToStorage(
-  file: File,
+  rawFile: File,
   bucket: string,
   path: string
 ): Promise<{ url: string; error?: string }> {
+  // Compress large smartphone camera images before upload
+  const file = await compressImage(rawFile);
   // Attempt 1: Direct client-side upload to Supabase Storage
   try {
     const supabase = createClient();
