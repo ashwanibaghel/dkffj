@@ -718,20 +718,39 @@ export default function ApplyAppreciationPage() {
                       </button>
                     </div>
 
+                    {otpVerified ? (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-bold flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-emerald-600" />
+                          Email ({email}) Verified Successfully
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setOtpVerified(false)}
+                          className="text-[10px] text-slate-500 hover:text-slate-800 underline uppercase"
+                        >
+                          Change OTP
+                        </button>
+                      </div>
+                    ) : null}
+
                     <div className="flex gap-4">
                       <input
                         type="text"
                         maxLength={6}
                         value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                        onChange={(e) => {
+                          setOtpCode(e.target.value.replace(/\D/g, ""));
+                          setOtpVerified(false);
+                        }}
                         className="w-full text-center tracking-[12px] text-lg font-bold px-3 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                         placeholder="000000"
                       />
                       <button
                         type="button"
                         onClick={handleVerifyOtp}
-                        disabled={verifyingOtp || otpVerified}
-                        className="px-6 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 flex items-center justify-center shrink-0"
+                        disabled={verifyingOtp || otpCode.length < 6}
+                        className="px-6 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center shrink-0"
                       >
                         {verifyingOtp ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify"}
                       </button>
