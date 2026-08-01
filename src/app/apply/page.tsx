@@ -328,25 +328,24 @@ export default function ApplyPage() {
       setFileState(null);
       return;
     }
+    // Synchronously set file state so React state is never null
+    setFileState(rawFile);
     setErrorMsg("");
     setSuccessMsg(`Optimizing & compressing ${fieldLabel}...`);
 
     try {
-      // Step 1: ALWAYS compress image FIRST upon selection
       const compressed = await compressImage(rawFile, 1600, 0.85, 1000);
       setFileState(compressed);
       setSuccessMsg("");
 
-      // Step 2: Check size ONLY AFTER compression
       const MAX_3MB = 3 * 1024 * 1024;
       if (compressed.size > MAX_3MB) {
         const sizeMB = (compressed.size / (1024 * 1024)).toFixed(1);
         setErrorMsg(
-          `${fieldLabel} file size is ${sizeMB} MB after compression (Exceeds 3 MB limit). Please select a file or photo under 3 MB.`
+          `${fieldLabel} file size is ${sizeMB} MB after optimization (Exceeds 3 MB limit). Please select a file or photo under 3 MB.`
         );
       }
     } catch {
-      setFileState(rawFile);
       setSuccessMsg("");
     }
   };
@@ -356,8 +355,18 @@ export default function ApplyPage() {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!photo || !aadhaar || !signature) {
-      setErrorMsg("Please upload all required verification documents (Passport Photo, Govt ID, and Signature).");
+    if (!photo) {
+      setErrorMsg("Please select your Passport Photo.");
+      return;
+    }
+
+    if (!aadhaar) {
+      setErrorMsg("Please select your Govt Identity Proof (Aadhaar Card / Passport).");
+      return;
+    }
+
+    if (!signature) {
+      setErrorMsg("Please select your Specimen Signature.");
       return;
     }
 
@@ -371,31 +380,44 @@ export default function ApplyPage() {
       return;
     }
 
-    const MAX_3MB_BYTES = 3 * 1024 * 1024;
-    if (photo.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Passport Photo file size is ${(photo.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a smaller photo or document under 3 MB.`);
-      return;
-    }
-    if (aadhaar.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Identity Proof file size is ${(aadhaar.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a smaller file under 3 MB.`);
-      return;
-    }
-    if (signature.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Signature file size is ${(signature.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a smaller file under 3 MB.`);
-      return;
-    }
-
     setLoading(true);
-    setSuccessMsg("Uploading documents securely...");
+    setSuccessMsg("Optimizing documents for secure submission...");
 
     try {
-      // Step 2: Upload files directly from browser to Supabase Storage (bypasses Vercel 4.5MB limit entirely)
+      // Step 1: Guarantee files are compressed before uploading
+      const compressedPhoto = await compressImage(photo, 1600, 0.85, 600);
+      const compressedAadhaar = await compressImage(aadhaar, 1800, 0.85, 1000);
+      const compressedSignature = await compressImage(signature, 1600, 0.85, 600);
+
+      const MAX_3MB_BYTES = 3 * 1024 * 1024;
+      if (compressedPhoto.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Passport Photo file size is ${(compressedPhoto.size / (1024 * 1024)).toFixed(1)} MB after optimization (Exceeds 3 MB limit). Please select a smaller photo or document under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        return;
+      }
+      if (compressedAadhaar.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Identity Proof file size is ${(compressedAadhaar.size / (1024 * 1024)).toFixed(1)} MB after optimization (Exceeds 3 MB limit). Please select a smaller file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        return;
+      }
+      if (compressedSignature.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Signature file size is ${(compressedSignature.size / (1024 * 1024)).toFixed(1)} MB after optimization (Exceeds 3 MB limit). Please select a smaller file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        return;
+      }
+
+      setSuccessMsg("Uploading documents securely...");
+
+      // Step 2: Upload files directly from browser to Supabase Storage
       const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();
       const uploadResult = await uploadMembershipDocs(
         tempUserId,
-        photo,
-        aadhaar,
-        signature,
+        compressedPhoto,
+        compressedAadhaar,
+        compressedSignature,
         (step) => setSuccessMsg(step)
       );
 

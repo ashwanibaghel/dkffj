@@ -303,25 +303,25 @@ export default function ApplyAppreciationPage() {
       setFileState(null);
       return;
     }
+    // Set file state SYNCHRONOUSLY so React state is never null
+    setFileState(rawFile);
     setErrorMsg("");
     setSuccessMsg(`Optimizing & compressing ${fieldLabel}...`);
 
     try {
-      // Step 1: ALWAYS compress image FIRST upon selection
+      // Compress in background and update state when ready
       const compressed = await compressImage(rawFile, 1600, 0.85, 1000);
       setFileState(compressed);
       setSuccessMsg("");
 
-      // Step 2: Check size ONLY AFTER compression
       const MAX_3MB = 3 * 1024 * 1024;
       if (compressed.size > MAX_3MB) {
         const sizeMB = (compressed.size / (1024 * 1024)).toFixed(1);
         setErrorMsg(
-          `${fieldLabel} file size is ${sizeMB} MB after compression (Exceeds 3 MB limit). Please select a file or photo under 3 MB.`
+          `${fieldLabel} file size is ${sizeMB} MB after optimization (Exceeds 3 MB limit). Please select a file under 3 MB.`
         );
       }
     } catch {
-      setFileState(rawFile);
       setSuccessMsg("");
     }
   };
@@ -331,42 +331,59 @@ export default function ApplyAppreciationPage() {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (!photo || !idProof) {
-      setErrorMsg("Please upload your Passport Photo and Govt Identity Proof (Aadhaar / Passport).");
+    if (!photo) {
+      setErrorMsg("Please select your Passport Photo.");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
-    const MAX_3MB_BYTES = 3 * 1024 * 1024;
-
-    // Verify post-compression sizes before upload
-    if (photo.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Passport Photo file size is ${(photo.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a file under 3 MB.`);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    if (idProof.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Identity Proof file size is ${(idProof.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a file under 3 MB.`);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    if (achievementProof && achievementProof.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Achievement Proof file size is ${(achievementProof.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a file under 3 MB.`);
+    if (!idProof) {
+      setErrorMsg("Please select your Govt Identity Proof (Aadhaar Card / Passport).");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     setLoading(true);
-    setSuccessMsg("Uploading documents securely...");
+    setSuccessMsg("Optimizing documents for secure submission...");
 
     try {
-      // Step 2: Direct client upload from browser to Supabase Storage (bypasses Vercel 4.5MB Server Action limit entirely)
+      // Step 1: Guarantee files are compressed before uploading
+      const compressedPhoto = await compressImage(photo, 1600, 0.85, 600);
+      const compressedIdProof = await compressImage(idProof, 1800, 0.85, 1000);
+      const compressedAchievement = achievementProof ? await compressImage(achievementProof, 1800, 0.85, 1000) : null;
+
+      const MAX_3MB_BYTES = 3 * 1024 * 1024;
+      if (compressedPhoto.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Passport Photo file size is ${(compressedPhoto.size / (1024 * 1024)).toFixed(1)} MB after optimization (Exceeds 3 MB limit). Please select a file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      if (compressedIdProof.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Identity Proof file size is ${(compressedIdProof.size / (1024 * 1024)).toFixed(1)} MB after optimization (Exceeds 3 MB limit). Please select a file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      if (compressedAchievement && compressedAchievement.size > MAX_3MB_BYTES) {
+        setErrorMsg(`Achievement Proof file size is ${(compressedAchievement.size / (1024 * 1024)).toFixed(1)} MB after optimization (Exceeds 3 MB limit). Please select a file under 3 MB.`);
+        setLoading(false);
+        setSuccessMsg("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      setSuccessMsg("Uploading documents securely...");
+
+      // Step 2: Direct client upload from browser to Supabase Storage
       const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();
       const uploadRes = await uploadAppreciationDocs(
         tempUserId,
-        photo,
-        idProof,
-        achievementProof,
+        compressedPhoto,
+        compressedIdProof,
+        compressedAchievement,
         (msg) => setSuccessMsg(msg)
       );
 
