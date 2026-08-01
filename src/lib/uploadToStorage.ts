@@ -16,8 +16,19 @@ export async function uploadFileToStorage(
   bucket: string,
   path: string
 ): Promise<{ url: string; error?: string }> {
-  // Compress large smartphone camera images before upload
+  // 1. Auto-compress large smartphone camera images before upload
   const file = await compressImage(rawFile);
+
+  // 2. Strict 3 MB size limit check (post-compression)
+  const MAX_SIZE_BYTES = 3 * 1024 * 1024; // 3 MB
+  if (file.size > MAX_SIZE_BYTES) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    return {
+      url: "",
+      error: `File size exceeds the maximum allowed limit of 3 MB (Current size: ${sizeMB} MB). Please select a file or photo under 3 MB.`,
+    };
+  }
+
   // Attempt 1: Direct client-side upload to Supabase Storage
   try {
     const supabase = createClient();
@@ -56,18 +67,18 @@ export async function uploadFileToStorage(
       json = JSON.parse(text);
     } catch {
       if (res.status === 413) {
-        return { url: "", error: "File size is too large (exceeds 4.5MB limit). Please select a file or photo under 4.5MB." };
+        return { url: "", error: "File size exceeds the maximum 3 MB limit. Please select a smaller file or photo under 3 MB." };
       }
-      return { url: "", error: `Upload server error (${res.status}): Unable to process document.` };
+      return { url: "", error: `Upload server error (${res.status}): Unable to process document. Please try again.` };
     }
 
     if (res.ok && json.url) {
       return { url: json.url };
     }
-    return { url: "", error: json.error || "Document upload failed." };
+    return { url: "", error: json.error || "Document upload failed. Please try again." };
   } catch (apiErr: any) {
     console.error(`[API UPLOAD FALLBACK EXCEPTION] ${bucket}/${path}:`, apiErr);
-    return { url: "", error: apiErr?.message || "Upload failed. Please check network connection." };
+    return { url: "", error: apiErr?.message || "Upload failed due to network timeout. Please check internet connection and retry." };
   }
 }
 

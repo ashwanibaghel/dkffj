@@ -13,6 +13,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File and path parameters are required." }, { status: 400 });
     }
 
+    const MAX_3MB = 3 * 1024 * 1024;
+    if (file.size > MAX_3MB) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      return NextResponse.json(
+        { error: `File size exceeds the maximum allowed limit of 3 MB (Current size: ${sizeMB} MB). Please upload a document under 3 MB.` },
+        { status: 400 }
+      );
+    }
+
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 

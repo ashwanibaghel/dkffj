@@ -219,6 +219,17 @@ export async function submitComplaint(prevData: any, formData: FormData) {
   if (evidenceCopy && evidenceCopy.size > 0) attachmentsToUpload.push({ file: evidenceCopy, fieldName: "Evidence" });
   if (supportingProof && supportingProof.size > 0) attachmentsToUpload.push({ file: supportingProof, fieldName: "Supporting_Proof" });
 
+  const MAX_3MB = 3 * 1024 * 1024;
+  for (const item of attachmentsToUpload) {
+    if (item.file.size > MAX_3MB) {
+      const sizeMB = (item.file.size / (1024 * 1024)).toFixed(1);
+      return {
+        success: false,
+        error: `File size for ${item.fieldName.replace("_", " ")} exceeds the maximum allowed limit of 3 MB (Current size: ${sizeMB} MB). Please select a file under 3 MB.`,
+      };
+    }
+  }
+
   try {
     // 1. Generate unique DKC complaint sequence number
     const { data: complaintNo, error: rpcError } = await supabase.rpc("generate_next_number", {

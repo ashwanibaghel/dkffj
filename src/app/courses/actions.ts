@@ -56,6 +56,20 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     return { success: false, error: "Please fill in all registration fields, including Aadhaar Card and Qualification Documents." };
   }
 
+  const MAX_3MB = 3 * 1024 * 1024;
+  if (photo && photo.size > MAX_3MB) {
+    return { success: false, error: `Passport photo size exceeds 3 MB limit (Current: ${(photo.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  }
+  if (experienceCert && experienceCert.size > MAX_3MB) {
+    return { success: false, error: `Experience Certificate size exceeds 3 MB limit (Current: ${(experienceCert.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  }
+  if (qualificationDoc && qualificationDoc.size > MAX_3MB) {
+    return { success: false, error: `Qualification Document size exceeds 3 MB limit (Current: ${(qualificationDoc.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  }
+  if (aadhaarDoc && aadhaarDoc.size > MAX_3MB) {
+    return { success: false, error: `Aadhaar Document size exceeds 3 MB limit (Current: ${(aadhaarDoc.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  }
+
   // 1. Get/Create User account
   let userId = "";
   const { data: { user } } = await supabase.auth.getUser();
