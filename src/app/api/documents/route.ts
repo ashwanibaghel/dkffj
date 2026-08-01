@@ -13,10 +13,23 @@ export async function GET(req: NextRequest) {
 
     let inputPath = rawParam.trim();
     
-    // Safely decode URI parameters
-    try {
-      inputPath = decodeURIComponent(inputPath);
-    } catch {}
+    // Multi-pass decoding to handle HTML-entity-encoded URLs and double-encoded paths
+    // e.g. DB sometimes stores: https:&#x2F;&#x2F;supabase.co/...  or https:%26%23x2F%3B%26%23x2F%3B...
+    for (let i = 0; i < 3; i++) {
+      try { inputPath = decodeURIComponent(inputPath); } catch {}
+      // HTML entity decode: &#x2F; -> /   &#x3A; -> :   &amp; -> &   &#x3a; -> :
+      inputPath = inputPath
+        .replace(/&#x2[Ff];/g, "/")
+        .replace(/&#x3[Aa];/g, ":")
+        .replace(/&amp;/g, "&")
+        .replace(/&#47;/g, "/")
+        .replace(/&#58;/g, ":");
+    }
+    // Final safety: ensure https:// not https:// with entity slashes
+    inputPath = inputPath
+      .replace(/https:\/\/+/g, "https://")
+      .replace(/http:\/\/+/g, "http://")
+      .trim();
 
     const currentSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tgszzjbvpcznndrfkkov.supabase.co";
     const oldSupabaseUrl = "https://ydfeyymikxndqijykyly.supabase.co";

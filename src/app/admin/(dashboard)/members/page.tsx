@@ -92,6 +92,22 @@ const getErrorMessage = (error: unknown) => {
   return error instanceof Error ? error.message : String(error);
 };
 
+/** Decode HTML-entity-encoded slashes/colons that can end up in DB photo URLs */
+function cleanPhotoUrl(url?: string | null): string {
+  if (!url) return "";
+  let s = url.trim();
+  for (let i = 0; i < 3; i++) {
+    try { s = decodeURIComponent(s); } catch {}
+    s = s
+      .replace(/&#x2[Ff];/g, "/")
+      .replace(/&#x3[Aa];/g, ":")
+      .replace(/&amp;/g, "&")
+      .replace(/&#47;/g, "/")
+      .replace(/&#58;/g, ":");
+  }
+  return s.trim();
+}
+
 export default function AdminMembersPage() {
   const [members, setMembers] = useState<MemberRecord[]>([]);
   const [filter, setFilter] = useState<string>("ALL");
@@ -1454,7 +1470,7 @@ export default function AdminMembersPage() {
                       <div className="flex flex-col items-center border border-slate-200/60 bg-white rounded-xl p-4 text-center">
                         <div className="relative group w-28 h-28">
                           <img
-                            src={editingId === member.id ? editPhotoPreview : (member.photo_url ? `/api/documents?path=${encodeURIComponent(member.photo_url)}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`)}
+                            src={editingId === member.id ? editPhotoPreview : (member.photo_url ? `/api/documents?path=${encodeURIComponent(cleanPhotoUrl(member.photo_url))}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`)}
                             alt={member.full_name}
                             className="h-28 w-28 object-cover rounded-xl border"
                             onError={(e) => {

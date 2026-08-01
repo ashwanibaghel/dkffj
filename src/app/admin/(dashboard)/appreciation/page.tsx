@@ -72,11 +72,27 @@ function cleanText(str?: string | null): string {
   return cleanAmpText(str);
 }
 
+/** Decode HTML-entity-encoded slashes/colons that can end up in DB photo URLs */
+function cleanPhotoUrl(url: string): string {
+  let s = url.trim();
+  // Multi-pass: handles double or triple encoding
+  for (let i = 0; i < 3; i++) {
+    try { s = decodeURIComponent(s); } catch {}
+    s = s
+      .replace(/&#x2[Ff];/g, "/")
+      .replace(/&#x3[Aa];/g, ":")
+      .replace(/&amp;/g, "&")
+      .replace(/&#47;/g, "/")
+      .replace(/&#58;/g, ":");
+  }
+  return s.trim();
+}
+
 function resolveCandidatePhoto(url?: string | null, name: string = "Applicant"): string {
   if (!url || typeof url !== "string" || !url.trim()) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=001C55&color=fff&size=128`;
   }
-  let trimmed = url.trim();
+  let trimmed = cleanPhotoUrl(url);
   if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
     return trimmed;
   }

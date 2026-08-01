@@ -30,7 +30,26 @@ export function cleanAmpText(str?: string | null): string {
     .replace(/&#x27;/gi, "'")
     .replace(/&#39;/gi, "'")
     .replace(/&#x2F;/gi, "/")
+    .replace(/&#x2f;/gi, "/")
     .replace(/Amp\s*&/gi, "&")
+    .trim();
+}
+
+export function unencodeHtmlUrl(url?: string | null): string {
+  if (!url || typeof url !== "string") return "";
+  let s = url.trim();
+  try {
+    s = decodeURIComponent(s);
+  } catch {}
+  return s
+    .replace(/&#x2f;/gi, "/")
+    .replace(/&#x2F;/gi, "/")
+    .replace(/%26%23x2f%3B/gi, "/")
+    .replace(/%26%23x2F%3B/gi, "/")
+    .replace(/&#x3a;/gi, ":")
+    .replace(/&#x3A;/gi, ":")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
     .trim();
 }
 
