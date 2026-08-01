@@ -313,11 +313,42 @@ export default function ApplyPage() {
       setStep(4);
     }
   };
-
   const handlePrevStep = () => {
     setErrorMsg("");
     setSuccessMsg("");
     setStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleFileSelect = async (
+    rawFile: File | null,
+    setFileState: (f: File | null) => void,
+    fieldLabel: string
+  ) => {
+    if (!rawFile) {
+      setFileState(null);
+      return;
+    }
+    setErrorMsg("");
+    setSuccessMsg(`Optimizing & compressing ${fieldLabel}...`);
+
+    try {
+      // Step 1: ALWAYS compress image FIRST upon selection
+      const compressed = await compressImage(rawFile, 1600, 0.85, 1000);
+      setFileState(compressed);
+      setSuccessMsg("");
+
+      // Step 2: Check size ONLY AFTER compression
+      const MAX_3MB = 3 * 1024 * 1024;
+      if (compressed.size > MAX_3MB) {
+        const sizeMB = (compressed.size / (1024 * 1024)).toFixed(1);
+        setErrorMsg(
+          `${fieldLabel} file size is ${sizeMB} MB after compression (Exceeds 3 MB limit). Please select a file or photo under 3 MB.`
+        );
+      }
+    } catch {
+      setFileState(rawFile);
+      setSuccessMsg("");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -326,7 +357,7 @@ export default function ApplyPage() {
     setSuccessMsg("");
 
     if (!photo || !aadhaar || !signature) {
-      setErrorMsg("All documents (Photo, Aadhaar Card, Signature) must be uploaded.");
+      setErrorMsg("Please upload all required verification documents (Passport Photo, Govt ID, and Signature).");
       return;
     }
 
@@ -335,49 +366,36 @@ export default function ApplyPage() {
       return;
     }
 
-
-
     if (joiningType === "referred" && !referralCode.trim()) {
       setErrorMsg("Please enter a Referral Member ID.");
       return;
     }
 
+    const MAX_3MB_BYTES = 3 * 1024 * 1024;
+    if (photo.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Passport Photo file size is ${(photo.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a smaller photo or document under 3 MB.`);
+      return;
+    }
+    if (aadhaar.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Identity Proof file size is ${(aadhaar.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a smaller file under 3 MB.`);
+      return;
+    }
+    if (signature.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Signature file size is ${(signature.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a smaller file under 3 MB.`);
+      return;
+    }
+
     setLoading(true);
-    setSuccessMsg("Compressing documents...");
+    setSuccessMsg("Uploading documents securely...");
 
     try {
-      // Step 1: Compress images client-side to be small enough (no 413)
-      // PDFs are left as-is, and images will stay high-quality but compressed
-      const compressed = await compressFormFiles({ photo, aadhaar, signature });
-
-      const MAX_3MB_BYTES = 3 * 1024 * 1024;
-      if (compressed.photo && compressed.photo.size > MAX_3MB_BYTES) {
-        setErrorMsg(`Passport Photo file size exceeds 3 MB limit (${(compressed.photo.size / (1024 * 1024)).toFixed(1)} MB). Please select a smaller photo or document under 3 MB.`);
-        setLoading(false);
-        setSuccessMsg("");
-        return;
-      }
-      if (compressed.aadhaar && compressed.aadhaar.size > MAX_3MB_BYTES) {
-        setErrorMsg(`Aadhaar Card file size exceeds 3 MB limit (${(compressed.aadhaar.size / (1024 * 1024)).toFixed(1)} MB). Please select a smaller file under 3 MB.`);
-        setLoading(false);
-        setSuccessMsg("");
-        return;
-      }
-      if (compressed.signature && compressed.signature.size > MAX_3MB_BYTES) {
-        setErrorMsg(`Signature file size exceeds 3 MB limit (${(compressed.signature.size / (1024 * 1024)).toFixed(1)} MB). Please select a smaller file under 3 MB.`);
-        setLoading(false);
-        setSuccessMsg("");
-        return;
-      }
-
       // Step 2: Upload files directly from browser to Supabase Storage (bypasses Vercel 4.5MB limit entirely)
-      setSuccessMsg("Uploading documents securely...");
       const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();
       const uploadResult = await uploadMembershipDocs(
         tempUserId,
-        compressed.photo!,
-        compressed.aadhaar!,
-        compressed.signature!,
+        photo,
+        aadhaar,
+        signature,
         (step) => setSuccessMsg(step)
       );
 
@@ -1066,13 +1084,13 @@ export default function ApplyPage() {
                         <input
                           type="file"
                           accept="image/jpeg,image/png"
-                          onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                          onChange={(e) => handleFileSelect(e.target.files?.[0] || null, setPhoto, "Passport Photo")}
                           className="hidden"
                         />
                         <Upload className="w-5 h-5" />
                       </label>
                       <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                        {photo ? photo.name : "JPEG/PNG (Max 15MB)"}
+                        {photo ? `${photo.name} (${(photo.size / 1024).toFixed(0)} KB)` : "JPEG/PNG (Auto-Compressed)"}
                       </span>
                     </div>
 
@@ -1085,13 +1103,13 @@ export default function ApplyPage() {
                         <input
                           type="file"
                           accept="image/jpeg,image/png,application/pdf"
-                          onChange={(e) => setAadhaar(e.target.files?.[0] || null)}
+                          onChange={(e) => handleFileSelect(e.target.files?.[0] || null, setAadhaar, "Aadhaar Card")}
                           className="hidden"
                         />
                         <FileText className="w-5 h-5" />
                       </label>
                       <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                        {aadhaar ? aadhaar.name : "JPEG/PNG/PDF (Max 50MB)"}
+                        {aadhaar ? `${aadhaar.name} (${(aadhaar.size / 1024).toFixed(0)} KB)` : "JPEG/PNG/PDF (Auto-Compressed)"}
                       </span>
                     </div>
 
@@ -1102,13 +1120,13 @@ export default function ApplyPage() {
                         <input
                           type="file"
                           accept="image/jpeg,image/png"
-                          onChange={(e) => setSignature(e.target.files?.[0] || null)}
+                          onChange={(e) => handleFileSelect(e.target.files?.[0] || null, setSignature, "Specimen Signature")}
                           className="hidden"
                         />
                         <Upload className="w-5 h-5 text-sky-600" />
                       </label>
                       <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                        {signature ? signature.name : "JPEG/PNG (Max 5MB)"}
+                        {signature ? `${signature.name} (${(signature.size / 1024).toFixed(0)} KB)` : "JPEG/PNG (Auto-Compressed)"}
                       </span>
                     </div>
                   </div>

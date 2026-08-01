@@ -294,6 +294,38 @@ export default function ApplyAppreciationPage() {
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
+  const handleFileSelect = async (
+    rawFile: File | null,
+    setFileState: (f: File | null) => void,
+    fieldLabel: string
+  ) => {
+    if (!rawFile) {
+      setFileState(null);
+      return;
+    }
+    setErrorMsg("");
+    setSuccessMsg(`Optimizing & compressing ${fieldLabel}...`);
+
+    try {
+      // Step 1: ALWAYS compress image FIRST upon selection
+      const compressed = await compressImage(rawFile, 1600, 0.85, 1000);
+      setFileState(compressed);
+      setSuccessMsg("");
+
+      // Step 2: Check size ONLY AFTER compression
+      const MAX_3MB = 3 * 1024 * 1024;
+      if (compressed.size > MAX_3MB) {
+        const sizeMB = (compressed.size / (1024 * 1024)).toFixed(1);
+        setErrorMsg(
+          `${fieldLabel} file size is ${sizeMB} MB after compression (Exceeds 3 MB limit). Please select a file or photo under 3 MB.`
+        );
+      }
+    } catch {
+      setFileState(rawFile);
+      setSuccessMsg("");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -307,57 +339,34 @@ export default function ApplyAppreciationPage() {
 
     const MAX_3MB_BYTES = 3 * 1024 * 1024;
 
-    // Check PDF file sizes before upload (PDFs cannot be canvas-compressed)
-    if (idProof.type === "application/pdf" && idProof.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Identity Proof PDF file size is too large (${(idProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 3 MB. Please select a smaller PDF under 3 MB or upload a JPG/PNG image.`);
+    // Verify post-compression sizes before upload
+    if (photo.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Passport Photo file size is ${(photo.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a file under 3 MB.`);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-
-    if (achievementProof && achievementProof.type === "application/pdf" && achievementProof.size > MAX_3MB_BYTES) {
-      setErrorMsg(`Achievement Proof PDF file size is too large (${(achievementProof.size / (1024 * 1024)).toFixed(1)} MB). PDF files must be under 3 MB. Please select a smaller PDF under 3 MB or upload a JPG/PNG image.`);
+    if (idProof.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Identity Proof file size is ${(idProof.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a file under 3 MB.`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (achievementProof && achievementProof.size > MAX_3MB_BYTES) {
+      setErrorMsg(`Achievement Proof file size is ${(achievementProof.size / (1024 * 1024)).toFixed(1)} MB after compression (Exceeds 3 MB limit). Please select a file under 3 MB.`);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     setLoading(true);
-    setSuccessMsg("Optimizing & compressing documents...");
+    setSuccessMsg("Uploading documents securely...");
 
     try {
-      // Step 1: Compress images client-side to be ultra-fast (reduces 5-10MB photos down to ~300KB)
-      const compressedPhoto = await compressImage(photo, 1600, 0.85, 600);
-      const compressedIdProof = await compressImage(idProof, 1800, 0.85, 1000);
-      const compressedAchievement = achievementProof ? await compressImage(achievementProof, 1800, 0.85, 1000) : null;
-
-      if (compressedPhoto.size > MAX_3MB_BYTES) {
-        setErrorMsg(`Passport Photo file size exceeds 3 MB limit (${(compressedPhoto.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.`);
-        setLoading(false);
-        setSuccessMsg("");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
-      if (compressedIdProof.size > MAX_3MB_BYTES) {
-        setErrorMsg(`Identity Proof file size exceeds 3 MB limit (${(compressedIdProof.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.`);
-        setLoading(false);
-        setSuccessMsg("");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
-      if (compressedAchievement && compressedAchievement.size > MAX_3MB_BYTES) {
-        setErrorMsg(`Achievement Proof file size exceeds 3 MB limit (${(compressedAchievement.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.`);
-        setLoading(false);
-        setSuccessMsg("");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
-
       // Step 2: Direct client upload from browser to Supabase Storage (bypasses Vercel 4.5MB Server Action limit entirely)
       const tempUserId = email.replace(/[^a-zA-Z0-9]/g, "_") + "_" + Date.now();
       const uploadRes = await uploadAppreciationDocs(
         tempUserId,
-        compressedPhoto,
-        compressedIdProof,
-        compressedAchievement,
+        photo,
+        idProof,
+        achievementProof,
         (msg) => setSuccessMsg(msg)
       );
 
@@ -848,13 +857,13 @@ export default function ApplyAppreciationPage() {
                       <input
                         type="file"
                         accept="image/jpeg,image/png"
-                        onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileSelect(e.target.files?.[0] || null, setPhoto, "Passport Photo")}
                         className="hidden"
                       />
                       <Upload className="w-5 h-5 text-sky-600" />
                     </label>
                     <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                      {photo ? photo.name : "JPEG/PNG (Max 2MB)"}
+                      {photo ? `${photo.name} (${(photo.size / 1024).toFixed(0)} KB)` : "JPEG/PNG (Auto-Compressed)"}
                     </span>
                   </div>
 
@@ -867,13 +876,13 @@ export default function ApplyAppreciationPage() {
                       <input
                         type="file"
                         accept="image/jpeg,image/png,application/pdf"
-                        onChange={(e) => setIdProof(e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileSelect(e.target.files?.[0] || null, setIdProof, "Identity Proof")}
                         className="hidden"
                       />
                       <FileText className="w-5 h-5 text-emerald-600" />
                     </label>
                     <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                      {idProof ? idProof.name : "JPEG/PNG/PDF (Max 5MB)"}
+                      {idProof ? `${idProof.name} (${(idProof.size / 1024).toFixed(0)} KB)` : "JPEG/PNG/PDF (Auto-Compressed)"}
                     </span>
                   </div>
 
@@ -884,13 +893,13 @@ export default function ApplyAppreciationPage() {
                       <input
                         type="file"
                         accept="image/jpeg,image/png,application/pdf"
-                        onChange={(e) => setAchievementProof(e.target.files?.[0] || null)}
+                        onChange={(e) => handleFileSelect(e.target.files?.[0] || null, setAchievementProof, "Achievement Proof")}
                         className="hidden"
                       />
                       <Upload className="w-5 h-5 text-rose-600" />
                     </label>
                     <span className="text-[10px] text-slate-400 mt-2 block overflow-hidden max-w-full text-ellipsis whitespace-nowrap">
-                      {achievementProof ? achievementProof.name : "JPEG/PNG/PDF (Max 10MB)"}
+                      {achievementProof ? `${achievementProof.name} (${(achievementProof.size / 1024).toFixed(0)} KB)` : "JPEG/PNG/PDF (Auto-Compressed)"}
                     </span>
                   </div>
                 </div>
