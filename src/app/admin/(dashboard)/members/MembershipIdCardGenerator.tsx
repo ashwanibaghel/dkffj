@@ -49,6 +49,20 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
   const logoSrc = logoBase64 || "/logo.png";
   const signatureSrc = signatureBase64 || "/images/course_director_sig.png";
 
+  // Smart Address Builder: Appends district/state if missing without pincode, filling address space cleanly
+  const formattedAddress = (() => {
+    if (!data.addressStr || !data.addressStr.trim()) return "N/A";
+    let base = data.addressStr.trim();
+    const parts = [base];
+    if (data.districtStr && data.districtStr.trim() && !base.toLowerCase().includes(data.districtStr.toLowerCase().trim())) {
+      parts.push(data.districtStr.trim());
+    }
+    if (data.stateStr && data.stateStr.trim() && !base.toLowerCase().includes(data.stateStr.toLowerCase().trim())) {
+      parts.push(data.stateStr.trim());
+    }
+    return parts.join(", ");
+  })();
+
   return (
     <div
       id={`membership-idcard-render-container-${data.membershipNo || data.ackNo}`}
@@ -247,7 +261,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
                   fontSize: "12.5px"
                 }}
               >
-                {data.addressStr || "N/A"}
+                {formattedAddress}
               </span>
             </div>
           </div>
@@ -255,7 +269,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
           <div
             style={{
               position: "absolute",
-              bottom: "52px",
+              bottom: "66px",
               right: "12px",
               textAlign: "center",
               display: "flex",
@@ -268,10 +282,10 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
               src={signatureSrc}
               alt="Authorized Signatory"
               style={{
-                height: "50px",
-                maxWidth: "130px",
+                height: "46px",
+                maxWidth: "125px",
                 objectFit: "contain",
-                marginBottom: "2px"
+                marginBottom: "1px"
               }}
             />
             <div style={{ fontSize: "10px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.5px", textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
