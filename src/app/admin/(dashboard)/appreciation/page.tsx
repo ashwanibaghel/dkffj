@@ -65,6 +65,7 @@ type AppreciationApplication = {
   created_at?: string;
 };
 
+import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
 import { cleanAmpText } from "@/lib/sanitize";
 
 function cleanText(str?: string | null): string {
