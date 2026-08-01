@@ -5,11 +5,19 @@ import { createClient } from "@/utils/supabase/server";
 import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
 
+import { getCachedData, setCachedData, invalidateCache } from "@/lib/serverCache";
+
 // 1. Fetch appreciation applications list
 export async function getAppreciationApplications(statusFilter?: string) {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) {
     return [];
+  }
+
+  const cacheKey = `appreciation_list_${statusFilter || "ALL"}`;
+  const cached = getCachedData<any[]>(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const cookieStore = await cookies();
@@ -52,7 +60,9 @@ export async function getAppreciationApplications(statusFilter?: string) {
     console.error("Error fetching appreciation applications:", error);
     return [];
   }
-  return data || [];
+  const result = data || [];
+  setCachedData(cacheKey, result, 60); // 60s TTL cache
+  return result;
 }
 
 // 2. Generate signed document URL for secure viewing
@@ -142,6 +152,8 @@ export async function updateAppreciationStatus(
       console.error("Failed to update appreciation status:", updateError);
       return { success: false, error: "Failed to update record status in database: " + updateError.message };
     }
+
+    invalidateCache("appreciation_list_");
 
     // 2. Log status transition safely
     try {

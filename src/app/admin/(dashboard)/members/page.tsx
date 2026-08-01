@@ -313,17 +313,38 @@ export default function AdminMembersPage() {
     }
   };
 
-  async function fetchData() {
-    setLoading(true);
+  async function fetchData(isBackground = false) {
+    if (!isBackground) setLoading(true);
     try {
       const data = await getMemberships();
-      setMembers(data as MemberRecord[]);
+      const recs = data as MemberRecord[];
+      setMembers(recs);
+      try {
+        sessionStorage.setItem("admin_members_cache", JSON.stringify(recs));
+      } catch {}
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   }
+
+  useEffect(() => {
+    let hasCache = false;
+    try {
+      const cached = sessionStorage.getItem("admin_members_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMembers(parsed);
+          setLoading(false);
+          hasCache = true;
+        }
+      }
+    } catch {}
+
+    void fetchData(hasCache);
+  }, []);
 
   const startEditing = (member: MemberRecord) => {
     setEditingId(member.id);

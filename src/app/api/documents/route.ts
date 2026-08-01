@@ -76,7 +76,9 @@ export async function GET(req: NextRequest) {
         return new Response(arrayBuffer, {
           headers: {
             "Content-Type": contentType,
-            "Cache-Control": "public, max-age=31536000, immutable",
+            "Cache-Control": "public, max-age=31536000, immutable, s-maxage=31536000",
+            "CDN-Cache-Control": "public, max-age=31536000, immutable",
+            "Vary": "Accept-Encoding",
           },
         });
       }
@@ -94,7 +96,9 @@ export async function GET(req: NextRequest) {
           return new Response(buffer, {
             headers: {
               "Content-Type": contentType,
-              "Cache-Control": "public, max-age=31536000, immutable",
+              "Cache-Control": "public, max-age=31536000, immutable, s-maxage=31536000",
+              "CDN-Cache-Control": "public, max-age=31536000, immutable",
+              "Vary": "Accept-Encoding",
             },
           });
         }

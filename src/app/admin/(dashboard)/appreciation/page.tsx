@@ -579,24 +579,37 @@ export default function AdminAppreciationPage() {
     }
   }, [toast.visible]);
 
-  async function fetchData() {
-    setLoading(true);
+  async function fetchData(isBackground = false) {
+    if (!isBackground) setLoading(true);
     try {
       const data = await getAppreciationApplications();
-      setApplications(data as AppreciationApplication[]);
+      const apps = data as AppreciationApplication[];
+      setApplications(apps);
+      try {
+        sessionStorage.setItem("admin_appreciation_cache", JSON.stringify(apps));
+      } catch {}
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   }
 
   useEffect(() => {
-    const animationFrame = window.requestAnimationFrame(() => {
-      void fetchData();
-    });
+    let hasCache = false;
+    try {
+      const cached = sessionStorage.getItem("admin_appreciation_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setApplications(parsed);
+          setLoading(false);
+          hasCache = true;
+        }
+      }
+    } catch {}
 
-    return () => window.cancelAnimationFrame(animationFrame);
+    void fetchData(hasCache);
   }, []);
 
   const statusFilters = ["ALL", "APPROVED", "PENDING", "UNDER_REVIEW", "REJECTED"];
