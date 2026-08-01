@@ -42,7 +42,16 @@ export async function GET() {
       CREATE INDEX IF NOT EXISTS "idx_appreciation_no" ON "appreciation_applications"("application_no");
     `);
 
-    // 2. Add columns to existing payments/status_logs tables if not exist
+    // 2. Allow NULL user_id for public/guest appreciation applicants
+    try {
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE "appreciation_applications" ALTER COLUMN "user_id" DROP NOT NULL;
+      `);
+    } catch (e) {
+      // Ignored if already dropped
+    }
+
+    // 3. Add columns to existing payments/status_logs tables if not exist
     await prisma.$executeRawUnsafe(`
       ALTER TABLE "payments" ADD COLUMN IF NOT EXISTS "appreciation_id" UUID;
     `);

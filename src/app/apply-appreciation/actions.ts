@@ -270,12 +270,16 @@ export async function submitAppreciationApplication(prevData: any, formData: For
     // 2. Generate temporary Draft Application Number (official sequence ID assigned on payment completion)
     const appNo = `DKFFJ/A/DRAFT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
+    const validUserId = (userId && userId.trim() !== "" && userId.trim() !== "null")
+      ? userId.trim()
+      : (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-0000-0000-${Date.now().toString(16).padStart(12, "0")}`);
+
     // 3. Save application details to DB
     const { data: newApplication, error: insertError } = await supabase
       .from("appreciation_applications")
       .insert({
         application_no: appNo,
-        user_id: (userId && userId.trim() !== "") ? userId.trim() : null,
+        user_id: validUserId,
         full_name: fullName,
         email,
         mobile,
