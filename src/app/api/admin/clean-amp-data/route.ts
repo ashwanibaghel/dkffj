@@ -20,12 +20,14 @@ export async function GET(req: NextRequest) {
         const cleanField = cleanAmpText(app.social_work_field);
         const cleanDesc = cleanAmpText(app.description);
         const cleanFather = cleanAmpText(app.father_name);
+        const cleanPhotoUrl = app.photo_url ? app.photo_url.replace(/ydfeyymikxndqijykyly\.supabase\.co/gi, "tgszzjbvpcznndrfkkov.supabase.co") : app.photo_url;
 
         if (
           cleanName !== app.full_name ||
           cleanField !== app.social_work_field ||
           cleanDesc !== app.description ||
-          cleanFather !== app.father_name
+          cleanFather !== app.father_name ||
+          cleanPhotoUrl !== app.photo_url
         ) {
           await supabase
             .from("appreciation_applications")
@@ -34,6 +36,7 @@ export async function GET(req: NextRequest) {
               social_work_field: cleanField,
               description: cleanDesc,
               father_name: cleanFather || null,
+              photo_url: cleanPhotoUrl || null,
             })
             .eq("id", app.id);
           cleanedAppreciation++;

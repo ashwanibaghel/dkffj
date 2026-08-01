@@ -76,16 +76,23 @@ function resolveCandidatePhoto(url?: string | null, name: string = "Applicant"):
   if (!url || typeof url !== "string" || !url.trim()) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=001C55&color=fff&size=128`;
   }
-  const trimmed = url.trim();
+  let trimmed = url.trim();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tgszzjbvpcznndrfkkov.supabase.co";
+
+  // Replace stale/old project domain with current live project domain
+  trimmed = trimmed.replace(/ydfeyymikxndqijykyly\.supabase\.co/gi, "tgszzjbvpcznndrfkkov.supabase.co");
+
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
     return trimmed;
   }
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://ydfeyymikxndqijykyly.supabase.co";
   if (trimmed.startsWith("photos/")) {
     return `${supabaseUrl}/storage/v1/object/public/${trimmed}`;
   }
   if (trimmed.startsWith("aadhaar/")) {
     return `${supabaseUrl}/storage/v1/object/public/${trimmed}`;
+  }
+  if (trimmed.startsWith("/")) {
+    return `${supabaseUrl}/storage/v1/object/public${trimmed}`;
   }
   return `${supabaseUrl}/storage/v1/object/public/photos/${trimmed}`;
 }
