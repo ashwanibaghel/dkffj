@@ -29,7 +29,42 @@ export async function uploadFileToStorage(
     };
   }
 
-  // Attempt 1: Direct client-side upload to Supabase Storage
+  // Attempt 1: Same-origin Server API Upload (/api/upload-document) with 3x retry loop
+  let lastErr = "";
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("bucket", bucket);
+      formData.append("path", path);
+
+      const res = await fetch("/api/upload-document", {
+        method: "POST",
+        body: formData,
+      });
+
+      const text = await res.text();
+      let json: any = {};
+      try {
+        json = JSON.parse(text);
+      } catch {
+        if (res.status === 413) {
+          return { url: "", error: "File size exceeds the maximum 3 MB limit. Please select a smaller file or photo under 3 MB." };
+        }
+      }
+
+      if (res.ok && json.url) {
+        return { url: json.url };
+      }
+      if (json.error) lastErr = json.error;
+    } catch (apiErr: any) {
+      lastErr = apiErr?.message || "Network request failed";
+      // Small delay before retry
+      await new Promise((resolve) => setTimeout(resolve, 800 * attempt));
+    }
+  }
+
+  // Attempt 2: Direct Client SDK Fallback to Supabase Storage
   try {
     const supabase = createClient();
     const { data, error } = await supabase.storage
@@ -42,44 +77,15 @@ export async function uploadFileToStorage(
         return { url: urlData.publicUrl };
       }
       return { url: `${bucket}/${data.path}` };
-    } else if (error) {
-      console.warn(`[DIRECT STORAGE UPLOAD FAILED] ${bucket}/${path}: ${error.message}. Trying API fallback...`);
     }
-  } catch (err) {
-    console.warn(`[DIRECT STORAGE UPLOAD EXCEPTION] ${bucket}/${path}. Trying API fallback...`, err);
+  } catch (err: any) {
+    console.warn(`[DIRECT STORAGE UPLOAD EXCEPTION] ${bucket}/${path}:`, err);
   }
 
-  // Attempt 2: Server-side API Route Fallback (/api/upload-document)
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("bucket", bucket);
-    formData.append("path", path);
-
-    const res = await fetch("/api/upload-document", {
-      method: "POST",
-      body: formData,
-    });
-
-    const text = await res.text();
-    let json: any = {};
-    try {
-      json = JSON.parse(text);
-    } catch {
-      if (res.status === 413) {
-        return { url: "", error: "File size exceeds the maximum 3 MB limit. Please select a smaller file or photo under 3 MB." };
-      }
-      return { url: "", error: `Upload server error (${res.status}): Unable to process document. Please try again.` };
-    }
-
-    if (res.ok && json.url) {
-      return { url: json.url };
-    }
-    return { url: "", error: json.error || "Document upload failed. Please try again." };
-  } catch (apiErr: any) {
-    console.error(`[API UPLOAD FALLBACK EXCEPTION] ${bucket}/${path}:`, apiErr);
-    return { url: "", error: apiErr?.message || "Upload failed due to network timeout. Please check internet connection and retry." };
-  }
+  return {
+    url: "",
+    error: "Network connection was interrupted during document upload. Please check your internet connection and try submitting again.",
+  };
 }
 
 /**
