@@ -1,20 +1,46 @@
 /**
- * Recursive utility to sanitize strings, arrays, and objects by escaping
- * HTML characters to prevent Cross-Site Scripting (XSS) attacks.
+ * Utility to clean Amp&, &amp;, and HTML artifacts from strings,
+ * ensuring clean natural text without "Amp&" or "&amp;" appearing on certificates or UI.
  */
+export function cleanAmpText(str?: string | null): string {
+  if (!str || typeof str !== "string") return "";
+  let s = str.trim();
+
+  let previous = "";
+  while (s !== previous && (
+    s.includes("&amp;") ||
+    s.includes("Amp&") ||
+    s.includes("AMP&") ||
+    s.includes("Amp;") ||
+    s.includes("&amp")
+  )) {
+    previous = s;
+    s = s
+      .replace(/&amp;/gi, "&")
+      .replace(/Amp&/gi, "&")
+      .replace(/AMP&/gi, "&")
+      .replace(/Amp;/gi, "&")
+      .replace(/&amp/gi, "&");
+  }
+
+  return s
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#39;/gi, "'")
+    .replace(/&#x2F;/gi, "/")
+    .replace(/Amp\s*&/gi, "&")
+    .trim();
+}
 
 export function escapeHtml(str: string): string {
-  // Strip tags first
-  let cleanStr = str.replace(/<[^>]*>/g, "");
-  
-  // Escape HTML entities to prevent rendering context breaks
-  return cleanStr
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;")
-    .replace(/\//g, "&#x2F;");
+  if (!str || typeof str !== "string") return "";
+  const cleanStr = str
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<[^>]*>/g, "");
+    
+  return cleanAmpText(cleanStr);
 }
 
 export function sanitizeInput<T>(data: T): T {

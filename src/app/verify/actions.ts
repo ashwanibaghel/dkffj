@@ -25,18 +25,7 @@ export interface CertificateDetails {
   ackNo?: string;
 }
 
-function cleanAmpText(str?: string | null): string {
-  if (!str) return "";
-  let res = str;
-  while (res.includes("&amp;")) {
-    res = res.replace(/&amp;/g, "&");
-  }
-  return res
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"');
-}
+import { cleanAmpText } from "@/lib/sanitize";
 
 export async function verifyCertificate(certificateNo: string): Promise<CertificateDetails | null> {
   const rawSearch = decodeURIComponent(certificateNo || "").trim();

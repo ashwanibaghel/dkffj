@@ -65,19 +65,28 @@ type AppreciationApplication = {
   created_at?: string;
 };
 
-import { SOCIAL_WORK_FIELDS } from "@/lib/data/socialWorkFields";
+import { cleanAmpText } from "@/lib/sanitize";
 
 function cleanText(str?: string | null): string {
-  if (!str) return "";
-  let res = str;
-  while (res.includes("&amp;")) {
-    res = res.replace(/&amp;/g, "&");
+  return cleanAmpText(str);
+}
+
+function resolveCandidatePhoto(url?: string | null, name: string = "Applicant"): string {
+  if (!url || typeof url !== "string" || !url.trim()) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=001C55&color=fff&size=128`;
   }
-  return res
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"');
+  const trimmed = url.trim();
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+    return trimmed;
+  }
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://ydfeyymikxndqijykyly.supabase.co";
+  if (trimmed.startsWith("photos/")) {
+    return `${supabaseUrl}/storage/v1/object/public/${trimmed}`;
+  }
+  if (trimmed.startsWith("aadhaar/")) {
+    return `${supabaseUrl}/storage/v1/object/public/${trimmed}`;
+  }
+  return `${supabaseUrl}/storage/v1/object/public/photos/${trimmed}`;
 }
 
 function cleanAppNo(no?: string) {
@@ -379,7 +388,9 @@ function EditAppreciationModal({
                       if (file) {
                         setUploadingPhoto(true);
                         try {
-                          const url = await handleFileUpload(file, "photos", "appreciation_photos");
+                          const ext = file.name.split(".").pop() || "jpg";
+                          const path = `appreciation/photo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+                          const url = await handleFileUpload(file, "photos", path);
                           setPhotoUrl(url);
                           showToast("Photo uploaded successfully.");
                         } catch (err: any) {
@@ -409,7 +420,9 @@ function EditAppreciationModal({
                       if (file) {
                         setUploadingIdProof(true);
                         try {
-                          const url = await handleFileUpload(file, "aadhaar", "appreciation_idproofs");
+                          const ext = file.name.split(".").pop() || "pdf";
+                          const path = `appreciation/idproof_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+                          const url = await handleFileUpload(file, "aadhaar", path);
                           setIdProofUrl(url);
                           showToast("ID proof uploaded successfully.");
                         } catch (err: any) {
@@ -425,7 +438,7 @@ function EditAppreciationModal({
 
               {/* Achievement Proof Upload */}
               <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Achievement Evidence</span>
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Achievement Supporting Proof</span>
                 <span className="text-[10px] text-slate-500 block truncate">{achievementProofUrl || "No file attached"}</span>
                 <label className="block text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-500/20 text-center cursor-pointer hover:bg-blue-100">
                   {uploadingAchievement ? "Uploading..." : "Change Achievement Proof"}
@@ -439,7 +452,9 @@ function EditAppreciationModal({
                       if (file) {
                         setUploadingAchievement(true);
                         try {
-                          const url = await handleFileUpload(file, "aadhaar", "appreciation_achievements");
+                          const ext = file.name.split(".").pop() || "pdf";
+                          const path = `appreciation/achievement_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+                          const url = await handleFileUpload(file, "aadhaar", path);
                           setAchievementProofUrl(url);
                           showToast("Achievement proof uploaded successfully.");
                         } catch (err: any) {
@@ -1031,7 +1046,7 @@ export default function AdminAppreciationPage() {
                   })
                 : "Recent";
 
-              const photoSrc = app.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(app.full_name || "Applicant")}&background=001C55&color=fff&size=128`;
+              const photoSrc = resolveCandidatePhoto(app.photo_url, app.full_name);
 
               return (
                 <div key={app.id} className="transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/40">

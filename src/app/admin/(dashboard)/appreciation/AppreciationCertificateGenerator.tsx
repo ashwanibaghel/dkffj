@@ -2,6 +2,7 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
+import { cleanAmpText } from "@/lib/sanitize";
 
 // Interface for Appreciation Certificate Data
 export interface AppreciationCertificateData {
@@ -75,21 +76,10 @@ export const AppreciationCertificateRenderer: React.FC<AppreciationCertificateRe
       .replace(/https?:\/\/localhost:\d+/gi, "https://www.dkffj.org");
   }
   const qrSrc = rawQrUrl;
-  const cleanAmp = (str: string = "") => {
-    if (!str) return "";
-    let res = str;
-    while (res.includes("&amp;")) {
-      res = res.replace(/&amp;/g, "&");
-    }
-    return res
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&#39;/g, "'")
-      .replace(/&quot;/g, '"');
-  };
-  const displayFatherName = cleanAmp(data.fatherName || "");
-  const displayDesignation = cleanAmp(data.designation || "Honorable Member");
-  const displayWorkingArea = cleanAmp(data.socialWorkField || "");
+  const displayFatherName = cleanAmpText(data.fatherName || "");
+  const displayDesignation = cleanAmpText(data.designation || "Honorable Member");
+  const displayWorkingArea = cleanAmpText(data.socialWorkField || "");
+  const displayFullName = cleanAmpText(data.fullName || "");
 
   return (
     <div
