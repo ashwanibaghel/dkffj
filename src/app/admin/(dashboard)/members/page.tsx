@@ -1858,41 +1858,98 @@ export default function AdminMembersPage() {
                       </div>
                     )}
 
-                    {/* Action Desk */}
-                    {member.status !== "APPROVED" && member.status !== "REJECTED" && (
-                      <div className="border-t pt-5 space-y-4">
-                        <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Board Review Control</span>
-                        
-                        <div className="space-y-3">
-                          <textarea
-                            value={remarks}
-                            onChange={(e) => setRemarks(e.target.value)}
-                            placeholder="Add administrative review remarks (optional)..."
-                            rows={2}
-                            className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
-                          />
-                          <div className="flex justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleAction(member.id, "REJECTED")}
-                              disabled={actionLoading}
-                              className="px-4 py-2 border border-rose-200 hover:bg-rose-50 text-xs font-bold text-rose-600 rounded-lg transition-colors cursor-pointer"
-                            >
-                              Reject Application
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleAction(member.id, "APPROVED")}
-                              disabled={actionLoading}
-                              className="px-4 py-2 bg-emerald-500 text-white hover:bg-emerald-600 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
-                            >
-                              {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                              Approve & Generate ID
-                            </button>
-                          </div>
+                    {/* Board Review & Status Control Desk (Always available for status changes & undo) */}
+                    <div className="border-t pt-5 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Board Review & Status Control</span>
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${
+                          member.status === "APPROVED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                          member.status === "REJECTED" ? "bg-rose-50 text-rose-700 border-rose-200" :
+                          "bg-sky-50 text-sky-700 border-sky-200"
+                        }`}>
+                          Current: {member.status}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <textarea
+                          value={remarks}
+                          onChange={(e) => setRemarks(e.target.value)}
+                          placeholder="Add administrative review notes or status update reason (optional)..."
+                          rows={2}
+                          className="w-full px-3 py-2 border rounded-xl text-xs bg-white focus:outline-none focus:ring-1 focus:ring-[#001C55]"
+                        />
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          {member.status === "REJECTED" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleAction(member.id, "UNDER_REVIEW")}
+                                disabled={actionLoading}
+                                className="px-3 py-2 border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                              >
+                                <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+                                Undo Rejection (Move to Awaiting Review)
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAction(member.id, "APPROVED")}
+                                disabled={actionLoading}
+                                className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              >
+                                {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                                Approve & Generate ID
+                              </button>
+                            </>
+                          )}
+
+                          {member.status === "APPROVED" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleAction(member.id, "UNDER_REVIEW")}
+                                disabled={actionLoading}
+                                className="px-3 py-2 border border-amber-200 bg-amber-50 hover:bg-amber-100 text-xs font-bold text-amber-800 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                              >
+                                <RefreshCw className="w-3.5 h-3.5 text-amber-600" />
+                                Revert Approval (Move to Awaiting Review)
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAction(member.id, "REJECTED")}
+                                disabled={actionLoading}
+                                className="px-3 py-2 border border-rose-200 hover:bg-rose-50 text-xs font-bold text-rose-600 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                              >
+                                <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                                Mark as Rejected
+                              </button>
+                            </>
+                          )}
+
+                          {member.status !== "APPROVED" && member.status !== "REJECTED" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleAction(member.id, "REJECTED")}
+                                disabled={actionLoading}
+                                className="px-4 py-2 border border-rose-200 hover:bg-rose-50 text-xs font-bold text-rose-600 rounded-lg transition-colors cursor-pointer"
+                              >
+                                Reject Application
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleAction(member.id, "APPROVED")}
+                                disabled={actionLoading}
+                                className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              >
+                                {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                                Approve & Generate ID
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
-                    )}
+                    </div>
 
                     {member.remarks && (
                       <div className="p-3 bg-slate-50 border rounded-lg text-xs text-slate-500 font-semibold italic">
