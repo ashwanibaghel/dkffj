@@ -42,10 +42,18 @@ export async function GET() {
       CREATE INDEX IF NOT EXISTS "idx_appreciation_no" ON "appreciation_applications"("application_no");
     `);
 
-    // 2. Allow NULL user_id for public/guest appreciation applicants
+    // 2. Allow NULL user_id for public/guest appreciation applicants and manual admin member additions
     try {
       await prisma.$executeRawUnsafe(`
         ALTER TABLE "appreciation_applications" ALTER COLUMN "user_id" DROP NOT NULL;
+      `);
+    } catch (e) {
+      // Ignored if already dropped
+    }
+
+    try {
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE "memberships" ALTER COLUMN "user_id" DROP NOT NULL;
       `);
     } catch (e) {
       // Ignored if already dropped

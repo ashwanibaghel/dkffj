@@ -603,7 +603,39 @@ export async function addMemberByAdminAction(payload: AddMemberAdminPayload) {
   try {
     const currentYear = new Date().getFullYear();
 
-    // 1. Generate ACK Number
+    // 1. Resolve or auto-create User ID for candidate so user_id is never empty
+    let candidateUserId: string | null = null;
+    const cleanEmail = payload.email.trim().toLowerCase();
+
+    const { data: existingUser } = await supabase.from("users").select("id").eq("email", cleanEmail).maybeSingle();
+    if (existingUser?.id) {
+      candidateUserId = existingUser.id;
+    } else {
+      const { data: existingMbr } = await supabase.from("memberships").select("user_id").eq("email", cleanEmail).not("user_id", "is", null).maybeSingle();
+      if (existingMbr?.user_id) {
+        candidateUserId = existingMbr.user_id;
+      } else {
+        try {
+          const autoPass = "DKM@" + Math.random().toString(36).substring(2, 10) + "!";
+          const { data: createdId } = await supabase.rpc("create_auth_user", {
+            p_email: cleanEmail,
+            p_password: autoPass,
+            p_full_name: payload.fullName.trim()
+          });
+          if (createdId) {
+            candidateUserId = createdId as string;
+          }
+        } catch (err) {
+          console.warn("create_auth_user RPC notice:", err);
+        }
+      }
+    }
+
+    if (!candidateUserId) {
+      candidateUserId = user.id;
+    }
+
+    // 2. Generate ACK Number
     const { data: ackNoData } = await supabase.rpc("generate_next_number", {
       p_key: "membership_ack",
       p_prefix: "DKE-MIG-"
@@ -615,7 +647,7 @@ export async function addMemberByAdminAction(payload: AddMemberAdminPayload) {
     let approvedAt: string | null = null;
     let approvedBy: string | null = null;
 
-    // 2. If Payment Done, generate membership_no atomically and set APPROVED
+    // 3. If Payment Done, generate membership_no atomically and set APPROVED
     if (payload.paymentStatus === "DONE") {
       status = "APPROVED";
       approvedAt = new Date().toISOString();
@@ -637,10 +669,11 @@ export async function addMemberByAdminAction(payload: AddMemberAdminPayload) {
       }
     }
 
-    // 3. Insert membership record
+    // 4. Insert membership record with resolved user_id
     const { data: newMember, error: insertErr } = await supabase
       .from("memberships")
       .insert({
+        user_id: candidateUserId,
         ack_no: ackNo,
         full_name: payload.fullName.trim(),
         father_name: payload.fatherName.trim(),
@@ -648,7 +681,7 @@ export async function addMemberByAdminAction(payload: AddMemberAdminPayload) {
         dob: payload.dob,
         mobile: payload.mobile.trim(),
         whatsapp: payload.whatsapp ? payload.whatsapp.trim() : payload.mobile.trim(),
-        email: payload.email.trim().toLowerCase(),
+        email: cleanEmail,
         address: payload.address.trim(),
         state: payload.state.trim(),
         district: payload.district.trim(),
