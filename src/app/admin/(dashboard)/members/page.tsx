@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction, toggleMemberShowHomeAction, toggleMemberActiveStatusAction, deleteMembership } from "./actions";
-import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, XCircle, FileUp, Check, Calendar, RefreshCw, Home, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
+import { getMemberships, getSignedDocumentUrl, updateMembershipStatus, updateMembershipFields, dispatchMembershipWelcomeEmail, getMemberPrintData, addMemberByAdminAction, updateMemberValidityAction, toggleMemberShowHomeAction, toggleMemberActiveStatusAction, deleteMembership, getDeletedMemberships, restoreMembership } from "./actions";
+import { Users, Search, Eye, Download, Loader2, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText, Award, IdCard, Edit, Upload, Clock, ShieldCheck, UserPlus, X, XCircle, FileUp, Check, Calendar, RefreshCw, Home, ToggleLeft, ToggleRight, Trash2, RotateCcw, Undo2 } from "lucide-react";
 import { generateMembershipPDFClient } from "./MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "./MembershipIdCardGenerator";
 import { uploadFileToStorage, uploadMembershipDocs } from "@/lib/uploadToStorage";
@@ -180,6 +180,35 @@ export default function AdminMembersPage() {
   const [addProgressStep, setAddProgressStep] = useState<string>("");
   const [addError, setAddError] = useState<string>("");
   const [addSuccessMsg, setAddSuccessMsg] = useState<string>("");
+
+  // Trash / Soft-Delete Restore Panel
+  const [showTrashPanel, setShowTrashPanel] = useState<boolean>(false);
+  const [deletedMembers, setDeletedMembers] = useState<Array<{
+    id: string; full_name: string; membership_no?: string | null; ack_no: string;
+    mobile: string; email: string; state: string; district: string; status: string;
+    deleted_at: string; deleted_by?: string | null; delete_reason?: string | null;
+  }>>([]);
+  const [trashLoading, setTrashLoading] = useState<boolean>(false);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
+
+  const handleOpenTrash = async () => {
+    setShowTrashPanel(true);
+    setTrashLoading(true);
+    const data = await getDeletedMemberships();
+    setDeletedMembers(data as typeof deletedMembers);
+    setTrashLoading(false);
+  };
+
+  const handleRestore = async (memberId: string) => {
+    setRestoringId(memberId);
+    const result = await restoreMembership(memberId);
+    if (result.success) {
+      setDeletedMembers(prev => prev.filter(m => m.id !== memberId));
+      const fresh = await getMemberships();
+      setMembers(fresh as MemberRecord[]);
+    }
+    setRestoringId(null);
+  };
 
   const handleAddMemberSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1064,12 +1093,106 @@ export default function AdminMembersPage() {
             <UserPlus className="w-4 h-4" />
             <span>+ Add Member</span>
           </button>
+          {/* Trash / Restore Button */}
+          <button
+            type="button"
+            onClick={handleOpenTrash}
+            className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Trash</span>
+          </button>
           <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 w-fit">
             <Clock className="w-3.5 h-3.5" />
             <span>{filteredMembers.length} visible of {tabMembers.length} records</span>
           </div>
         </div>
       </div>
+
+      {/* ── TRASH PANEL MODAL ── */}
+      {showTrashPanel && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-red-50 dark:bg-red-900/20">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h2 className="font-black text-base text-slate-800 dark:text-white">Trash — Deleted Records</h2>
+                  <p className="text-[11px] text-slate-500">Records are auto-purged after 30 days. Restore any time before that.</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setShowTrashPanel(false)} className="p-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 cursor-pointer transition-colors">
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto flex-1 p-4">
+              {trashLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-red-400" />
+                  <p className="text-sm text-slate-500">Loading deleted records...</p>
+                </div>
+              ) : deletedMembers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-400">
+                  <Trash2 className="w-12 h-12 opacity-30" />
+                  <p className="font-semibold text-sm">Trash is empty</p>
+                  <p className="text-xs">No deleted records found in the last 30 days.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {deletedMembers.map((m) => {
+                    const deletedDate = new Date(m.deleted_at);
+                    const expiresAt = new Date(deletedDate);
+                    expiresAt.setDate(expiresAt.getDate() + 30);
+                    const daysLeft = Math.max(0, Math.ceil((expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+                    return (
+                      <div key={m.id} className="flex items-start gap-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-black text-sm text-slate-800 dark:text-white">{m.full_name}</span>
+                            <span className="text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{m.membership_no || m.ack_no}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${m.status === 'APPROVED' ? 'bg-green-100 text-green-700' : m.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{m.status}</span>
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                            <span>📱 {m.mobile}</span>
+                            <span>📍 {m.district}, {m.state}</span>
+                          </div>
+                          <div className="text-[11px] text-slate-400 mt-1.5 flex flex-wrap gap-x-3">
+                            <span>🗑️ Deleted: {deletedDate.toLocaleString("en-IN")}</span>
+                            {m.deleted_by && <span>By: {m.deleted_by}</span>}
+                            {m.delete_reason && <span>Reason: {m.delete_reason}</span>}
+                          </div>
+                          <div className={`text-[11px] font-bold mt-1 ${daysLeft <= 3 ? 'text-red-500' : daysLeft <= 7 ? 'text-orange-500' : 'text-slate-400'}`}>
+                            ⏳ Auto-purge in {daysLeft} day{daysLeft !== 1 ? 's' : ''}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRestore(m.id)}
+                          disabled={restoringId === m.id}
+                          className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 disabled:bg-slate-300 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all cursor-pointer disabled:cursor-not-allowed shrink-0"
+                        >
+                          {restoringId === m.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Undo2 className="w-3.5 h-3.5" />}
+                          {restoringId === m.id ? "Restoring..." : "Restore"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-200 dark:border-slate-700 text-[11px] text-slate-400 text-center">
+              Records deleted more than 30 days ago are permanently removed and cannot be recovered.
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Tabs */}
       <div className="flex border-b border-slate-200 dark:border-slate-800 gap-2">

@@ -50,7 +50,8 @@ export async function getMemberships(statusFilter?: string) {
     let query = supabase
       .from("memberships")
       .select("*")
-      .neq("status", "PENDING") // Completely filter out unpaid PENDING applications to prevent accidental admin approval
+      .is("deleted_at", null)       // Exclude soft-deleted records (trash)
+      .neq("status", "PENDING")     // Completely filter out unpaid PENDING applications
       .order("created_at", { ascending: false });
 
     if (statusFilter && statusFilter !== "ALL") {
@@ -842,8 +843,8 @@ export async function toggleMemberActiveStatusAction(memberId: string, currentSt
   return { success: true, status: newStatus };
 }
 
-// 10. Delete Membership Record
-export async function deleteMembership(memberId: string) {
+// 10. Soft-Delete Membership Record (moves to trash, recoverable for 30 days)
+export async function deleteMembership(memberId: string, reason?: string) {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) {
     return { success: false, error: "Unauthorized access." };
@@ -852,19 +853,81 @@ export async function deleteMembership(memberId: string) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  // Delete linked payments and logs first
-  await supabase.from("payments").delete().eq("membership_id", memberId);
-  await supabase.from("status_logs").delete().eq("membership_id", memberId);
+  const { data: { user } } = await supabase.auth.getUser();
 
-  const { error } = await supabase.from("memberships").delete().eq("id", memberId);
+  // Soft-delete: just set deleted_at timestamp — record stays in DB for 30 days
+  const { error } = await supabase
+    .from("memberships")
+    .update({
+      deleted_at: new Date().toISOString(),
+      deleted_by: user?.email || user?.id || "admin",
+      delete_reason: reason || "Deleted by admin",
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", memberId);
+
   if (error) {
-    console.error("Error deleting membership:", error);
+    console.error("Error soft-deleting membership:", error);
     return { success: false, error: error.message || "Failed to delete membership." };
   }
 
   await incrementNamespaceVersion("members");
   const { revalidatePath } = await import("next/cache");
   revalidatePath("/admin/members");
-  return { success: true, message: "Membership deleted successfully." };
+  return { success: true, message: "Membership moved to trash. Can be restored within 30 days." };
+}
+
+// 11. Get Deleted (Trashed) Memberships — last 30 days only
+export async function getDeletedMemberships() {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) return [];
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("id, full_name, membership_no, ack_no, mobile, email, state, district, status, deleted_at, deleted_by, delete_reason")
+    .not("deleted_at", "is", null)
+    .gte("deleted_at", thirtyDaysAgo.toISOString())
+    .order("deleted_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching deleted memberships:", error);
+    return [];
+  }
+  return data || [];
+}
+
+// 12. Restore a Soft-Deleted Membership
+export async function restoreMembership(memberId: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) return { success: false, error: "Unauthorized access." };
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  const { error } = await supabase
+    .from("memberships")
+    .update({
+      deleted_at: null,
+      deleted_by: null,
+      delete_reason: null,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", memberId);
+
+  if (error) {
+    console.error("Error restoring membership:", error);
+    return { success: false, error: error.message || "Failed to restore membership." };
+  }
+
+  await incrementNamespaceVersion("members");
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/admin/members");
+  return { success: true, message: "Membership restored successfully!" };
 }
 

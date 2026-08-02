@@ -194,6 +194,9 @@ model memberships {
   valid_until                          DateTime?         @db.Timestamptz(6)
   show_home                            Boolean           @default(false)
   remarks                              String?
+  deleted_at                           DateTime?         @db.Timestamptz(6)
+  deleted_by                           String?           @db.Text
+  delete_reason                        String?           @db.Text
   created_at                           DateTime          @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
   updated_at                           DateTime          @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
   referred_by                          memberships?      @relation("MemberReferrals", fields: [referred_by_member_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -206,6 +209,7 @@ model memberships {
   @@index([ack_no], map: "idx_memberships_ack")
   @@index([membership_no], map: "idx_memberships_no")
   @@index([referred_by_member_id], map: "idx_memberships_referred_by")
+  @@index([deleted_at], map: "idx_memberships_deleted_at")
 }
 
 model news {
