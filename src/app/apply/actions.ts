@@ -306,38 +306,56 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
 
     if (dbError) throw dbError;
 
-    // Insert new membership
-      const { data: newMembership, error: insertError } = await supabase
+    const validUserId = (userId && userId.trim() !== "" && userId.trim() !== "null") ? userId.trim() : null;
+
+    const mbrPayload: any = {
+      ack_no: ackNo,
+      full_name: fullName,
+      father_name: fatherName,
+      gender,
+      dob,
+      mobile,
+      whatsapp,
+      email,
+      address,
+      country: country || "India",
+      district,
+      state,
+      pincode,
+      education,
+      profession,
+      working_area: workingArea,
+      designation,
+      police_station: policeStation,
+      photo_url: photoUrl,
+      aadhaar_url: aadhaarUrl,
+      signature_url: signatureUrl,
+      status: "PENDING",
+      referred_by_member_id: referredByMemberId,
+      remarks: remarksPayload
+    };
+
+    if (validUserId) {
+      mbrPayload.user_id = validUserId;
+    }
+
+    let { data: newMembership, error: insertError } = await supabase
+      .from("memberships")
+      .insert(mbrPayload)
+      .select("id")
+      .single();
+
+    if (insertError && mbrPayload.user_id) {
+      console.warn("Retrying membership insert without user_id due to:", insertError.message);
+      delete mbrPayload.user_id;
+      const retryRes = await supabase
         .from("memberships")
-        .insert({
-          ack_no: ackNo,
-          user_id: (userId && userId.trim() !== "") ? userId.trim() : null,
-          full_name: fullName,
-          father_name: fatherName,
-          gender,
-          dob,
-          mobile,
-          whatsapp,
-          email,
-          address,
-          country,
-          district,
-          state,
-          pincode,
-          education,
-          profession,
-          working_area: workingArea,
-          designation,
-          police_station: policeStation,
-          photo_url: photoUrl,
-          aadhaar_url: aadhaarUrl,
-          signature_url: signatureUrl,
-          status: "PENDING",
-          referred_by_member_id: referredByMemberId,
-          remarks: remarksPayload
-        })
+        .insert(mbrPayload)
         .select("id")
         .single();
+      newMembership = retryRes.data;
+      insertError = retryRes.error;
+    }
 
     if (insertError) {
       console.error("Database insert error:", insertError);

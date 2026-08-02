@@ -274,33 +274,52 @@ export async function submitAppreciationApplication(prevData: any, formData: For
     // 2. Generate temporary Draft Application Number (official sequence ID assigned on payment completion)
     const appNo = `DKFFJ/A/DRAFT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
+    // Determine user_id (null if user is not authenticated or account creation didn't return a valid user)
     const validUserId = (userId && userId.trim() !== "" && userId.trim() !== "null")
       ? userId.trim()
-      : (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-0000-0000-${Date.now().toString(16).padStart(12, "0")}`);
+      : null;
 
     // 3. Save application details to DB
-    const { data: newApplication, error: insertError } = await supabase
+    const insertPayload: any = {
+      application_no: appNo,
+      full_name: fullName,
+      email,
+      mobile,
+      address,
+      country: country || "India",
+      state,
+      district,
+      pincode,
+      social_work_field: socialWorkField,
+      description,
+      photo_url: photoUrl,
+      id_proof_url: idProofUrl,
+      achievement_proof_url: achievementProofUrl,
+      status: "PENDING"
+    };
+
+    if (validUserId) {
+      insertPayload.user_id = validUserId;
+    }
+
+    let { data: newApplication, error: insertError } = await supabase
       .from("appreciation_applications")
-      .insert({
-        application_no: appNo,
-        user_id: validUserId,
-        full_name: fullName,
-        email,
-        mobile,
-        address,
-        country,
-        state,
-        district,
-        pincode,
-        social_work_field: socialWorkField,
-        description,
-        photo_url: photoUrl,
-        id_proof_url: idProofUrl,
-        achievement_proof_url: achievementProofUrl,
-        status: "PENDING"
-      })
+      .insert(insertPayload)
       .select("id")
       .single();
+
+    // Fallback: If insert fails due to FK or user_id constraint, try without user_id
+    if (insertError && insertPayload.user_id) {
+      console.warn("Retrying appreciation application insert without user_id due to:", insertError.message);
+      delete insertPayload.user_id;
+      const retryRes = await supabase
+        .from("appreciation_applications")
+        .insert(insertPayload)
+        .select("id")
+        .single();
+      newApplication = retryRes.data;
+      insertError = retryRes.error;
+    }
 
     if (insertError) {
       console.error("Database insert error:", insertError);

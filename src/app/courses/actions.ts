@@ -238,33 +238,51 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     // 3. Generate temporary Draft Enrollment Number (official sequence ID assigned on payment completion)
     const enrollmentNo = `DKFFJ/C/DRAFT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
-    // 4. Insert registration record
-    const { data: registration, error: insertError } = await supabase
+    const validUserId = (userId && userId.trim() !== "" && userId.trim() !== "null") ? userId.trim() : null;
+
+    const courseInsertPayload: any = {
+      enrollment_no: enrollmentNo,
+      course_id: courseId,
+      full_name: fullName,
+      mobile,
+      email,
+      father_name: fatherName,
+      photo_url: photoUrl,
+      working_sector: workingSector,
+      experience_cert_url: experienceCertUrl || null,
+      training_center: trainingCenter,
+      qualification,
+      dob: dob ? new Date(dob).toISOString() : null,
+      gender,
+      address,
+      state,
+      district,
+      qualification_doc_url: qualificationDocUrl || null,
+      aadhaar_doc_url: aadhaarDocUrl || null,
+      status: "PENDING"
+    };
+
+    if (validUserId) {
+      courseInsertPayload.user_id = validUserId;
+    }
+
+    let { data: registration, error: insertError } = await supabase
       .from("course_registrations")
-      .insert({
-        enrollment_no: enrollmentNo,
-        user_id: userId,
-        course_id: courseId,
-        full_name: fullName,
-        mobile,
-        email,
-        father_name: fatherName,
-        photo_url: photoUrl,
-        working_sector: workingSector,
-        experience_cert_url: experienceCertUrl || null,
-        training_center: trainingCenter,
-        qualification,
-        dob: dob ? new Date(dob).toISOString() : null,
-        gender,
-        address,
-        state,
-        district,
-        qualification_doc_url: qualificationDocUrl || null,
-        aadhaar_doc_url: aadhaarDocUrl || null,
-        status: "PENDING"
-      })
+      .insert(courseInsertPayload)
       .select("id")
       .single();
+
+    if (insertError && courseInsertPayload.user_id) {
+      console.warn("Retrying course registration insert without user_id due to:", insertError.message);
+      delete courseInsertPayload.user_id;
+      const retryRes = await supabase
+        .from("course_registrations")
+        .insert(courseInsertPayload)
+        .select("id")
+        .single();
+      registration = retryRes.data;
+      insertError = retryRes.error;
+    }
 
     if (insertError) {
       console.error("Database insert error for registration:", insertError);
