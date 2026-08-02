@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getVersionedCache, incrementNamespaceVersion } from "@/lib/redis";
+import { resolveFullPhotoUrl } from "@/lib/photoUtils";
 
 // 1. Fetch memberships list
 export async function getMemberships(statusFilter?: string) {
@@ -528,9 +529,10 @@ export async function getMemberPrintData(id: string, qrCodeUrl: string) {
   let qrBase64 = "";
 
   // Fetch photo and convert to base64 on server side
-  if (member.photo_url) {
+  const fullPhotoUrl = resolveFullPhotoUrl(member.photo_url);
+  if (fullPhotoUrl) {
     try {
-      const res = await fetch(member.photo_url);
+      const res = await fetch(fullPhotoUrl);
       if (res.ok) {
         const arrayBuffer = await res.arrayBuffer();
         const base64 = Buffer.from(arrayBuffer).toString("base64");

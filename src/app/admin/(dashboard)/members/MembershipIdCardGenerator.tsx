@@ -2,6 +2,7 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
+import { resolveFullPhotoUrl } from "@/lib/photoUtils";
 
 // Interface for ID Card Data
 export interface MembershipIdCardData {
@@ -44,7 +45,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
   logoBase64,
   signatureBase64
 }) => {
-  const photoSrc = photoBase64 || data.photoUrl || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300";
+  const photoSrc = photoBase64 || resolveFullPhotoUrl(data.photoUrl) || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
   const signatureSrc = signatureBase64 || "/images/course_director_sig.png";

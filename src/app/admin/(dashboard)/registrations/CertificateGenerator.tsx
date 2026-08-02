@@ -20,33 +20,56 @@ export interface CertificateData {
   dateStr: string;
 }
 
+import { resolveFullPhotoUrl } from "@/lib/photoUtils";
+
 // Convert image URL to base64 to avoid CORS issues in canvas rendering
 export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number = 8000): Promise<string> {
-  if (!imageUrl) return "";
+  if (!imageUrl || typeof imageUrl !== "string" || !imageUrl.trim()) return "";
   if (imageUrl.startsWith("data:")) return imageUrl;
 
-  const encodedUrl = encodeURI(imageUrl);
+  const resolved = resolveFullPhotoUrl(imageUrl);
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(encodedUrl, { 
+    const res = await fetch(resolved, { 
       mode: "cors",
       signal: controller.signal
     });
-    clearTimeout(id);
-    const blob = await res.blob();
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+    if (res.ok) {
+      clearTimeout(id);
+      const blob = await res.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
   } catch (err) {
-    clearTimeout(id);
-    console.warn("Failed to convert image to base64 within timeout, using original URL:", imageUrl, err);
-    return encodedUrl;
+    console.warn("Direct fetch for photo failed, trying proxy /api/documents fallback:", err);
   }
+
+  // Fallback to proxy route /api/documents to bypass CORS & relative path issues completely
+  try {
+    const proxyUrl = `/api/documents?path=${encodeURIComponent(imageUrl)}`;
+    const proxyRes = await fetch(proxyUrl, { signal: controller.signal });
+    clearTimeout(id);
+    if (proxyRes.ok) {
+      const blob = await proxyRes.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+  } catch (proxyErr) {
+    clearTimeout(id);
+    console.error("Proxy fetch for photo also failed:", proxyErr);
+  }
+
+  return "";
 }
 
 interface CertificateRendererProps {

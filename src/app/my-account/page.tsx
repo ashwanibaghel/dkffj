@@ -11,6 +11,7 @@ import { createClient } from "@/utils/supabase/client";
 import { getAccountDetails, updateProfileDetails, AccountData } from "./actions";
 import { generateMembershipPDFClient } from "../admin/(dashboard)/members/MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "../admin/(dashboard)/members/MembershipIdCardGenerator";
+import { resolveFullPhotoUrl } from "@/lib/photoUtils";
 
 export default function MyAccountPage() {
   const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -261,7 +262,7 @@ export default function MyAccountPage() {
         fatherName: member.father_name,
         designation: member.designation,
         workingArea: member.working_area,
-        photoUrl: member.photo_url,
+        photoUrl: resolveFullPhotoUrl(member.photo_url),
         issueDateStr,
         validFromStr,
         validToStr,
