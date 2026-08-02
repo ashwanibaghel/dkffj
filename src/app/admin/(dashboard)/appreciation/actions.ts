@@ -289,12 +289,23 @@ export async function createDirectAppreciationApplication(payload: {
       fullDescription += ` [Father's Name: ${payload.fatherName || 'N/A'}, Gender: ${payload.gender || 'N/A'}, DOB: ${payload.dob || 'N/A'}]`;
     }
 
+    // Resolve or auto-create candidate user_id safely
+    let candidateUserId: string | null = null;
+    const cleanEmail = payload.email.trim().toLowerCase();
+    const { data: existingUser } = await supabase.from("users").select("id").eq("email", cleanEmail).maybeSingle();
+    if (existingUser?.id) {
+      candidateUserId = existingUser.id;
+    } else {
+      const { data: existingApp } = await supabase.from("appreciation_applications").select("user_id").eq("email", cleanEmail).not("user_id", "is", null).maybeSingle();
+      candidateUserId = existingApp?.user_id || user.id;
+    }
+
     // 2. Direct insert with APPROVED status using exact table columns
     const { data: newApp, error: insertError } = await supabase
       .from("appreciation_applications")
       .insert({
         application_no: appNo,
-        user_id: user.id,
+        user_id: candidateUserId,
         full_name: payload.fullName,
         mobile: payload.mobile,
         email: payload.email,

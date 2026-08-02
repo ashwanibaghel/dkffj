@@ -42,22 +42,30 @@ export async function GET() {
       CREATE INDEX IF NOT EXISTS "idx_appreciation_no" ON "appreciation_applications"("application_no");
     `);
 
-    // 2. Allow NULL user_id for public/guest appreciation applicants and manual admin member additions
+    // 2. Allow NULL user_id for public/guest forms and manual admin additions across ALL tables
     try {
-      await prisma.$executeRawUnsafe(`
-        ALTER TABLE "appreciation_applications" ALTER COLUMN "user_id" DROP NOT NULL;
-      `);
-    } catch (e) {
-      // Ignored if already dropped
-    }
+      await prisma.$executeRawUnsafe(`ALTER TABLE "appreciation_applications" ALTER COLUMN "user_id" DROP NOT NULL;`);
+    } catch (e) {}
 
     try {
-      await prisma.$executeRawUnsafe(`
-        ALTER TABLE "memberships" ALTER COLUMN "user_id" DROP NOT NULL;
-      `);
-    } catch (e) {
-      // Ignored if already dropped
-    }
+      await prisma.$executeRawUnsafe(`ALTER TABLE "memberships" ALTER COLUMN "user_id" DROP NOT NULL;`);
+    } catch (e) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "course_registrations" ALTER COLUMN "user_id" DROP NOT NULL;`);
+    } catch (e) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "complaints" ALTER COLUMN "user_id" DROP NOT NULL;`);
+    } catch (e) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "payments" ALTER COLUMN "user_id" DROP NOT NULL;`);
+    } catch (e) {}
+
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "status_logs" ALTER COLUMN "updated_by" DROP NOT NULL;`);
+    } catch (e) {}
 
     // 3. Add columns to existing payments/status_logs tables if not exist
     await prisma.$executeRawUnsafe(`
