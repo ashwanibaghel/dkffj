@@ -63,6 +63,8 @@ export default function ApplyAppreciationPage() {
   const [mobile, setMobile] = useState<string>("");
   const [whatsapp, setWhatsapp] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  const [joiningType, setJoiningType] = useState<"direct" | "referred">("direct");
+  const [referralCode, setReferralCode] = useState<string>("");
 
   // OTP states
   const [otpCode, setOtpCode] = useState<string>("");
@@ -95,6 +97,8 @@ export default function ApplyAppreciationPage() {
       if (draft.mobile) setMobile(draft.mobile);
       if (draft.whatsapp) setWhatsapp(draft.whatsapp);
       if (draft.email) setEmail(draft.email);
+      if (draft.joiningType) setJoiningType(draft.joiningType);
+      if (draft.referralCode) setReferralCode(draft.referralCode);
       if (draft.otpCode) setOtpCode(draft.otpCode);
       if (draft.otpSent !== undefined) setOtpSent(draft.otpSent);
       if (draft.otpVerified !== undefined) setOtpVerified(draft.otpVerified);
@@ -110,39 +114,23 @@ export default function ApplyAppreciationPage() {
 
   // Auto-save form draft to browser storage
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const draftData = {
-      step,
-      fullName,
-      fatherName,
-      gender,
-      dob,
-      country,
-      countryCode,
-      whatsappCountryCode,
-      mobile,
-      whatsapp,
-      email,
-      otpCode,
-      otpVerified,
-      otpSent,
-      address,
-      district,
-      state,
-      pincode,
-      socialWorkField,
-      customSocialWorkField,
-      description,
-      __savedAt: Date.now()
-    };
     try {
-      sessionStorage.setItem(APPRECIATION_DRAFT_KEY, JSON.stringify(draftData));
-      localStorage.setItem(APPRECIATION_DRAFT_KEY, JSON.stringify(draftData));
+      const toSave = {
+        step, fullName, fatherName, gender, dob, country, countryCode,
+        whatsappCountryCode, mobile, whatsapp, email, joiningType, referralCode,
+        otpCode, otpSent, otpVerified,
+        address, district, state, pincode, socialWorkField, customSocialWorkField,
+        description, __savedAt: Date.now()
+      };
+      sessionStorage.setItem(APPRECIATION_DRAFT_KEY, JSON.stringify(toSave));
+      localStorage.setItem(APPRECIATION_DRAFT_KEY, JSON.stringify(toSave));
     } catch {}
   }, [
-    step, fullName, fatherName, gender, dob, country, countryCode, whatsappCountryCode,
-    mobile, whatsapp, email, otpCode, otpVerified, otpSent, address, district, state, pincode,
-    socialWorkField, customSocialWorkField, description
+    step, fullName, fatherName, gender, dob, country, countryCode,
+    whatsappCountryCode, mobile, whatsapp, email, joiningType, referralCode,
+    otpCode, otpSent, otpVerified,
+    address, district, state, pincode, socialWorkField, customSocialWorkField,
+    description
   ]);
 
   // Documents
@@ -417,6 +405,8 @@ export default function ApplyAppreciationPage() {
       formData.append("mobile", countryCode + mobile);
       formData.append("whatsapp", whatsapp ? (whatsappCountryCode + whatsapp) : (countryCode + mobile));
       formData.append("email", email);
+      formData.append("joiningType", joiningType);
+      formData.append("referralCode", referralCode);
       formData.append("otpCode", otpCode);
       formData.append("address", address);
       formData.append("district", district);
@@ -679,6 +669,64 @@ export default function ApplyAppreciationPage() {
                     className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55]"
                     placeholder="e.g. ramesh.gupta@gmail.com"
                   />
+                </div>
+
+                {/* Referral Attribution */}
+                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    How are you applying for Appreciation Certificate? *
+                  </label>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${joiningType === 'direct' ? 'border-[#001C55] bg-[#001C55]/5 ring-1 ring-[#001C55]' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
+                      <input
+                        type="radio"
+                        name="joiningType"
+                        value="direct"
+                        checked={joiningType === 'direct'}
+                        onChange={() => setJoiningType('direct')}
+                        className="text-[#001C55] focus:ring-[#001C55] h-4 w-4"
+                      />
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">Direct Application</p>
+                        <p className="text-[10px] text-slate-500">I am applying independently</p>
+                      </div>
+                    </label>
+
+                    <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${joiningType === 'referred' ? 'border-[#001C55] bg-[#001C55]/5 ring-1 ring-[#001C55]' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
+                      <input
+                        type="radio"
+                        name="joiningType"
+                        value="referred"
+                        checked={joiningType === 'referred'}
+                        onChange={() => setJoiningType('referred')}
+                        className="text-[#001C55] focus:ring-[#001C55] h-4 w-4"
+                      />
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">Referred by Member</p>
+                        <p className="text-[10px] text-slate-500">Introduced by an active member</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {joiningType === 'referred' && (
+                    <div className="pt-2 animate-fadeIn">
+                      <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                        Referral Member ID *
+                      </label>
+                      <input
+                        type="text"
+                        value={referralCode}
+                        onChange={(e) => setReferralCode(e.target.value)}
+                        required={joiningType === 'referred'}
+                        placeholder="e.g. DKFFJ/M/2026/0001"
+                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white uppercase"
+                      />
+                      <p className="text-[10px] text-slate-500 mt-1 italic">
+                        Enter the unique Membership Number of the member who referred you. Note: Standard ₹49 certificate processing fee applies.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

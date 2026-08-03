@@ -7,6 +7,7 @@ import { getAppreciationVerificationTemplate, getAppreciationReceiptTemplate } f
 import { paymentServiceInstance } from "@/lib/payment/service";
 import { sanitizeInput } from "@/lib/sanitize";
 import { getPricingSettings } from "@/lib/portalSettings";
+import { checkReferralEligibility } from "@/app/apply/actions";
 
 // 1. Generate and Send OTP
 export async function sendAppreciationOtp(mobile: string, email: string) {
@@ -279,6 +280,19 @@ export async function submitAppreciationApplication(prevData: any, formData: For
       ? userId.trim()
       : null;
 
+    // Extract Referral Code if provided
+    const joiningType = sanitizeInput((formData.get("joiningType") as string) || "direct");
+    const referralCode = sanitizeInput((formData.get("referralCode") as string) || "");
+
+    let referredByMemberId: string | null = null;
+    if (joiningType === "referred" && referralCode.trim()) {
+      const refRes = await checkReferralEligibility(referralCode.trim(), validUserId, email, mobile);
+      if (!refRes.success) {
+        return { success: false, error: refRes.error };
+      }
+      referredByMemberId = refRes.referrerId || null;
+    }
+
     // 3. Save application details to DB
     const insertPayload: any = {
       application_no: appNo,
@@ -300,6 +314,9 @@ export async function submitAppreciationApplication(prevData: any, formData: For
 
     if (validUserId) {
       insertPayload.user_id = validUserId;
+    }
+    if (referredByMemberId) {
+      insertPayload.referred_by_member_id = referredByMemberId;
     }
 
     let { data: newApplication, error: insertError } = await supabase
