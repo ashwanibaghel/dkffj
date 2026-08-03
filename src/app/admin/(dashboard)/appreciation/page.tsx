@@ -1279,7 +1279,7 @@ export default function AdminAppreciationPage() {
                             {/* Photo (Public url, open direct) */}
                             {app.photo_url && (
                               <a
-                                href={app.photo_url}
+                                href={resolveCandidatePhoto(app.photo_url, app.full_name)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300"

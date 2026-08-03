@@ -65,7 +65,7 @@ export async function getAppreciationApplications(statusFilter?: string) {
   return result;
 }
 
-// 2. Generate signed document URL for secure viewing
+// 2. Generate signed document URL for secure viewing via domain proxy
 export async function getSignedDocumentUrl(bucket: string, storagePath: string) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
@@ -79,21 +79,19 @@ export async function getSignedDocumentUrl(bucket: string, storagePath: string) 
     return { success: false, error: "Access Denied." };
   }
 
-  let cleanPath = storagePath;
-  if (storagePath.startsWith(bucket + "/")) {
-    cleanPath = storagePath.substring(bucket.length + 1);
+  if (!storagePath) {
+    return { success: false, error: "No document attached." };
   }
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(cleanPath, 60); // 60 seconds expiry
-
-  if (error || !data) {
-    console.error("Error creating signed URL:", error);
-    return { success: false, error: "Failed to generate download link." };
+  let cleanPath = storagePath.trim();
+  if (!cleanPath.startsWith("http://") && !cleanPath.startsWith("https://") && !cleanPath.startsWith("/")) {
+    if (!cleanPath.startsWith(bucket + "/")) {
+      cleanPath = `${bucket}/${cleanPath}`;
+    }
   }
 
-  return { success: true, signedUrl: data.signedUrl };
+  const proxiedUrl = `/api/documents?path=${encodeURIComponent(cleanPath)}`;
+  return { success: true, signedUrl: proxiedUrl };
 }
 
 // 3. Approve or Reject Appreciation Application

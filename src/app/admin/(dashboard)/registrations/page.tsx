@@ -567,30 +567,30 @@ export default function AdminRegistrationsPage() {
                         <div className="flex flex-col gap-1.5 pt-1">
                           {reg.aadhaar_doc_url && (
                             <a
-                              href={reg.aadhaar_doc_url}
+                              href={`/api/documents?path=${encodeURIComponent(reg.aadhaar_doc_url)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors"
+                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors cursor-pointer"
                             >
                               <Download className="w-3.5 h-3.5 text-blue-600" /> Aadhaar Card Copy
                             </a>
                           )}
                           {reg.qualification_doc_url && (
                             <a
-                              href={reg.qualification_doc_url}
+                              href={`/api/documents?path=${encodeURIComponent(reg.qualification_doc_url)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors"
+                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors cursor-pointer"
                             >
                               <Download className="w-3.5 h-3.5 text-[#C00000]" /> Qualification Doc
                             </a>
                           )}
                           {reg.experience_cert_url ? (
                             <a
-                              href={reg.experience_cert_url}
+                              href={`/api/documents?path=${encodeURIComponent(reg.experience_cert_url)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors"
+                              className="text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-bold text-[10px] shadow-sm transition-colors cursor-pointer"
                             >
                               <Download className="w-3.5 h-3.5 text-emerald-600" /> Experience Proof
                             </a>

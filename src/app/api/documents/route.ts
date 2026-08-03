@@ -14,10 +14,8 @@ export async function GET(req: NextRequest) {
     let inputPath = rawParam.trim();
     
     // Multi-pass decoding to handle HTML-entity-encoded URLs and double-encoded paths
-    // e.g. DB sometimes stores: https:&#x2F;&#x2F;supabase.co/...  or https:%26%23x2F%3B%26%23x2F%3B...
     for (let i = 0; i < 3; i++) {
       try { inputPath = decodeURIComponent(inputPath); } catch {}
-      // HTML entity decode: &#x2F; -> /   &#x3A; -> :   &amp; -> &   &#x3a; -> :
       inputPath = inputPath
         .replace(/&#x2[Ff];/g, "/")
         .replace(/&#x3[Aa];/g, ":")
@@ -25,7 +23,6 @@ export async function GET(req: NextRequest) {
         .replace(/&#47;/g, "/")
         .replace(/&#58;/g, ":");
     }
-    // Final safety: ensure https:// not https:// with entity slashes
     inputPath = inputPath
       .replace(/https:\/\/+/g, "https://")
       .replace(/http:\/\/+/g, "http://")
@@ -34,84 +31,85 @@ export async function GET(req: NextRequest) {
     const currentSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tgszzjbvpcznndrfkkov.supabase.co";
     const oldSupabaseUrl = "https://ydfeyymikxndqijykyly.supabase.co";
 
-    // Build candidate URLs to attempt in order
-    const urlsToTry: string[] = [];
+    let bucket = "aadhaar";
+    let cleanRelPath = inputPath;
 
     if (inputPath.startsWith("http://") || inputPath.startsWith("https://")) {
-      urlsToTry.push(inputPath);
-      // Try cross-domain fallbacks (old project domain <-> new live project domain)
-      if (inputPath.includes("ydfeyymikxndqijykyly.supabase.co")) {
-        urlsToTry.push(inputPath.replace("ydfeyymikxndqijykyly.supabase.co", "tgszzjbvpcznndrfkkov.supabase.co"));
-      } else if (inputPath.includes("tgszzjbvpcznndrfkkov.supabase.co")) {
-        urlsToTry.push(inputPath.replace("tgszzjbvpcznndrfkkov.supabase.co", "ydfeyymikxndqijykyly.supabase.co"));
+      const match = inputPath.match(/\/storage\/v1\/object\/(?:public|sign)\/([^/]+)\/([^?]+)/);
+      if (match) {
+        bucket = match[1];
+        cleanRelPath = match[2];
+      } else {
+        const parts = inputPath.split("/storage/v1/object/");
+        if (parts.length > 1) {
+          const pathParts = parts[1].replace(/^(?:public|sign)\//, "").split("/");
+          bucket = pathParts[0];
+          cleanRelPath = pathParts.slice(1).join("/").split("?")[0];
+        }
       }
     } else {
-      let cleanPath = inputPath.replace(/^\/+/, "");
-      if (cleanPath.startsWith("photos/")) cleanPath = cleanPath.substring(7);
-      else if (cleanPath.startsWith("aadhaar/")) cleanPath = cleanPath.substring(8);
-      else if (cleanPath.startsWith("signatures/")) cleanPath = cleanPath.substring(11);
-
-      urlsToTry.push(`${currentSupabaseUrl}/storage/v1/object/public/photos/${cleanPath}`);
-      urlsToTry.push(`${oldSupabaseUrl}/storage/v1/object/public/photos/${cleanPath}`);
-      urlsToTry.push(`${currentSupabaseUrl}/storage/v1/object/public/aadhaar/${cleanPath}`);
-      urlsToTry.push(`${oldSupabaseUrl}/storage/v1/object/public/aadhaar/${cleanPath}`);
+      cleanRelPath = inputPath.replace(/^\/+/, "");
+      if (cleanRelPath.startsWith("photos/")) {
+        bucket = "photos";
+        cleanRelPath = cleanRelPath.substring(7);
+      } else if (cleanRelPath.startsWith("aadhaar/")) {
+        bucket = "aadhaar";
+        cleanRelPath = cleanRelPath.substring(8);
+      } else if (cleanRelPath.startsWith("signatures/")) {
+        bucket = "signatures";
+        cleanRelPath = cleanRelPath.substring(11);
+      } else if (cleanRelPath.startsWith("certificates/")) {
+        bucket = "certificates";
+        cleanRelPath = cleanRelPath.substring(13);
+      }
     }
 
-    // 1. Attempt direct Supabase Storage client download
+    const urlsToTry: string[] = [
+      `${currentSupabaseUrl}/storage/v1/object/public/${bucket}/${cleanRelPath}`,
+      `${currentSupabaseUrl}/storage/v1/object/public/photos/${cleanRelPath}`,
+      `${currentSupabaseUrl}/storage/v1/object/public/aadhaar/${cleanRelPath}`,
+      `${oldSupabaseUrl}/storage/v1/object/public/${bucket}/${cleanRelPath}`
+    ];
+    if (inputPath.startsWith("http://") || inputPath.startsWith("https://")) {
+      urlsToTry.unshift(inputPath);
+    }
+
+    // Attempt 1: Server-side Supabase client download via Server Client
     try {
       const cookieStore = await cookies();
       const supabase = createClient(cookieStore);
 
-      let bucket = "photos";
-      let relPath = inputPath;
-
-      if (relPath.startsWith("http://") || relPath.startsWith("https://")) {
-        const match = relPath.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
-        if (match) {
-          bucket = match[1];
-          relPath = match[2];
+      const bucketsToTry = Array.from(new Set([bucket, "photos", "aadhaar", "certificates", "signatures"]));
+      for (const b of bucketsToTry) {
+        const { data, error } = await supabase.storage.from(b).download(cleanRelPath);
+        if (data && !error) {
+          const arrayBuffer = await data.arrayBuffer();
+          const contentType = data.type || (cleanRelPath.endsWith(".png") ? "image/png" : cleanRelPath.endsWith(".pdf") ? "application/pdf" : "image/jpeg");
+          return new Response(arrayBuffer, {
+            headers: {
+              "Content-Type": contentType,
+              "Cache-Control": "public, max-age=31536000, immutable",
+              "Content-Disposition": "inline",
+            },
+          });
         }
-      } else {
-        relPath = relPath.replace(/^\/+/, "");
-        if (relPath.startsWith("photos/")) {
-          bucket = "photos";
-          relPath = relPath.substring(7);
-        } else if (relPath.startsWith("aadhaar/")) {
-          bucket = "aadhaar";
-          relPath = relPath.substring(8);
-        }
-      }
-
-      const { data, error } = await supabase.storage.from(bucket).download(relPath);
-      if (data && !error) {
-        const arrayBuffer = await data.arrayBuffer();
-        const contentType = data.type || (relPath.endsWith(".png") ? "image/png" : relPath.endsWith(".pdf") ? "application/pdf" : "image/jpeg");
-        return new Response(arrayBuffer, {
-          headers: {
-            "Content-Type": contentType,
-            "Cache-Control": "public, max-age=31536000, immutable, s-maxage=31536000",
-            "CDN-Cache-Control": "public, max-age=31536000, immutable",
-            "Vary": "Accept-Encoding",
-          },
-        });
       }
     } catch (e) {
       console.warn("[DOC PROXY] Supabase client download exception:", e);
     }
 
-    // 2. Multi-Candidate HTTP Fetch Loop (tries current domain, legacy domain, and alternate storage buckets)
+    // Attempt 2: HTTP fetch candidates
     for (const url of urlsToTry) {
       try {
         const res = await fetch(url, { cache: "force-cache" });
         if (res.ok) {
           const buffer = await res.arrayBuffer();
-          const contentType = res.headers.get("content-type") || "image/jpeg";
+          const contentType = res.headers.get("content-type") || (url.endsWith(".pdf") ? "application/pdf" : "image/jpeg");
           return new Response(buffer, {
             headers: {
               "Content-Type": contentType,
-              "Cache-Control": "public, max-age=31536000, immutable, s-maxage=31536000",
-              "CDN-Cache-Control": "public, max-age=31536000, immutable",
-              "Vary": "Accept-Encoding",
+              "Cache-Control": "public, max-age=31536000, immutable",
+              "Content-Disposition": "inline",
             },
           });
         }

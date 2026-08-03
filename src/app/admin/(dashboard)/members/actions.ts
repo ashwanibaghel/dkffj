@@ -83,7 +83,7 @@ export async function getMemberships(statusFilter?: string) {
   });
 }
 
-// 2. Generate signed document URL for secure viewing
+// 2. Generate signed document URL for secure viewing via domain proxy
 export async function getSignedDocumentUrl(bucket: string, storagePath: string) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
@@ -101,39 +101,15 @@ export async function getSignedDocumentUrl(bucket: string, storagePath: string) 
     return { success: false, error: "No document attached." };
   }
 
-  // If storagePath is a full http/https URL, return directly
-  if (storagePath.startsWith("http://") || storagePath.startsWith("https://")) {
-    return { success: true, signedUrl: storagePath };
-  }
-
-  // Strip bucket name or leading slashes from prefix
-  let cleanPath = storagePath;
-  if (storagePath.startsWith(bucket + "/")) {
-    cleanPath = storagePath.substring(bucket.length + 1);
-  }
-  if (cleanPath.startsWith("/")) {
-    cleanPath = cleanPath.substring(1);
-  }
-  if (cleanPath.startsWith("uploads/membership_form/")) {
-    const filename = cleanPath.replace("uploads/membership_form/", "");
-    cleanPath = `membership_form/${filename}`;
-  }
-
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(cleanPath, 3600); // 1 hour expiry
-
-  if (error || !data) {
-    console.error("Error creating signed URL:", error);
-    const filename = cleanPath.split("/").pop();
-    if (filename && filename !== "default.png") {
-      const publicPhotoUrl = `https://tgszzjbvpcznndrfkkov.supabase.co/storage/v1/object/public/photos/membership_form/${filename}`;
-      return { success: true, signedUrl: publicPhotoUrl };
+  let cleanPath = storagePath.trim();
+  if (!cleanPath.startsWith("http://") && !cleanPath.startsWith("https://") && !cleanPath.startsWith("/")) {
+    if (!cleanPath.startsWith(bucket + "/")) {
+      cleanPath = `${bucket}/${cleanPath}`;
     }
-    return { success: false, error: "Failed to generate download link." };
   }
 
-  return { success: true, signedUrl: data.signedUrl };
+  const proxiedUrl = `/api/documents?path=${encodeURIComponent(cleanPath)}`;
+  return { success: true, signedUrl: proxiedUrl };
 }
 
 // Helper to download files to buffer for Resend email attachments
