@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { sendMembershipOtp, verifyMembershipOtp, submitMembershipApplication } from "./actions";
 import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, Shield, Eye, EyeOff } from "lucide-react";
-import { compressFormFiles } from "@/lib/compressImage";
+import { compressImage } from "@/lib/compressImage";
 import { uploadMembershipDocs } from "@/lib/uploadToStorage";
 
 import { indiaStatesDistricts, countriesList } from "@/lib/data/indiaStatesDistricts";
