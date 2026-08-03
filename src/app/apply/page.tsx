@@ -470,6 +470,7 @@ export default function ApplyPage() {
       formData.append("photoUrl", uploadResult.photoUrl);
       formData.append("aadhaarUrl", uploadResult.aadhaarUrl);
       formData.append("signatureUrl", uploadResult.signatureUrl);
+      formData.append("membershipLevel", membershipLevel);
 
       if (joiningType === "referred") {
         formData.append("referralCode", referralCode.trim());
@@ -480,12 +481,23 @@ export default function ApplyPage() {
 
       const res = await submitMembershipApplication(null, formData);
 
-      if (res.success && res.checkoutUrl) {
+      if (res.success) {
         clearDraft(); // clear saved draft after successful submission
-        setSuccessMsg(res.message || "Enrollment logged. Redirecting to payment...");
-        setTimeout(() => {
-          router.push(res.checkoutUrl);
-        }, 1500);
+        if (res.isReferralBypass || !res.checkoutUrl) {
+          setSuccessMsg(res.message || "Referral Membership registered successfully! Payment waived.");
+          setTimeout(() => {
+            if (res.ackNo) {
+              router.push(`/track/membership?ack=${encodeURIComponent(res.ackNo)}`);
+            } else {
+              router.push("/");
+            }
+          }, 2000);
+        } else if (res.checkoutUrl) {
+          setSuccessMsg(res.message || "Enrollment logged. Redirecting to payment...");
+          setTimeout(() => {
+            router.push(res.checkoutUrl);
+          }, 1500);
+        }
       } else {
         setErrorMsg(res.error || "Submission failed. Please check details.");
       }
@@ -1258,6 +1270,13 @@ export default function ApplyPage() {
             {/* Hidden field for Membership Level */}
             <input type="hidden" name="membershipLevel" value={membershipLevel} />
 
+            {step === 4 && joiningType === "referred" && referralCode.trim() && (
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold flex items-center gap-2 mt-4 animate-fadeIn">
+                <Check className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
+                <span>Referral Benefit Applied: Membership Fee Waived (₹0). PhonePe payment gateway is bypassed!</span>
+              </div>
+            )}
+
             {/* Form Actions footer */}
             <div className="flex items-center justify-between border-t pt-6 mt-6">
               {step > 1 ? (
@@ -1284,10 +1303,17 @@ export default function ApplyPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-3 bg-[#C00000] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#990000] transition-all flex items-center gap-2 shadow-[0_4px_15px_rgba(192, 0, 0,0.2)] disabled:opacity-50 cursor-pointer"
+                  className={`px-6 py-3 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-md disabled:opacity-50 cursor-pointer ${
+                    joiningType === "referred" && referralCode.trim()
+                      ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20"
+                      : "bg-[#C00000] hover:bg-[#990000] shadow-[#C00000]/20"
+                  }`}
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Submit & Pay INR {((membershipTiers[membershipLevel] || MEMBERSHIP_TIERS[membershipLevel])?.fee || 500).toLocaleString("en-IN")}
+                  {joiningType === "referred" && referralCode.trim()
+                    ? "Submit Application (Referral Discount: ₹0 Fee)"
+                    : `Submit & Pay INR ${((membershipTiers[membershipLevel] || MEMBERSHIP_TIERS[membershipLevel])?.fee || 500).toLocaleString("en-IN")}`
+                  }
                 </button>
               )}
             </div>

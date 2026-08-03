@@ -364,7 +364,33 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
 
     const membershipId = newMembership.id;
 
-    // 4. Create Pending Payment Log with Dynamic Tier Amount from Admin Settings
+    // 4. Referral Payment Waiver (PhonePe is completely bypassed for referral code users)
+    if (referredByMemberId) {
+      const tempTxnId = "REF-BYPASS-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7).toUpperCase();
+
+      const { error: paymentError } = await supabase
+        .from("payments")
+        .insert({
+          amount: 0,
+          transaction_id: tempTxnId,
+          gateway: "REFERRAL_BYPASS",
+          status: "SUCCESS",
+          membership_id: membershipId
+        });
+
+      if (paymentError) {
+        console.error("Database referral payment logging error:", paymentError);
+      }
+
+      return {
+        success: true,
+        isReferralBypass: true,
+        ackNo,
+        message: "Referral membership application registered successfully! Payment waived (₹0)."
+      };
+    }
+
+    // 5. Direct / Non-referred Payment Flow with Exact Tier Amount
     const pricingSettings = await getPricingSettings();
     const levelKeyInput = sanitizeInput((formData.get("membershipLevel") as string) || "");
     const targetLevel = levelKeyInput || autoDetectMembershipLevel(designation, workingArea);
@@ -387,7 +413,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       throw new Error(`Failed to initialize payment tracking: ${paymentError.message}`);
     }
 
-    // 5. Generate Payment Redirect Link
+    // 6. Generate Payment Redirect Link with exact tier amount
     const checkoutUrl = await paymentServiceInstance.processPayment({
       orderId: tempTxnId,
       amount,
@@ -396,7 +422,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       customerMobile: mobile
     });
 
-    // 6. Return redirection URL without sending pending payment email
+    // 7. Return redirection URL without sending pending payment email
     return {
       success: true,
       ackNo,
