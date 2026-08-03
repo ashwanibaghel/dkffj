@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Award, Download, IdCard, ShieldAlert } from "lucide-react";
+import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Award, Download, IdCard, ShieldAlert, Copy, Check } from "lucide-react";
 import { getSecureMembershipDetails, TrackingResult } from "../actions";
 import { generateMembershipPDFClient } from "../../admin/(dashboard)/members/MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "../../admin/(dashboard)/members/MembershipIdCardGenerator";
@@ -19,24 +19,38 @@ function MembershipTrackContent() {
   const [downloadingCert, setDownloadingCert] = useState<boolean>(false);
   const [downloadingIdCard, setDownloadingIdCard] = useState<boolean>(false);
 
+  // Success Confirmation Window state
+  const [showSuccessBanner, setShowSuccessBanner] = useState<boolean>(false);
+  const [copiedAck, setCopiedAck] = useState<boolean>(false);
+
   useEffect(() => {
-    const id = searchParams.get("id");
-    if (id) {
-      setAckNo(id);
+    const qAck = searchParams.get("ack") || searchParams.get("id") || searchParams.get("no");
+    const qContact = searchParams.get("contact") || searchParams.get("mobile") || searchParams.get("email");
+    const isSuccess = searchParams.get("success") === "true";
+
+    if (qAck) {
+      setAckNo(qAck);
+    }
+    if (qContact) {
+      setContact(qContact);
+    }
+
+    if (isSuccess || qAck) {
+      setShowSuccessBanner(true);
+    }
+
+    // Auto-trigger search if ACK & Contact are both available in URL
+    if (qAck && qContact) {
+      void runAutoSearch(qAck, qContact);
     }
   }, [searchParams]);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!ackNo.trim() || !contact.trim()) {
-      setErrorMsg("Please enter both Acknowledgement Number and registered Contact.");
-      return;
-    }
+  const runAutoSearch = async (targetAck: string, targetContact: string) => {
     setLoading(true);
     setErrorMsg("");
     setSearched(true);
     try {
-      const res = await getSecureMembershipDetails(ackNo, contact);
+      const res = await getSecureMembershipDetails(targetAck, targetContact);
       setResult(res);
       if (res && !res.found) {
         setErrorMsg("Record not found or contact details do not match.");
@@ -47,6 +61,22 @@ function MembershipTrackContent() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ackNo.trim() || !contact.trim()) {
+      setErrorMsg("Please enter both Acknowledgement Number and registered Contact.");
+      return;
+    }
+    await runAutoSearch(ackNo, contact);
+  };
+
+  const handleCopyAck = () => {
+    if (!ackNo) return;
+    navigator.clipboard.writeText(ackNo.trim());
+    setCopiedAck(true);
+    setTimeout(() => setCopiedAck(false), 3000);
   };
 
   const handleDownloadCertificate = async (member: any) => {
@@ -191,6 +221,45 @@ function MembershipTrackContent() {
             Enter your application/membership ID and registered contact details to securely view status logs.
           </p>
         </div>
+
+        {/* Success Confirmation Banner / Copy Box */}
+        {showSuccessBanner && ackNo && (
+          <div className="bg-gradient-to-r from-emerald-50 via-white to-teal-50 border border-emerald-200 rounded-3xl p-6 mb-8 shadow-lg shadow-emerald-500/10 text-left animate-fadeIn">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div className="space-y-3 flex-1 min-w-0">
+                <div>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    Application Submitted Successfully
+                  </span>
+                  <h3 className="text-lg font-extrabold text-slate-900 font-serif mt-1">
+                    Your Application Has Been Logged!
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                    Please copy and save your Acknowledgement ID below. You can use it along with your registered mobile/email to track your application status anytime.
+                  </p>
+                </div>
+
+                {/* Copy Box */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white p-3 rounded-2xl border border-emerald-200 shadow-sm">
+                  <div className="flex-1 min-w-0 font-mono font-black text-sm text-[#001C55] px-2 truncate">
+                    {ackNo}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyAck}
+                    className="px-4 py-2 bg-[#001C55] hover:bg-[#001236] text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 shadow-sm cursor-pointer"
+                  >
+                    {copiedAck ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedAck ? "Copied to Clipboard!" : "Copy ACK ID"}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Secure Form */}
         <div className="bg-white border border-sky-100 rounded-3xl p-6 shadow-xl shadow-sky-500/5 mb-8">

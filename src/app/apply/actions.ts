@@ -294,8 +294,8 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   }
 
   try {
-    // 2. Generate temporary Draft Acknowledgement Number (sequence ID assigned on payment completion)
-    const ackNo = `ACK-DRAFT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    // 2. Generate Official Acknowledgement Number (DKF-2026-XXXXXX)
+    const ackNo = `DKF-2026-${Math.floor(100000 + Math.random() * 900000)}`;
 
     // 3. Save application details to DB
     const { data: membership, error: dbError } = await supabase

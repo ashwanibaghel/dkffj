@@ -487,7 +487,8 @@ export default function ApplyPage() {
           setSuccessMsg(res.message || "Referral Membership registered successfully! Payment waived.");
           setTimeout(() => {
             if (res.ackNo) {
-              router.push(`/track/membership?ack=${encodeURIComponent(res.ackNo)}`);
+              const cleanContact = email || mobile;
+              router.push(`/track/membership?ack=${encodeURIComponent(res.ackNo)}&contact=${encodeURIComponent(cleanContact)}&success=true`);
             } else {
               router.push("/");
             }
