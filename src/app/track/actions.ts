@@ -416,6 +416,20 @@ export async function getSecureMembershipDetails(ackNo: string, contact: string)
     )
   `);
 
+  // Auto-heal single requested member 1242 (Mohd Khursheed) DOB & Working Area from parsed_members.json
+  if (searchStr.includes("1242") || contactStr.includes("khursheed")) {
+    try {
+      await supabase
+        .from("memberships")
+        .update({
+          dob: "2005-08-02",
+          working_area: "District Fatehpur"
+        })
+        .or("membership_no.ilike.%1242%,ack_no.ilike.%1242%,email.eq.khursheedali909621@gmail.com")
+        .eq("dob", "1990-01-01");
+    } catch (_) {}
+  }
+
   if (searchStr.startsWith("MBR-")) {
     const { data: payment } = await supabase
       .from("payments")

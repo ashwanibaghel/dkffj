@@ -39,8 +39,18 @@ export async function getMemberships(statusFilter?: string) {
     console.error("Auto-heal membership status error:", err);
   }
 
-  // Force cache bust to ensure fresh data
-  try {
+    // Auto-heal single requested member 1242 (Mohd Khursheed) DOB & Working Area from parsed_members.json
+    try {
+      await supabase
+        .from("memberships")
+        .update({
+          dob: "2005-08-02",
+          working_area: "District Fatehpur"
+        })
+        .or("membership_no.ilike.%1242%,ack_no.ilike.%1242%,email.eq.khursheedali909621@gmail.com")
+        .eq("dob", "1990-01-01");
+    } catch (_) {}
+
     await incrementNamespaceVersion("members");
   } catch (_) {}
 
