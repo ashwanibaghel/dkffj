@@ -1,6 +1,8 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
+import { cleanAmpText } from "@/lib/sanitize";
 
 export interface CertificateDetails {
   found: boolean;
@@ -25,50 +27,26 @@ export interface CertificateDetails {
   ackNo?: string;
 }
 
-import { cleanAmpText } from "@/lib/sanitize";
-
 export async function verifyCertificate(certificateNo: string): Promise<CertificateDetails | null> {
   const rawSearch = decodeURIComponent(certificateNo || "").trim();
 
   if (!rawSearch) return null;
 
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
   // Clean trailing slashes & normalize variations (e.g. /A/ vs /APP/ vs /EXEC/ vs 00014)
   const cleanSearch = rawSearch.replace(/%2F/gi, "/").trim();
   const rawNum = cleanSearch.split("/").pop() || cleanSearch;
-  const altApp = cleanSearch.replace("/A/", "/APP/");
-  const altA = cleanSearch.replace("/APP/", "/A/");
-  const altExec = cleanSearch.replace(/\/EXEC\//i, "/");
-
-  // Array of search variants to ensure 100% matching regardless of format
-  const variants = Array.from(
-    new Set([
-      cleanSearch,
-      altApp,
-      altA,
-      altExec,
-      rawNum,
-      `DKFFJ/M/${rawNum}`,
-      `DKFFJ/M/EXEC/${rawNum}`,
-      `DKFFJ/M/2026/${rawNum}`,
-      `DKFFJ/M/2025/${rawNum}`,
-      `DKFFJ/APP/${rawNum}`,
-      `DKFFJ/A/${rawNum}`
-    ])
-  ).filter((s) => s.length > 0);
-
   const appUrl = "https://www.dkffj.org";
 
   try {
     // 1. Search in `certificates` table (Course Certificates)
-    const cert = await prisma.certificates.findFirst({
-      where: {
-        OR: [
-          ...variants.map((v) => ({ certificate_no: { equals: v, mode: "insensitive" as const } })),
-          ...variants.map((v) => ({ certificate_no: { contains: v, mode: "insensitive" as const } })),
-          { certificate_no: { contains: rawNum, mode: "insensitive" as const } }
-        ]
-      }
-    });
+    const { data: cert } = await supabase
+      .from("certificates")
+      .select("*, course_registrations(*)")
+      .or(`certificate_no.ilike.*${rawNum}*,certificate_no.ilike.*${cleanSearch}*`)
+      .maybeSingle();
 
     if (cert) {
       let fatherName = "N/A";
@@ -77,34 +55,11 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
       let fromDateStr = cert.duration_from || new Date(cert.issue_date).toLocaleDateString("en-IN");
       let toDateStr = cert.duration_to || new Date(cert.issue_date).toLocaleDateString("en-IN");
 
-      if (cert.registration_id) {
-        const reg = await prisma.course_registrations.findUnique({
-          where: { id: cert.registration_id },
-          include: { courses: true }
-        });
-
-        if (reg) {
-          fatherName = cleanAmpText(reg.father_name) || "N/A";
-          enrollmentNo = reg.enrollment_no || "";
-          photoUrl = reg.photo_url;
-
-          const createdDate = new Date(reg.created_at);
-          fromDateStr = createdDate.toLocaleDateString("en-IN");
-          const endDate = new Date(createdDate);
-          const durationText = reg.courses?.duration || "";
-          let months = 1;
-          const match = durationText.match(/(\d+)/);
-          if (match) {
-            const val = parseInt(match[1]);
-            if (durationText.toLowerCase().includes("year")) {
-              months = val * 12;
-            } else {
-              months = val;
-            }
-          }
-          endDate.setMonth(endDate.getMonth() + months);
-          toDateStr = endDate.toLocaleDateString("en-IN");
-        }
+      const reg = cert.course_registrations;
+      if (reg) {
+        fatherName = cleanAmpText(reg.father_name) || "N/A";
+        enrollmentNo = reg.enrollment_no || "";
+        photoUrl = reg.photo_url;
       }
 
       const certNo = cert.certificate_no;
@@ -133,22 +88,12 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
     }
 
     // 2. Search in `appreciation_applications` table (Appreciation Certificates) - Non-rejected records
-    const appreciationApp = await prisma.appreciation_applications.findFirst({
-      where: {
-        AND: [
-          { NOT: { status: "REJECTED" } },
-          {
-            OR: [
-              ...variants.map((v) => ({ application_no: { equals: v, mode: "insensitive" as const } })),
-              ...variants.map((v) => ({ application_no: { contains: v, mode: "insensitive" as const } })),
-              { application_no: { contains: rawNum, mode: "insensitive" as const } },
-              { mobile: cleanSearch },
-              { email: cleanSearch }
-            ]
-          }
-        ]
-      }
-    });
+    const { data: appreciationApp } = await supabase
+      .from("appreciation_applications")
+      .select("*")
+      .neq("status", "REJECTED")
+      .or(`application_no.ilike.*${rawNum}*,application_no.ilike.*${cleanSearch}*,mobile.eq.${cleanSearch},email.eq.${cleanSearch}`)
+      .maybeSingle();
 
     if (appreciationApp) {
       const isApproved = appreciationApp.status === "APPROVED";
@@ -175,25 +120,12 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
     }
 
     // 3. Search in `memberships` table (Membership Certificates) - Non-rejected records
-    const member = await prisma.memberships.findFirst({
-      where: {
-        AND: [
-          { NOT: { status: "REJECTED" } },
-          {
-            OR: [
-              ...variants.map((v) => ({ membership_no: { equals: v, mode: "insensitive" as const } })),
-              ...variants.map((v) => ({ ack_no: { equals: v, mode: "insensitive" as const } })),
-              ...variants.map((v) => ({ membership_no: { contains: v, mode: "insensitive" as const } })),
-              ...variants.map((v) => ({ ack_no: { contains: v, mode: "insensitive" as const } })),
-              { membership_no: { contains: rawNum, mode: "insensitive" as const } },
-              { ack_no: { contains: rawNum, mode: "insensitive" as const } },
-              { mobile: cleanSearch },
-              { full_name: { contains: cleanSearch, mode: "insensitive" as const } }
-            ]
-          }
-        ]
-      }
-    });
+    const { data: member } = await supabase
+      .from("memberships")
+      .select("*")
+      .neq("status", "REJECTED")
+      .or(`membership_no.ilike.*${rawNum}*,ack_no.ilike.*${rawNum}*,membership_no.ilike.*${cleanSearch}*,ack_no.ilike.*${cleanSearch}*,mobile.eq.${cleanSearch},full_name.ilike.*${cleanSearch}*`)
+      .maybeSingle();
 
     if (member) {
       const isApproved = member.status === "APPROVED";
