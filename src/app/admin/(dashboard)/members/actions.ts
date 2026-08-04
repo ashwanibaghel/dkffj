@@ -47,7 +47,7 @@ export async function getMemberships(statusFilter?: string) {
           dob: "2005-08-02",
           working_area: "District Fatehpur"
         })
-        .or("membership_no.ilike.%1242%,ack_no.ilike.%1242%,email.eq.khursheedali909621@gmail.com")
+        .or("membership_no.ilike.*1242*,ack_no.ilike.*1242*,email.eq.khursheedali909621@gmail.com")
         .eq("dob", "1990-01-01");
     } catch (_) {}
 
