@@ -15,21 +15,32 @@ const leaderDescriptions: Record<string, string> = {
 
 export const leaderPhotos: Record<string, string> = {
   "1000": "/members/danish.jpg",
+  "DKFFJ-1000": "/members/danish.jpg",
   "1001": "/members/1784747834477.png",
+  "DKFFJ-1001": "/members/1784747834477.png",
   "1002": "/members/1784744384738.png",
+  "DKFFJ-1002": "/members/1784744384738.png",
   "1003": "/members/1784745095737.png",
+  "DKFFJ-1003": "/members/1784745095737.png",
   "1004": "/members/wasim.jpg",
+  "DKFFJ-1004": "/members/wasim.jpg",
   "1005": "/members/1784748456410.png",
+  "DKFFJ-1005": "/members/1784748456410.png",
   "1006": "/members/1784748456410.png",
+  "DKFFJ-1006": "/members/1784748456410.png",
   "1007": "/members/1784742483492.png",
+  "DKFFJ-1007": "/members/1784742483492.png",
   "1008": "/members/1784744369357.png",
+  "DKFFJ-1008": "/members/1784744369357.png",
   "1010": "/members/vipin.jpg",
-  "1012": "/members/tiwari.jpg"
+  "DKFFJ-1010": "/members/vipin.jpg",
+  "1012": "/members/tiwari.jpg",
+  "DKFFJ-1012": "/members/tiwari.jpg"
 };
 
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
-  return getVersionedCache("members", "home_leaders_v2", async () => {
+  return getVersionedCache("members", "home_leaders_v3", async () => {
     try {
       // Primary source: memberships table in Supabase where show_home is true
       const homeMembers = await prisma.memberships.findMany({
@@ -45,9 +56,14 @@ export async function getHomeLeaders() {
       if (homeMembers.length > 0) {
         const formatted = homeMembers.map((m) => {
           const mNo = m.membership_no || "";
-          let photoPath = leaderPhotos[mNo] || m.photo_url || "";
+          const cleanNo = mNo.replace("DKFFJ-", "");
+          let photoPath = leaderPhotos[cleanNo] || leaderPhotos[mNo] || m.photo_url || "";
           if (photoPath.includes("default.jpg") || photoPath.includes("default.png")) {
             photoPath = "";
+          }
+          if (photoPath.startsWith("/uploads/")) {
+            const fileName = photoPath.split("/").pop();
+            photoPath = `/members/${fileName}`;
           }
           return {
             id: m.membership_no || m.ack_no || m.id,
@@ -59,7 +75,7 @@ export async function getHomeLeaders() {
             photo: photoPath,
             status: 1,
             showHome: 1,
-            description: leaderDescriptions[mNo] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
+            description: leaderDescriptions[cleanNo] || leaderDescriptions[mNo] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
           };
         });
         return sortMembersByDesignationRank(formatted);
@@ -80,6 +96,10 @@ export async function getHomeLeaders() {
         const formatted = dbLeaders.map((m) => {
           let p = leaderPhotos[m.id] || m.photo || "";
           if (p.includes("default.jpg") || p.includes("default.png")) p = "";
+          if (p.startsWith("/uploads/")) {
+            const fileName = p.split("/").pop();
+            p = `/members/${fileName}`;
+          }
           return {
             id: m.id,
             name: m.name,
@@ -105,6 +125,10 @@ export async function getHomeLeaders() {
       .map((m) => {
         let p = leaderPhotos[m.id] || m.photo || "";
         if (p.includes("default.jpg") || p.includes("default.png")) p = "";
+        if (p.startsWith("/uploads/")) {
+          const fileName = p.split("/").pop();
+          p = `/members/${fileName}`;
+        }
         return {
           id: m.id,
           name: m.name,
