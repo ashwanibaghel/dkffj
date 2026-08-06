@@ -15,14 +15,21 @@ const leaderDescriptions: Record<string, string> = {
 
 const leaderPhotos: Record<string, string> = {
   "1000": "/members/danish.jpg",
+  "1001": "/members/1784747834477.png",
+  "1002": "/members/1784744384738.png",
+  "1003": "/members/1784745095737.png",
   "1004": "/members/wasim.jpg",
+  "1005": "/members/1784748456410.png",
+  "1006": "/members/1784748456410.png",
+  "1007": "/members/1784742483492.png",
+  "1008": "/members/1784744369357.png",
   "1010": "/members/vipin.jpg",
   "1012": "/members/tiwari.jpg"
 };
 
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
-  return getVersionedCache("members", "home_leaders", async () => {
+  return getVersionedCache("members", "home_leaders_v2", async () => {
     try {
       // Primary source: memberships table in Supabase where show_home is true
       const homeMembers = await prisma.memberships.findMany({
