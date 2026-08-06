@@ -286,10 +286,30 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         </div>
       `;
 
+      let attachments: any[] = [];
+      try {
+        const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+        const pdfBuffer = await generateReceiptPdfBuffer({
+          refId: donation.order_id,
+          date: payment.created_at ? new Date(payment.created_at).toISOString() : new Date().toISOString(),
+          ackOrEnrollmentNo: donation.order_id,
+          gatewayTransactionId: verifyResult.transactionId || "COMPLETED",
+          amount: Number(payment.amount),
+          description: `Donation Contribution: ${donation.purpose}`,
+          customerName: donation.donor_name,
+          customerMobile: donation.donor_mobile,
+          customerEmail: donation.donor_email
+        });
+        attachments.push({ filename: `Donation_Receipt_${donation.order_id}.pdf`, content: pdfBuffer });
+      } catch (pdfErr) {
+        console.error("Failed to generate PDF receipt for donation:", pdfErr);
+      }
+
       await sendTransactionalEmail(
         donation.donor_email,
         "Donation Successfully Received - Thank You! - DKFFJ",
-        emailHtml
+        emailHtml,
+        attachments
       );
     }
     return;
@@ -520,5 +540,202 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         console.error("Admin notification error (appreciation):", adminErr);
       }
     }
+    return;
+  }
+
+  // --- Affiliation Application ---
+  const { findDevAffiliationById, updateDevAffiliation } = await import("@/lib/affiliation-dev-store");
+  const { AFFILIATION_FEE_AMOUNT, AFFILIATION_FEE_DESCRIPTION, AFFILIATION_FEE_NOTE, AFFILIATION_RECEIPT_PREFIX } = await import("@/lib/affiliation-config");
+
+  // A. Check Dev Store
+  const devItem = findDevAffiliationById(merchantOrderId) || findDevAffiliationById(payment.id);
+  const affiliationIdFromPayment = (payment as any)?.affiliation_id;
+  if (devItem || affiliationIdFromPayment) {
+    const affiliationId = affiliationIdFromPayment || devItem?.id;
+
+    // Idempotency check: If already promoted to SUBMITTED with an official AFF-2026-XXXXXX number, exit early
+    if (devItem && devItem.status === "SUBMITTED" && devItem.applicationNo && !devItem.applicationNo.startsWith("AFF-DRAFT-")) {
+      console.log(`[IDEMPOTENT SKIPPED] Affiliation payment already processed for ${devItem.applicationNo}`);
+      return;
+    }
+
+    // Amount Verification Check
+    const paidAmount = Number(payment.amount || verifyResult.amount || 2100);
+    if (paidAmount !== AFFILIATION_FEE_AMOUNT) {
+      console.error(`[PAYMENT AMOUNT MISMATCH] Expected ₹${AFFILIATION_FEE_AMOUNT}, received ₹${paidAmount} for orderId: ${merchantOrderId}`);
+      await supabase.from("payments").update({ status: "FAILED", failure_reason: `Amount mismatch: Expected ${AFFILIATION_FEE_AMOUNT}, got ${paidAmount}` }).eq("id", payment.id);
+      return;
+    }
+
+    const currentYear = new Date().getFullYear();
+    let officialAppNo = devItem?.applicationNo || "";
+
+    // Generate official AFF-YYYY-XXXXXX number atomically
+    if (!officialAppNo || officialAppNo.startsWith("AFF-DRAFT-")) {
+      let lastVal = Math.floor(1000 + Math.random() * 9000);
+      try {
+        const { data: counterData } = await supabase.from("prefixes_counter").select("last_value").eq("key", "AFFILIATION_APP").maybeSingle();
+        if (counterData) lastVal = counterData.last_value + 1;
+        await supabase.from("prefixes_counter").upsert({ key: "AFFILIATION_APP", year: currentYear, last_value: lastVal });
+      } catch (_) {}
+      const runningNo = String(lastVal).padStart(6, "0");
+      officialAppNo = `AFF-${currentYear}-${runningNo}`;
+    }
+
+    const receiptNo = `${AFFILIATION_RECEIPT_PREFIX}${currentYear}/${officialAppNo.split("-").pop() || "000001"}`;
+    const paidAtUtc = new Date().toISOString();
+    const paidAtIST = `${new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    }).format(new Date())} IST`;
+
+    // Update Dev Store
+    if (devItem) {
+      updateDevAffiliation(devItem.id, {
+        applicationNo: officialAppNo,
+        status: "SUBMITTED",
+        publicRemarks: "Payment verified. Application submitted for board review.",
+        payment: {
+          transactionId: merchantOrderId,
+          gatewayTransactionId: verifyResult.transactionId || merchantOrderId,
+          receiptNo,
+          amount: paidAmount,
+          currency: "INR",
+          status: "COMPLETED",
+          paidAt: paidAtUtc,
+          paidAtIST: paidAtIST
+        },
+        timeline: [
+          ...devItem.timeline,
+          {
+            id: crypto.randomUUID(),
+            fromStatus: devItem.status,
+            toStatus: "SUBMITTED",
+            remarks: `Payment of ₹${paidAmount} verified via PhonePe (Txn ID: ${verifyResult.transactionId || merchantOrderId}). Official App No: ${officialAppNo}`,
+            date: paidAtIST
+          }
+        ]
+      });
+    }
+
+    // Update Supabase
+    try {
+      if (affiliationId) {
+        await supabase.from("affiliations").update({
+          application_no: officialAppNo,
+          current_status: "SUBMITTED",
+          public_remarks: "Payment verified. Application submitted for board review."
+        }).eq("id", affiliationId);
+
+        await supabase.from("payments").update({
+          status: "COMPLETED",
+          gateway_transaction_id: verifyResult.transactionId || merchantOrderId,
+          receipt_no: receiptNo,
+          paid_at: paidAtUtc
+        }).eq("id", payment.id);
+
+        await supabase.from("status_logs").insert({
+          affiliation_id: affiliationId,
+          from_status: "DRAFT",
+          to_status: "SUBMITTED",
+          remarks: `Affiliation fee of ₹${paidAmount} verified via PhonePe. Official App No assigned: ${officialAppNo}`
+        });
+      }
+    } catch (_) {}
+
+    // Send Receipt Email with PDF Attachment
+    try {
+      const applicantName = devItem?.applicant.fullName || "Applicant";
+      const applicantEmail = devItem?.applicant.email || "";
+      const instituteName = devItem?.organizationName || "Institute";
+      const draftNo = devItem?.draftNo || devItem?.applicationNo || merchantOrderId;
+
+      const { getAffiliationReceiptTemplate } = await import("@/services/email/templates");
+      const emailHtml = getAffiliationReceiptTemplate(
+        applicantName,
+        instituteName,
+        draftNo,
+        officialAppNo,
+        paidAmount,
+        verifyResult.transactionId || merchantOrderId,
+        receiptNo,
+        paidAtIST
+      );
+
+      let attachments: any[] = [];
+      try {
+        const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+        const pdfBuffer = await generateReceiptPdfBuffer({
+          refId: officialAppNo,
+          receiptNo,
+          date: paidAtIST,
+          ackOrEnrollmentNo: officialAppNo,
+          gatewayTransactionId: verifyResult.transactionId || merchantOrderId,
+          amount: paidAmount,
+          description: AFFILIATION_FEE_DESCRIPTION,
+          customerName: applicantName,
+          customerMobile: devItem?.applicant.mobile || "",
+          customerEmail: applicantEmail,
+          instituteName,
+          receiptType: "AFFILIATION",
+          refundPolicyNote: AFFILIATION_FEE_NOTE
+        });
+        attachments.push({ filename: `Receipt_${receiptNo.replace(/\//g, "_")}.pdf`, content: pdfBuffer });
+      } catch (pdfErr) {
+        console.error("Failed to generate PDF receipt attachment for affiliation:", pdfErr);
+      }
+
+      if (applicantEmail) {
+        await sendTransactionalEmail(
+          applicantEmail,
+          `Affiliation Application Payment Received - ${officialAppNo}`,
+          emailHtml,
+          attachments
+        );
+      }
+
+      // Notify Admins
+      try {
+        const { data: admins } = await supabase
+          .from("users")
+          .select("email")
+          .in("role", ["ADMIN", "SUPERADMIN"]);
+        const adminEmails = admins?.map((a) => a.email).filter(Boolean) || [];
+        const adminRecipients = Array.from(new Set([...adminEmails, "info@dkffj.org"]));
+        const adminSubject = `New Institute Affiliation Application Paid — ${instituteName}`;
+        const adminHtml = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 18px;">DK Foundation of Freedom and Justice</h1>
+              <div style="color: #e0f2fe; font-size: 11px; margin-top: 4px;">Institute Affiliation Desk</div>
+            </div>
+            <div style="padding: 24px; color: #334155;">
+              <h2>New Affiliation Fee Paid (₹${paidAmount})</h2>
+              <p>Hello Admin,</p>
+              <p>Affiliation fee payment has been verified for <strong>${instituteName}</strong>.</p>
+              <p><strong>Official Application No:</strong> ${officialAppNo}</p>
+              <p><strong>Applicant Name:</strong> ${applicantName}</p>
+              <p><strong>Receipt No:</strong> ${receiptNo}</p>
+              <div style="margin-top: 24px; text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://dkffj.org'}/admin/affiliations" style="background-color: #001C55; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Review Application in Admin Desk</a>
+              </div>
+            </div>
+          </div>
+        `;
+        for (const adminEmail of adminRecipients) {
+          await sendTransactionalEmail(adminEmail, adminSubject, adminHtml);
+        }
+      } catch (adminErr) {
+        console.error("Admin notification error (affiliation):", adminErr);
+      }
+    } catch (emailErr) {
+      console.error("[AFFILIATION CALLBACK] Email error:", emailErr);
+    }
   }
 }
+

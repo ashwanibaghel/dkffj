@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Search, GraduationCap, MapPin, Phone, ShieldCheck, Briefcase } from "lucide-react";
 
+import { sortMembersByDesignationRank } from "@/lib/designationRank";
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -31,7 +33,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
   }))).sort()];
 
   // Filter members based on search and state select
-  const filteredMembers = teamMembers.filter((m) => {
+  const rawFiltered = teamMembers.filter((m) => {
     const matchSearch = 
       m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -45,6 +47,8 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
 
     return matchSearch && matchState;
   });
+
+  const filteredMembers = sortMembersByDesignationRank(rawFiltered);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative overflow-hidden">
@@ -145,7 +149,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
                 ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
                 : nameParts[0] ? nameParts[0].slice(0, 2).toUpperCase() : "??";
 
-              const isOfficialLead = member.photo && member.photo.trim() !== "";
+              const isOfficialLead = member.photo && member.photo.trim() !== "" && !member.photo.includes("default.jpg") && !member.photo.includes("default.png");
 
               return (
                 <div 
@@ -171,11 +175,22 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
                     <div className="flex gap-4 items-start mb-5">
                       {/* Photo or Initials Fallback */}
                       {isOfficialLead ? (
-                        <div className="w-14 h-14 rounded-full overflow-hidden border border-[#001C55]/20 shadow-inner shrink-0 bg-slate-100">
-                          <img src={member.photo} className="w-full h-full object-cover" alt={member.name} />
+                        <div className="w-14 h-14 rounded-full overflow-hidden border border-[#001C55]/20 shadow-inner shrink-0 bg-slate-100 relative">
+                          <img 
+                            src={member.photo} 
+                            className="w-full h-full object-cover" 
+                            alt={member.name} 
+                            loading="eager"
+                            decoding="async"
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              img.onerror = null;
+                              img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=001C55&color=fff&size=200`;
+                            }}
+                          />
                         </div>
                       ) : (
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001C55]/15 to-[#C00000]/5 border border-slate-200 text-[#001C55] font-bold text-sm flex items-center justify-center shrink-0 shadow-inner">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001C55] to-[#1565C0] border border-slate-200 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-md">
                           {initials}
                         </div>
                       )}

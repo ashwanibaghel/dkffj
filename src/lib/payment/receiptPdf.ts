@@ -4,6 +4,7 @@ import path from "path";
 
 export interface ReceiptPdfDetails {
   refId: string;
+  receiptNo?: string;
   date: string;
   ackOrEnrollmentNo: string;
   gatewayTransactionId: string;
@@ -13,6 +14,9 @@ export interface ReceiptPdfDetails {
   fatherName?: string | null;
   customerMobile: string;
   customerEmail: string;
+  receiptType?: "MEMBERSHIP" | "COURSE" | "AFFILIATION" | "APPRECIATION";
+  instituteName?: string;
+  refundPolicyNote?: string;
 }
 
 const BLUE = "#213f8f";
@@ -82,7 +86,8 @@ function money(value: number): string {
 
 export function generateReceiptPdfBuffer(details: ReceiptPdfDetails): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: "A4", margin: 0, info: { Title: `Receipt ${details.refId}` } });
+    const displayReceiptNo = details.receiptNo || details.refId;
+    const doc = new PDFDocument({ size: "A4", margin: 0, info: { Title: `Receipt ${displayReceiptNo}` } });
     const chunks: Buffer[] = [];
     doc.on("data", (chunk) => chunks.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
@@ -111,7 +116,7 @@ export function generateReceiptPdfBuffer(details: ReceiptPdfDetails): Promise<Bu
     doc.text("E-RECEIPT", right - 133, 68, { width: 133, align: "center" });
     doc.fillColor("#445268").fontSize(8);
     doc.text(`Date: ${new Date(details.date).toLocaleDateString("en-GB", { timeZone: "Asia/Kolkata" })}`, right - 170, 97, { width: 170, align: "right" });
-    doc.text(`Receipt No: ${details.refId}`, right - 190, 109, { width: 190, align: "right" });
+    doc.text(`Receipt No: ${displayReceiptNo}`, right - 220, 109, { width: 220, align: "right" });
     doc.strokeColor(BLUE).lineWidth(1.4).moveTo(left, 132).lineTo(right, 132).stroke();
 
     // Notice band.
@@ -148,14 +153,15 @@ export function generateReceiptPdfBuffer(details: ReceiptPdfDetails): Promise<Bu
     value("Online Gateway (UPI/Card/NetBanking)", left + 373, 229, 121);
 
     label("Applicant / Donor:", left + 5, 261);
-    value(details.customerName, left + 94, 261, 185);
+    const applicantText = details.instituteName ? `${details.customerName}\n(${details.instituteName})` : details.customerName;
+    value(applicantText, left + 94, 261, 185);
     label("Reference No:", left + 286, 261);
     value(details.ackOrEnrollmentNo, left + 373, 261, 121);
 
-    label("Mobile / Email:", left + 5, 282);
-    value(`${details.customerMobile}\n${details.customerEmail}`, left + 94, 282, 185);
-    label("Payment Date:", left + 286, 282);
-    value(formatDate(details.date), left + 373, 282, 121);
+    label("Mobile / Email:", left + 5, 285);
+    value(`${details.customerMobile}\n${details.customerEmail}`, left + 94, 285, 185);
+    label("Payment Date:", left + 286, 285);
+    value(formatDate(details.date), left + 373, 285, 121);
 
     // Particulars table.
     const tableTop = 326;
@@ -167,10 +173,11 @@ export function generateReceiptPdfBuffer(details: ReceiptPdfDetails): Promise<Bu
     doc.text("DESCRIPTION / HEAD OF ACCOUNT", left + 61, tableTop + 9);
     doc.text("AMOUNT (INR)", right - 100, tableTop + 9, { width: 88, align: "right" });
     doc.fillColor(INK).fontSize(9);
-    doc.text("1", left + 10, tableTop + 49);
-    doc.text(details.description, left + 61, tableTop + 39, { width: 300 });
-    doc.fillColor(MUTED).font("Helvetica").fontSize(7.5);
-    doc.text("Payment received and recorded through the official online portal", left + 61, tableTop + 56, { width: 300 });
+    doc.text("1", left + 10, tableTop + 45);
+    doc.text(details.description, left + 61, tableTop + 35, { width: 300 });
+    doc.fillColor(MUTED).font("Helvetica").fontSize(7);
+    const subNote = details.refundPolicyNote || "Payment received and recorded through the official online portal";
+    doc.text(subNote, left + 61, tableTop + 50, { width: 300, lineGap: 1 });
     doc.fillColor(INK).font("Helvetica-Bold").fontSize(9);
     doc.text(money(details.amount), right - 115, tableTop + 48, { width: 103, align: "right" });
 

@@ -887,3 +887,69 @@ export async function getSecureAppreciationDetails(appNo: string, contact: strin
     }
   };
 }
+
+export async function getSecureDonationDetails(orderId: string, contact: string) {
+  const searchStr = orderId.trim();
+  const contactStr = contact.trim();
+
+  if (!searchStr || !contactStr) return null;
+
+  try {
+    const donation = await prisma.donations.findFirst({
+      where: {
+        order_id: { equals: searchStr, mode: "insensitive" }
+      }
+    });
+
+    if (!donation) {
+      return { found: false, type: "donation", number: searchStr, name: "", status: "", date: "", amount: 0, purpose: "" };
+    }
+
+    const matchMobile = donation.donor_mobile && donation.donor_mobile.trim() === contactStr;
+    const matchEmail = donation.donor_email && donation.donor_email.toLowerCase().trim() === contactStr.toLowerCase();
+
+    if (!matchMobile && !matchEmail) {
+      return { found: false, type: "donation", number: searchStr, name: "", status: "", date: "", amount: 0, purpose: "" };
+    }
+
+    return {
+      found: true,
+      type: "donation",
+      number: donation.order_id,
+      name: donation.donor_name,
+      email: donation.donor_email,
+      mobile: donation.donor_mobile,
+      address: donation.donor_address,
+      amount: Number(donation.amount),
+      purpose: donation.purpose,
+      status: donation.status,
+      transactionId: donation.transaction_id || "COMPLETED",
+      date: new Date(donation.created_at).toLocaleDateString("en-IN")
+    };
+  } catch (err) {
+    console.error("getSecureDonationDetails error:", err);
+    return { found: false, type: "donation", number: searchStr, name: "", status: "", date: "", amount: 0, purpose: "" };
+  }
+}
+
+export async function downloadDonationReceiptPdfAction(orderId: string, contact: string): Promise<string> {
+  const secureDetails = await getSecureDonationDetails(orderId, contact);
+  if (!secureDetails || !secureDetails.found) {
+    throw new Error("Invalid donation details or contact verification failed.");
+  }
+
+  const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+  const pdfBuffer = await generateReceiptPdfBuffer({
+    refId: secureDetails.number,
+    date: secureDetails.date || new Date().toISOString(),
+    ackOrEnrollmentNo: secureDetails.number,
+    gatewayTransactionId: secureDetails.transactionId || "COMPLETED",
+    amount: Number(secureDetails.amount),
+    description: `Donation Contribution: ${secureDetails.purpose}`,
+    customerName: secureDetails.name,
+    customerMobile: secureDetails.mobile,
+    customerEmail: secureDetails.email
+  });
+
+  return pdfBuffer.toString("base64");
+}

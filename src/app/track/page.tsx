@@ -3,7 +3,7 @@
 import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, UserCheck, FileText, GraduationCap, Award, FileCheck, Loader2 } from "lucide-react";
+import { ArrowLeft, UserCheck, FileText, GraduationCap, Award, FileCheck, Loader2, Heart } from "lucide-react";
 
 function TrackPageContent() {
   const searchParams = useSearchParams();
@@ -20,6 +20,7 @@ function TrackPageContent() {
       else if (type === "membership") targetHref = "/track/membership";
       else if (type === "appreciation") targetHref = "/track/appreciation";
       else if (type === "course") targetHref = "/track/course";
+      else if (type === "donation") targetHref = "/track/donation";
       else if (type === "certificate") targetHref = "/track/certificate";
 
       if (targetHref) {
@@ -44,6 +45,14 @@ function TrackPageContent() {
       href: "/track/membership",
       icon: UserCheck,
       color: "from-sky-500 to-[#1565C0]",
+      badge: "Secure"
+    },
+    {
+      title: "Donation Contribution",
+      desc: "Verify status of your voluntary donation and download your official 80G compliant PDF payment receipt.",
+      href: "/track/donation",
+      icon: Heart,
+      color: "from-rose-500 to-[#C00000]",
       badge: "Secure"
     },
     {

@@ -194,9 +194,6 @@ model memberships {
   valid_until                          DateTime?         @db.Timestamptz(6)
   show_home                            Boolean           @default(false)
   remarks                              String?
-  deleted_at                           DateTime?         @db.Timestamptz(6)
-  deleted_by                           String?           @db.Text
-  delete_reason                        String?           @db.Text
   created_at                           DateTime          @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
   updated_at                           DateTime          @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
   referred_by                          memberships?      @relation("MemberReferrals", fields: [referred_by_member_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -210,7 +207,6 @@ model memberships {
   @@index([ack_no], map: "idx_memberships_ack")
   @@index([membership_no], map: "idx_memberships_no")
   @@index([referred_by_member_id], map: "idx_memberships_referred_by")
-  @@index([deleted_at], map: "idx_memberships_deleted_at")
 }
 
 model news {
@@ -302,6 +298,7 @@ model status_logs {
   complaint_id         String?               @db.Uuid
   registration_id      String?               @db.Uuid
   appreciation_id      String?               @db.Uuid
+  affiliation_id       String?               @db.Uuid
   from_status          String                @db.VarChar(50)
   to_status            String                @db.VarChar(50)
   remarks              String?
@@ -311,6 +308,7 @@ model status_logs {
   memberships          memberships?          @relation(fields: [membership_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   course_registrations course_registrations? @relation(fields: [registration_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   appreciation_applications appreciation_applications? @relation(fields: [appreciation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  affiliations         affiliations?         @relation(fields: [affiliation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   users                users?                @relation(fields: [updated_by], references: [id], onUpdate: NoAction)
 }
 
@@ -330,6 +328,8 @@ model users {
   status_logs                                                  status_logs[]
   appreciation_approved_by                                     appreciation_applications[] @relation("appreciation_approved_byTousers")
   appreciation_user_id                                         appreciation_applications[] @relation("appreciation_user_idTousers")
+  affiliations_approved_by                                     affiliations[]         @relation("affiliations_approved_byTousers")
+  affiliations_owner                                           affiliations[]         @relation("affiliations_ownerTousers")
 }
 
 model Banner {
@@ -469,4 +469,145 @@ model system_settings {
   setting_value String   @db.Text
   updated_at    DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
 }
+
+enum affiliation_status {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  INSPECTION_PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+  EXPIRED
+}
+
+enum affiliation_document_type {
+  PASSPORT_PHOTO
+  REGISTRATION_CERTIFICATE
+  PAN
+  ID_PROOF
+  BUILDING_INSIDE
+  BUILDING_OUTSIDE
+  LAB
+  OTHER
+}
+
+enum affiliation_domain_type {
+  COMPUTER_IT
+  SKILL
+  NGO
+  CRAFT
+  SOCIAL_WORK
+  OTHER
+}
+
+enum affiliation_infra_type {
+  CLASSROOM
+  LAB
+  PROJECTOR
+  FACULTY
+  INTERNET
+}
+
+model affiliations {
+  id                        String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  application_no            String                     @unique @db.VarChar(100)
+  affiliation_no            String?                    @unique @db.VarChar(100)
+  verification_token        String                     @unique @db.VarChar(100)
+  slug                      String?                    @unique @db.VarChar(255)
+  owner_user_id             String?                    @db.Uuid
+  organization_name         String                     @db.VarChar(255)
+  organization_type         String                     @db.VarChar(100)
+  organization_type_other   String?                    @db.VarChar(255)
+  registration_number       String?                    @db.VarChar(100)
+  pan_number                String?                    @db.VarChar(20)
+  establishment_year        String                     @db.VarChar(10)
+  address                   String                     @db.Text
+  state                     String                     @db.VarChar(100)
+  district                  String                     @db.VarChar(100)
+  pincode                   String                     @db.VarChar(10)
+  website                   String?                    @db.VarChar(255)
+  student_capacity          Int?
+  current_status            affiliation_status         @default(SUBMITTED)
+  has_duplicate_warning     Boolean                    @default(false)
+  warning_details           String?                    @db.Text
+  inspection_required       Boolean                    @default(false)
+  inspection_date           DateTime?                  @db.Timestamptz(6)
+  valid_from                DateTime?                  @db.Timestamptz(6)
+  valid_to                  DateTime?                  @db.Timestamptz(6)
+  approved_by               String?                    @db.Uuid
+  approved_at               DateTime?                  @db.Timestamptz(6)
+  internal_remarks          String?                    @db.Text
+  public_remarks            String?                    @db.Text
+  created_at                DateTime                   @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at                DateTime                   @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+
+  applicants                affiliation_applicants[]
+  documents                 affiliation_documents[]
+  domains                   affiliation_domains[]
+  infrastructure            affiliation_infrastructure[]
+  status_logs               status_logs[]
+  users_approved            users?                     @relation("affiliations_approved_byTousers", fields: [approved_by], references: [id], onUpdate: NoAction)
+  users_owner               users?                     @relation("affiliations_ownerTousers", fields: [owner_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([application_no], map: "idx_affiliations_app_no")
+  @@index([affiliation_no], map: "idx_affiliations_no")
+  @@index([verification_token], map: "idx_affiliations_token")
+  @@index([registration_number], map: "idx_affiliations_reg_no")
+  @@index([pan_number], map: "idx_affiliations_pan")
+  @@index([slug], map: "idx_affiliations_slug")
+  @@index([organization_name, district], map: "idx_affiliations_org_dist")
+}
+
+model affiliation_applicants {
+  id                         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  affiliation_id             String       @db.Uuid
+  full_name                  String       @db.VarChar(255)
+  designation                String       @db.VarChar(100)
+  mobile                     String       @db.VarChar(15)
+  whatsapp                   String?      @db.VarChar(15)
+  email                      String       @db.VarChar(255)
+  id_proof_type              String       @db.VarChar(50)
+  id_proof_last_four         String       @db.VarChar(4)
+  authorized_signatory_name  String       @db.VarChar(255)
+  declaration_accepted       Boolean      @default(true)
+  declaration_accepted_at    DateTime     @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  declaration_ip_address     String?      @db.VarChar(45)
+  created_at                 DateTime     @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+
+  affiliation                affiliations @relation(fields: [affiliation_id], references: [id], onDelete: Cascade)
+}
+
+model affiliation_documents {
+  id             String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  affiliation_id String                    @db.Uuid
+  document_type  affiliation_document_type
+  file_name      String                    @db.VarChar(255)
+  file_size      Int
+  mime_type      String                    @db.VarChar(100)
+  storage_path   String                    @db.VarChar(512)
+  uploaded_at    DateTime                  @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+
+  affiliation    affiliations              @relation(fields: [affiliation_id], references: [id], onDelete: Cascade)
+}
+
+model affiliation_domains {
+  id             String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  affiliation_id String                  @db.Uuid
+  domain_type    affiliation_domain_type
+  domain_other   String?                 @db.VarChar(255)
+  created_at     DateTime                @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+
+  affiliation    affiliations            @relation(fields: [affiliation_id], references: [id], onDelete: Cascade)
+}
+
+model affiliation_infrastructure {
+  id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  affiliation_id String                 @db.Uuid
+  infra_type     affiliation_infra_type
+  created_at     DateTime               @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+
+  affiliation    affiliations           @relation(fields: [affiliation_id], references: [id], onDelete: Cascade)
+}
+
 

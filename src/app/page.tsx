@@ -239,6 +239,8 @@ export default function Home() {
                     <Link href="/news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
                     <Link href="/gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
                     <Link href="/apply-appreciation" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Apply Appreciation</Link>
+                    <Link href="/affiliation/apply" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Institute Affiliation</Link>
+                    <Link href="/affiliation/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track Affiliation</Link>
                     <Link href="/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track Application</Link>
                   </div>
                 </div>
@@ -883,21 +885,23 @@ export default function Home() {
                       } ${isHiddenOnMobile ? 'hidden lg:flex' : 'flex'}`}
                     >
                       <div className="flex flex-col items-center gap-3 md:gap-4">
-                        {leader.photo && leader.photo.trim() !== "" ? (
-                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-[#1565C0]/30 shadow-inner shrink-0 bg-slate-100">
+                        {leader.photo && leader.photo.trim() !== "" && !leader.photo.includes("default.jpg") && !leader.photo.includes("default.png") ? (
+                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-[#1565C0]/30 shadow-sm shrink-0 bg-slate-100 relative">
                             <img 
                               src={leader.photo} 
                               className="w-full h-full object-cover" 
                               alt={leader.name} 
+                              loading="eager"
+                              decoding="async"
                               onError={(e) => {
                                 const img = e.currentTarget as HTMLImageElement;
                                 img.onerror = null;
-                                img.src = "/members/default.jpg";
+                                img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(leader.name)}&background=001C55&color=fff&size=200`;
                               }}
                             />
                           </div>
                         ) : (
-                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-[#1565C0]/15 to-[#C00000]/5 border-2 border-[#1565C0]/30 text-[#1565C0] font-bold text-sm md:text-xl flex items-center justify-center shrink-0 shadow-inner">
+                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-[#001C55] to-[#1565C0] border-2 border-[#1565C0]/40 text-white font-bold text-sm md:text-xl flex items-center justify-center shrink-0 shadow-md">
                             {(() => {
                               const nameParts = leader.name.trim().split(/\s+/);
                               return nameParts.length > 1 

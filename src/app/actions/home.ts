@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { teamMembers as staticMembers } from "@/lib/teamData";
 import { getVersionedCache } from "@/lib/redis";
+import { sortMembersByDesignationRank } from "@/lib/designationRank";
 
 // Lookup description map for standard leaders to keep descriptions consistent
 const leaderDescriptions: Record<string, string> = {
@@ -35,12 +36,11 @@ export async function getHomeLeaders() {
       });
 
       if (homeMembers.length > 0) {
-        return homeMembers.map((m) => {
+        const formatted = homeMembers.map((m) => {
           const mNo = m.membership_no || "";
           let photoPath = leaderPhotos[mNo] || m.photo_url || "";
-          if (photoPath.startsWith("/uploads/")) {
-            // Local upload path missing on production, fallback to default.jpg
-            photoPath = "/members/default.jpg";
+          if (photoPath.includes("default.jpg") || photoPath.includes("default.png")) {
+            photoPath = "";
           }
           return {
             id: m.membership_no || m.ack_no || m.id,
@@ -55,6 +55,7 @@ export async function getHomeLeaders() {
             description: leaderDescriptions[mNo] || `Certified active executive council officer of DKFFJ representing operations in ${m.district || m.state || "India"}.`
           };
         });
+        return sortMembersByDesignationRank(formatted);
       }
 
       // Fallback source: teamMember table in database
@@ -69,9 +70,9 @@ export async function getHomeLeaders() {
       });
 
       if (dbLeaders.length > 0) {
-        return dbLeaders.map((m) => {
+        const formatted = dbLeaders.map((m) => {
           let p = leaderPhotos[m.id] || m.photo || "";
-          if (p.startsWith("/uploads/")) p = "/members/default.jpg";
+          if (p.includes("default.jpg") || p.includes("default.png")) p = "";
           return {
             id: m.id,
             name: m.name,
@@ -85,17 +86,18 @@ export async function getHomeLeaders() {
             description: m.description || leaderDescriptions[m.id] || `Certified active executive council officer of DKFFJ representing operations in ${m.location}.`
           };
         });
+        return sortMembersByDesignationRank(formatted);
       }
     } catch (error) {
       console.error("Error fetching homepage leaders from database:", error);
     }
 
     // Fallback to static member registry
-    return staticMembers
+    const formattedStatic = staticMembers
       .filter((m) => m.showHome === 1)
       .map((m) => {
         let p = leaderPhotos[m.id] || m.photo || "";
-        if (p.startsWith("/uploads/")) p = "/members/default.jpg";
+        if (p.includes("default.jpg") || p.includes("default.png")) p = "";
         return {
           id: m.id,
           name: m.name,
@@ -109,6 +111,7 @@ export async function getHomeLeaders() {
           description: leaderDescriptions[m.id] || "DKFFJ Executive Council Member."
         };
       });
+    return sortMembersByDesignationRank(formattedStatic);
   });
 }
 
