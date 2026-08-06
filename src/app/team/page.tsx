@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { teamMembers as staticMembers } from "@/lib/teamData";
 import TeamRegistryClient, { TeamMember } from "./TeamRegistryClient";
+import { leaderPhotos } from "@/app/actions/home";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,13 @@ export default async function TeamRegistryPage() {
     
     if (homeLeaders && homeLeaders.length > 0) {
       dbMembers = homeLeaders.map((m) => {
-        let p = m.photo_url || "";
+        const mNo = (m.membership_no || "").replace("DKFFJ-", "");
+        let p = leaderPhotos[mNo] || leaderPhotos[m.membership_no || ""] || m.photo_url || "";
         if (p.includes("default.jpg") || p.includes("default.png")) p = "";
+        if (p.startsWith("/uploads/")) {
+          const fileName = p.split("/").pop();
+          p = `/members/${fileName}`;
+        }
         return {
           id: m.membership_no || m.ack_no || m.id,
           name: m.full_name,
@@ -40,9 +46,22 @@ export default async function TeamRegistryPage() {
   }
 
   // Fallback if database query failed or returned no results - ONLY show showHome === 1 members
-  const teamMembersList = dbMembers.length > 0 
+  const baseList = dbMembers.length > 0 
     ? dbMembers 
     : staticMembers.filter((m) => m.showHome === 1);
+
+  const teamMembersList = baseList.map((m) => {
+    let p = leaderPhotos[m.id] || m.photo || "";
+    if (p.includes("default.jpg") || p.includes("default.png")) p = "";
+    if (p.startsWith("/uploads/")) {
+      const fileName = p.split("/").pop();
+      p = `/members/${fileName}`;
+    }
+    return {
+      ...m,
+      photo: p,
+    };
+  });
 
   return <TeamRegistryClient teamMembers={teamMembersList} />;
 }

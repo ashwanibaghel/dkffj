@@ -13,7 +13,7 @@ const leaderDescriptions: Record<string, string> = {
   "1012": "Leading administrative operations, registrations compliance, and national coordinate activities from Ayodhya, UP." // Jay Prakash Tiwari
 };
 
-const leaderPhotos: Record<string, string> = {
+export const leaderPhotos: Record<string, string> = {
   "1000": "/members/danish.jpg",
   "1001": "/members/1784747834477.png",
   "1002": "/members/1784744384738.png",

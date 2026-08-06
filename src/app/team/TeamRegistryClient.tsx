@@ -149,7 +149,12 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
                 ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
                 : nameParts[0] ? nameParts[0].slice(0, 2).toUpperCase() : "??";
 
-              const isOfficialLead = member.photo && member.photo.trim() !== "" && !member.photo.includes("default.jpg") && !member.photo.includes("default.png");
+              let imgUrl = member.photo || "";
+              if (imgUrl.startsWith("/uploads/")) {
+                const fileName = imgUrl.split("/").pop();
+                imgUrl = `/members/${fileName}`;
+              }
+              const isOfficialLead = imgUrl && imgUrl.trim() !== "" && !imgUrl.includes("default.jpg") && !imgUrl.includes("default.png");
 
               return (
                 <div 
@@ -177,7 +182,7 @@ export default function TeamRegistryClient({ teamMembers }: TeamRegistryClientPr
                       {isOfficialLead ? (
                         <div className="w-14 h-14 rounded-full overflow-hidden border border-[#001C55]/20 shadow-inner shrink-0 bg-slate-100 relative">
                           <img 
-                            src={member.photo} 
+                            src={imgUrl} 
                             className="w-full h-full object-cover" 
                             alt={member.name} 
                             loading="eager"
