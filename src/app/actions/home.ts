@@ -13,30 +13,7 @@ const leaderDescriptions: Record<string, string> = {
   "1012": "Leading administrative operations, registrations compliance, and national coordinate activities from Ayodhya, UP." // Jay Prakash Tiwari
 };
 
-export const leaderPhotos: Record<string, string> = {
-  "1000": "/members/danish.jpg",
-  "DKFFJ-1000": "/members/danish.jpg",
-  "1001": "/members/1784747834477.png",
-  "DKFFJ-1001": "/members/1784747834477.png",
-  "1002": "/members/1784744384738.png",
-  "DKFFJ-1002": "/members/1784744384738.png",
-  "1003": "/members/1784745095737.png",
-  "DKFFJ-1003": "/members/1784745095737.png",
-  "1004": "/members/wasim.jpg",
-  "DKFFJ-1004": "/members/wasim.jpg",
-  "1005": "/members/1784748456410.png",
-  "DKFFJ-1005": "/members/1784748456410.png",
-  "1006": "/members/1784748456410.png",
-  "DKFFJ-1006": "/members/1784748456410.png",
-  "1007": "/members/1784742483492.png",
-  "DKFFJ-1007": "/members/1784742483492.png",
-  "1008": "/members/1784744369357.png",
-  "DKFFJ-1008": "/members/1784744369357.png",
-  "1010": "/members/vipin.jpg",
-  "DKFFJ-1010": "/members/vipin.jpg",
-  "1012": "/members/tiwari.jpg",
-  "DKFFJ-1012": "/members/tiwari.jpg"
-};
+import { leaderPhotos } from "@/lib/leaderPhotos";
 
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {

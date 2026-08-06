@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { teamMembers as staticMembers } from "@/lib/teamData";
 import TeamRegistryClient, { TeamMember } from "./TeamRegistryClient";
-import { leaderPhotos } from "@/app/actions/home";
+import { leaderPhotos } from "@/lib/leaderPhotos";
 
 export const dynamic = "force-dynamic";
 
