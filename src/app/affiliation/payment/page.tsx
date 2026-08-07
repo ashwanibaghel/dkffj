@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -20,7 +20,8 @@ import {
 import { initiateAffiliationPayment, getAffiliationPaymentDetails } from "../apply/actions";
 import { AFFILIATION_FEE_AMOUNT, AFFILIATION_FEE_DESCRIPTION, AFFILIATION_FEE_NOTE } from "@/lib/affiliation-config";
 
-export default function AffiliationPaymentPage() {
+// Inner component that uses useSearchParams — must be wrapped in Suspense
+function AffiliationPaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
@@ -82,7 +83,6 @@ export default function AffiliationPaymentPage() {
         if (officialNo && officialNo.startsWith("AFF-") && !officialNo.startsWith("AFF-DRAFT-")) {
           router.push(`/affiliation/track?appNo=${officialNo}`);
         } else {
-          // Re-fetch details to check if application was promoted
           const refreshRes = await getAffiliationPaymentDetails(id);
           const refreshedNo = refreshRes.appData?.applicationNo;
           if (refreshedNo && refreshedNo.startsWith("AFF-") && !refreshedNo.startsWith("AFF-DRAFT-")) {
@@ -188,7 +188,7 @@ export default function AffiliationPaymentPage() {
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-amber-300 block">{AFFILIATION_FEE_DESCRIPTION}</span>
-                <span className="text-[11px] text-slate-400">One-time processing fee for inspection & review</span>
+                <span className="text-[11px] text-slate-400">One-time processing fee for inspection &amp; review</span>
               </div>
               <div className="text-right">
                 <span className="text-2xl sm:text-3xl font-black text-white font-mono">₹{AFFILIATION_FEE_AMOUNT.toLocaleString()}</span>
@@ -258,5 +258,26 @@ export default function AffiliationPaymentPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading skeleton shown while Suspense waits
+function PaymentPageSkeleton() {
+  return (
+    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
+      <div className="text-center space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-400 mx-auto" />
+        <p className="text-sm font-medium text-slate-300">Loading Payment Page...</p>
+      </div>
+    </div>
+  );
+}
+
+// Default export wraps the content in Suspense to satisfy Next.js requirement
+export default function AffiliationPaymentPage() {
+  return (
+    <Suspense fallback={<PaymentPageSkeleton />}>
+      <AffiliationPaymentContent />
+    </Suspense>
   );
 }
