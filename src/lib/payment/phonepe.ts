@@ -161,6 +161,140 @@ export async function verifyPhonePeOrder(merchantOrderId: string): Promise<{
   };
 }
 
+
+/** Initiate a refund via PhonePe v1 REST API */
+export async function initiatePhonePeRefund(params: {
+  originalTransactionId: string;
+  refundTransactionId: string;
+  amount: number;
+}): Promise<{
+  success: boolean;
+  refundId?: string;
+  state?: string;
+  error?: string;
+}> {
+  const merchantId = getMerchantId();
+  const saltKey = process.env.PHONEPE_API_KEY;
+  const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
+
+  const isDev = process.env.NODE_ENV === "development" || !saltKey || saltKey.includes("placeholder");
+
+  if (isDev) {
+    console.log(`[PHONEPE MOCK REFUND] Simulating refund for ${params.originalTransactionId}, Amount: ₹${params.amount}`);
+    const mockRefundId = `RF_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
+    return {
+      success: true,
+      refundId: mockRefundId,
+      state: "REFUND_INITIATED"
+    };
+  }
+
+  if (!merchantId || !saltKey) {
+    return { success: false, error: "PhonePe credentials missing" };
+  }
+
+  const endpoint = "/pg/v1/refund";
+  const payload = {
+    merchantId,
+    merchantTransactionId: params.refundTransactionId,
+    originalTransactionId: params.originalTransactionId,
+    amount: Math.round(params.amount * 100), // paise
+    callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.org"}/api/phonepe/callback`
+  };
+
+  const payloadStr = JSON.stringify(payload);
+  const base64Payload = Buffer.from(payloadStr).toString("base64");
+  const xVerify = calculateChecksum(base64Payload, endpoint, saltKey, saltIndex);
+  const requestUrl = getRequestUrl(endpoint);
+
+  try {
+    const res = await fetch(requestUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-VERIFY": xVerify,
+      },
+      body: JSON.stringify({ request: base64Payload }),
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("PhonePe refund error:", errText);
+      return { success: false, error: `Refund request failed: ${res.status}` };
+    }
+
+    const json = await res.json();
+    const success = json.success && (json.code === "PAYMENT_SUCCESS" || json.code === "REFUND_INITIATED" || json.code === "PAYMENT_PENDING");
+    const refundId = json.data?.refundId || json.data?.transactionId || params.refundTransactionId;
+
+    return {
+      success,
+      refundId,
+      state: json.code || "REFUND_INITIATED",
+      error: json.success ? undefined : json.message
+    };
+  } catch (err: any) {
+    console.error("initiatePhonePeRefund exception:", err);
+    return { success: false, error: err.message || "Failed to initiate refund" };
+  }
+}
+
+/** Check refund status via PhonePe v1 API */
+export async function checkPhonePeRefundStatus(refundTransactionId: string): Promise<{
+  success: boolean;
+  state: string;
+  refundId?: string;
+}> {
+  const merchantId = getMerchantId();
+  const saltKey = process.env.PHONEPE_API_KEY;
+  const saltIndex = process.env.PHONEPE_SALT_INDEX || "1";
+
+  const isDev = process.env.NODE_ENV === "development" || !saltKey || saltKey.includes("placeholder");
+
+  if (isDev) {
+    return {
+      success: true,
+      state: "REFUNDED",
+      refundId: refundTransactionId
+    };
+  }
+
+  if (!merchantId || !saltKey) {
+    return { success: false, state: "UNKNOWN" };
+  }
+
+  const endpoint = `/pg/v1/status/${merchantId}/${refundTransactionId}`;
+  const xVerify = calculateChecksum("", endpoint, saltKey, saltIndex);
+  const requestUrl = getRequestUrl(endpoint);
+
+  try {
+    const res = await fetch(requestUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-VERIFY": xVerify,
+        "X-MERCHANT-ID": merchantId,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return { success: false, state: "FAILED" };
+    }
+
+    const json = await res.json();
+    const success = json.success && (json.code === "PAYMENT_SUCCESS" || json.code === "REFUNDED");
+    return {
+      success,
+      state: json.code || "PENDING",
+      refundId: json.data?.transactionId || refundTransactionId
+    };
+  } catch (err: any) {
+    return { success: false, state: "ERROR" };
+  }
+}
+
 /** PaymentGateway implementation using PhonePe V1 */
 export class PhonePeGateway implements PaymentGateway {
   async createOrder(details: PaymentDetails): Promise<string> {
@@ -179,3 +313,4 @@ export class PhonePeGateway implements PaymentGateway {
     };
   }
 }
+

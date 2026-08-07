@@ -211,6 +211,9 @@ export async function GET(req: NextRequest) {
     }
 
     if (isBypass) {
+      if (process.env.NODE_ENV === "production") {
+        return NextResponse.json({ success: false, error: "Dev payment bypass is strictly disabled in production environments." }, { status: 403 });
+      }
       console.log(`[PAYMENT BYPASS] Bypassing payment for orderId: ${orderId}, Email: ${customerEmail}`);
       const mockTxnId = "BYPASS-" + orderId;
 

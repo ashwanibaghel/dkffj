@@ -27,7 +27,8 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Share2,
-  Globe2
+  Globe2,
+  Building2
 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { getAdminNotifications, AdminNotification } from "./actions";
@@ -156,6 +157,7 @@ export default function AdminNavWrapper({
         { href: "/admin/referrals", label: "Referrals Desk", icon: Share2 },
         { href: "/admin/complaints", label: "Grievances Desk", icon: ShieldAlert },
         { href: "/admin/appreciation", label: "Appreciation Panel", icon: Award },
+        { href: "/admin/affiliations", label: "Affiliations Desk", icon: Building2 },
       ],
     },
     {

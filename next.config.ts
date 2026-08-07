@@ -47,6 +47,34 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Legacy URL: Membership application form (/joining → /apply)
+      {
+        source: "/joining",
+        destination: "/apply",
+        permanent: true,
+      },
+      // Legacy URL: Contact page (/contact → /contact-us)
+      {
+        source: "/contact",
+        destination: "/contact-us",
+        permanent: true,
+      },
+      // Legacy URL: Human rights protection / members page (/welcome/members → /apply)
+      {
+        source: "/welcome/members",
+        destination: "/apply",
+        permanent: true,
+      },
+      // Catch-all for /welcome/* paths that may also be indexed
+      {
+        source: "/welcome/:path*",
+        destination: "/",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
@@ -62,3 +90,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
