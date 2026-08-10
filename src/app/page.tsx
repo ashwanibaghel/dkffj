@@ -351,8 +351,10 @@ export default function Home() {
               <div className="absolute top-full left-0 mt-1.5 w-48 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2">
                 <Link href="/news" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">News</Link>
                 <Link href="/gallery" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Gallery</Link>
-                <Link href="/apply-appreciation" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Appreciation</Link>
-                <Link href="/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track</Link>
+                <Link href="/apply-appreciation" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Apply Appreciation</Link>
+                <Link href="/affiliation/apply" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Institute Affiliation</Link>
+                <Link href="/affiliation/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track Affiliation</Link>
+                <Link href="/track" className="block px-4 py-2 hover:bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:text-[#1565C0] transition-colors">Track Application</Link>
               </div>
             </div>
           </nav>
@@ -1460,6 +1462,22 @@ export default function Home() {
                 className="py-2.5 px-3 rounded-lg text-yellow-300 hover:bg-white/10 transition-all font-extrabold flex items-center justify-between"
               >
                 <span>Appreciation Certificate</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/affiliation/apply"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg text-yellow-300 hover:bg-white/10 transition-all font-extrabold flex items-center justify-between"
+              >
+                <span>Institute Affiliation</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/affiliation/track"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg text-yellow-300 hover:bg-white/10 transition-all font-extrabold flex items-center justify-between"
+              >
+                <span>Track Affiliation</span>
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
