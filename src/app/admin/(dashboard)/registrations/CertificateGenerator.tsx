@@ -28,16 +28,22 @@ export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number 
   if (imageUrl.startsWith("data:")) return imageUrl;
 
   const resolved = resolveFullPhotoUrl(imageUrl);
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
+  
+  // 1. Direct fetch attempt with dedicated timeout controller
+  const controller1 = new AbortController();
+  const id1 = setTimeout(() => {
+    try {
+      controller1.abort();
+    } catch (_) {}
+  }, timeoutMs);
 
   try {
     const res = await fetch(resolved, { 
       mode: "cors",
-      signal: controller.signal
+      signal: controller1.signal
     });
+    clearTimeout(id1);
     if (res.ok) {
-      clearTimeout(id);
       const blob = await res.blob();
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -46,15 +52,25 @@ export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number 
         reader.readAsDataURL(blob);
       });
     }
-  } catch (err) {
-    console.warn("Direct fetch for photo failed, trying proxy /api/documents fallback:", err);
+  } catch (err: any) {
+    clearTimeout(id1);
+    if (err?.name !== "AbortError") {
+      console.warn("Direct fetch for photo failed, trying proxy /api/documents fallback:", err);
+    }
   }
 
-  // Fallback to proxy route /api/documents to bypass CORS & relative path issues completely
+  // 2. Fallback to proxy route /api/documents using fresh AbortController
+  const controller2 = new AbortController();
+  const id2 = setTimeout(() => {
+    try {
+      controller2.abort();
+    } catch (_) {}
+  }, timeoutMs);
+
   try {
     const proxyUrl = `/api/documents?path=${encodeURIComponent(imageUrl)}`;
-    const proxyRes = await fetch(proxyUrl, { signal: controller.signal });
-    clearTimeout(id);
+    const proxyRes = await fetch(proxyUrl, { signal: controller2.signal });
+    clearTimeout(id2);
     if (proxyRes.ok) {
       const blob = await proxyRes.blob();
       return new Promise((resolve, reject) => {
@@ -64,9 +80,11 @@ export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number 
         reader.readAsDataURL(blob);
       });
     }
-  } catch (proxyErr) {
-    clearTimeout(id);
-    console.error("Proxy fetch for photo also failed:", proxyErr);
+  } catch (proxyErr: any) {
+    clearTimeout(id2);
+    if (proxyErr?.name !== "AbortError") {
+      console.error("Proxy fetch for photo also failed:", proxyErr);
+    }
   }
 
   return "";
@@ -627,11 +645,15 @@ export async function generateCertificatePDFClient(
   ]);
 
   const container = document.createElement("div");
-  container.style.position = "absolute";
-  container.style.left = "0px";
-  container.style.top = "0px";
-  container.style.zIndex = "-9999";
+  container.style.position = "fixed";
+  container.style.left = "-9999px";
+  container.style.top = "-9999px";
+  container.style.width = "794px";
+  container.style.height = "1123px";
+  container.style.overflow = "hidden";
+  container.style.opacity = "0";
   container.style.pointerEvents = "none";
+  container.style.zIndex = "-99999";
   document.body.appendChild(container);
 
   return new Promise(async (resolve, reject) => {

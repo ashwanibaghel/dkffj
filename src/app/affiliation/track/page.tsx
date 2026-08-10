@@ -20,6 +20,7 @@ import {
   MapPin
 } from "lucide-react";
 import { maskPAN, maskIDProof } from "@/lib/affiliation-utils";
+import { downloadAffiliationAnnexureAction } from "@/app/admin/(dashboard)/affiliations/actions";
 
 function TrackContent() {
   const searchParams = useSearchParams();
@@ -32,6 +33,7 @@ function TrackContent() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [result, setResult] = useState<any>(null);
+  const [downloadingAnnexure, setDownloadingAnnexure] = useState(false);
 
   const fetchTrackingDetails = async (appNo: string, contactStr: string) => {
     if (!appNo.trim()) return;
@@ -237,20 +239,66 @@ function TrackContent() {
 
           {/* Approved Affiliation Action Banner */}
           {result.status === "APPROVED" && (
-            <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="w-8 h-8 text-emerald-600 shrink-0" />
-                <div>
-                  <h4 className="text-sm font-bold text-emerald-950">Affiliation Approved & Granted!</h4>
-                  <p className="text-xs text-emerald-800 mt-0.5">Valid from {result.validFrom} to {result.validTo}</p>
+            <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl space-y-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-8 h-8 text-emerald-600 shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-bold text-emerald-950">Affiliation Approved & Granted!</h4>
+                    <p className="text-xs text-emerald-800 mt-0.5">
+                      Approved Programs: <strong>{result.approvedCourseCount || 0} of {result.requestedCourseCount || 0} Requested</strong> (Valid {result.validFrom} to {result.validTo})
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={async () => {
+                      if (!result.id) return;
+                      setDownloadingAnnexure(true);
+                      const res = await downloadAffiliationAnnexureAction(result.id);
+                      setDownloadingAnnexure(false);
+                      if (res.pdfBase64) {
+                        const link = document.createElement("a");
+                        link.href = `data:application/pdf;base64,${res.pdfBase64}`;
+                        link.download = res.fileName || "Annexure-A.pdf";
+                        link.click();
+                      }
+                    }}
+                    disabled={downloadingAnnexure}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                  >
+                    {downloadingAnnexure ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3 text-amber-400" />}
+                    Download Annexure-A PDF
+                  </button>
+                  <Link
+                    href={`/affiliation/verify/${result.verificationToken}`}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Public QR Record
+                  </Link>
                 </div>
               </div>
-              <Link
-                href={`/affiliation/verify/${result.verificationToken}`}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm shrink-0"
-              >
-                <ExternalLink className="w-3.5 h-3.5" /> View Public Verification
-              </Link>
+
+              {result.approvedCourses && result.approvedCourses.length > 0 && (
+                <div className="pt-3 border-t border-emerald-200/80 space-y-2">
+                  <span className="text-[10px] font-extrabold uppercase text-emerald-800 tracking-wider block">
+                    Authorized Courses List (Annexure-A Data)
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
+                    {result.approvedCourses.map((ac: any) => (
+                      <div key={ac.courseId} className="p-2 bg-white/80 border border-emerald-200 rounded-lg text-xs flex items-center justify-between">
+                        <div className="min-w-0 flex-1 pr-2">
+                          <strong className="text-slate-900 block truncate">{ac.title}</strong>
+                          <span className="text-[10px] text-slate-500 block truncate">{ac.sector}</span>
+                        </div>
+                        <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold shrink-0">
+                          {ac.programType === "DIPLOMA" ? "Diploma" : "Cert."}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 1123" width="794" height="1123">
+  <defs>
+    <!-- Gold Gradient for Decorative Accents -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#F3E5AB" />
+      <stop offset="100%" stop-color="#AA7C11" />
+    </linearGradient>
+
+    <!-- Deep Navy Gradient for Borders -->
+    <linearGradient id="navyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#001C55" />
+      <stop offset="100%" stop-color="#0A1128" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base Fill -->
+  <rect x="0" y="0" width="794" height="1123" fill="#FCFCFA" />
+
+  <!-- Outer Navy Frame -->
+  <rect x="18" y="18" width="758" height="1087" fill="none" stroke="url(#navyGrad)" stroke-width="4" rx="4" />
+  
+  <!-- Outer Thin Gold Frame -->
+  <rect x="25" y="25" width="744" height="1073" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" />
+
+  <!-- Inner Navy Frame -->
+  <rect x="32" y="32" width="730" height="1059" fill="none" stroke="url(#navyGrad)" stroke-width="2.5" />
+
+  <!-- Inner Gold Accent Line -->
+  <rect x="37" y="37" width="720" height="1049" fill="none" stroke="url(#goldGrad)" stroke-width="1" stroke-dasharray="8 4" opacity="0.8" />
+
+  <!-- CORNER ORNAMENTS (Top-Left) -->
+  <g transform="translate(37, 37)">
+    <path d="M 0 0 L 45 0 L 45 6 L 6 6 L 6 45 L 0 45 Z" fill="url(#goldGrad)" />
+    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
+    <path d="M 12 12 L 28 12 L 28 14 L 14 14 L 14 28 L 12 28 Z" fill="url(#goldGrad)" />
+  </g>
+
+  <!-- CORNER ORNAMENTS (Top-Right) -->
+  <g transform="translate(757, 37) scale(-1, 1)">
+    <path d="M 0 0 L 45 0 L 45 6 L 6 6 L 6 45 L 0 45 Z" fill="url(#goldGrad)" />
+    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
+    <path d="M 12 12 L 28 12 L 28 14 L 14 14 L 14 28 L 12 28 Z" fill="url(#goldGrad)" />
+  </g>
+
+  <!-- CORNER ORNAMENTS (Bottom-Left) -->
+  <g transform="translate(37, 1086) scale(1, -1)">
+    <path d="M 0 0 L 45 0 L 45 6 L 6 6 L 6 45 L 0 45 Z" fill="url(#goldGrad)" />
+    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
+    <path d="M 12 12 L 28 12 L 28 14 L 14 14 L 14 28 L 12 28 Z" fill="url(#goldGrad)" />
+  </g>
+
+  <!-- CORNER ORNAMENTS (Bottom-Right) -->
+  <g transform="translate(757, 1086) scale(-1, -1)">
+    <path d="M 0 0 L 45 0 L 45 6 L 6 6 L 6 45 L 0 45 Z" fill="url(#goldGrad)" />
+    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
+    <path d="M 12 12 L 28 12 L 28 14 L 14 14 L 14 28 L 12 28 Z" fill="url(#goldGrad)" />
+  </g>
+
+  <!-- Top Center Header Emblem Motif -->
+  <g transform="translate(397, 32)">
+    <path d="M -40 0 L 40 0 L 0 16 Z" fill="url(#goldGrad)" />
+    <circle cx="0" cy="8" r="3" fill="#001C55" />
+  </g>
+</svg>

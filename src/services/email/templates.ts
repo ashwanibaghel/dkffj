@@ -364,7 +364,9 @@ export function getAffiliationApprovalTemplate(
   affiliationNo: string,
   validFrom: string,
   validTo: string,
-  verificationToken: string
+  verificationToken: string,
+  approvedCourses?: Array<{ title: string; sector: string; duration: string; programType: string }>,
+  rejectedCourses?: Array<{ title: string; sector: string; duration: string; programType: string }>
 ): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.org";
   const verifyUrl = `${appUrl}/affiliation/verify/${verificationToken}`;
@@ -404,16 +406,59 @@ export function getAffiliationApprovalTemplate(
           </table>
         </div>
 
+        ${approvedCourses && approvedCourses.length > 0 ? `
+          <div style="margin: 24px 0; border: 1px solid #bbf7d0; border-radius: 8px; overflow: hidden;">
+            <div style="background-color: #f0fdf4; padding: 10px 16px; border-bottom: 1px solid #bbf7d0; font-weight: bold; color: #166534; font-size: 14px;">
+              ✅ Authorized Programs (${approvedCourses.length} Approved) — Annexure-A
+            </div>
+            <div style="padding: 16px; background-color: #ffffff;">
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #1e293b; line-height: 1.6;">
+                ${approvedCourses.map(c => `
+                  <li style="margin-bottom: 6px;">
+                    <strong>${c.title}</strong>
+                    <br/><span style="color: #64748b; font-size: 11px;">Sector: ${c.sector} • Track: ${c.programType === "DIPLOMA" ? "1-Year Diploma" : "Certificate"} (${c.duration})</span>
+                  </li>
+                `).join("")}
+              </ul>
+            </div>
+          </div>
+        ` : ""}
+
+        ${rejectedCourses && rejectedCourses.length > 0 ? `
+          <div style="margin: 24px 0; border: 1px solid #fecaca; border-radius: 8px; overflow: hidden;">
+            <div style="background-color: #fef2f2; padding: 10px 16px; border-bottom: 1px solid #fecaca; font-weight: bold; color: #991b1b; font-size: 14px;">
+              ⚠️ Requested Programs Not Approved (${rejectedCourses.length} Unapproved)
+            </div>
+            <div style="padding: 16px; background-color: #ffffff;">
+              <p style="font-size: 12px; color: #7f1d1d; margin-top: 0; margin-bottom: 8px;">
+                The following requested programs were reviewed by the Executive Board and not authorized for this session:
+              </p>
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #64748b; line-height: 1.6;">
+                ${rejectedCourses.map(c => `
+                  <li style="margin-bottom: 4px;">
+                    <span style="text-decoration: line-through;"><strong>${c.title}</strong></span>
+                    <span style="color: #94a3b8; font-size: 11px;"> (${c.sector})</span>
+                  </li>
+                `).join("")}
+              </ul>
+            </div>
+          </div>
+        ` : ""}
+
         <!-- Verification QR Code -->
         <div style="text-align: center; margin: 24px 0; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-          <p style="font-size: 12px; color: #64748b; margin-top: 0; font-weight: bold;">SCAN TO VERIFY AFFILIATION</p>
+          <p style="font-size: 12px; color: #64748b; margin-top: 0; font-weight: bold;">SCAN TO VERIFY AFFILIATION & AUTHORIZED COURSES</p>
           <img src="${qrUrl}" alt="Verification QR" style="width: 130px; height: 130px; border: 1px solid #cbd5e1; padding: 4px; background-color: #ffffff; border-radius: 6px;" />
         </div>
         
-        <p style="font-size: 15px; line-height: 1.6;">Your official Certificate of Affiliation PDF is attached to this email. You can also verify and download your certificate anytime online.</p>
+        <p style="font-size: 15px; line-height: 1.6;">
+          <strong>Attached Documents:</strong><br/>
+          1. <strong>Official Certificate of Affiliation PDF</strong><br/>
+          2. <strong>Annexure-A Authorized Courses List PDF</strong>
+        </p>
         
         <div style="margin-top: 28px; text-align: center;">
-          <a href="${verifyUrl}" style="background-color: #166534; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Verify Affiliation Online</a>
+          <a href="${verifyUrl}" style="background-color: #166534; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Verify Affiliation & Courses Online</a>
         </div>
       </div>
       <div style="background-color: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">

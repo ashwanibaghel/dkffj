@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import {
   submitAffiliationApplication,
   sendAffiliationEmailOtp,
-  verifyAffiliationEmailOtp
+  verifyAffiliationEmailOtp,
+  fetchNormalizedCoursesAction
 } from "./actions";
 import {
   Building2,
@@ -27,10 +28,16 @@ import {
   RotateCcw,
   Mail,
   X,
-  Info
+  Info,
+  CreditCard,
+  Search,
+  Layers,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 import { compressImage } from "@/lib/compressImage";
+import { SectorGroup, NormalizedCourse } from "@/lib/courseCatalog";
 
 const STORAGE_KEY = "affiliation_form_draft_v1";
 
@@ -104,9 +111,34 @@ export default function AffiliationApplyPage() {
   const [pincode, setPincode] = useState("");
   const [website, setWebsite] = useState("");
 
-  // Section 3: Domains
+  // Section 3: Courses & Catalog State
   const [selectedDomains, setSelectedDomains] = useState<string[]>(["COMPUTER_IT"]);
   const [domainOther, setDomainOther] = useState("");
+  const [catalogSectors, setCatalogSectors] = useState<SectorGroup[]>([]);
+  const [courseMap, setCourseMap] = useState<Record<string, NormalizedCourse>>({});
+  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
+  const [activeSectorKey, setActiveSectorKey] = useState<string>("IT");
+  const [courseSearch, setCourseSearch] = useState<string>("");
+  const [loadingCatalog, setLoadingCatalog] = useState<boolean>(true);
+
+  // Load Course Catalog Master
+  useEffect(() => {
+    async function loadCatalog() {
+      setLoadingCatalog(true);
+      try {
+        const res = await fetchNormalizedCoursesAction();
+        if (res && res.sectorGroups) {
+          setCatalogSectors(res.sectorGroups);
+          setCourseMap(res.courseMap);
+        }
+      } catch (err) {
+        console.error("Failed to load course catalog:", err);
+      } finally {
+        setLoadingCatalog(false);
+      }
+    }
+    loadCatalog();
+  }, []);
 
   // Section 4: Infrastructure
   const [selectedInfra, setSelectedInfra] = useState<string[]>(["CLASSROOM", "LAB", "INTERNET"]);
@@ -160,6 +192,7 @@ export default function AffiliationApplyPage() {
       setWebsite(draft.website || "");
       setSelectedDomains(draft.selectedDomains || ["COMPUTER_IT"]);
       setDomainOther(draft.domainOther || "");
+      setSelectedCourseIds(draft.selectedCourseIds || []);
       setSelectedInfra(draft.selectedInfra || ["CLASSROOM", "LAB", "INTERNET"]);
       setStudentCapacity(draft.studentCapacity || "50");
     }
@@ -200,6 +233,7 @@ export default function AffiliationApplyPage() {
         website,
         selectedDomains,
         domainOther,
+        selectedCourseIds,
         selectedInfra,
         studentCapacity,
         __savedAt: Date.now()
@@ -212,7 +246,7 @@ export default function AffiliationApplyPage() {
     idProofType, idProofLastFour, authorizedSignatoryName, otpCode, otpSent,
     otpVerified, organizationName, organizationType, organizationTypeOther,
     registrationNumber, panNumber, establishmentYear, address, selectedState,
-    selectedDistrict, pincode, website, selectedDomains, domainOther,
+    selectedDistrict, pincode, website, selectedDomains, domainOther, selectedCourseIds,
     selectedInfra, studentCapacity
   ]);
 
@@ -416,6 +450,7 @@ export default function AffiliationApplyPage() {
 
       selectedDomains.forEach((d) => formData.append("domains", d));
       formData.append("domainOther", domainOther);
+      selectedCourseIds.forEach((cId) => formData.append("requestedCourseIds", cId));
 
       selectedInfra.forEach((i) => formData.append("infrastructure", i));
 
@@ -433,17 +468,10 @@ export default function AffiliationApplyPage() {
         setErrorMessage(res.error);
         showToast("error", res.error);
         setLoading(false);
-      } else if (res.success && res.applicationNo) {
+      } else if (res.success && res.affiliationId) {
         clearDraft();
-        setSubmittedAppNo(res.applicationNo);
-        if (res.hasWarning && res.warningMessage) {
-          setWarningNote(res.warningMessage);
-        }
-        showToast("success", `Draft Created! Redirecting to Payment... (${res.applicationNo})`);
-        setLoading(false);
-        if (res.affiliationId) {
-          router.push(`/affiliation/payment?id=${res.affiliationId}`);
-        }
+        showToast("info", "Form details saved. Redirecting to payment checkout...");
+        router.push(`/affiliation/payment?id=${res.affiliationId}`);
       }
     } catch (err: any) {
       setErrorMessage(err.message || "An error occurred during submission.");
@@ -1062,56 +1090,262 @@ export default function AffiliationApplyPage() {
                 </div>
               )}
 
-              {/* STEP 3: Training Domains */}
+              {/* STEP 3: Select Courses / Programs */}
               {currentStep === 3 && (
-                <div className="space-y-4 animate-fadeIn">
-                  <div className="border-b border-slate-100 pb-3">
-                    <h3 className="text-base font-serif font-bold text-[#001C55]">Section 3: Training Domains</h3>
-                    <p className="text-xs text-slate-500">Select the training fields your institute intends to offer under DKFFJ affiliation.</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {[
-                      { key: "COMPUTER_IT", label: "Computer & IT Education", desc: "Basic IT, DCA, ADCA, Tally, Web Development" },
-                      { key: "SKILL", label: "Skill Development & Vocational", desc: "Tailoring, Electrician, Beauty Culture, Mobile Repairing" },
-                      { key: "NGO", label: "NGO & Social Welfare Work", desc: "Community outreach, awareness programs, social development" },
-                      { key: "CRAFT", label: "Handicraft & Artisan Training", desc: "Traditional crafts, cottage industry training" },
-                      { key: "SOCIAL_WORK", label: "Human Rights & Social Work", desc: "Advocacy, legal literacy, social justice" },
-                      { key: "OTHER", label: "Other Training Domain", desc: "Customized or specialized training courses" }
-                    ].map((domain) => (
-                      <div
-                        key={domain.key}
-                        onClick={() => toggleDomain(domain.key)}
-                        className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                          selectedDomains.includes(domain.key)
-                            ? "border-[#001C55] bg-blue-50/60 ring-2 ring-[#001C55]/20"
-                            : "border-slate-200 hover:border-slate-300 bg-white"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-5 h-5 rounded flex items-center justify-center ${selectedDomains.includes(domain.key) ? "bg-[#001C55] text-white" : "border border-slate-300"}`}>
-                            {selectedDomains.includes(domain.key) && <Check className="w-3.5 h-3.5" />}
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold text-slate-800">{domain.label}</span>
-                            <p className="text-[11px] text-slate-500 mt-0.5">{domain.desc}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {selectedDomains.includes("OTHER") && (
-                    <div className="mt-4">
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Specify Other Training Domain *</label>
-                      <input
-                        type="text"
-                        value={domainOther}
-                        onChange={(e) => setDomainOther(e.target.value)}
-                        placeholder="Specify custom training domain"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#001C55] focus:outline-none"
-                      />
+                <div className="space-y-5 animate-fadeIn">
+                  <div className="border-b border-slate-100 pb-3 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h3 className="text-base font-serif font-bold text-[#001C55]">Step 3 — Select Courses / Programs</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Select the courses/programs your institution wishes to conduct under DKFFJ affiliation. Final authorization is subject to DKFFJ approval.
+                      </p>
                     </div>
+                    <div className="px-3.5 py-1.5 bg-[#001C55]/10 border border-[#001C55]/20 rounded-xl text-xs font-bold text-[#001C55]">
+                      Requested: <span className="text-[#C00000] font-black">{selectedCourseIds.length}</span> Programs
+                    </div>
+                  </div>
+
+                  {/* Course Search Field */}
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                    <input
+                      type="text"
+                      value={courseSearch}
+                      onChange={(e) => setCourseSearch(e.target.value)}
+                      placeholder="Search programs... (e.g. DCA, Cyber, Tally, Nursing, Full Stack)"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-[#001C55] focus:outline-none bg-white"
+                    />
+                    {courseSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setCourseSearch("")}
+                        className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-600 font-bold"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {loadingCatalog ? (
+                    <div className="p-8 text-center text-xs text-slate-500 space-y-2">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#001C55]" />
+                      <p>Loading course catalog master...</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Sector Cards Grid (If not searching) */}
+                      {!courseSearch && (
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                          {catalogSectors.map((sector) => {
+                            let sectorSelCount = 0;
+                            sector.topics.forEach((t) => {
+                              if (t.diploma && selectedCourseIds.includes(t.diploma.courseId)) sectorSelCount++;
+                              if (t.certificate && selectedCourseIds.includes(t.certificate.courseId)) sectorSelCount++;
+                            });
+
+                            const isActive = activeSectorKey === sector.key;
+
+                            return (
+                              <div
+                                key={sector.key}
+                                onClick={() => setActiveSectorKey(sector.key)}
+                                className={`p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                                  isActive
+                                    ? "border-[#001C55] bg-blue-50/80 ring-2 ring-[#001C55]/20 shadow-sm"
+                                    : "border-slate-200 hover:border-slate-300 bg-white"
+                                }`}
+                              >
+                                <div>
+                                  <span className="text-[11px] font-bold text-slate-900 line-clamp-2 leading-tight">
+                                    {sector.name}
+                                  </span>
+                                  <p className="text-[10px] text-slate-500 mt-1">
+                                    {sector.topicCount} Topics • {sector.programCount} Tracks
+                                  </p>
+                                </div>
+                                <div className="mt-2.5 flex items-center justify-between">
+                                  <span
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold ${
+                                      sectorSelCount > 0 ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-500"
+                                    }`}
+                                  >
+                                    {sectorSelCount > 0 ? `${sectorSelCount} Selected` : "0 Selected"}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Active Sector Explorer or Search Results */}
+                      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4 shadow-sm">
+                        {courseSearch ? (
+                          <div>
+                            <span className="text-xs font-bold text-slate-700 block mb-3">
+                              Search Results for "{courseSearch}":
+                            </span>
+                            {(() => {
+                              const query = courseSearch.toLowerCase();
+                              const matchedCourses = Object.values(courseMap).filter(
+                                (c) =>
+                                  c.title.toLowerCase().includes(query) ||
+                                  c.topic.toLowerCase().includes(query) ||
+                                  c.sector.toLowerCase().includes(query)
+                              );
+
+                              if (matchedCourses.length === 0) {
+                                return (
+                                  <p className="text-xs text-slate-400 py-4 text-center">
+                                    No courses found matching "{courseSearch}".
+                                  </p>
+                                );
+                              }
+
+                              return (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  {matchedCourses.map((c) => {
+                                    const isSelected = selectedCourseIds.includes(c.courseId);
+                                    return (
+                                      <div
+                                        key={c.courseId}
+                                        onClick={() =>
+                                          setSelectedCourseIds((prev) =>
+                                            isSelected ? prev.filter((id) => id !== c.courseId) : [...prev, c.courseId]
+                                          )
+                                        }
+                                        className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                                          isSelected ? "border-emerald-600 bg-emerald-50/60" : "border-slate-200 hover:border-slate-300"
+                                        }`}
+                                      >
+                                        <div className="min-w-0 flex-1 pr-2">
+                                          <strong className="text-xs text-slate-900 block truncate">{c.title}</strong>
+                                          <span className="text-[10px] text-slate-500 block truncate">
+                                            {c.sector} • {c.duration}
+                                          </span>
+                                        </div>
+                                        <div
+                                          className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${
+                                            isSelected ? "bg-emerald-600 text-white" : "border border-slate-300"
+                                          }`}
+                                        >
+                                          {isSelected && <Check className="w-3.5 h-3.5" />}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        ) : (
+                          (() => {
+                            const group = catalogSectors.find((s) => s.key === activeSectorKey);
+                            if (!group) return null;
+
+                            const sectorCourseIds: string[] = [];
+                            group.topics.forEach((t) => {
+                              if (t.diploma) sectorCourseIds.push(t.diploma.courseId);
+                              if (t.certificate) sectorCourseIds.push(t.certificate.courseId);
+                            });
+                            const allSelected = sectorCourseIds.length > 0 && sectorCourseIds.every((id) => selectedCourseIds.includes(id));
+
+                            return (
+                              <div className="space-y-3">
+                                <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
+                                  <div>
+                                    <h4 className="text-xs font-bold text-[#001C55] uppercase tracking-wider">{group.name}</h4>
+                                    <span className="text-[10px] text-slate-500">
+                                      {group.topicCount} Specialization Topics • {group.programCount} Tracks
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        if (allSelected) {
+                                          setSelectedCourseIds((prev) => prev.filter((id) => !sectorCourseIds.includes(id)));
+                                        } else {
+                                          setSelectedCourseIds((prev) => Array.from(new Set([...prev, ...sectorCourseIds])));
+                                        }
+                                      }}
+                                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[#001C55] rounded-lg text-[11px] font-bold transition-all"
+                                    >
+                                      {allSelected ? "Deselect All in Sector" : "Select All in Sector"}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                                  {group.topics.map((t, idx) => (
+                                    <div key={idx} className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2">
+                                      <span className="text-xs font-bold text-slate-800 block">{t.name}</span>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {t.diploma && (
+                                          <div
+                                            onClick={() => {
+                                              const cid = t.diploma!.courseId;
+                                              setSelectedCourseIds((prev) =>
+                                                prev.includes(cid) ? prev.filter((id) => id !== cid) : [...prev, cid]
+                                              );
+                                            }}
+                                            className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${
+                                              selectedCourseIds.includes(t.diploma.courseId)
+                                                ? "border-[#001C55] bg-blue-50/80 text-[#001C55]"
+                                                : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                                            }`}
+                                          >
+                                            <div className="min-w-0 flex-1 pr-2">
+                                              <span className="text-[11px] font-bold block truncate">{t.diploma.title}</span>
+                                              <span className="text-[9.5px] text-slate-500 block">1-Year Diploma Track</span>
+                                            </div>
+                                            <div
+                                              className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                                                selectedCourseIds.includes(t.diploma.courseId) ? "bg-[#001C55] text-white" : "border border-slate-300"
+                                              }`}
+                                            >
+                                              {selectedCourseIds.includes(t.diploma.courseId) && <Check className="w-3 h-3" />}
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {t.certificate && (
+                                          <div
+                                            onClick={() => {
+                                              const cid = t.certificate!.courseId;
+                                              setSelectedCourseIds((prev) =>
+                                                prev.includes(cid) ? prev.filter((id) => id !== cid) : [...prev, cid]
+                                              );
+                                            }}
+                                            className={`p-2.5 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${
+                                              selectedCourseIds.includes(t.certificate.courseId)
+                                                ? "border-[#001C55] bg-blue-50/80 text-[#001C55]"
+                                                : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                                            }`}
+                                          >
+                                            <div className="min-w-0 flex-1 pr-2">
+                                              <span className="text-[11px] font-bold block truncate">{t.certificate.title}</span>
+                                              <span className="text-[9.5px] text-slate-500 block">Short Certificate Track</span>
+                                            </div>
+                                            <div
+                                              className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${
+                                                selectedCourseIds.includes(t.certificate.courseId) ? "bg-[#001C55] text-white" : "border border-slate-300"
+                                              }`}
+                                            >
+                                              {selectedCourseIds.includes(t.certificate.courseId) && <Check className="w-3 h-3" />}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
               )}
@@ -1296,6 +1530,10 @@ export default function AffiliationApplyPage() {
                       <span className="text-slate-500">Location:</span>
                       <strong className="text-slate-900">{selectedDistrict}, {selectedState}</strong>
                     </div>
+                    <div className="flex justify-between border-b border-slate-200/60 pb-2">
+                      <span className="text-slate-500">Programs Requested for Affiliation:</span>
+                      <strong className="text-[#001C55] font-bold">{selectedCourseIds.length} Programs (Subject to DKFFJ Approval)</strong>
+                    </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Authorized Signatory:</span>
                       <strong className="text-[#001C55] font-serif">{authorizedSignatoryName}</strong>
@@ -1348,11 +1586,11 @@ export default function AffiliationApplyPage() {
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" /> Submitting Application...
+                        <Loader2 className="w-4 h-4 animate-spin" /> Saving Application...
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="w-4 h-4" /> Submit Application
+                        <CreditCard className="w-4 h-4 text-amber-400" /> Proceed to Pay ₹2,100 <ArrowRight className="w-4 h-4" />
                       </>
                     )}
                   </button>

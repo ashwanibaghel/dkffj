@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     // Fetch payment record
     const { data: payment } = await supabase
       .from("payments")
-      .select("id, amount, status, gateway_transaction_id, created_at, membership_id, registration_id, donation_id, appreciation_id")
+      .select("id, amount, status, gateway_transaction_id, created_at, membership_id, registration_id, donation_id, appreciation_id, affiliation_id")
       .eq("transaction_id", orderId)
       .maybeSingle();
 

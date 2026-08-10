@@ -11,9 +11,12 @@ import {
   adminEditAffiliation,
   adminRetryRefund,
   adminCheckRefundStatus,
-  adminRetryEmail
+  adminRetryEmail,
+  downloadAffiliationAnnexureAction
 } from "./actions";
-import { generateAffiliationCertificatePDF } from "./AffiliationCertificateGenerator";
+import { fetchNormalizedCoursesAction } from "@/app/affiliation/apply/actions";
+import { NormalizedCourse, SectorGroup } from "@/lib/courseCatalog";
+import { generateAffiliationPDFClient } from "./AffiliationCertificateGenerator";
 import {
   Building2,
   CheckCircle,
@@ -39,7 +42,8 @@ import {
   Save,
   CreditCard,
   RefreshCw,
-  Mail
+  Mail,
+  Award
 } from "lucide-react";
 
 export default function AdminAffiliationsPage() {
@@ -53,6 +57,10 @@ export default function AdminAffiliationsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [details, setDetails] = useState<any>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [adminCourseMap, setAdminCourseMap] = useState<Record<string, NormalizedCourse>>({});
+  const [adminCourseCatalog, setAdminCourseCatalog] = useState<SectorGroup[]>([]);
+  const [selectedApprovedCourseIds, setSelectedApprovedCourseIds] = useState<string[]>([]);
+  const [downloadingAnnexure, setDownloadingAnnexure] = useState(false);
 
   // Approve Modal State
   const [showApproveModal, setShowApproveModal] = useState(false);
@@ -123,6 +131,19 @@ export default function AdminAffiliationsPage() {
     setDetailsLoading(true);
     const data = await getAffiliationDetails(id);
     setDetails(data);
+
+    try {
+      const cat = await fetchNormalizedCoursesAction();
+      if (cat) {
+        setAdminCourseMap(cat.courseMap);
+        setAdminCourseCatalog(cat.sectorGroups);
+      }
+    } catch (_) {}
+
+    const reqIds = (data as any)?.requestedCourseIds || [];
+    const appIds = (data as any)?.approvedCourseIds || (data?.status === "APPROVED" ? reqIds : reqIds);
+    setSelectedApprovedCourseIds(appIds);
+
     setDetailsLoading(false);
   };
 
@@ -145,11 +166,69 @@ export default function AdminAffiliationsPage() {
   const handleConfirmApprove = async () => {
     if (!selectedId) return;
     setActionLoading(true);
-    const res = await approveAffiliation(selectedId, validFrom, validTo, approveInternalRemarks, approvePublicRemarks);
+
+    let pdfBase64: string | undefined = undefined;
+    if (details) {
+      try {
+        const photoDoc = details.documents?.find(
+          (d: any) =>
+            d.documentType === "USER_PHOTO" ||
+            d.documentType === "PHOTO" ||
+            d.documentType === "PASSPORT_PHOTO" ||
+            d.documentType === "HEAD_PHOTO" ||
+            d.documentType === "APPLICANT_PHOTO" ||
+            d.documentType === "PHOTO_PROOF"
+        );
+
+        const today = new Date();
+        const nextYear = new Date(Date.now() + 365 * 86400000);
+
+        const parsedFrom = validFrom ? new Date(validFrom) : today;
+        const parsedTo = validTo ? new Date(validTo) : nextYear;
+
+        const validFromFormatted = isNaN(parsedFrom.getTime())
+          ? today.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
+          : parsedFrom.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+        const validToFormatted = isNaN(parsedTo.getTime())
+          ? nextYear.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
+          : parsedTo.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+        const currentYear = today.getFullYear().toString();
+        const affNo = details.affiliationNo || `DKFFJ/F/${currentYear}/0001`;
+
+        const { pdfBlob } = await generateAffiliationPDFClient({
+          id: details.id,
+          applicationNo: details.applicationNo,
+          affiliationNo: affNo,
+          verificationToken: details.verificationToken || details.id,
+          organizationName: details.organizationName,
+          organizationType: details.organizationTypeOther || details.organizationType,
+          registrationNumber: details.registrationNumber,
+          establishmentYear: details.establishmentYear,
+          district: details.district,
+          state: details.state,
+          address: details.address,
+          validFromStr: validFromFormatted,
+          validToStr: validToFormatted,
+          applicantFullName: details.applicant?.fullName || details.applicantFullName || "Authorized Member",
+          applicantDesignation: details.applicant?.designation || details.applicantDesignation || "Director / Representative",
+          applicantPhotoUrl: details.photoUrl || photoDoc?.storagePath || photoDoc?.localUrl || null,
+          approvedDomains: details.domains?.map((d: any) => (d.domainType ? d.domainType.replace(/_/g, " ") : String(d)))
+        });
+
+        const arrayBuf = await pdfBlob.arrayBuffer();
+        pdfBase64 = Buffer.from(arrayBuf).toString("base64");
+      } catch (err) {
+        console.error("Client PDF pre-generation error during approval:", err);
+      }
+    }
+
+    const res = await approveAffiliation(selectedId, validFrom, validTo, approveInternalRemarks, approvePublicRemarks, pdfBase64, selectedApprovedCourseIds);
     if (res.error) {
       showToast("error", res.error);
     } else {
-      showToast("success", res.message || "Affiliation approved!");
+      showToast("success", res.message || "Affiliation approved & official certificate emailed!");
       setShowApproveModal(false);
       openReviewModal(selectedId);
       loadData();
@@ -245,32 +324,77 @@ export default function AdminAffiliationsPage() {
     }
   };
 
-  // Download PDF Certificate
-  const handleDownloadPDF = async () => {
-    if (!details || !details.affiliationNo) return;
+  // Download Affiliation Certificate Handler (Browser PDF & PNG Generation)
+  const handleDownloadAffiliationCertificate = async (affiliationData: any) => {
+    if (!affiliationData || !affiliationData.affiliationNo) {
+      showToast("error", "Affiliation number not generated for this application.");
+      return;
+    }
     try {
-      const blob = await generateAffiliationCertificatePDF({
-        organizationName: details.organizationName,
-        organizationType: details.organizationTypeOther || details.organizationType,
-        affiliationNo: details.affiliationNo,
-        district: details.district,
-        state: details.state,
-        establishmentYear: details.establishmentYear,
-        validFromStr: details.validFrom ? new Date(details.validFrom).toLocaleDateString("en-IN") : "",
-        validToStr: details.validTo ? new Date(details.validTo).toLocaleDateString("en-IN") : "",
-        verificationToken: details.verificationToken,
-        approvedDomains: details.domains.map((d: any) => d.domainType.replace("_", " "))
+      showToast("info", "Generating Affiliation Certificate PDF...");
+      const photoDoc = affiliationData.documents?.find(
+        (d: any) =>
+          d.documentType === "USER_PHOTO" ||
+          d.documentType === "PHOTO" ||
+          d.documentType === "PASSPORT_PHOTO" ||
+          d.documentType === "HEAD_PHOTO" ||
+          d.documentType === "APPLICANT_PHOTO" ||
+          d.documentType === "PHOTO_PROOF"
+      );
+
+      const today = new Date();
+      const nextYear = new Date(Date.now() + 365 * 86400000);
+
+      const parsedFrom = affiliationData.validFrom ? new Date(affiliationData.validFrom) : today;
+      const parsedTo = affiliationData.validTo ? new Date(affiliationData.validTo) : nextYear;
+
+      const validFromFormatted = isNaN(parsedFrom.getTime())
+        ? today.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
+        : parsedFrom.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+      const validToFormatted = isNaN(parsedTo.getTime())
+        ? nextYear.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
+        : parsedTo.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+      const { pdfBlob } = await generateAffiliationPDFClient({
+        id: affiliationData.id,
+        applicationNo: affiliationData.applicationNo,
+        affiliationNo: affiliationData.affiliationNo,
+        verificationToken: affiliationData.verificationToken || affiliationData.id,
+        organizationName: affiliationData.organizationName,
+        organizationType: affiliationData.organizationTypeOther || affiliationData.organizationType,
+        registrationNumber: affiliationData.registrationNumber,
+        establishmentYear: affiliationData.establishmentYear,
+        district: affiliationData.district,
+        state: affiliationData.state,
+        address: affiliationData.address,
+        validFromStr: validFromFormatted,
+        validToStr: validToFormatted,
+        applicantFullName:
+          affiliationData.applicantFullName ||
+          affiliationData.applicant?.fullName ||
+          affiliationData.applicantName ||
+          "Authorized Member",
+        applicantDesignation:
+          affiliationData.applicantDesignation ||
+          affiliationData.applicant?.designation ||
+          "Director / Representative",
+        applicantPhotoUrl: affiliationData.photoUrl || photoDoc?.storagePath || photoDoc?.localUrl || null,
+        approvedDomains: affiliationData.domains?.map((d: any) => (d.domainType ? d.domainType.replace(/_/g, " ") : String(d)))
       });
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Affiliation_Certificate_${details.affiliationNo.replace(/\//g, "_")}.pdf`;
-      a.click();
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Affiliation_Certificate_${affiliationData.affiliationNo.replace(/\//g, "_")}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
       showToast("success", "Affiliation Certificate PDF downloaded!");
-    } catch (err) {
-      console.error("PDF download error:", err);
-      showToast("error", "Failed to generate PDF certificate.");
+    } catch (error) {
+      console.error("Certificate Generation Error:", error);
+      showToast("error", "Failed to generate Affiliation Certificate PDF.");
     }
   };
 
@@ -437,12 +561,26 @@ export default function AdminAffiliationsPage() {
                     </td>
 
                     <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                      <button
-                        onClick={() => openReviewModal(item.id)}
-                        className="px-3 py-1.5 rounded-lg bg-[#001C55] hover:bg-[#001C55]/90 text-white font-bold text-[11px] inline-flex items-center gap-1 transition-all shadow-sm"
-                      >
-                        <Eye className="w-3.5 h-3.5" /> Review & Process
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {item.status === "APPROVED" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadAffiliationCertificate(item);
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold text-[11px] inline-flex items-center gap-1 transition-all shadow-sm"
+                            title="Download Affiliation Certificate PDF"
+                          >
+                            <Award className="w-3.5 h-3.5 text-emerald-600" /> Certificate
+                          </button>
+                        )}
+                        <button
+                          onClick={() => openReviewModal(item.id)}
+                          className="px-3 py-1.5 rounded-lg bg-[#001C55] hover:bg-[#001C55]/90 text-white font-bold text-[11px] inline-flex items-center gap-1 transition-all shadow-sm"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> Review & Process
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -544,6 +682,77 @@ export default function AdminAffiliationsPage() {
                         </button>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Requested Programs Review */}
+                <div className="space-y-3 p-4 bg-blue-50/50 border border-blue-200 rounded-2xl">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-blue-100 pb-2">
+                    <div>
+                      <span className="text-xs font-extrabold text-[#001C55] uppercase tracking-wider block">
+                        Requested Course Authorization ({(details.requestedCourseIds || []).length} Requested)
+                      </span>
+                      <p className="text-[10px] text-slate-500">
+                        Check/uncheck programs below to finalize approved courses for Annexure-A.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedApprovedCourseIds(details.requestedCourseIds || [])}
+                        className="px-2.5 py-1 bg-[#001C55] hover:bg-[#001C55]/90 text-white rounded-lg text-[10px] font-bold"
+                      >
+                        Approve All Requested
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedApprovedCourseIds([])}
+                        className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-[10px] font-bold"
+                      >
+                        Reject All
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    {(details.requestedCourseIds || []).length === 0 ? (
+                      <p className="text-xs text-slate-400 italic py-2 text-center">
+                        No specific course IDs recorded for this application.
+                      </p>
+                    ) : (
+                      (details.requestedCourseIds || []).map((cid: string) => {
+                        const c = adminCourseMap[cid];
+                        const isApproved = selectedApprovedCourseIds.includes(cid);
+                        return (
+                          <div
+                            key={cid}
+                            onClick={() =>
+                              setSelectedApprovedCourseIds((prev) =>
+                                isApproved ? prev.filter((id) => id !== cid) : [...prev, cid]
+                              )
+                            }
+                            className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                              isApproved ? "border-emerald-600 bg-emerald-50 text-emerald-950" : "border-slate-200 bg-white text-slate-600"
+                            }`}
+                          >
+                            <div>
+                              <strong className="text-xs block">{c ? c.title : cid}</strong>
+                              <span className="text-[10px] opacity-75">{c ? `${c.sector} • ${c.duration}` : "Course ID: " + cid}</span>
+                            </div>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                                isApproved ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-600"
+                              }`}
+                            >
+                              {isApproved ? "APPROVED" : "REJECTED"}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                  <div className="pt-2 text-right border-t border-blue-100 text-[11px] font-bold text-[#001C55]">
+                    Final Authorized Count: {selectedApprovedCourseIds.length} Programs
                   </div>
                 </div>
 
@@ -652,13 +861,92 @@ export default function AdminAffiliationsPage() {
                         onClick={async () => {
                           const id = details?.id;
                           if (!id) return;
-                          const res = await adminRetryEmail(id, "APPROVAL");
+                          showToast("info", "Generating certificate & sending approval email...");
+                          let pdfBase64: string | undefined = undefined;
+                          try {
+                            const photoDoc = details.documents?.find(
+                              (d: any) =>
+                                d.documentType === "USER_PHOTO" ||
+                                d.documentType === "PHOTO" ||
+                                d.documentType === "PASSPORT_PHOTO" ||
+                                d.documentType === "HEAD_PHOTO" ||
+                                d.documentType === "APPLICANT_PHOTO" ||
+                                d.documentType === "PHOTO_PROOF"
+                            );
+
+                            const today = new Date();
+                            const nextYear = new Date(Date.now() + 365 * 86400000);
+
+                            const parsedFrom = details.validFrom ? new Date(details.validFrom) : today;
+                            const parsedTo = details.validTo ? new Date(details.validTo) : nextYear;
+
+                            const validFromFormatted = isNaN(parsedFrom.getTime())
+                              ? today.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
+                              : parsedFrom.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+                            const validToFormatted = isNaN(parsedTo.getTime())
+                              ? nextYear.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
+                              : parsedTo.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+                            const currentYear = today.getFullYear().toString();
+                            const affNo = details.affiliationNo || `DKFFJ/F/${currentYear}/0001`;
+
+                            const { pdfBlob } = await generateAffiliationPDFClient({
+                              id: details.id,
+                              applicationNo: details.applicationNo,
+                              affiliationNo: affNo,
+                              verificationToken: details.verificationToken || details.id,
+                              organizationName: details.organizationName,
+                              organizationType: details.organizationTypeOther || details.organizationType,
+                              registrationNumber: details.registrationNumber,
+                              establishmentYear: details.establishmentYear,
+                              district: details.district,
+                              state: details.state,
+                              address: details.address,
+                              validFromStr: validFromFormatted,
+                              validToStr: validToFormatted,
+                              applicantFullName: details.applicant?.fullName || details.applicantFullName || "Authorized Member",
+                              applicantDesignation: details.applicant?.designation || details.applicantDesignation || "Director / Representative",
+                              applicantPhotoUrl: details.photoUrl || photoDoc?.storagePath || photoDoc?.localUrl || null,
+                              approvedDomains: details.domains?.map((d: any) => (d.domainType ? d.domainType.replace(/_/g, " ") : String(d)))
+                            });
+
+                            const arrayBuf = await pdfBlob.arrayBuffer();
+                            pdfBase64 = Buffer.from(arrayBuf).toString("base64");
+                          } catch (genErr) {
+                            console.error("Failed to pre-generate client PDF for resend email:", genErr);
+                          }
+
+                          const res = await adminRetryEmail(id, "APPROVAL", pdfBase64);
                           if (res.error) showToast("error", res.error);
                           else showToast("success", res.message || "Approval email sent successfully.");
                         }}
                         className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-bold flex items-center gap-1 border border-slate-700 transition-all"
                       >
                         <Mail className="w-3 h-3 text-emerald-400" /> Resend Approval Email
+                      </button>
+                    )}
+
+                    {details.status === "APPROVED" && (
+                      <button
+                        onClick={async () => {
+                          setDownloadingAnnexure(true);
+                          const res = await downloadAffiliationAnnexureAction(details.id);
+                          setDownloadingAnnexure(false);
+                          if (res.error) showToast("error", res.error);
+                          else if (res.pdfBase64) {
+                            const link = document.createElement("a");
+                            link.href = `data:application/pdf;base64,${res.pdfBase64}`;
+                            link.download = res.fileName || "Annexure-A.pdf";
+                            link.click();
+                            showToast("success", "Annexure-A PDF generated & downloaded!");
+                          }
+                        }}
+                        disabled={downloadingAnnexure}
+                        className="px-2.5 py-1 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1 border border-emerald-600 transition-all shadow"
+                      >
+                        {downloadingAnnexure ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3 text-emerald-300" />}
+                        Download Annexure-A PDF
                       </button>
                     )}
 
@@ -681,58 +969,70 @@ export default function AdminAffiliationsPage() {
 
                 {/* Approved Certificate PDF Download (If Approved) */}
                 {details.status === "APPROVED" && (
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between gap-4">
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div>
                       <strong className="text-xs font-bold text-emerald-950 block">Official Certificate Issued (v{details.certificateVersion || 1})</strong>
-                      <span className="text-[11px] text-emerald-700">Valid: {details.validFrom} to {details.validTo}</span>
+                      <span className="text-[11px] text-emerald-700 font-mono">Valid: {details.validFrom} to {details.validTo}</span>
                     </div>
                     <button
-                      onClick={handleDownloadPDF}
-                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shrink-0"
+                      onClick={() => handleDownloadAffiliationCertificate(details)}
+                      className="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md shrink-0"
                     >
-                      <Download className="w-4 h-4" /> Download Certificate PDF
+                      <Award className="w-4 h-4" /> Download Certificate PDF
                     </button>
                   </div>
                 )}
 
                 {/* Action Buttons */}
-                <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   {/* Left side — Edit */}
                   <button
                     onClick={openEditModal}
-                    className="px-4 py-2.5 rounded-xl border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-xs font-bold transition-all flex items-center gap-1.5"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-indigo-300 text-indigo-700 hover:bg-indigo-50 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
                   >
                     <Pencil className="w-3.5 h-3.5" /> Edit Application
                   </button>
 
                   {/* Right side — Reject / Approve */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                     {details.status !== "REJECTED" && details.status !== "APPROVED" && (
-                      <button
-                        onClick={() => setShowRejectModal(true)}
-                        className="px-4 py-2.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-bold transition-all"
-                      >
-                        Reject & Refund Fee
-                      </button>
+                      <>
+                        <button
+                          onClick={() => setShowRejectModal(true)}
+                          className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-bold transition-all text-center"
+                        >
+                          Reject &amp; Refund Fee
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (details.payment?.status !== "COMPLETED") {
+                              showToast("error", "Cannot approve application until payment of ₹2,100 is completed.");
+                              return;
+                            }
+                            setShowApproveModal(true);
+                          }}
+                          disabled={details.payment?.status !== "COMPLETED"}
+                          className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 ${
+                            details.payment?.status === "COMPLETED"
+                              ? "bg-emerald-600 hover:bg-emerald-700 cursor-pointer"
+                              : "bg-slate-400 cursor-not-allowed opacity-60"
+                          }`}
+                          title={details.payment?.status !== "COMPLETED" ? "Payment must be completed before approval" : ""}
+                        >
+                          <ShieldCheck className="w-4 h-4" /> Approve &amp; Issue Certificate
+                        </button>
+                      </>
                     )}
-                    <button
-                      onClick={() => {
-                        if (details.payment?.status !== "COMPLETED") {
-                          showToast("error", "Cannot approve application until payment of ₹2,100 is completed.");
-                          return;
-                        }
-                        setShowApproveModal(true);
-                      }}
-                      disabled={details.payment?.status !== "COMPLETED"}
-                      className={`px-6 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 ${
-                        details.payment?.status === "COMPLETED"
-                          ? "bg-emerald-600 hover:bg-emerald-700 cursor-pointer"
-                          : "bg-slate-400 cursor-not-allowed opacity-60"
-                      }`}
-                      title={details.payment?.status !== "COMPLETED" ? "Payment must be completed before approval" : ""}
-                    >
-                      <ShieldCheck className="w-4 h-4" /> Approve & Issue Certificate
-                    </button>
+                    {details.status === "APPROVED" && (
+                      <div className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-1.5 text-center">
+                        <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" /> Application Approved &amp; Certificate Issued
+                      </div>
+                    )}
+                    {details.status === "REJECTED" && (
+                      <div className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-rose-50 text-rose-800 border border-rose-200 font-bold text-xs flex items-center justify-center gap-1.5 text-center">
+                        <XCircle className="w-4 h-4 text-rose-600 shrink-0" /> Application Rejected
+                      </div>
+                    )}
                   </div>
                 </div>
               </>
@@ -958,7 +1258,7 @@ export default function AdminAffiliationsPage() {
 
       {/* Approve Action Modal */}
       {showApproveModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200">
             <h3 className="text-lg font-serif font-bold text-slate-900">Approve Affiliation & Grant Certificate</h3>
 
@@ -1016,7 +1316,7 @@ export default function AdminAffiliationsPage() {
 
       {/* Reject Action Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-200">
             <h3 className="text-lg font-serif font-bold text-slate-900">Reject Affiliation Application</h3>
 

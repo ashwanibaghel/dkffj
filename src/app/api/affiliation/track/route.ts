@@ -27,7 +27,16 @@ export async function GET(req: Request) {
         }
       }
 
+      const { getNormalizedCourseCatalog } = await import("@/lib/courseCatalog");
+      const { courseMap } = await getNormalizedCourseCatalog(false);
+
+      const reqIds = devItem.requestedCourseIds || [];
+      const appIds = devItem.approvedCourseIds || (devItem.status === "APPROVED" ? reqIds : []);
+
+      const approvedCourses = appIds.map(id => courseMap[id]).filter(Boolean);
+
       return NextResponse.json({
+        id: devItem.id,
         applicationNo: devItem.applicationNo,
         affiliationNo: devItem.affiliationNo,
         verificationToken: devItem.verificationToken,
@@ -43,6 +52,9 @@ export async function GET(req: Request) {
         applicantName: devItem.applicant.fullName,
         designation: devItem.applicant.designation,
         createdAt: devItem.createdAt,
+        requestedCourseCount: reqIds.length,
+        approvedCourseCount: appIds.length,
+        approvedCourses,
         payment: devItem.payment ? {
           status: devItem.payment.status,
           amount: devItem.payment.amount,

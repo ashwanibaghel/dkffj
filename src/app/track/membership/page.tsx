@@ -91,7 +91,7 @@ function MembershipTrackContent() {
         ? new Date(member.approved_at).toLocaleDateString("en-IN")
         : (member.created_at ? new Date(member.created_at).toLocaleDateString("en-IN") : new Date().toLocaleDateString("en-IN"));
 
-      const pdfBlob = await generateMembershipPDFClient({
+      const { pdfBlob } = await generateMembershipPDFClient({
         membershipNo: member.membership_no || certNo || "",
         ackNo: member.ack_no || certNo || "",
         fullName: result?.name || "",

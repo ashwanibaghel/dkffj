@@ -225,7 +225,9 @@ export async function approveAffiliation(
   validFromStr: string,
   validToStr: string,
   internalRemarks?: string,
-  publicRemarks?: string
+  publicRemarks?: string,
+  customPdfBase64?: string,
+  approvedCourseIds?: string[]
 ) {
   try {
     const devItem = findDevAffiliationById(id);
@@ -257,6 +259,7 @@ export async function approveAffiliation(
       updateDevAffiliation(id, {
         affiliationNo,
         certificateVersion: newCertVersion,
+        approvedCourseIds: approvedCourseIds || devItem.approvedCourseIds || devItem.requestedCourseIds || [],
         status: "APPROVED",
         validFrom: validFrom.toISOString().split("T")[0],
         validTo: validTo.toISOString().split("T")[0],
@@ -275,25 +278,92 @@ export async function approveAffiliation(
         ]
       });
 
-      // Send Approval Email
+      // Send Approval Email with Certificate PDF & Annexure-A Attachments
       try {
         const { getAffiliationApprovalTemplate } = await import("@/services/email/templates");
         const { sendTransactionalEmail } = await import("@/services/email/service");
+        const { generateAffiliationCertificatePdfBuffer } = await import("@/lib/affiliationCertificatePdf");
+        const { generateAffiliationAnnexurePdfBuffer } = await import("@/lib/affiliationAnnexurePdf");
+        const { getNormalizedCourseCatalog } = await import("@/lib/courseCatalog");
+
+        const { courseMap } = await getNormalizedCourseCatalog(false);
+        const finalApprovedIds: string[] = approvedCourseIds || devItem.approvedCourseIds || devItem.requestedCourseIds || [];
+        const requestedIds: string[] = devItem.requestedCourseIds || [];
+
+        const approvedCourses = finalApprovedIds.map((cid) => courseMap[cid]).filter(Boolean);
+        const rejectedIds = requestedIds.filter((cid) => !finalApprovedIds.includes(cid));
+        const rejectedCourses = rejectedIds.map((cid) => courseMap[cid]).filter(Boolean);
+
+        const validFromFormatted = validFrom.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+        const validToFormatted = validTo.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
         const emailHtml = getAffiliationApprovalTemplate(
           devItem.applicant.fullName,
           devItem.organizationName,
           devItem.applicationNo,
           affiliationNo,
-          validFrom.toLocaleDateString("en-IN"),
-          validTo.toLocaleDateString("en-IN"),
-          devItem.verificationToken
+          validFromFormatted,
+          validToFormatted,
+          devItem.verificationToken,
+          approvedCourses,
+          rejectedCourses
         );
+
+        let attachments: any[] = [];
+        try {
+          let pdfBuffer: Buffer;
+          if (customPdfBase64) {
+            pdfBuffer = Buffer.from(customPdfBase64, "base64");
+          } else {
+            pdfBuffer = await generateAffiliationCertificatePdfBuffer({
+              id: devItem.id,
+              applicationNo: devItem.applicationNo,
+              affiliationNo: affiliationNo,
+              verificationToken: devItem.verificationToken || devItem.id,
+              organizationName: devItem.organizationName,
+              organizationType: devItem.organizationTypeOther || devItem.organizationType,
+              registrationNumber: devItem.registrationNumber,
+              establishmentYear: devItem.establishmentYear,
+              district: devItem.district,
+              state: devItem.state,
+              address: devItem.address,
+              validFromStr: validFromFormatted,
+              validToStr: validToFormatted,
+              applicantFullName: devItem.applicant.fullName,
+              applicantDesignation: devItem.applicant.designation
+            });
+          }
+          attachments.push({
+            filename: `Affiliation_Certificate_${affiliationNo.replace(/\//g, "_")}.pdf`,
+            content: pdfBuffer
+          });
+        } catch (pdfErr) {
+          console.error("Failed to generate PDF certificate buffer for approval email:", pdfErr);
+        }
+
+        try {
+          const annexureBuffer = await generateAffiliationAnnexurePdfBuffer({
+            affiliationNo: affiliationNo,
+            organizationName: devItem.organizationName,
+            district: devItem.district,
+            state: devItem.state,
+            validFrom: validFromFormatted,
+            validTo: validToFormatted,
+            approvedCourses
+          });
+          attachments.push({
+            filename: `Annexure_A_Approved_Courses_${affiliationNo.replace(/\//g, "_")}.pdf`,
+            content: annexureBuffer
+          });
+        } catch (annexureErr) {
+          console.error("Failed to generate Annexure-A PDF buffer for approval email:", annexureErr);
+        }
 
         await sendTransactionalEmail(
           devItem.applicant.email,
           `Your DKFFJ Institute Affiliation Has Been Approved — ${affiliationNo}`,
-          emailHtml
+          emailHtml,
+          attachments
         );
       } catch (emailErr) {
         console.error("Failed to send approval email:", emailErr);
@@ -326,6 +396,106 @@ export async function approveAffiliation(
       internal_remarks: internalRemarks || "Approved by Executive Board.",
       public_remarks: publicRemarks || "Affiliation application approved. Official certificate issued."
     }).eq("id", id);
+
+    // Fetch details for email
+    try {
+      const { data: aff } = await supabase
+        .from("affiliations")
+        .select("*, applicants:affiliation_applicants(*)")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (aff) {
+        const applicant = Array.isArray(aff.applicants) ? aff.applicants[0] : aff.applicants;
+        if (applicant?.email) {
+          const { getAffiliationApprovalTemplate } = await import("@/services/email/templates");
+          const { sendTransactionalEmail } = await import("@/services/email/service");
+          const { generateAffiliationCertificatePdfBuffer } = await import("@/lib/affiliationCertificatePdf");
+          const { generateAffiliationAnnexurePdfBuffer } = await import("@/lib/affiliationAnnexurePdf");
+          const { getNormalizedCourseCatalog } = await import("@/lib/courseCatalog");
+
+          const { courseMap } = await getNormalizedCourseCatalog(false);
+          let approvedIds: string[] = approvedCourseIds || [];
+          let requestedIds: string[] = [];
+
+          if (approvedIds.length === 0) {
+            const { data: dbAppr } = await supabase.from("affiliation_approved_courses").select("course_id").eq("affiliation_id", id);
+            approvedIds = (dbAppr || []).map((r: any) => r.course_id);
+          }
+          const { data: dbReq } = await supabase.from("affiliation_requested_courses").select("course_id").eq("affiliation_id", id);
+          requestedIds = (dbReq || []).map((r: any) => r.course_id);
+
+          const approvedCourses = approvedIds.map((cid) => courseMap[cid]).filter(Boolean);
+          const rejectedIds = requestedIds.filter((cid) => !approvedIds.includes(cid));
+          const rejectedCourses = rejectedIds.map((cid) => courseMap[cid]).filter(Boolean);
+
+          const validFromFormatted = validFrom.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+          const validToFormatted = validTo.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+
+          const emailHtml = getAffiliationApprovalTemplate(
+            applicant.full_name || "Applicant",
+            aff.organization_name,
+            aff.application_no,
+            affiliationNo,
+            validFromFormatted,
+            validToFormatted,
+            aff.verification_token,
+            approvedCourses,
+            rejectedCourses
+          );
+
+          let attachments: any[] = [];
+          try {
+            const pdfBuffer = await generateAffiliationCertificatePdfBuffer({
+              id: aff.id,
+              applicationNo: aff.application_no,
+              affiliationNo: affiliationNo,
+              verificationToken: aff.verification_token || aff.id,
+              organizationName: aff.organization_name,
+              organizationType: aff.organization_type_other || aff.organization_type,
+              registrationNumber: aff.registration_number,
+              establishmentYear: aff.establishment_year,
+              district: aff.district,
+              state: aff.state,
+              address: aff.address,
+              validFromStr: validFromFormatted,
+              validToStr: validToFormatted,
+              applicantFullName: applicant.full_name || "Authorized Member",
+              applicantDesignation: applicant.designation || "Director / Representative"
+            });
+            attachments.push({
+              filename: `Affiliation_Certificate_${affiliationNo.replace(/\//g, "_")}.pdf`,
+              content: pdfBuffer
+            });
+          } catch (_) {}
+
+          try {
+            const annexureBuffer = await generateAffiliationAnnexurePdfBuffer({
+              affiliationNo: affiliationNo,
+              organizationName: aff.organization_name,
+              district: aff.district,
+              state: aff.state,
+              validFrom: validFromFormatted,
+              validTo: validToFormatted,
+              approvedCourses
+            });
+            attachments.push({
+              filename: `Annexure_A_Approved_Courses_${affiliationNo.replace(/\//g, "_")}.pdf`,
+              content: annexureBuffer
+            });
+          } catch (_) {}
+
+          await sendTransactionalEmail(
+            applicant.email,
+            `Your DKFFJ Institute Affiliation Has Been Approved — ${affiliationNo}`,
+            emailHtml,
+            attachments
+          );
+        }
+      }
+    } catch (emailErr) {
+      console.error("Supabase approval email error:", emailErr);
+    }
 
     return {
       success: true,
@@ -569,7 +739,7 @@ export async function adminCheckRefundStatus(affiliationId: string) {
 }
 
 // ── Admin Retry Email ─────────────────────────────────────────────────────────
-export async function adminRetryEmail(affiliationId: string, emailType: "RECEIPT" | "APPROVAL" | "REJECTION" | "REFUND") {
+export async function adminRetryEmail(affiliationId: string, emailType: "RECEIPT" | "APPROVAL" | "REJECTION" | "REFUND", customPdfBase64?: string) {
   try {
     const devItem = findDevAffiliationById(affiliationId);
     if (!devItem) return { error: "Application not found." };
@@ -615,16 +785,81 @@ export async function adminRetryEmail(affiliationId: string, emailType: "RECEIPT
         attachments = [{ filename: `Receipt_${devItem.applicationNo}.pdf`, content: pdfBuf }];
       } catch (_) {}
     } else if (emailType === "APPROVAL") {
-      subject = `Your DKFFJ Institute Affiliation Has Been Approved — ${devItem.affiliationNo || devItem.applicationNo}`;
+      const affNo = devItem.affiliationNo || "DKFFJ/F/2026/0001";
+      const validFromFormatted = devItem.validFrom ? new Date(devItem.validFrom).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : new Date().toLocaleDateString("en-IN");
+      const validToFormatted = devItem.validTo ? new Date(devItem.validTo).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : new Date(Date.now() + 365 * 86400000).toLocaleDateString("en-IN");
+
+      const { getNormalizedCourseCatalog } = await import("@/lib/courseCatalog");
+      const { courseMap } = await getNormalizedCourseCatalog(false);
+
+      const finalApprovedIds: string[] = devItem.approvedCourseIds || devItem.requestedCourseIds || [];
+      const requestedIds: string[] = devItem.requestedCourseIds || [];
+
+      const approvedCourses = finalApprovedIds.map((cid) => courseMap[cid]).filter(Boolean);
+      const rejectedIds = requestedIds.filter((cid) => !finalApprovedIds.includes(cid));
+      const rejectedCourses = rejectedIds.map((cid) => courseMap[cid]).filter(Boolean);
+
+      subject = `Your DKFFJ Institute Affiliation Has Been Approved — ${affNo}`;
       htmlContent = getAffiliationApprovalTemplate(
         devItem.applicant.fullName,
         devItem.organizationName,
         devItem.applicationNo,
-        devItem.affiliationNo || "DKFFJ/F/2026/0001",
-        devItem.validFrom || new Date().toLocaleDateString("en-IN"),
-        devItem.validTo || new Date(Date.now() + 365*86400000).toLocaleDateString("en-IN"),
-        devItem.verificationToken
+        affNo,
+        validFromFormatted,
+        validToFormatted,
+        devItem.verificationToken,
+        approvedCourses,
+        rejectedCourses
       );
+
+      attachments = [];
+      try {
+        let pdfBuf: Buffer;
+        if (customPdfBase64) {
+          pdfBuf = Buffer.from(customPdfBase64, "base64");
+        } else {
+          const { generateAffiliationCertificatePdfBuffer } = await import("@/lib/affiliationCertificatePdf");
+          pdfBuf = await generateAffiliationCertificatePdfBuffer({
+            id: devItem.id,
+            applicationNo: devItem.applicationNo,
+            affiliationNo: affNo,
+            verificationToken: devItem.verificationToken || devItem.id,
+            organizationName: devItem.organizationName,
+            organizationType: devItem.organizationTypeOther || devItem.organizationType,
+            registrationNumber: devItem.registrationNumber,
+            establishmentYear: devItem.establishmentYear,
+            district: devItem.district,
+            state: devItem.state,
+            address: devItem.address,
+            validFromStr: validFromFormatted,
+            validToStr: validToFormatted,
+            applicantFullName: devItem.applicant.fullName,
+            applicantDesignation: devItem.applicant.designation
+          });
+        }
+        attachments.push({ filename: `Affiliation_Certificate_${affNo.replace(/\//g, "_")}.pdf`, content: pdfBuf });
+      } catch (pdfErr) {
+        console.error("Failed to generate PDF certificate for resend approval email:", pdfErr);
+      }
+
+      try {
+        const { generateAffiliationAnnexurePdfBuffer } = await import("@/lib/affiliationAnnexurePdf");
+        const annexureBuffer = await generateAffiliationAnnexurePdfBuffer({
+          affiliationNo: affNo,
+          organizationName: devItem.organizationName,
+          district: devItem.district,
+          state: devItem.state,
+          validFrom: validFromFormatted,
+          validTo: validToFormatted,
+          approvedCourses
+        });
+        attachments.push({
+          filename: `Annexure_A_Approved_Courses_${affNo.replace(/\//g, "_")}.pdf`,
+          content: annexureBuffer
+        });
+      } catch (annexureErr) {
+        console.error("Failed to generate Annexure-A PDF for resend approval email:", annexureErr);
+      }
     } else if (emailType === "REJECTION") {
       subject = `Update on Your Institute Affiliation Application — ${devItem.applicationNo}`;
       htmlContent = getAffiliationRejectionTemplate(
@@ -901,6 +1136,42 @@ export async function adminEditAffiliation(id: string, formData: FormData) {
   } catch (err: any) {
     console.error("adminEditAffiliation error:", err);
     return { error: err.message || "Failed to update application." };
+  }
+}
+
+export async function downloadAffiliationAnnexureAction(id: string) {
+  try {
+    const devItem = findDevAffiliationById(id);
+    if (!devItem) return { error: "Affiliation record not found." };
+    if (devItem.status !== "APPROVED") return { error: "Annexure-A is only available for APPROVED affiliations." };
+
+    const { getNormalizedCourseCatalog } = await import("@/lib/courseCatalog");
+    const { courseMap } = await getNormalizedCourseCatalog(false);
+
+    const approvedIds = devItem.approvedCourseIds || devItem.requestedCourseIds || [];
+    const approvedCourses = approvedIds
+      .map(cid => courseMap[cid])
+      .filter(Boolean);
+
+    const { generateAffiliationAnnexurePdfBuffer } = await import("@/lib/affiliationAnnexurePdf");
+    const pdfBuffer = await generateAffiliationAnnexurePdfBuffer({
+      affiliationNo: devItem.affiliationNo || "PENDING",
+      organizationName: devItem.organizationName,
+      district: devItem.district,
+      state: devItem.state,
+      validFrom: devItem.validFrom || new Date().toLocaleDateString("en-IN"),
+      validTo: devItem.validTo || new Date().toLocaleDateString("en-IN"),
+      approvedCourses
+    });
+
+    return {
+      success: true,
+      pdfBase64: pdfBuffer.toString("base64"),
+      fileName: `Annexure-A_${(devItem.affiliationNo || "CERT").replace(/\//g, "-")}.pdf`
+    };
+  } catch (err: any) {
+    console.error("downloadAffiliationAnnexureAction error:", err);
+    return { error: err.message || "Failed to generate Annexure-A PDF." };
   }
 }
 

@@ -52,16 +52,72 @@ export type PaymentLedgerItem = Prisma.paymentsGetPayload<{
 }>;
 
 export default async function AdminPaymentsPage() {
-  // Fetch all payment transactions using Prisma to bypass RLS
-  let payments: PaymentLedgerItem[] = [];
+  // Fetch all payment transactions using Prisma with Supabase REST fallback
+  let payments: any[] = [];
   try {
     payments = await prisma.payments.findMany({
       orderBy: { created_at: "desc" },
       include: paymentLedgerInclude
     });
   } catch (error) {
-    console.error("Error fetching payments ledger via Prisma:", error);
+    console.error("Prisma pooler connection error, falling back to Supabase client:", error);
+    try {
+      const { cookies } = await import("next/headers");
+      const { createClient } = await import("@/utils/supabase/server");
+      const cookieStore = await cookies();
+      const supabase = createClient(cookieStore);
+      const { data: supaData } = await supabase
+        .from("payments")
+        .select(`
+          *,
+          memberships ( full_name, ack_no, mobile, email ),
+          course_registrations ( full_name, enrollment_no, mobile, email, courses ( title ) ),
+          donations ( donor_name, donor_mobile, donor_email, order_id, purpose ),
+          appreciation_applications ( full_name, application_no, mobile, email )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (supaData) {
+        payments = supaData;
+      }
+    } catch (supaErr) {
+      console.error("Error in Supabase payments fallback:", supaErr);
+    }
   }
+
+  // Merge dev store affiliation payments in dev mode
+  try {
+    const { getDevAffiliations } = await import("@/lib/affiliation-dev-store");
+    const devAffs = getDevAffiliations();
+    const devPayments = devAffs
+      .filter((d) => d.payment)
+      .map((d) => ({
+        id: `DEV-${d.id}`,
+        transaction_id: d.payment?.transactionId || d.id,
+        gateway_transaction_id: d.payment?.gatewayTransactionId || d.payment?.transactionId,
+        amount: d.payment?.amount || 2100,
+        currency: d.payment?.currency || "INR",
+        status: d.payment?.status || "PENDING",
+        created_at: d.createdAt,
+        paid_at: d.payment?.paidAt,
+        receipt_no: d.payment?.receiptNo,
+        appreciation_applications: null,
+        memberships: null,
+        course_registrations: null,
+        donations: null,
+        affiliations: {
+          organization_name: d.organizationName,
+          application_no: d.applicationNo
+        }
+      }));
+
+    if (devPayments.length > 0) {
+      // Filter out duplicate transaction IDs if present in DB
+      const existingTxnIds = new Set(payments.map((p) => p.transaction_id || p.id));
+      const newDevPayments = devPayments.filter((p) => !existingTxnIds.has(p.transaction_id));
+      payments = [...newDevPayments, ...payments];
+    }
+  } catch (_) {}
 
   const list = payments || [];
   const totalCompleted = list

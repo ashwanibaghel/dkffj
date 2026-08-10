@@ -25,6 +25,8 @@ export interface DevAffiliationRecord {
   status: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "INSPECTION_PENDING" | "APPROVED" | "REJECTED";
   hasDuplicateWarning: boolean;
   warningDetails?: string | null;
+  requestedCourseIds?: string[];
+  approvedCourseIds?: string[];
   validFrom?: string | null;
   validTo?: string | null;
   renewalDueOn?: string | null;

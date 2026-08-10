@@ -62,8 +62,8 @@ export default function HomeNewsSlider() {
             setNewsList(data as NewsItem[]);
           }
         }
-      } catch (err) {
-        console.error("Failed to load news for home slider:", err);
+      } catch (_) {
+        setNewsList(DEFAULT_NEWS_ITEMS);
       } finally {
         setLoading(false);
       }

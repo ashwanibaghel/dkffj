@@ -9,8 +9,8 @@ interface RequestLog {
 
 const ipRequests = new Map<string, RequestLog>();
 const WINDOW_MS = 60000; // 1 minute
-const MAX_API_LIMIT = 30; // Max 30 API requests per minute
-const MAX_ACTION_LIMIT = 15; // Max 15 Server Action submissions per minute
+const MAX_API_LIMIT = 120; // Max 120 API requests per minute
+const MAX_ACTION_LIMIT = 150; // Max 150 Server Action calls per minute
 
 export async function middleware(request: NextRequest) {
   const url = new URL(request.url);
@@ -25,8 +25,9 @@ export async function middleware(request: NextRequest) {
     return await createClient(request);
   }
 
-  // 1b. Allow load testing endpoints to bypass rate limiter
-  if (path.startsWith("/api/test-db-")) {
+  // 1b. Bypass rate limiting in development mode or test endpoints
+  const isDev = process.env.NODE_ENV === "development";
+  if (isDev || path.startsWith("/api/test-db-")) {
     return await createClient(request);
   }
 

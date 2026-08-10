@@ -13,7 +13,10 @@ import {
   maskPAN,
   maskIDProof
 } from "@/lib/affiliation-utils";
-import { saveDevAffiliation, findDevAffiliationById, updateDevAffiliation } from "@/lib/affiliation-dev-store";
+import { saveDevAffiliation, findDevAffiliationById, updateDevAffiliation, getDevAffiliations } from "@/lib/affiliation-dev-store";
+import { AFFILIATION_FEE_AMOUNT, AFFILIATION_FEE_DESCRIPTION, AFFILIATION_FEE_NOTE } from "@/lib/affiliation-config";
+
+import { getNormalizedCourseCatalog } from "@/lib/courseCatalog";
 
 export interface AffiliationFormState {
   success?: boolean;
@@ -22,6 +25,10 @@ export interface AffiliationFormState {
   affiliationId?: string;
   hasWarning?: boolean;
   warningMessage?: string;
+}
+
+export async function fetchNormalizedCoursesAction() {
+  return await getNormalizedCourseCatalog(true);
 }
 
 // 1. Send Email Verification OTP
@@ -159,6 +166,7 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
     const domainsRaw = formData.getAll("domains") as string[];
     const domainOther = (formData.get("domainOther") as string || "").trim();
     const infrastructureRaw = formData.getAll("infrastructure") as string[];
+    const requestedCourseIds = formData.getAll("requestedCourseIds") as string[];
 
     // Mandatory Input Validations
     if (!fullName || !designation || !mobile || !email || !idProofLastFour || !authorizedSignatoryName) {
@@ -284,6 +292,7 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
       pincode,
       website,
       studentCapacity,
+      requestedCourseIds,
       status: "DRAFT",
       hasDuplicateWarning: false,
       publicRemarks: "Draft created. Awaiting processing fee payment.",
@@ -380,7 +389,6 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
 }
 
 // 4. Initiate Affiliation Payment Action
-import { AFFILIATION_FEE_AMOUNT } from "@/lib/affiliation-config";
 import { createPhonePeOrder } from "@/lib/payment/phonepe";
 
 export async function initiateAffiliationPayment(affiliationId: string) {
@@ -540,6 +548,141 @@ export async function getAffiliationPaymentDetails(id: string) {
         }
       }
     };
+  }
+}
+
+export async function bypassAffiliationPayment(affiliationId: string) {
+  try {
+    const devItem = findDevAffiliationById(affiliationId);
+    if (devItem) {
+      const year = new Date().getFullYear();
+      let officialNo = devItem.applicationNo;
+      if (officialNo.startsWith("AFF-DRAFT-")) {
+        const devList = getDevAffiliations();
+        const nonDraftCount = devList.filter((d: any) => !d.applicationNo.startsWith("AFF-DRAFT-")).length;
+        const seq = String(nonDraftCount + 1).padStart(6, "0");
+        officialNo = `AFF-${year}-${seq}`;
+      }
+
+      const orderId = devItem.payment?.transactionId || `AFFPAY-${Date.now()}-TEST`;
+      const paidAtStr = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+      const receiptNo = `DKFFJ/R/${year}/0000${Math.floor(100 + Math.random() * 900)}`;
+
+      updateDevAffiliation(affiliationId, {
+        applicationNo: officialNo,
+        draftNo: devItem.applicationNo,
+        status: "SUBMITTED",
+        payment: {
+          transactionId: orderId,
+          gatewayTransactionId: `MOCK_TXN_${Date.now()}`,
+          amount: AFFILIATION_FEE_AMOUNT,
+          currency: "INR",
+          status: "COMPLETED",
+          paidAt: paidAtStr,
+          receiptNo
+        },
+        timeline: [
+          ...devItem.timeline,
+          {
+            id: crypto.randomUUID(),
+            fromStatus: devItem.status,
+            toStatus: "SUBMITTED",
+            remarks: `Payment verified via test bypass mode. Official Application No assigned: ${officialNo}`,
+            date: paidAtStr
+          }
+        ]
+      });
+
+      // Send payment receipt email
+      try {
+        const { getAffiliationReceiptTemplate } = await import("@/services/email/templates");
+        const { sendTransactionalEmail } = await import("@/services/email/service");
+        const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
+
+        const emailHtml = getAffiliationReceiptTemplate(
+          devItem.applicant.fullName,
+          devItem.organizationName,
+          devItem.applicationNo,
+          officialNo,
+          AFFILIATION_FEE_AMOUNT,
+          orderId,
+          receiptNo,
+          paidAtStr
+        );
+
+        let attachments: any[] = [];
+        try {
+          const pdfBuf = await generateReceiptPdfBuffer({
+            refId: officialNo,
+            receiptNo,
+            date: paidAtStr,
+            ackOrEnrollmentNo: officialNo,
+            gatewayTransactionId: `MOCK_TXN_${Date.now()}`,
+            amount: AFFILIATION_FEE_AMOUNT,
+            description: AFFILIATION_FEE_DESCRIPTION,
+            customerName: devItem.applicant.fullName,
+            customerMobile: devItem.applicant.mobile,
+            customerEmail: devItem.applicant.email,
+            instituteName: devItem.organizationName,
+            receiptType: "AFFILIATION",
+            refundPolicyNote: AFFILIATION_FEE_NOTE
+          });
+          attachments = [{ filename: `Receipt_${officialNo}.pdf`, content: pdfBuf }];
+        } catch (_) {}
+
+        await sendTransactionalEmail(
+          devItem.applicant.email,
+          `Affiliation Application Payment Receipt — ${officialNo}`,
+          emailHtml,
+          attachments
+        );
+      } catch (emailErr) {
+        console.error("Bypass email error:", emailErr);
+      }
+
+      return { success: true, applicationNo: officialNo };
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const { data: aff } = await supabase
+      .from("affiliations")
+      .select("id, application_no, organization_name, affiliation_applicants(full_name, email, mobile)")
+      .eq("id", affiliationId)
+      .maybeSingle();
+
+    if (aff) {
+      let officialNo = aff.application_no;
+      if (officialNo.startsWith("AFF-DRAFT-")) {
+        const { data: nextNo } = await supabase.rpc("generate_next_number", {
+          p_key: "affiliation_app",
+          p_prefix: `AFF-${new Date().getFullYear()}-`
+        });
+        if (nextNo) officialNo = nextNo;
+      }
+
+      const orderId = `AFFPAY-${Date.now()}-TEST`;
+      await supabase.from("payments").insert({
+        id: crypto.randomUUID(),
+        affiliation_id: affiliationId,
+        amount: AFFILIATION_FEE_AMOUNT,
+        transaction_id: orderId,
+        gateway: "TEST_BYPASS",
+        status: "COMPLETED"
+      });
+
+      await supabase.from("affiliations").update({
+        application_no: officialNo,
+        current_status: "SUBMITTED"
+      }).eq("id", affiliationId);
+
+      return { success: true, applicationNo: officialNo };
+    }
+
+    return { error: "Application record not found for test bypass." };
+  } catch (err: any) {
+    return { error: err.message || "Failed to process test payment bypass." };
   }
 }
 

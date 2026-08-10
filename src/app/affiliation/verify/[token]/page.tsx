@@ -34,20 +34,35 @@ export default async function AffiliationVerifyTokenPage({
     .or(`verification_token.eq.${decodedToken},affiliation_no.ilike.${decodedToken},application_no.ilike.${decodedToken},slug.eq.${decodedToken}`)
     .maybeSingle();
 
+  // Dev Store Lookup
+  const { getDevAffiliations } = await import("@/lib/affiliation-dev-store");
+  const devAffiliates = getDevAffiliations();
+  const devMatch = devAffiliates.find(
+    a => a.verificationToken === decodedToken || a.affiliationNo === decodedToken || a.applicationNo === decodedToken || a.slug === decodedToken
+  );
+
+  let approvedCoursesList: any[] = [];
+  if (devMatch && devMatch.status === "APPROVED") {
+    const { getNormalizedCourseCatalog } = await import("@/lib/courseCatalog");
+    const { courseMap } = await getNormalizedCourseCatalog(false);
+    const appIds = devMatch.approvedCourseIds || devMatch.requestedCourseIds || [];
+    approvedCoursesList = appIds.map(id => courseMap[id]).filter(Boolean);
+  }
+
   // Dev fallback data if DB table isn't migrated yet
-  const mockAffiliation = !affiliation && decodedToken.startsWith("AFF-")
+  const mockAffiliation = !affiliation && devMatch
     ? {
-        organization_name: "ABC Computer Training Academy",
-        organization_type: "Computer & IT Training Center",
-        organization_type_other: null,
-        affiliation_no: "DKFFJ/F/2026/0001",
-        verification_token: decodedToken,
-        district: "Fatehpur",
-        state: "Uttar Pradesh",
-        establishment_year: "2021",
-        current_status: "APPROVED",
-        valid_from: new Date().toISOString(),
-        valid_to: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
+        organization_name: devMatch.organizationName,
+        organization_type: devMatch.organizationType,
+        organization_type_other: devMatch.organizationTypeOther,
+        affiliation_no: devMatch.affiliationNo || "DKFFJ/F/2026/0001",
+        verification_token: devMatch.verificationToken,
+        district: devMatch.district,
+        state: devMatch.state,
+        establishment_year: devMatch.establishmentYear,
+        current_status: devMatch.status,
+        valid_from: devMatch.validFrom || new Date().toISOString(),
+        valid_to: devMatch.validTo || new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
         domains: [{ id: "1", domain_type: "COMPUTER_IT" }]
       }
     : null;
@@ -155,6 +170,30 @@ export default async function AffiliationVerifyTokenPage({
                         <span key={d.id} className="px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700">
                           {d.domain_type.replace("_", " ")}
                         </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {approvedCoursesList.length > 0 && (
+                  <div className="pt-3 border-t border-slate-100 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider block font-bold">Approved Training Programs</span>
+                      <span className="px-2.5 py-0.5 bg-[#001C55]/10 text-[#001C55] rounded-full text-[10px] font-black">
+                        {approvedCoursesList.length} Authorized
+                      </span>
+                    </div>
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                      {approvedCoursesList.map((ac: any) => (
+                        <div key={ac.courseId} className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs flex items-center justify-between">
+                          <div className="min-w-0 flex-1 pr-2">
+                            <strong className="text-slate-800 block truncate">{ac.title}</strong>
+                            <span className="text-[10px] text-slate-500 block truncate">{ac.sector} • {ac.duration}</span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-blue-100 text-[#001C55] rounded text-[9.5px] font-extrabold shrink-0">
+                            {ac.programType === "DIPLOMA" ? "Diploma" : "Certificate"}
+                          </span>
+                        </div>
                       ))}
                     </div>
                   </div>

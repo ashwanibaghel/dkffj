@@ -45,6 +45,7 @@ next-env.d.ts
 
 # User uploaded files (member photos, Aadhaar cards, documents) - NEVER commit these
 /public/uploads/
+/public/dev-uploads/
 
 # Debug/scratch scripts
 /scratch/

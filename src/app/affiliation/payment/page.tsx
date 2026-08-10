@@ -17,7 +17,7 @@ import {
   Lock,
   Sparkles
 } from "lucide-react";
-import { initiateAffiliationPayment, getAffiliationPaymentDetails } from "../apply/actions";
+import { initiateAffiliationPayment, getAffiliationPaymentDetails, bypassAffiliationPayment } from "../apply/actions";
 import { AFFILIATION_FEE_AMOUNT, AFFILIATION_FEE_DESCRIPTION, AFFILIATION_FEE_NOTE } from "@/lib/affiliation-config";
 
 // Inner component that uses useSearchParams — must be wrapped in Suspense
@@ -41,11 +41,19 @@ function AffiliationPaymentContent() {
 
     getAffiliationPaymentDetails(id).then((res) => {
       if (res.appData) {
-        setAppData(res.appData);
+        const app = res.appData as any;
+        setAppData(app);
+        if (app.status === "SUBMITTED" || app.payment?.status === "COMPLETED") {
+          const appNo = app.applicationNo;
+          if (appNo && appNo.startsWith("AFF-") && !appNo.startsWith("AFF-DRAFT-")) {
+            router.push(`/affiliation/success?appNo=${appNo}`);
+            return;
+          }
+        }
       }
       setLoading(false);
     });
-  }, [id]);
+  }, [id, router]);
 
   // Real Gateway Checkout
   const handlePayNow = async () => {
@@ -74,25 +82,11 @@ function AffiliationPaymentContent() {
     setError("");
 
     try {
-      const orderId = appData?.payment?.transactionId || `AFFPAY-${Date.now()}-TEST`;
-      const bypassRes = await fetch(`/api/phonepe/verify?orderId=${orderId}&bypass=1`);
-      const bypassData = await bypassRes.json();
-
-      if (bypassData.success || bypassData.status === "COMPLETED") {
-        const officialNo = bypassData.details?.ackOrEnrollmentNo;
-        if (officialNo && officialNo.startsWith("AFF-") && !officialNo.startsWith("AFF-DRAFT-")) {
-          router.push(`/affiliation/track?appNo=${officialNo}`);
-        } else {
-          const refreshRes = await getAffiliationPaymentDetails(id);
-          const refreshedNo = refreshRes.appData?.applicationNo;
-          if (refreshedNo && refreshedNo.startsWith("AFF-") && !refreshedNo.startsWith("AFF-DRAFT-")) {
-            router.push(`/affiliation/track?appNo=${refreshedNo}`);
-          } else {
-            setError("Payment verified, but application promotion to official number failed.");
-          }
-        }
+      const res = await bypassAffiliationPayment(id);
+      if (res.success && res.applicationNo) {
+        router.push(`/affiliation/success?appNo=${res.applicationNo}`);
       } else {
-        setError(bypassData.error || "Payment verification failed. Please retry.");
+        setError(res.error || "Failed to complete test payment bypass.");
       }
     } catch (err: any) {
       setError(err.message || "Failed to process test payment verification.");

@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, Award, ShieldCheck, Heart, GraduationCap, Loader2, CheckCircle2, Receipt } from "lucide-react";
+import { Download, Award, ShieldCheck, Heart, GraduationCap, Loader2, CheckCircle2, Receipt, Building2 } from "lucide-react";
 import { generateMembershipPDFClient } from "../members/MembershipCertificateGenerator";
 import { generateAppreciationPDFClient } from "../appreciation/AppreciationCertificateGenerator";
 import { generateCertificatePDFClient } from "../registrations/CertificateGenerator";
+import { generateAffiliationPDFClient } from "../affiliations/AffiliationCertificateGenerator";
 import { generateDonationPDFClient } from "@/app/donate/DonationCertificateGenerator";
 import { generateAshwaniPaymentReceiptAction } from "./actions";
 
@@ -212,6 +213,53 @@ export default function AshwaniCertsPage() {
     }
   };
 
+  const handleDownloadAffiliation = async () => {
+    setDownloading("affiliation");
+    setSuccessMsg("");
+    try {
+      const affNo = "DKFFJ/F/2026/0001";
+      const verificationUrl = `${window.location.origin}/affiliation/verify/DKFFJ-F-2026-0001`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verificationUrl)}`;
+
+      const res = await generateAffiliationPDFClient({
+        id: "DKFFJ-F-2026-0001",
+        applicationNo: "DKFFJ/A/2026/0001",
+        affiliationNo: affNo,
+        verificationToken: "DKFFJ-F-2026-0001",
+        organizationName: "Jijivisha Social Welfare Society",
+        organizationType: "Social Welfare NGO",
+        registrationNumber: "SWS-130/2024",
+        establishmentYear: "2018",
+        district: "Ghaziabad",
+        state: "Uttar Pradesh",
+        address: "513, 5th Floor, JB Heights, Ghaziabad, UP",
+        validFromStr: "18/07/2026",
+        validToStr: "17/07/2027",
+        applicantFullName: ashwaniData.fullName,
+        applicantDesignation: "District Women Secretary",
+        applicantPhotoUrl: ashwaniData.photoUrl,
+        qrCodeUrl,
+        verificationUrl
+      });
+
+      const url = window.URL.createObjectURL(res.pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Affiliation_Certificate_Ashwani_Baghel.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      setSuccessMsg("Affiliation Certificate downloaded successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Error generating Affiliation Certificate");
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
@@ -319,6 +367,28 @@ export default function AshwaniCertsPage() {
             className="mt-6 w-full bg-[#001C55] hover:bg-[#001236] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {downloading === "donation" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            Download PDF
+          </button>
+        </div>
+
+        {/* 5. Affiliation Certificate */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center border border-indigo-100 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 shrink-0">
+              <Building2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Affiliation Certificate</h3>
+              <p className="text-[11px] text-slate-500 mt-1">Official Organization Affiliation (A4 Portrait, CEO Signature, QR Verification & Govt Badges).</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleDownloadAffiliation}
+            disabled={downloading !== null}
+            className="mt-6 w-full bg-[#001C55] hover:bg-[#001236] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            {downloading === "affiliation" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
             Download PDF
           </button>
         </div>
