@@ -151,8 +151,18 @@ export default function ApplyAppreciationPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setIsLoggedIn(true);
-        setEmail(user.email || "");
-        setFullName(user.user_metadata?.full_name || "");
+        const userEmail = user.email || "";
+        const userName = user.user_metadata?.full_name || "";
+        const isAdminSession = 
+          userEmail.toLowerCase().includes("admin") ||
+          userName.toLowerCase().includes("administration") ||
+          userName.toLowerCase().includes("admin") ||
+          user.app_metadata?.role === "admin";
+
+        if (!isAdminSession) {
+          if (userEmail && !email) setEmail(userEmail);
+          if (userName && !fullName) setFullName(userName);
+        }
       }
     };
     checkUser();

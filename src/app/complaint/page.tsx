@@ -97,11 +97,21 @@ export default function ComplaintPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setEmail(user.email || "");
-        if (user.user_metadata?.full_name) {
-          const names = user.user_metadata.full_name.split(" ");
-          setFirstName(names[0] || "");
-          setLastName(names.slice(1).join(" ") || "");
+        const userEmail = user.email || "";
+        const userName = user.user_metadata?.full_name || "";
+        const isAdminSession = 
+          userEmail.toLowerCase().includes("admin") ||
+          userName.toLowerCase().includes("administration") ||
+          userName.toLowerCase().includes("admin") ||
+          user.app_metadata?.role === "admin";
+
+        if (!isAdminSession) {
+          if (userEmail && !email) setEmail(userEmail);
+          if (userName) {
+            const names = userName.split(" ");
+            if (!firstName) setFirstName(names[0] || "");
+            if (!lastName) setLastName(names.slice(1).join(" ") || "");
+          }
         }
       }
     };
