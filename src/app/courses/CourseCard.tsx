@@ -196,30 +196,32 @@ export default function CourseCard({ course }: { course: Course }) {
   useEffect(() => {
     if (isOpen) {
       const checkUser = async () => {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setIsLoggedIn(true);
-          const userEmail = user.email || "";
-          const userName = user.user_metadata?.full_name || "";
-          const isAdminSession = 
-            userEmail.toLowerCase().includes("admin") ||
-            userName.toLowerCase().includes("administration") ||
-            userName.toLowerCase().includes("admin") ||
-            user.app_metadata?.role === "admin";
+        try {
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            setIsLoggedIn(true);
+            const userEmail = user.email || "";
+            const userName = user.user_metadata?.full_name || "";
+            const isAdminSession = 
+              userEmail.toLowerCase().includes("admin") ||
+              userName.toLowerCase().includes("administration") ||
+              userName.toLowerCase().includes("admin") ||
+              user.app_metadata?.role === "admin";
 
-          if (!isAdminSession) {
-            setEmail(userEmail);
-            setFullName(userName);
+            if (!isAdminSession) {
+              setEmail(userEmail);
+              setFullName(userName);
+            } else {
+              setEmail("");
+              setFullName("");
+            }
           } else {
+            setIsLoggedIn(false);
             setEmail("");
             setFullName("");
           }
-        } else {
-          setIsLoggedIn(false);
-          setEmail("");
-          setFullName("");
-        }
+        } catch (_) {}
       };
       checkUser();
       setModalMode('REGISTRATION');

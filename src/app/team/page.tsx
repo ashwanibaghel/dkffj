@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { teamMembers as staticMembers } from "@/lib/teamData";
 import TeamRegistryClient, { TeamMember } from "./TeamRegistryClient";
 import { leaderPhotos } from "@/lib/leaderPhotos";
+import { resolveFullPhotoUrl } from "@/lib/photoUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -24,10 +25,7 @@ export default async function TeamRegistryPage() {
         const mNo = (m.membership_no || "").replace("DKFFJ-", "");
         let p = leaderPhotos[mNo] || leaderPhotos[m.membership_no || ""] || m.photo_url || "";
         if (p.includes("default.jpg") || p.includes("default.png")) p = "";
-        if (p.startsWith("/uploads/")) {
-          const fileName = p.split("/").pop();
-          p = `/members/${fileName}`;
-        }
+        p = resolveFullPhotoUrl(p);
         return {
           id: m.membership_no || m.ack_no || m.id,
           name: m.full_name,
@@ -53,10 +51,7 @@ export default async function TeamRegistryPage() {
   const teamMembersList = baseList.map((m) => {
     let p = leaderPhotos[m.id] || m.photo || "";
     if (p.includes("default.jpg") || p.includes("default.png")) p = "";
-    if (p.startsWith("/uploads/")) {
-      const fileName = p.split("/").pop();
-      p = `/members/${fileName}`;
-    }
+    p = resolveFullPhotoUrl(p);
     return {
       ...m,
       photo: p,

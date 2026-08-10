@@ -185,23 +185,25 @@ export default function ApplyPage() {
   // ── Check login status on load ──
   useEffect(() => {
     const checkUser = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setIsLoggedIn(true);
-        const userEmail = user.email || "";
-        const userName = user.user_metadata?.full_name || "";
-        const isAdminSession = 
-          userEmail.toLowerCase().includes("admin") ||
-          userName.toLowerCase().includes("administration") ||
-          userName.toLowerCase().includes("admin") ||
-          user.app_metadata?.role === "admin";
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setIsLoggedIn(true);
+          const userEmail = user.email || "";
+          const userName = user.user_metadata?.full_name || "";
+          const isAdminSession = 
+            userEmail.toLowerCase().includes("admin") ||
+            userName.toLowerCase().includes("administration") ||
+            userName.toLowerCase().includes("admin") ||
+            user.app_metadata?.role === "admin";
 
-        if (!isAdminSession) {
-          if (userEmail && !email) setEmail(userEmail);
-          if (userName && !fullName) setFullName(userName);
+          if (!isAdminSession) {
+            if (userEmail && !email) setEmail(userEmail);
+            if (userName && !fullName) setFullName(userName);
+          }
         }
-      }
+      } catch (_) {}
     };
     checkUser();
   }, []);

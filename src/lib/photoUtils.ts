@@ -27,6 +27,20 @@ export function resolveFullPhotoUrl(url?: string | null): string {
     return clean;
   }
 
+  // Local static files under /public directory (e.g. /members/, /authorities/, /images/, /slider/)
+  if (
+    clean.startsWith("/members/") ||
+    clean.startsWith("/authorities/") ||
+    clean.startsWith("/images/") ||
+    clean.startsWith("/slider/") ||
+    clean.startsWith("members/") ||
+    clean.startsWith("authorities/") ||
+    clean.startsWith("images/") ||
+    clean.startsWith("slider/")
+  ) {
+    return clean.startsWith("/") ? clean : `/${clean}`;
+  }
+
   const currentCdnBase = "https://tgszzjbvpcznndrfkkov.supabase.co/storage/v1/object/public/photos/";
   const oldDomain = "ydfeyymikxndqijykyly.supabase.co";
   const liveDomain = "tgszzjbvpcznndrfkkov.supabase.co";
@@ -45,6 +59,7 @@ export function resolveFullPhotoUrl(url?: string | null): string {
   let path = clean
     .replace(/^\/+/, "")
     .replace(/^uploads\/membership_form\//, "membership_form/")
+    .replace(/^uploads\//, "")
     .replace(/^photos\//, "");
 
   if (!path.startsWith("membership_form/") && !path.startsWith("aadhaar/") && !path.startsWith("signatures/") && !path.includes("/")) {

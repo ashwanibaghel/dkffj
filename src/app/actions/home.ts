@@ -14,10 +14,11 @@ const leaderDescriptions: Record<string, string> = {
 };
 
 import { leaderPhotos } from "@/lib/leaderPhotos";
+import { resolveFullPhotoUrl } from "@/lib/photoUtils";
 
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
-  return getVersionedCache("members", "home_leaders_v3", async () => {
+  return getVersionedCache("members", "home_leaders_v4", async () => {
     try {
       // Primary source: memberships table in Supabase where show_home is true
       const homeMembers = await prisma.memberships.findMany({
@@ -38,10 +39,7 @@ export async function getHomeLeaders() {
           if (photoPath.includes("default.jpg") || photoPath.includes("default.png")) {
             photoPath = "";
           }
-          if (photoPath.startsWith("/uploads/")) {
-            const fileName = photoPath.split("/").pop();
-            photoPath = `/members/${fileName}`;
-          }
+          photoPath = resolveFullPhotoUrl(photoPath);
           return {
             id: m.membership_no || m.ack_no || m.id,
             name: m.full_name,
@@ -73,10 +71,7 @@ export async function getHomeLeaders() {
         const formatted = dbLeaders.map((m) => {
           let p = leaderPhotos[m.id] || m.photo || "";
           if (p.includes("default.jpg") || p.includes("default.png")) p = "";
-          if (p.startsWith("/uploads/")) {
-            const fileName = p.split("/").pop();
-            p = `/members/${fileName}`;
-          }
+          p = resolveFullPhotoUrl(p);
           return {
             id: m.id,
             name: m.name,
@@ -102,10 +97,7 @@ export async function getHomeLeaders() {
       .map((m) => {
         let p = leaderPhotos[m.id] || m.photo || "";
         if (p.includes("default.jpg") || p.includes("default.png")) p = "";
-        if (p.startsWith("/uploads/")) {
-          const fileName = p.split("/").pop();
-          p = `/members/${fileName}`;
-        }
+        p = resolveFullPhotoUrl(p);
         return {
           id: m.id,
           name: m.name,
