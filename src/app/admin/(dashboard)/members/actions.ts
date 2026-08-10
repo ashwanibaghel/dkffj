@@ -830,7 +830,7 @@ export async function toggleMemberActiveStatusAction(memberId: string, currentSt
   return { success: true, status: newStatus };
 }
 
-// 10. Delete Membership Record
+// 10. Delete Membership Record (Moves to Trash instead of Permanent Destruction)
 export async function deleteMembership(memberId: string) {
   const isAdmin = await verifyAdmin();
   if (!isAdmin) {
@@ -840,27 +840,203 @@ export async function deleteMembership(memberId: string) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  // Delete linked payments and logs first
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // 1. Fetch full member record first
+  const { data: member, error: fetchErr } = await supabase
+    .from("memberships")
+    .select("*")
+    .eq("id", memberId)
+    .maybeSingle();
+
+  if (fetchErr || !member) {
+    return { success: false, error: "Member record not found." };
+  }
+
+  // 2. Fetch linked payments and logs for full restoration support
+  const { data: linkedPayments } = await supabase.from("payments").select("*").eq("membership_id", memberId);
+  const { data: linkedLogs } = await supabase.from("status_logs").select("*").eq("membership_id", memberId);
+
+  // 3. Store snapshot in Trash (settings table key: 'trash_memberships')
+  try {
+    const { data: settingRow } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "trash_memberships")
+      .maybeSingle();
+
+    let trashList: any[] = [];
+    if (settingRow?.value) {
+      try {
+        trashList = JSON.parse(settingRow.value);
+      } catch (_) {}
+    }
+
+    const trashEntry = {
+      ...member,
+      deleted_at: new Date().toISOString(),
+      deleted_by: user?.email || user?.id || "Admin",
+      delete_reason: "Moved to Trash by Administrator",
+      _linked_payments: linkedPayments || [],
+      _linked_logs: linkedLogs || []
+    };
+
+    // Filter out duplicate if already in trash
+    trashList = trashList.filter((item: any) => item.id !== memberId);
+    trashList.unshift(trashEntry);
+
+    // Save updated trash list
+    await supabase.from("settings").upsert({
+      key: "trash_memberships",
+      value: JSON.stringify(trashList),
+      description: "Soft deleted membership records trash store",
+      updated_at: new Date().toISOString()
+    }, { onConflict: "key" });
+  } catch (trashErr) {
+    console.error("Error storing member in trash setting:", trashErr);
+  }
+
+  // 4. Delete linked payments & logs, then remove active membership row
   await supabase.from("payments").delete().eq("membership_id", memberId);
   await supabase.from("status_logs").delete().eq("membership_id", memberId);
 
-  const { error } = await supabase.from("memberships").delete().eq("id", memberId);
-  if (error) {
-    console.error("Error deleting membership:", error);
-    return { success: false, error: error.message || "Failed to delete membership." };
+  const { error: delErr } = await supabase.from("memberships").delete().eq("id", memberId);
+  if (delErr) {
+    console.error("Error deleting active membership:", delErr);
+    return { success: false, error: delErr.message || "Failed to delete membership." };
   }
 
   await incrementNamespaceVersion("members");
   const { revalidatePath } = await import("next/cache");
   revalidatePath("/admin/members");
-  return { success: true, message: "Membership deleted successfully." };
+  return { success: true, message: "Member moved to Trash successfully." };
 }
 
+// 11. Fetch All Deleted Members in Trash
 export async function getDeletedMemberships() {
-  return [];
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) return [];
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  try {
+    const { data: settingRow } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "trash_memberships")
+      .maybeSingle();
+
+    if (!settingRow?.value) return [];
+    const trashList = JSON.parse(settingRow.value);
+    return Array.isArray(trashList) ? trashList : [];
+  } catch (err) {
+    console.error("Error fetching deleted memberships from trash:", err);
+    return [];
+  }
 }
 
+// 12. Restore Membership Record from Trash back to active Member Desk
 export async function restoreMembership(memberId: string) {
-  return { success: true, message: "Restored" };
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  try {
+    const { data: settingRow } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "trash_memberships")
+      .maybeSingle();
+
+    if (!settingRow?.value) {
+      return { success: false, error: "Trash store is empty." };
+    }
+
+    let trashList: any[] = JSON.parse(settingRow.value);
+    const targetItem = trashList.find((item: any) => item.id === memberId);
+
+    if (!targetItem) {
+      return { success: false, error: "Member record not found in Trash." };
+    }
+
+    // Extract raw member fields (strip _linked metadata)
+    const {
+      deleted_at,
+      deleted_by,
+      delete_reason,
+      _linked_payments,
+      _linked_logs,
+      ...rawMember
+    } = targetItem;
+
+    // 1. Re-insert member into memberships table
+    const { error: insertErr } = await supabase.from("memberships").insert(rawMember);
+    if (insertErr) {
+      console.error("Error restoring membership to DB:", insertErr);
+      return { success: false, error: insertErr.message || "Failed to restore member." };
+    }
+
+    // 2. Restore linked payments & logs if present
+    if (_linked_payments && _linked_payments.length > 0) {
+      await supabase.from("payments").insert(_linked_payments);
+    }
+    if (_linked_logs && _linked_logs.length > 0) {
+      await supabase.from("status_logs").insert(_linked_logs);
+    }
+
+    // 3. Remove from trash list
+    trashList = trashList.filter((item: any) => item.id !== memberId);
+    await supabase.from("settings").update({
+      value: JSON.stringify(trashList),
+      updated_at: new Date().toISOString()
+    }).eq("key", "trash_memberships");
+
+    await incrementNamespaceVersion("members");
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/admin/members");
+
+    return { success: true, message: `Member ${rawMember.full_name || ""} restored successfully!` };
+  } catch (err: any) {
+    console.error("Error restoring membership:", err);
+    return { success: false, error: err?.message || "An error occurred while restoring member." };
+  }
+}
+
+// 13. Permanently Delete Member Record from Trash
+export async function purgePermanentlyDeletedMembership(memberId: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized access." };
+  }
+
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  try {
+    const { data: settingRow } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "trash_memberships")
+      .maybeSingle();
+
+    if (!settingRow?.value) return { success: true };
+
+    let trashList: any[] = JSON.parse(settingRow.value);
+    trashList = trashList.filter((item: any) => item.id !== memberId);
+
+    await supabase.from("settings").update({
+      value: JSON.stringify(trashList),
+      updated_at: new Date().toISOString()
+    }).eq("key", "trash_memberships");
+
+    return { success: true, message: "Member permanently erased from Trash." };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to purge record." };
+  }
 }
 
