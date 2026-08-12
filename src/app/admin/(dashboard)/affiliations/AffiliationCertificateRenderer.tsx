@@ -101,17 +101,18 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         width: "1123px", // Landscape A4 Width
         height: "794px",  // Landscape A4 Height
         position: "relative",
-        backgroundColor: "#FFFDF7", // Warm Ivory / Soft White
+        backgroundColor: "#F4EBD3", // Warm Cream / Parchment Ivory Base
+        backgroundImage: "radial-gradient(ellipse at center, #FAF5E8 0%, #F4EBD3 70%, #EEDFB8 100%)", // Rich Parchment Depth
         fontFamily: "'Playfair Display', Georgia, serif",
         boxSizing: "border-box",
         overflow: "hidden",
-        padding: "25px 35px",
+        padding: "25px 38px",
         margin: "0 auto"
       }}
     >
       {/* Google Fonts injection */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500;1,600&family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500;1,600;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap');
       `}</style>
 
       {/* 1. Subtle Repeating Security Text Watermark Pattern */}
@@ -130,7 +131,7 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           gap: "12px",
           padding: "15px 0",
           boxSizing: "border-box",
-          opacity: 0.05,
+          opacity: 0.035, // 3.5% opacity - subtle security background pattern
           userSelect: "none"
         }}
       >
@@ -153,16 +154,16 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         ))}
       </div>
 
-      {/* 2. Large Central Foundation Emblem Watermark */}
+      {/* 2. Large Central Foundation Emblem Watermark (Prominent 8% opacity) */}
       <div
         style={{
           position: "absolute",
-          top: "50%",
+          top: "49%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "380px",
-          height: "380px",
-          opacity: 0.04,
+          width: "450px", // Large 450px visual diameter
+          height: "450px",
+          opacity: 0.08, // 8% opacity - clearly visible watermark, zero text interference
           pointerEvents: "none",
           zIndex: 2,
           display: "flex",
@@ -173,7 +174,7 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         <img src={logoSrc} alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
       </div>
 
-      {/* 3. A4 Landscape Institutional SVG Frame Border */}
+      {/* 3. A4 Landscape Institutional Multi-layer SVG Frame Border */}
       <img
         src={borderSrc}
         alt=""
@@ -200,15 +201,15 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          padding: "0 20px",
+          padding: "0 22px",
           boxSizing: "border-box"
         }}
       >
         {/* Top Header Block */}
-        <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "18px" }}>
+        <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px" }}>
           {/* Left Emblem Logo */}
           <div style={{ width: "75px" }}>
-            <img src={logoSrc} alt="DKFFJ Logo" style={{ width: "65px", height: "65px", objectFit: "contain" }} />
+            <img src={logoSrc} alt="DKFFJ Logo" style={{ width: "68px", height: "68px", objectFit: "contain" }} />
           </div>
 
           {/* Center Foundation Header Title */}
@@ -216,8 +217,8 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
             <h1
               style={{
                 fontFamily: "'Cinzel', Georgia, serif",
-                fontWeight: 800,
-                fontSize: "25px",
+                fontWeight: 900,
+                fontSize: "26px",
                 color: "#8B1E24", // Deep Maroon
                 letterSpacing: "1.5px",
                 margin: 0,
@@ -231,9 +232,9 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
               style={{
                 fontFamily: "'Inter', Arial, sans-serif",
                 fontWeight: 900,
-                fontSize: "13.5px",
+                fontSize: "14px",
                 color: "#0B2A5B", // Deep Navy
-                letterSpacing: "2px",
+                letterSpacing: "2.2px",
                 margin: "3px 0 0 0",
                 textTransform: "uppercase"
               }}
@@ -244,8 +245,9 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
                 fontStyle: "italic",
-                fontSize: "11.5px",
-                color: "#555555",
+                fontWeight: 600,
+                fontSize: "12px",
+                color: "#444444",
                 margin: "2px 0 0 0"
               }}
             >
@@ -255,16 +257,16 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
 
           {/* Right Emblem Logo for Visual Balance */}
           <div style={{ width: "75px", display: "flex", justifyContent: "flex-end" }}>
-            <img src={logoSrc} alt="DKFFJ Seal" style={{ width: "65px", height: "65px", objectFit: "contain", opacity: 0.9 }} />
+            <img src={logoSrc} alt="DKFFJ Seal" style={{ width: "68px", height: "68px", objectFit: "contain", opacity: 0.95 }} />
           </div>
         </div>
 
-        {/* Small Antique-Gold Separator Line */}
+        {/* Metallic Gold Separator Line */}
         <div
           style={{
-            width: "92%",
-            height: "1.5px",
-            background: "linear-gradient(90deg, transparent 0%, #C9A14A 25%, #0B2A5B 50%, #C9A14A 75%, transparent 100%)",
+            width: "93%",
+            height: "2px",
+            background: "linear-gradient(90deg, transparent 0%, #C9A14A 20%, #0B2A5B 50%, #C9A14A 80%, transparent 100%)",
             margin: "8px 0"
           }}
         />
@@ -272,35 +274,35 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         {/* Metadata Row: Affiliation No (Left) | Issue Date (Right) */}
         <div
           style={{
-            width: "92%",
+            width: "93%",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             fontFamily: "'Inter', sans-serif",
-            fontSize: "13px",
-            fontWeight: 600,
-            marginBottom: "6px"
+            fontSize: "13.5px",
+            fontWeight: 700,
+            marginBottom: "4px"
           }}
         >
           <div style={{ color: "#0B2A5B" }}>
             <span>Affiliation No.: </span>
-            <span style={{ color: "#8B1E24", fontFamily: "monospace", fontSize: "14px", fontWeight: "bold" }}>{formattedAffiliationNo}</span>
+            <span style={{ color: "#8B1E24", fontFamily: "monospace", fontSize: "14.5px", fontWeight: 800 }}>{formattedAffiliationNo}</span>
           </div>
           <div style={{ color: "#0B2A5B" }}>
             <span>Issue Date: </span>
-            <span style={{ color: "#202020", fontWeight: "bold" }}>{issueDate}</span>
+            <span style={{ color: "#111111", fontWeight: 800 }}>{issueDate}</span>
           </div>
         </div>
 
-        {/* Main Title Section (Clean Centered Title - NO CURVED TEXT!) */}
-        <div style={{ textAlign: "center", margin: "4px 0 10px 0" }}>
+        {/* Main Title Section (Clean Centered Title) */}
+        <div style={{ textAlign: "center", margin: "2px 0 8px 0" }}>
           <h2
             style={{
               fontFamily: "'Cinzel', Georgia, serif",
-              fontWeight: 800,
-              fontSize: "29px",
+              fontWeight: 900,
+              fontSize: "31px",
               color: "#0B2A5B", // Deep Navy
-              letterSpacing: "3px",
+              letterSpacing: "3.5px",
               margin: 0,
               textTransform: "uppercase"
             }}
@@ -310,22 +312,22 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           <h3
             style={{
               fontFamily: "'Cinzel', Georgia, serif",
-              fontWeight: 700,
-              fontSize: "13.5px",
+              fontWeight: 800,
+              fontSize: "14px",
               color: "#C9A14A", // Antique Gold
-              letterSpacing: "1.5px",
+              letterSpacing: "2px",
               margin: "3px 0 0 0",
               textTransform: "uppercase"
             }}
           >
-            Institutional Training Affiliation
+            INSTITUTIONAL TRAINING AFFILIATION
           </h3>
         </div>
 
-        {/* Institute-First Content Hierarchy Area */}
+        {/* Institute-First Content Hierarchy Area (Bolder & Larger Text to Fill Canvas Richly) */}
         <div
           style={{
-            width: "92%",
+            width: "93%",
             flex: 1,
             display: "flex",
             flexDirection: "column",
@@ -339,40 +341,41 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
             style={{
               fontFamily: "'Playfair Display', Georgia, serif",
               fontStyle: "italic",
-              fontSize: "15px",
-              color: "#444444",
+              fontWeight: 600,
+              fontSize: "17px",
+              color: "#333333",
               margin: "0 0 6px 0"
             }}
           >
             This is to officially certify that
           </p>
 
-          {/* Primary Institute Name (Most Prominent Field in Body!) */}
-          <div style={{ margin: "4px 0 8px 0" }}>
+          {/* Primary Institute Name (Hero Element in Body!) */}
+          <div style={{ margin: "4px 0 10px 0" }}>
             <div
               style={{
                 fontFamily: "'Cinzel', Georgia, serif",
-                fontWeight: 800,
-                fontSize: "25px",
+                fontWeight: 900,
+                fontSize: "27px",
                 color: "#0B2A5B", // Deep Navy
-                borderBottom: "2px solid #C9A14A", // Antique Gold Underline
-                paddingBottom: "3px",
+                borderBottom: "2.5px solid #C9A14A", // Antique Gold Underline
+                paddingBottom: "4px",
                 display: "inline-block",
-                letterSpacing: "1px"
+                letterSpacing: "1.2px"
               }}
             >
               {cleanOrgName.toUpperCase()}
             </div>
           </div>
 
-          {/* Representative & Location Lines */}
-          <div style={{ margin: "4px 0 8px 0", lineHeight: "1.6" }}>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", color: "#202020", margin: 0 }}>
-              <span style={{ color: "#666666" }}>Represented by: </span>
-              <strong style={{ color: "#0B2A5B", fontWeight: 700 }}>{cleanApplicantName}</strong>
-              <span style={{ margin: "0 10px", color: "#C9A14A" }}>•</span>
-              <span style={{ color: "#666666" }}>Location: </span>
-              <strong style={{ color: "#202020", fontWeight: 600 }}>{cleanDistrict}, {cleanState}</strong>
+          {/* Representative & Location Line */}
+          <div style={{ margin: "4px 0 10px 0", lineHeight: "1.6" }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", color: "#111111", margin: 0, fontWeight: 600 }}>
+              <span style={{ color: "#555555" }}>Represented by: </span>
+              <strong style={{ color: "#0B2A5B", fontWeight: 800 }}>{cleanApplicantName}</strong>
+              <span style={{ margin: "0 12px", color: "#C9A14A", fontWeight: "bold" }}>•</span>
+              <span style={{ color: "#555555" }}>Location: </span>
+              <strong style={{ color: "#111111", fontWeight: 800 }}>{cleanDistrict}, {cleanState}</strong>
             </p>
           </div>
 
@@ -380,26 +383,28 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           <p
             style={{
               fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: "15px",
-              color: "#202020",
-              margin: "6px 0 8px 0",
-              lineHeight: "1.5"
+              fontSize: "16.5px",
+              fontWeight: 700,
+              color: "#111111",
+              margin: "6px 0 10px 0",
+              lineHeight: "1.6"
             }}
           >
-            has been granted <strong style={{ color: "#8B1E24" }}>Institutional Training Affiliation</strong> by{" "}
-            <strong style={{ color: "#0B2A5B" }}>DK Foundation of Freedom and Justice</strong>.
+            has been granted <strong style={{ color: "#8B1E24", fontWeight: 800 }}>Institutional Training Affiliation</strong> by{" "}
+            <strong style={{ color: "#0B2A5B", fontWeight: 800 }}>DK Foundation of Freedom and Justice</strong>.
           </p>
 
           {/* Official Authorization Disclaimer */}
           <p
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "11px",
+              fontSize: "11.5px",
               fontStyle: "italic",
-              color: "#555555",
+              fontWeight: 600,
+              color: "#444444",
               margin: "6px 0 0 0",
-              maxWidth: "850px",
-              lineHeight: "1.4"
+              maxWidth: "880px",
+              lineHeight: "1.45"
             }}
           >
             This affiliation is valid only for the courses/programs approved by DKFFJ and listed in Annexure-A / the official verification record.
@@ -409,12 +414,12 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         {/* Symmetrical 3-Zone Signature, Seal & QR Area */}
         <div
           style={{
-            width: "92%",
+            width: "93%",
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "space-between",
             marginTop: "10px",
-            marginBottom: "8px"
+            marginBottom: "6px"
           }}
         >
           {/* LEFT ZONE: Authorized Signatory */}
@@ -425,7 +430,7 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
                   src={signatureSrc}
                   alt="CEO Signature"
                   style={{
-                    maxHeight: "45px",
+                    maxHeight: "46px",
                     maxWidth: "160px",
                     objectFit: "contain",
                     mixBlendMode: "multiply"
@@ -434,75 +439,75 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
               )}
             </div>
             <div style={{ borderTop: "1.5px solid #0B2A5B", width: "100%", margin: "3px 0" }} />
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "10.5px", fontWeight: 700, color: "#202020", margin: 0 }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "10.5px", fontWeight: 800, color: "#111111", margin: 0 }}>
               (Seal & Signature)
             </p>
             <p style={{ fontFamily: "'Cinzel', serif", fontSize: "12px", fontWeight: 800, color: "#0B2A5B", margin: "2px 0 0 0" }}>
               Chief Executive Officer
             </p>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", color: "#555555", margin: "1px 0 0 0" }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#555555", margin: "1px 0 0 0" }}>
               DK Foundation of Freedom and Justice
             </p>
           </div>
 
           {/* CENTER ZONE: Official DKFFJ Gold ISO 9001 Seal */}
           <div style={{ width: "120px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <img src={isoSealSrc} alt="ISO 9001 Seal" style={{ height: "85px", objectFit: "contain" }} />
+            <img src={isoSealSrc} alt="ISO 9001 Seal" style={{ height: "88px", objectFit: "contain" }} />
           </div>
 
           {/* RIGHT ZONE: QR Verification Box */}
           <div style={{ width: "240px", display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
             <div
               style={{
-                width: "78px",
-                height: "78px",
-                border: "1px solid #0B2A5B",
+                width: "82px",
+                height: "82px",
+                border: "1.5px solid #0B2A5B",
                 padding: "3px",
                 backgroundColor: "#ffffff",
                 borderRadius: "3px",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center"
+                justifyContent: "center",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
               }}
             >
               {qrSrc && <img src={qrSrc} alt="Verification QR" style={{ width: "100%", height: "100%", objectFit: "contain" }} />}
             </div>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "9px", color: "#0B2A5B", margin: "3px 0 0 0" }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 800, fontSize: "9.5px", color: "#0B2A5B", margin: "3px 0 0 0" }}>
               Scan to Verify Affiliation
             </p>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "7.5px", color: "#555555", margin: 0 }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 600, color: "#555555", margin: 0 }}>
               www.dkffj.org/verify
             </p>
           </div>
         </div>
 
-        {/* Government / Official Logos Band (Prominent & Equal Baseline) */}
+        {/* Government / Official Logos Band (Slightly Larger Size & Common Baseline) */}
         <div
           style={{
             marginTop: "6px",
-            width: "92%",
+            width: "93%",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "4px 0",
-            borderTop: "1px stroke #E7D49A"
+            padding: "4px 0"
           }}
         >
-          <img src={mcaSrc} alt="Ministry of Corporate Affairs" style={{ height: "55px", maxWidth: "180px", objectFit: "contain" }} />
-          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "52px", maxWidth: "135px", objectFit: "contain" }} />
-          <img src={nsdcSrc} alt="NSDC" style={{ height: "55px", maxWidth: "145px", objectFit: "contain" }} />
-          <img src={emblemSrc} alt="Ministry of Social Justice and Empowerment" style={{ height: "56px", maxWidth: "130px", objectFit: "contain" }} />
-          <img src={msmeSrc} alt="Ministry of MSME" style={{ height: "52px", maxWidth: "155px", objectFit: "contain" }} />
+          <img src={mcaSrc} alt="Ministry of Corporate Affairs" style={{ height: "62px", maxWidth: "190px", objectFit: "contain" }} />
+          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "58px", maxWidth: "145px", objectFit: "contain" }} />
+          <img src={nsdcSrc} alt="NSDC" style={{ height: "62px", maxWidth: "155px", objectFit: "contain" }} />
+          <img src={emblemSrc} alt="Ministry of Social Justice and Empowerment" style={{ height: "64px", maxWidth: "140px", objectFit: "contain" }} />
+          <img src={msmeSrc} alt="Ministry of MSME" style={{ height: "58px", maxWidth: "165px", objectFit: "contain" }} />
         </div>
 
-        {/* Footer Head Office Address & Contact */}
+        {/* Footer Head Office Address & Contact (Lifted Up Clear of Bottom Border Frame) */}
         <div
           style={{
             marginTop: "6px",
-            marginBottom: "6px",
+            marginBottom: "16px", // Lifted up to give ample breathing room clear of bottom border frame
             textAlign: "center",
             width: "100%",
-            maxWidth: "750px",
+            maxWidth: "780px",
             padding: "0 10px",
             boxSizing: "border-box"
           }}
@@ -510,7 +515,7 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           <p
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "9.5px",
+              fontSize: "10px",
               fontWeight: 800,
               color: "#0B2A5B",
               margin: 0,
@@ -523,10 +528,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           <p
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "9px",
-              fontWeight: 600,
-              color: "#555555",
-              margin: "1px 0 0 0",
+              fontSize: "9.5px",
+              fontWeight: 700,
+              color: "#444444",
+              margin: "2px 0 0 0",
               whiteSpace: "nowrap",
               letterSpacing: "0.2px"
             }}
@@ -619,7 +624,7 @@ export async function generateAffiliationPDFClient(
             useCORS: true,
             allowTaint: false,
             logging: false,
-            backgroundColor: "#FFFDF7"
+            backgroundColor: "#F4EBD3"
           });
 
           const pngBlob = await new Promise<Blob>((resBlob, rejBlob) => {
