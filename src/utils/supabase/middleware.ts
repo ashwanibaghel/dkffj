@@ -40,7 +40,11 @@ export const createClient = async (request: NextRequest) => {
   );
 
   // IMPORTANT: This triggers cookie refresh and ensures persistent sessions remain active
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch (_) {
+    // Ignore network / offline fetch errors in middleware
+  }
 
   return supabaseResponse;
 };
