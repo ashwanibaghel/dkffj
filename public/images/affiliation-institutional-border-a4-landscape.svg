@@ -90,11 +90,11 @@
     <circle cx="0" cy="8" r="4.5" fill="#061D48" />
   </g>
 
-  <!-- Government Logos Vertical Divider Lines (x: 255, 485, 755, 990, y1: 1290, y2: 1435) -->
+  <!-- Government Logos Vertical Divider Lines (x: 255, 480, 755, 990, y1: 1330, y2: 1485) -->
   <g stroke="url(#goldGradient)" stroke-width="1.8" opacity="0.6">
-    <line x1="255" y1="1290" x2="255" y2="1435" />
-    <line x1="485" y1="1290" x2="485" y2="1435" />
-    <line x1="755" y1="1290" x2="755" y2="1435" />
-    <line x1="990" y1="1290" x2="990" y2="1435" />
+    <line x1="255" y1="1330" x2="255" y2="1485" />
+    <line x1="480" y1="1330" x2="480" y2="1485" />
+    <line x1="755" y1="1330" x2="755" y2="1485" />
+    <line x1="990" y1="1330" x2="990" y2="1485" />
   </g>
 </svg>
