@@ -27,12 +27,10 @@ export function resolveFullPhotoUrl(url?: string | null): string {
     return clean;
   }
 
-  // Local static files under /public directory (e.g. /members/, /authorities/, /images/, /slider/)
+  // Local static files under /public directory (e.g. /logo.png, /images/, /members/)
   if (
-    clean.startsWith("/members/") ||
-    clean.startsWith("/authorities/") ||
-    clean.startsWith("/images/") ||
-    clean.startsWith("/slider/") ||
+    clean.startsWith("/") ||
+    clean.startsWith("logo.png") ||
     clean.startsWith("members/") ||
     clean.startsWith("authorities/") ||
     clean.startsWith("images/") ||

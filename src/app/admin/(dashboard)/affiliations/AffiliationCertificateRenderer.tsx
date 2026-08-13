@@ -90,23 +90,45 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
   const qrSrc = qrBase64 || data.qrCodeUrl || computedQrUrl;
 
   const cleanApplicantName = cleanAmpText(data.applicantFullName || "Authorized Representative");
-  const cleanOrgName = cleanAmpText(data.organizationName || "Partner Organization");
+  const cleanOrgName = cleanAmpText(data.organizationName || "Partner Organization").toUpperCase();
   const cleanDistrict = cleanAmpText(data.district || "District");
   const cleanState = cleanAmpText(data.state || "State");
+
+  // Dynamic Font Size & Line Wrapping for Institute Name based on character length
+  const orgNameLength = cleanOrgName.length;
+  let orgFontSize = 44;
+  let isMultiLineOrg = false;
+  let orgLine1 = cleanOrgName;
+  let orgLine2 = "";
+
+  if (orgNameLength > 50) {
+    isMultiLineOrg = true;
+    orgFontSize = 35;
+    const words = cleanOrgName.split(" ");
+    const mid = Math.ceil(words.length / 2);
+    orgLine1 = words.slice(0, mid).join(" ");
+    orgLine2 = words.slice(mid).join(" ");
+  } else if (orgNameLength > 35) {
+    orgFontSize = 38;
+  } else {
+    orgFontSize = 44;
+  }
+
+  // Underline width calculation (max 780px in portrait canvas)
+  const underlineWidth = Math.min(780, Math.max(360, (isMultiLineOrg ? Math.max(orgLine1.length, orgLine2.length) : orgNameLength) * (orgFontSize * 0.58)));
+  const underlineX1 = 620 - underlineWidth / 2;
+  const underlineX2 = 620 + underlineWidth / 2;
 
   return (
     <div
       id={`affiliation-certificate-render-container-${data.id || data.applicationNo}`}
       style={{
-        width: "1123px", // Landscape A4 Width
-        height: "794px",  // Landscape A4 Height
+        width: "1240px", // A4 Portrait Master Canvas (1240x1754)
+        height: "1754px",
         position: "relative",
-        backgroundColor: "#F4EBD3", // Warm Cream / Parchment Ivory Base
-        backgroundImage: "radial-gradient(ellipse at center, #FAF5E8 0%, #F4EBD3 70%, #EEDFB8 100%)", // Rich Parchment Depth
-        fontFamily: "'Playfair Display', Georgia, serif",
+        backgroundColor: "#F7EED7", // Base warm ivory parchment
         boxSizing: "border-box",
         overflow: "hidden",
-        padding: "25px 38px",
         margin: "0 auto"
       }}
     >
@@ -115,436 +137,344 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,500;1,600;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap');
       `}</style>
 
-      {/* 1. Subtle Repeating Security Text Watermark Pattern */}
-      <div
+      {/* A4 PORTRAIT DETERMINISTIC SVG COMPOSITION (viewBox="0 0 1240 1754") */}
+      <svg
+        viewBox="0 0 1240 1754"
+        width="1240"
+        height="1754"
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
           width: "100%",
           height: "100%",
-          pointerEvents: "none",
-          zIndex: 1,
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          padding: "15px 0",
-          boxSizing: "border-box",
-          opacity: 0.035, // 3.5% opacity - subtle security background pattern
-          userSelect: "none"
+          display: "block"
         }}
       >
-        {Array.from({ length: 45 }).map((_, i) => (
-          <div
-            key={i}
-            style={{
-              fontFamily: "Arial, sans-serif",
-              fontWeight: "bold",
-              fontSize: "8.5px",
-              color: "#0B2A5B",
-              whiteSpace: "nowrap",
-              letterSpacing: "2px",
-              width: "100%",
-              textAlign: "center"
-            }}
-          >
-            {"DK FOUNDATION OF FREEDOM AND JUSTICE   ".repeat(5)}
-          </div>
-        ))}
-      </div>
+        <defs>
+          <linearGradient id="goldGradientSVG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#D3A745" />
+            <stop offset="30%" stopColor="#F7E7A1" />
+            <stop offset="60%" stopColor="#C89C38" />
+            <stop offset="100%" stopColor="#80601B" />
+          </linearGradient>
+        </defs>
 
-      {/* 2. Large Central Foundation Emblem Watermark (Prominent 8% opacity) */}
-      <div
-        style={{
-          position: "absolute",
-          top: "49%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "450px", // Large 450px visual diameter
-          height: "450px",
-          opacity: 0.08, // 8% opacity - clearly visible watermark, zero text interference
-          pointerEvents: "none",
-          zIndex: 2,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}
-      >
-        <img src={logoSrc} alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-      </div>
+        {/* 1. Main Frame Architecture & Background SVG Layer */}
+        <image href={borderSrc} xlinkHref={borderSrc} x="0" y="0" width="1240" height="1754" preserveAspectRatio="none" />
 
-      {/* 3. A4 Landscape Institutional Multi-layer SVG Frame Border */}
-      <img
-        src={borderSrc}
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "fill",
-          pointerEvents: "none",
-          zIndex: 0
-        }}
-      />
-
-      {/* Main Certificate Content Container */}
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
-          zIndex: 4,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          padding: "0 22px",
-          boxSizing: "border-box"
-        }}
-      >
-        {/* Top Header Block */}
-        <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "16px" }}>
-          {/* Left Emblem Logo */}
-          <div style={{ width: "75px" }}>
-            <img src={logoSrc} alt="DKFFJ Logo" style={{ width: "68px", height: "68px", objectFit: "contain" }} />
-          </div>
-
-          {/* Center Foundation Header Title */}
-          <div style={{ textAlign: "center", flex: 1, padding: "0 10px" }}>
-            <h1
-              style={{
-                fontFamily: "'Cinzel', Georgia, serif",
-                fontWeight: 900,
-                fontSize: "26px",
-                color: "#8B1E24", // Deep Maroon
-                letterSpacing: "1.5px",
-                margin: 0,
-                lineHeight: "1.2",
-                textTransform: "uppercase"
-              }}
-            >
-              DK FOUNDATION OF FREEDOM AND JUSTICE
-            </h1>
-            <h2
-              style={{
-                fontFamily: "'Inter', Arial, sans-serif",
-                fontWeight: 900,
-                fontSize: "14px",
-                color: "#0B2A5B", // Deep Navy
-                letterSpacing: "2.2px",
-                margin: "3px 0 0 0",
-                textTransform: "uppercase"
-              }}
-            >
-              HUMAN RIGHTS PROTECTION
-            </h2>
-            <p
-              style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontStyle: "italic",
-                fontWeight: 600,
-                fontSize: "12px",
-                color: "#444444",
-                margin: "2px 0 0 0"
-              }}
-            >
-              Regd. By Ministry of Corporate Affairs, Govt. of India
-            </p>
-          </div>
-
-          {/* Right Emblem Logo for Visual Balance */}
-          <div style={{ width: "75px", display: "flex", justifyContent: "flex-end" }}>
-            <img src={logoSrc} alt="DKFFJ Seal" style={{ width: "68px", height: "68px", objectFit: "contain", opacity: 0.95 }} />
-          </div>
-        </div>
-
-        {/* Metallic Gold Separator Line */}
-        <div
-          style={{
-            width: "93%",
-            height: "2px",
-            background: "linear-gradient(90deg, transparent 0%, #C9A14A 20%, #0B2A5B 50%, #C9A14A 80%, transparent 100%)",
-            margin: "8px 0"
-          }}
+        {/* 2. Main Central Emblem Watermark (cx: 620, cy: 820, diameter: 700px, opacity: 0.05) */}
+        <image
+          href={logoSrc}
+          xlinkHref={logoSrc}
+          x="270"
+          y="470"
+          width="700"
+          height="700"
+          preserveAspectRatio="xMidYMid meet"
+          opacity="0.05"
         />
 
-        {/* Metadata Row: Affiliation No (Left) | Issue Date (Right) */}
-        <div
-          style={{
-            width: "93%",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            fontFamily: "'Inter', sans-serif",
-            fontSize: "13.5px",
-            fontWeight: 700,
-            marginBottom: "4px"
-          }}
+        {/* 3. Header Section with SINGLE PROMINENT TOP-CENTER DKFFJ LOGO */}
+        <image
+          href={logoSrc}
+          xlinkHref={logoSrc}
+          x="545"
+          y="60"
+          width="150"
+          height="150"
+          preserveAspectRatio="xMidYMid meet"
+        />
+
+        {/* Main Organization Heading (620, 235, 40px Cinzel bold serif - No horizontal compression) */}
+        <text
+          x="620"
+          y="235"
+          fill="#7B151C"
+          fontFamily="'Cinzel', Georgia, serif"
+          fontWeight="800"
+          fontSize="40"
+          textAnchor="middle"
+          letterSpacing="0.5"
         >
-          <div style={{ color: "#0B2A5B" }}>
-            <span>Affiliation No.: </span>
-            <span style={{ color: "#8B1E24", fontFamily: "monospace", fontSize: "14.5px", fontWeight: 800 }}>{formattedAffiliationNo}</span>
-          </div>
-          <div style={{ color: "#0B2A5B" }}>
-            <span>Issue Date: </span>
-            <span style={{ color: "#111111", fontWeight: 800 }}>{issueDate}</span>
-          </div>
-        </div>
+          DK FOUNDATION OF FREEDOM AND JUSTICE
+        </text>
 
-        {/* Main Title Section (Clean Centered Title) */}
-        <div style={{ textAlign: "center", margin: "2px 0 8px 0" }}>
-          <h2
-            style={{
-              fontFamily: "'Cinzel', Georgia, serif",
-              fontWeight: 900,
-              fontSize: "31px",
-              color: "#0B2A5B", // Deep Navy
-              letterSpacing: "3.5px",
-              margin: 0,
-              textTransform: "uppercase"
-            }}
-          >
-            CERTIFICATE OF AFFILIATION
-          </h2>
-          <h3
-            style={{
-              fontFamily: "'Cinzel', Georgia, serif",
-              fontWeight: 800,
-              fontSize: "14px",
-              color: "#C9A14A", // Antique Gold
-              letterSpacing: "2px",
-              margin: "3px 0 0 0",
-              textTransform: "uppercase"
-            }}
-          >
-            INSTITUTIONAL TRAINING AFFILIATION
-          </h3>
-        </div>
-
-        {/* Institute-First Content Hierarchy Area (Bolder & Larger Text to Fill Canvas Richly) */}
-        <div
-          style={{
-            width: "93%",
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center"
-          }}
+        {/* Human Rights Protection Subhead (620, 275) */}
+        <text
+          x="620"
+          y="275"
+          fill="#061D48"
+          fontFamily="'Inter', Arial, sans-serif"
+          fontWeight="900"
+          fontSize="26"
+          textAnchor="middle"
+          letterSpacing="2"
         >
-          {/* Intro Line */}
-          <p
-            style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontStyle: "italic",
-              fontWeight: 600,
-              fontSize: "17px",
-              color: "#333333",
-              margin: "0 0 6px 0"
-            }}
-          >
-            This is to officially certify that
-          </p>
+          HUMAN RIGHTS PROTECTION
+        </text>
 
-          {/* Primary Institute Name (Hero Element in Body!) */}
-          <div style={{ margin: "4px 0 10px 0" }}>
-            <div
-              style={{
-                fontFamily: "'Cinzel', Georgia, serif",
-                fontWeight: 900,
-                fontSize: "27px",
-                color: "#0B2A5B", // Deep Navy
-                borderBottom: "2.5px solid #C9A14A", // Antique Gold Underline
-                paddingBottom: "4px",
-                display: "inline-block",
-                letterSpacing: "1.2px"
-              }}
+        {/* Registration Line (620, 305) */}
+        <text
+          x="620"
+          y="305"
+          fill="#222222"
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontStyle="italic"
+          fontWeight="600"
+          fontSize="19"
+          textAnchor="middle"
+        >
+          Regd. By Ministry of Corporate Affairs, Govt. of India
+        </text>
+
+        {/* Decorative Divider Under Header (cx: 620, y: 330) */}
+        <line x1="220" y1="330" x2="540" y2="330" stroke="#C89C38" strokeWidth="2.5" />
+        <line x1="700" y1="330" x2="1020" y2="330" stroke="#C89C38" strokeWidth="2.5" />
+        <circle cx="620" cy="330" r="5" fill="#7B151C" />
+
+        {/* 4. Affiliation Metadata Row (70 & 1170, 375) */}
+        {/* Left: Affiliation No */}
+        <text x="70" y="375" fontFamily="'Inter', sans-serif" fontSize="18.5" fontWeight="700" fill="#061D48">
+          <tspan fill="#061D48">Affiliation No.:</tspan>
+          <tspan fill="#7B151C" fontFamily="monospace" fontWeight="800" dx="12">{formattedAffiliationNo}</tspan>
+        </text>
+
+        {/* Right: Issue Date */}
+        <text x="1170" y="375" fontFamily="'Inter', sans-serif" fontSize="18.5" fontWeight="700" fill="#061D48" textAnchor="end">
+          <tspan fill="#061D48">Issue Date:</tspan>
+          <tspan fill="#061D48" fontWeight="800" dx="12">{issueDate}</tspan>
+        </text>
+
+        {/* 5. Main Certificate Title (620, 445) */}
+        <text
+          x="620"
+          y="445"
+          fill="#071F4A"
+          fontFamily="'Cinzel', Georgia, serif"
+          fontWeight="900"
+          fontSize="50"
+          textAnchor="middle"
+          letterSpacing="3.5"
+        >
+          CERTIFICATE OF AFFILIATION
+        </text>
+
+        {/* Subtitle & Gold Dividers (620, 492) */}
+        <line x1="210" y1="486" x2="340" y2="486" stroke="#C89C38" strokeWidth="2.2" />
+        <text
+          x="620"
+          y="492"
+          fill="#C89C38"
+          fontFamily="'Cinzel', Georgia, serif"
+          fontWeight="800"
+          fontSize="23"
+          textAnchor="middle"
+          letterSpacing="2.8"
+        >
+          INSTITUTIONAL TRAINING AFFILIATION
+        </text>
+        <line x1="900" y1="486" x2="1030" y2="486" stroke="#C89C38" strokeWidth="2.2" />
+
+        {/* Small Flourish Beneath Subtitle (y: 518) */}
+        <path d="M 580 518 Q 600 512 620 518 Q 640 524 660 518 Q 640 512 620 518 Q 600 524 580 518 Z" fill="#C89C38" opacity="0.9" />
+        <circle cx="620" cy="518" r="3.5" fill="#7B151C" />
+
+        {/* 6. Intro Line (620, 560) */}
+        <text
+          x="620"
+          y="560"
+          fill="#222222"
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontStyle="italic"
+          fontWeight="600"
+          fontSize="23"
+          textAnchor="middle"
+        >
+          This is to officially certify that
+        </text>
+
+        {/* 7. Hero Institute Name (Dynamic Font Size & Line Wrapping - No Horizontal Compression) */}
+        {!isMultiLineOrg ? (
+          <>
+            <text
+              x="620"
+              y="620"
+              fill="#071F4A"
+              fontFamily="'Cinzel', Georgia, serif"
+              fontWeight="900"
+              fontSize={orgFontSize}
+              textAnchor="middle"
+              letterSpacing="1"
             >
-              {cleanOrgName.toUpperCase()}
-            </div>
-          </div>
-
-          {/* Representative & Location Line */}
-          <div style={{ margin: "4px 0 10px 0", lineHeight: "1.6" }}>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", color: "#111111", margin: 0, fontWeight: 600 }}>
-              <span style={{ color: "#555555" }}>Represented by: </span>
-              <strong style={{ color: "#0B2A5B", fontWeight: 800 }}>{cleanApplicantName}</strong>
-              <span style={{ margin: "0 12px", color: "#C9A14A", fontWeight: "bold" }}>•</span>
-              <span style={{ color: "#555555" }}>Location: </span>
-              <strong style={{ color: "#111111", fontWeight: 800 }}>{cleanDistrict}, {cleanState}</strong>
-            </p>
-          </div>
-
-          {/* Affiliation Grant Sentence */}
-          <p
-            style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: "16.5px",
-              fontWeight: 700,
-              color: "#111111",
-              margin: "6px 0 10px 0",
-              lineHeight: "1.6"
-            }}
-          >
-            has been granted <strong style={{ color: "#8B1E24", fontWeight: 800 }}>Institutional Training Affiliation</strong> by{" "}
-            <strong style={{ color: "#0B2A5B", fontWeight: 800 }}>DK Foundation of Freedom and Justice</strong>.
-          </p>
-
-          {/* Official Authorization Disclaimer */}
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: "11.5px",
-              fontStyle: "italic",
-              fontWeight: 600,
-              color: "#444444",
-              margin: "6px 0 0 0",
-              maxWidth: "880px",
-              lineHeight: "1.45"
-            }}
-          >
-            This affiliation is valid only for the courses/programs approved by DKFFJ and listed in Annexure-A / the official verification record.
-          </p>
-        </div>
-
-        {/* Symmetrical 3-Zone Signature, Seal & QR Area */}
-        <div
-          style={{
-            width: "93%",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            marginTop: "10px",
-            marginBottom: "6px"
-          }}
-        >
-          {/* LEFT ZONE: Authorized Signatory */}
-          <div style={{ width: "240px", textAlign: "center", flexShrink: 0, position: "relative" }}>
-            <div style={{ height: "48px", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "2px" }}>
-              {signatureSrc && (
-                <img
-                  src={signatureSrc}
-                  alt="CEO Signature"
-                  style={{
-                    maxHeight: "46px",
-                    maxWidth: "160px",
-                    objectFit: "contain",
-                    mixBlendMode: "multiply"
-                  }}
-                />
-              )}
-            </div>
-            <div style={{ borderTop: "1.5px solid #0B2A5B", width: "100%", margin: "3px 0" }} />
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "10.5px", fontWeight: 800, color: "#111111", margin: 0 }}>
-              (Seal & Signature)
-            </p>
-            <p style={{ fontFamily: "'Cinzel', serif", fontSize: "12px", fontWeight: 800, color: "#0B2A5B", margin: "2px 0 0 0" }}>
-              Chief Executive Officer
-            </p>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "9px", fontWeight: 600, color: "#555555", margin: "1px 0 0 0" }}>
-              DK Foundation of Freedom and Justice
-            </p>
-          </div>
-
-          {/* CENTER ZONE: Official DKFFJ Gold ISO 9001 Seal */}
-          <div style={{ width: "120px", display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <img src={isoSealSrc} alt="ISO 9001 Seal" style={{ height: "88px", objectFit: "contain" }} />
-          </div>
-
-          {/* RIGHT ZONE: QR Verification Box */}
-          <div style={{ width: "240px", display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-            <div
-              style={{
-                width: "82px",
-                height: "82px",
-                border: "1.5px solid #0B2A5B",
-                padding: "3px",
-                backgroundColor: "#ffffff",
-                borderRadius: "3px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.08)"
-              }}
+              {orgLine1}
+            </text>
+            <line x1={underlineX1} y1="638" x2={underlineX2} y2="638" stroke="#C89C38" strokeWidth="2.5" />
+            <polygon points="620,634 626,638 620,642 614,638" fill="#C89C38" />
+          </>
+        ) : (
+          <>
+            <text
+              x="620"
+              y="615"
+              fill="#071F4A"
+              fontFamily="'Cinzel', Georgia, serif"
+              fontWeight="900"
+              fontSize={orgFontSize}
+              textAnchor="middle"
+              letterSpacing="1"
             >
-              {qrSrc && <img src={qrSrc} alt="Verification QR" style={{ width: "100%", height: "100%", objectFit: "contain" }} />}
-            </div>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 800, fontSize: "9.5px", color: "#0B2A5B", margin: "3px 0 0 0" }}>
-              Scan to Verify Affiliation
-            </p>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "8px", fontWeight: 600, color: "#555555", margin: 0 }}>
-              www.dkffj.org/verify
-            </p>
-          </div>
-        </div>
+              {orgLine1}
+            </text>
+            <text
+              x="620"
+              y="655"
+              fill="#071F4A"
+              fontFamily="'Cinzel', Georgia, serif"
+              fontWeight="900"
+              fontSize={orgFontSize}
+              textAnchor="middle"
+              letterSpacing="1"
+            >
+              {orgLine2}
+            </text>
+            <line x1={underlineX1} y1="675" x2={underlineX2} y2="675" stroke="#C89C38" strokeWidth="2.5" />
+            <polygon points="620,671 626,675 620,679 614,675" fill="#C89C38" />
+          </>
+        )}
 
-        {/* Government / Official Logos Band (Slightly Larger Size & Common Baseline) */}
-        <div
-          style={{
-            marginTop: "6px",
-            width: "93%",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "4px 0"
-          }}
-        >
-          <img src={mcaSrc} alt="Ministry of Corporate Affairs" style={{ height: "62px", maxWidth: "190px", objectFit: "contain" }} />
-          <img src={nitiSrc} alt="NITI Aayog" style={{ height: "58px", maxWidth: "145px", objectFit: "contain" }} />
-          <img src={nsdcSrc} alt="NSDC" style={{ height: "62px", maxWidth: "155px", objectFit: "contain" }} />
-          <img src={emblemSrc} alt="Ministry of Social Justice and Empowerment" style={{ height: "64px", maxWidth: "140px", objectFit: "contain" }} />
-          <img src={msmeSrc} alt="Ministry of MSME" style={{ height: "58px", maxWidth: "165px", objectFit: "contain" }} />
-        </div>
+        {/* 8. Representative + Location Row (620, 730) */}
+        <text x="620" y="730" fontFamily="'Inter', sans-serif" fontSize="21" fontWeight="700" textAnchor="middle">
+          <tspan fill="#555555" fontWeight="600">Represented by: </tspan>
+          <tspan fill="#071F4A" fontWeight="800" dx="4">{cleanApplicantName}</tspan>
+          <tspan fill="#C89C38" fontWeight="800" dx="18">   •   </tspan>
+          <tspan fill="#555555" fontWeight="600" dx="18">Location: </tspan>
+          <tspan fill="#111111" fontWeight="800" dx="4">{cleanDistrict}, {cleanState}</tspan>
+        </text>
 
-        {/* Footer Head Office Address & Contact (Lifted Up Clear of Bottom Border Frame) */}
-        <div
-          style={{
-            marginTop: "6px",
-            marginBottom: "16px", // Lifted up to give ample breathing room clear of bottom border frame
-            textAlign: "center",
-            width: "100%",
-            maxWidth: "780px",
-            padding: "0 10px",
-            boxSizing: "border-box"
-          }}
+        {/* 9. Grant Statement (3 Controlled Lines) */}
+        {/* Line 1 (620, 778) */}
+        <text
+          x="620"
+          y="778"
+          fill="#222222"
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontStyle="italic"
+          fontWeight="600"
+          fontSize="22"
+          textAnchor="middle"
         >
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: "10px",
-              fontWeight: 800,
-              color: "#0B2A5B",
-              margin: 0,
-              whiteSpace: "nowrap",
-              letterSpacing: "0.2px"
-            }}
-          >
-            Head Office: 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP) India
-          </p>
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: "9.5px",
-              fontWeight: 700,
-              color: "#444444",
-              margin: "2px 0 0 0",
-              whiteSpace: "nowrap",
-              letterSpacing: "0.2px"
-            }}
-          >
-            Website: www.dkffj.org &nbsp;|&nbsp; Email: contact@dkffj.org &nbsp;|&nbsp; Contact: +91 9871219033, +91 7080403333
-          </p>
-        </div>
-      </div>
+          has been granted
+        </text>
+
+        {/* Line 2 (620, 820) */}
+        <text
+          x="620"
+          y="820"
+          fill="#8B1E24"
+          fontFamily="'Cinzel', Georgia, serif"
+          fontWeight="800"
+          fontSize="30"
+          textAnchor="middle"
+          letterSpacing="1.5"
+        >
+          Institutional Training Affiliation
+        </text>
+
+        {/* Line 3 (620, 860) */}
+        <text
+          x="620"
+          y="860"
+          fill="#071F4A"
+          fontFamily="'Playfair Display', Georgia, serif"
+          fontWeight="800"
+          fontSize="24"
+          textAnchor="middle"
+        >
+          by DK Foundation of Freedom and Justice.
+        </text>
+
+        {/* 10. Disclaimer Block (2 Controlled Lines) */}
+        {/* Line 1 (620, 900) */}
+        <text
+          x="620"
+          y="900"
+          fill="#444444"
+          fontFamily="'Inter', sans-serif"
+          fontStyle="italic"
+          fontWeight="500"
+          fontSize="18.5"
+          textAnchor="middle"
+        >
+          This affiliation is valid only for the courses/programs approved by DKFFJ
+        </text>
+
+        {/* Line 2 (620, 922) */}
+        <text
+          x="620"
+          y="922"
+          fill="#444444"
+          fontFamily="'Inter', sans-serif"
+          fontStyle="italic"
+          fontWeight="500"
+          fontSize="18.5"
+          textAnchor="middle"
+        >
+          and listed in Annexure-A / the official verification record.
+        </text>
+
+        {/* 11. DEDICATED AUTHENTICATION ROW (Optically Centered at x=250, x=620, x=990) */}
+        {/* LEFT ZONE: CEO Signature (Centered at x=250) */}
+        {signatureSrc && (
+          <image href={signatureSrc} xlinkHref={signatureSrc} x="145" y="990" width="210" height="72" preserveAspectRatio="xMidYMid meet" style={{ mixBlendMode: "multiply" }} />
+        )}
+        <line x1="125" y1="1064" x2="375" y2="1064" stroke="#111111" strokeWidth="2" />
+        <text x="250" y="1084" fill="#111111" fontFamily="'Inter', sans-serif" fontSize="14.5" fontWeight="700" textAnchor="middle">
+          (Seal &amp; Signature)
+        </text>
+        <text x="250" y="1106" fill="#071F4A" fontFamily="'Cinzel', Georgia, serif" fontSize="16" fontWeight="800" textAnchor="middle">
+          CHIEF EXECUTIVE OFFICER
+        </text>
+        <text x="250" y="1124" fill="#555555" fontFamily="'Inter', sans-serif" fontSize="13" textAnchor="middle">
+          DK Foundation of Freedom and Justice
+        </text>
+
+        {/* CENTER ZONE: ISO Seal (Centered at x=620, 130x130) */}
+        <image href={isoSealSrc} xlinkHref={isoSealSrc} x="555" y="995" width="130" height="130" preserveAspectRatio="xMidYMid meet" />
+
+        {/* RIGHT ZONE: QR Code Block (Centered at x=990) */}
+        <rect x="925" y="990" width="130" height="130" fill="#FFFFFF" stroke="#071F4A" strokeWidth="2" rx="4" />
+        {qrSrc && <image href={qrSrc} xlinkHref={qrSrc} x="930" y="995" width="120" height="120" preserveAspectRatio="xMidYMid meet" />}
+        <text x="990" y="1132" fill="#071F4A" fontFamily="'Inter', sans-serif" fontSize="14" fontWeight="800" textAnchor="middle">
+          Scan to Verify Affiliation
+        </text>
+        <text x="990" y="1150" fill="#555555" fontFamily="'Inter', sans-serif" fontSize="12" textAnchor="middle">
+          www.dkffj.org/verify
+        </text>
+
+        {/* 12. PROMINENT GOVERNMENT LOGOS BAND (y: 1270–1440, Natural Aspect Ratios) */}
+        {/* MCA (45, 1285, 180x120) */}
+        <image href={mcaSrc} xlinkHref={mcaSrc} x="45" y="1285" width="180" height="120" preserveAspectRatio="xMidYMid meet" />
+        {/* NITI Aayog (270, 1305, 185x90) */}
+        <image href={nitiSrc} xlinkHref={nitiSrc} x="270" y="1305" width="185" height="90" preserveAspectRatio="xMidYMid meet" />
+        {/* NSDC (505, 1285, 225x120) */}
+        <image href={nsdcSrc} xlinkHref={nsdcSrc} x="505" y="1285" width="225" height="120" preserveAspectRatio="xMidYMid meet" />
+        {/* State Emblem (780, 1275, 190x140) */}
+        <image href={emblemSrc} xlinkHref={emblemSrc} x="780" y="1275" width="190" height="140" preserveAspectRatio="xMidYMid meet" />
+        {/* MSME (1015, 1305, 205x90) */}
+        <image href={msmeSrc} xlinkHref={msmeSrc} x="1015" y="1305" width="205" height="90" preserveAspectRatio="xMidYMid meet" />
+
+        {/* 13. SUBTLE DIVIDER & FOOTER ADDRESS BAR (Divider at 1475, Footer at 1515 & 1542) */}
+        <line x1="200" y1="1475" x2="1040" y2="1475" stroke="#C89C38" strokeWidth="1.8" opacity="0.7" />
+        <text x="620" y="1515" fill="#061D48" fontFamily="'Inter', sans-serif" fontSize="15.5" fontWeight="800" textAnchor="middle">
+          Head Office: 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP) India
+        </text>
+        <text x="620" y="1542" fill="#444444" fontFamily="'Inter', sans-serif" fontSize="14" fontWeight="600" textAnchor="middle">
+          Website: www.dkffj.org   |   Email: contact@dkffj.org   |   Contact: +91 88712 19033, +91 70804 00333
+        </text>
+      </svg>
     </div>
   );
 };
 
-// Generates the PDF using html2canvas and jsPDF (A4 Landscape)
+// Generates the PDF using html2canvas and jsPDF (A4 Portrait)
 export async function generateAffiliationPDFClient(
   data: AffiliationCertificateData,
   photoBase64Input?: string,
@@ -620,11 +550,11 @@ export async function generateAffiliationPDFClient(
           }
 
           const canvas = await html2canvas(targetElement, {
-            scale: 2.0, // High-resolution render (300 DPI equivalent)
+            scale: 2.0, // High-resolution 300 DPI equivalent rendering (2480 x 3508)
             useCORS: true,
             allowTaint: false,
             logging: false,
-            backgroundColor: "#F4EBD3"
+            backgroundColor: "#F7EED7"
           });
 
           const pngBlob = await new Promise<Blob>((resBlob, rejBlob) => {
@@ -637,16 +567,16 @@ export async function generateAffiliationPDFClient(
             }, "image/png");
           });
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.92);
+          const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
-          // Sized for Landscape A4 layout (297mm x 210mm)
+          // Sized for Portrait A4 layout (210mm x 297mm)
           const pdf = new jsPDF({
-            orientation: "landscape",
+            orientation: "portrait",
             unit: "mm",
             format: "a4"
           });
 
-          pdf.addImage(imgData, "JPEG", 0, 0, 297, 210, undefined, "FAST");
+          pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
           const pdfBlob = pdf.output("blob");
 
           root.unmount();

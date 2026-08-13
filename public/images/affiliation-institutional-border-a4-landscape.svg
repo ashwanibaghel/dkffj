@@ -1,77 +1,100 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1123 794" width="1123" height="794">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1754" width="1240" height="1754">
   <defs>
-    <!-- Rich Parchment Warm Base Gradient -->
-    <radialGradient id="parchmentGrad" cx="50%" cy="50%" r="70%">
-      <stop offset="0%" stop-color="#FAF5E8" />
-      <stop offset="65%" stop-color="#F4EBD3" />
-      <stop offset="100%" stop-color="#EEDFB8" />
+    <!-- Parchment Radial Base Background Gradient (Centered at cx: 620, cy: 877) -->
+    <radialGradient id="parchmentBg" cx="50%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#FFF9EA" />
+      <stop offset="55%" stop-color="#F7EED7" />
+      <stop offset="100%" stop-color="#F3E2BA" />
     </radialGradient>
 
-    <!-- Gold Metallic Gradient -->
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C9A14A" />
-      <stop offset="35%" stop-color="#F3E5AB" />
-      <stop offset="70%" stop-color="#B9943F" />
-      <stop offset="100%" stop-color="#8E6F22" />
+    <!-- Metallic Gold Gradient -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D3A745" />
+      <stop offset="30%" stop-color="#F7E7A1" />
+      <stop offset="60%" stop-color="#C89C38" />
+      <stop offset="100%" stop-color="#80601B" />
     </linearGradient>
 
-    <!-- Deep Navy Gradient -->
-    <linearGradient id="navyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#0B2A5B" />
-      <stop offset="100%" stop-color="#061836" />
+    <!-- Dark Navy Gradient -->
+    <linearGradient id="navyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#061D48" />
+      <stop offset="100%" stop-color="#041230" />
     </linearGradient>
+
+    <!-- Security Text Watermark Pattern (Angle -18 deg, opacity 5.8%, color #70809A) -->
+    <pattern id="diagonalSecurityText" width="380" height="95" patternUnits="userSpaceOnUse" patternTransform="rotate(-18)">
+      <text x="0" y="32" fill="#70809A" opacity="0.058" font-family="Arial, sans-serif" font-size="18" font-weight="bold" letter-spacing="1.5">
+        DK FOUNDATION OF FREEDOM AND JUSTICE
+      </text>
+      <text x="190" y="80" fill="#70809A" opacity="0.058" font-family="Arial, sans-serif" font-size="18" font-weight="bold" letter-spacing="1.5">
+        DK FOUNDATION OF FREEDOM AND JUSTICE
+      </text>
+    </pattern>
+
+    <!-- Ornate Corner Flourish Bounding Box (118 x 112) -->
+    <g id="cornerOrnamentGroup">
+      <path d="M 0 0 C 45 0 85 22 85 70 C 85 40 58 24 30 24 C 68 24 102 48 102 104 L 92 104 C 92 58 60 34 20 34 L 20 92 C 20 60 5 32 0 0 Z" fill="url(#goldGradient)" />
+      <path d="M 12 12 C 34 12 62 26 70 60 C 60 40 40 24 16 20 Z" fill="url(#goldGradient)" />
+      <circle cx="40" cy="40" r="8.5" fill="url(#navyGradient)" />
+      <circle cx="40" cy="40" r="4" fill="url(#goldGradient)" />
+      <circle cx="95" cy="20" r="3.5" fill="url(#goldGradient)" />
+      <circle cx="20" cy="95" r="3.5" fill="url(#goldGradient)" />
+    </g>
   </defs>
 
-  <!-- Parchment Base Fill (Rich Cream / Warm Ivory) -->
-  <rect x="0" y="0" width="1123" height="794" fill="url(#parchmentGrad)" />
+  <!-- 1. Background Base Layers -->
+  <rect x="0" y="0" width="1240" height="1754" fill="url(#parchmentBg)" />
+  <rect x="0" y="0" width="1240" height="1754" fill="url(#diagonalSecurityText)" />
 
-  <!-- Outer Navy Heavy Frame -->
-  <rect x="18" y="18" width="1087" height="758" fill="none" stroke="url(#navyGrad)" stroke-width="4.5" rx="3" />
-  
-  <!-- Outer Gold Accent Line -->
-  <rect x="25" y="25" width="1073" height="744" fill="none" stroke="url(#goldGrad)" stroke-width="2" />
+  <!-- 2. Main Frame Architecture (Trace-Derived Portrait Coordinates) -->
+  <!-- Outer Navy Frame (x: 12, y: 12, w: 1216, h: 1730, thickness: 12) -->
+  <rect x="12" y="12" width="1216" height="1730" fill="none" stroke="#061D48" stroke-width="12" rx="4" />
 
-  <!-- Inner Navy Frame -->
-  <rect x="32" y="32" width="1059" height="730" fill="none" stroke="url(#navyGrad)" stroke-width="3" />
+  <!-- Outer Gold Accent (x: 26, y: 26, w: 1188, h: 1702, thickness: 3.5) -->
+  <rect x="26" y="26" width="1188" height="1702" fill="none" stroke="#D3A745" stroke-width="3.5" />
 
-  <!-- Dotted Inner Gold Accent Line (Safe Print Margin) -->
-  <rect x="38" y="38" width="1047" height="718" fill="none" stroke="url(#goldGrad)" stroke-width="1.2" stroke-dasharray="8 4" opacity="0.8" />
+  <!-- Inner Navy Frame (x: 37, y: 37, w: 1166, h: 1680, thickness: 3) -->
+  <rect x="37" y="37" width="1166" height="1680" fill="none" stroke="#0A285D" stroke-width="3" />
 
-  <!-- CORNER ORNAMENTS (Top-Left) -->
-  <g transform="translate(38, 38)">
-    <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="url(#goldGrad)" />
-    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
-    <circle cx="20" cy="20" r="2" fill="url(#goldGrad)" />
-    <path d="M 12 12 L 30 12 L 30 14 L 14 14 L 14 30 L 12 30 Z" fill="url(#goldGrad)" />
+  <!-- Inner Fine Gold Frame (x: 48, y: 48, w: 1144, h: 1658, thickness: 1.8) -->
+  <rect x="48" y="48" width="1144" height="1658" fill="none" stroke="#C89C38" stroke-width="1.8" stroke-dasharray="8 4" opacity="0.88" />
+
+  <!-- 3. Corner Ornament Zones (118 x 112 Bounding Box) -->
+  <!-- Top-Left Corner (16, 16) -->
+  <g transform="translate(16, 16)">
+    <use href="#cornerOrnamentGroup" />
+    <path d="M 0 0 L 85 0 L 0 85 Z" fill="none" stroke="url(#goldGradient)" stroke-width="2.5" />
   </g>
 
-  <!-- CORNER ORNAMENTS (Top-Right) -->
-  <g transform="translate(1085, 38) scale(-1, 1)">
-    <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="url(#goldGrad)" />
-    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
-    <circle cx="20" cy="20" r="2" fill="url(#goldGrad)" />
-    <path d="M 12 12 L 30 12 L 30 14 L 14 14 L 14 30 L 12 30 Z" fill="url(#goldGrad)" />
+  <!-- Top-Right Corner (1106, 16) -->
+  <g transform="translate(1224, 16) scale(-1, 1)">
+    <use href="#cornerOrnamentGroup" />
+    <path d="M 0 0 L 85 0 L 0 85 Z" fill="none" stroke="url(#goldGradient)" stroke-width="2.5" />
   </g>
 
-  <!-- CORNER ORNAMENTS (Bottom-Left) -->
-  <g transform="translate(38, 756) scale(1, -1)">
-    <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="url(#goldGrad)" />
-    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
-    <circle cx="20" cy="20" r="2" fill="url(#goldGrad)" />
-    <path d="M 12 12 L 30 12 L 30 14 L 14 14 L 14 30 L 12 30 Z" fill="url(#goldGrad)" />
+  <!-- Bottom-Left Corner (16, 1626) -->
+  <g transform="translate(16, 1738) scale(1, -1)">
+    <use href="#cornerOrnamentGroup" />
+    <path d="M 0 0 L 85 0 L 0 85 Z" fill="none" stroke="url(#goldGradient)" stroke-width="2.5" />
   </g>
 
-  <!-- CORNER ORNAMENTS (Bottom-Right) -->
-  <g transform="translate(1085, 756) scale(-1, -1)">
-    <path d="M 0 0 L 50 0 L 50 6 L 6 6 L 6 50 L 0 50 Z" fill="url(#goldGrad)" />
-    <circle cx="20" cy="20" r="4" fill="url(#navyGrad)" />
-    <circle cx="20" cy="20" r="2" fill="url(#goldGrad)" />
-    <path d="M 12 12 L 30 12 L 30 14 L 14 14 L 14 30 L 12 30 Z" fill="url(#goldGrad)" />
+  <!-- Bottom-Right Corner (1106, 1626) -->
+  <g transform="translate(1224, 1738) scale(-1, -1)">
+    <use href="#cornerOrnamentGroup" />
+    <path d="M 0 0 L 85 0 L 0 85 Z" fill="none" stroke="url(#goldGradient)" stroke-width="2.5" />
   </g>
 
-  <!-- Top Center Ornamental Crest Accent -->
-  <g transform="translate(561.5, 32)">
-    <polygon points="-40,0 40,0 0,14" fill="url(#goldGrad)" />
-    <circle cx="0" cy="7" r="3" fill="#0B2A5B" />
+  <!-- Top Center Header Crest Accent (cx: 620, y: 37) -->
+  <g transform="translate(620, 37)">
+    <path d="M -60 0 Q 0 20 60 0 Q 0 8 -60 0 Z" fill="url(#goldGradient)" />
+    <circle cx="0" cy="8" r="4.5" fill="#061D48" />
+  </g>
+
+  <!-- Government Logos Vertical Divider Lines (x: 245, 480, 755, 995) -->
+  <g stroke="url(#goldGradient)" stroke-width="1.8" opacity="0.6">
+    <line x1="245" y1="1275" x2="245" y2="1425" />
+    <line x1="480" y1="1275" x2="480" y2="1425" />
+    <line x1="755" y1="1275" x2="755" y2="1425" />
+    <line x1="995" y1="1275" x2="995" y2="1425" />
   </g>
 </svg>

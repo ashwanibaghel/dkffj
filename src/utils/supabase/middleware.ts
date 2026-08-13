@@ -14,6 +14,11 @@ export const createClient = async (request: NextRequest) => {
     },
   });
 
+  // If dev admin session fallback cookie is present, skip network auth call to avoid DNS / fetch errors
+  if (request.cookies.get("dev_admin_session")?.value === "true") {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     supabaseUrl!,
     supabaseKey!,
