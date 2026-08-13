@@ -160,33 +160,33 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         {/* 1. Main Frame Architecture & Background SVG Layer */}
         <image href={borderSrc} xlinkHref={borderSrc} x="0" y="0" width="1240" height="1754" preserveAspectRatio="none" />
 
-        {/* 2. Main Central Emblem Watermark (cx: 620, cy: 880, diameter: 760px, opacity: 0.048) */}
+        {/* 2. Main Central Emblem Watermark (cx: 620, cy: 910, diameter: 760px, opacity: 0.048) */}
         <image
           href={logoSrc}
           xlinkHref={logoSrc}
           x="240"
-          y="500"
+          y="530"
           width="760"
           height="760"
           preserveAspectRatio="xMidYMid meet"
           opacity="0.048"
         />
 
-        {/* 3. Header Section with SINGLE TOP-CENTER DKFFJ LOGO (165x165px, y=65) */}
+        {/* 3. Header Section with SINGLE TOP-CENTER DKFFJ LOGO (165x165px, y=70) */}
         <image
           href={logoSrc}
           xlinkHref={logoSrc}
           x="537.5"
-          y="65"
+          y="70"
           width="165"
           height="165"
           preserveAspectRatio="xMidYMid meet"
         />
 
-        {/* Main Organization Heading (620, 270, 42px Cinzel bold serif - 40px clear gap below logo!) */}
+        {/* Main Organization Heading (620, 278, 42px Cinzel bold serif - 43px clear gap below logo!) */}
         <text
           x="620"
-          y="270"
+          y="278"
           fill="#7B151C"
           fontFamily="'Cinzel', Georgia, serif"
           fontWeight="800"
@@ -197,10 +197,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           DK FOUNDATION OF FREEDOM AND JUSTICE
         </text>
 
-        {/* Human Rights Protection Subhead (620, 310) */}
+        {/* Human Rights Protection Subhead (620, 320) */}
         <text
           x="620"
-          y="310"
+          y="320"
           fill="#061D48"
           fontFamily="'Inter', Arial, sans-serif"
           fontWeight="900"
@@ -211,10 +211,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           HUMAN RIGHTS PROTECTION
         </text>
 
-        {/* Registration Line (620, 340) */}
+        {/* Registration Line (620, 352) */}
         <text
           x="620"
-          y="340"
+          y="352"
           fill="#222222"
           fontFamily="'Playfair Display', Georgia, serif"
           fontStyle="italic"
@@ -225,28 +225,28 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           Regd. By Ministry of Corporate Affairs, Govt. of India
         </text>
 
-        {/* Decorative Divider Under Header (cx: 620, y: 365) */}
-        <line x1="220" y1="365" x2="540" y2="365" stroke="#C89C38" strokeWidth="2.5" />
-        <line x1="700" y1="365" x2="1020" y2="365" stroke="#C89C38" strokeWidth="2.5" />
-        <circle cx="620" cy="365" r="5" fill="#7B151C" />
+        {/* Decorative Divider Under Header (cx: 620, y: 378) */}
+        <line x1="220" y1="378" x2="540" y2="378" stroke="#C89C38" strokeWidth="2.5" />
+        <line x1="700" y1="378" x2="1020" y2="378" stroke="#C89C38" strokeWidth="2.5" />
+        <circle cx="620" cy="378" r="5" fill="#7B151C" />
 
-        {/* 4. Affiliation Metadata Row (70 & 1170, 405) */}
+        {/* 4. Affiliation Metadata Row (70 & 1170, 420) */}
         {/* Left: Affiliation No */}
-        <text x="70" y="405" fontFamily="'Inter', sans-serif" fontSize="19" fontWeight="700" fill="#061D48">
+        <text x="70" y="420" fontFamily="'Inter', sans-serif" fontSize="19" fontWeight="700" fill="#061D48">
           <tspan fill="#061D48">Affiliation No.:</tspan>
           <tspan fill="#7B151C" fontFamily="monospace" fontWeight="800" dx="12">{formattedAffiliationNo}</tspan>
         </text>
 
         {/* Right: Issue Date */}
-        <text x="1170" y="405" fontFamily="'Inter', sans-serif" fontSize="19" fontWeight="700" fill="#061D48" textAnchor="end">
+        <text x="1170" y="420" fontFamily="'Inter', sans-serif" fontSize="19" fontWeight="700" fill="#061D48" textAnchor="end">
           <tspan fill="#061D48">Issue Date:</tspan>
           <tspan fill="#061D48" fontWeight="800" dx="12">{issueDate}</tspan>
         </text>
 
-        {/* 5. Main Certificate Title (620, 485, 54px Cinzel) */}
+        {/* 5. Main Certificate Title (620, 505, 54px Cinzel - Positioned cleanly below header divider!) */}
         <text
           x="620"
-          y="485"
+          y="505"
           fill="#071F4A"
           fontFamily="'Cinzel', Georgia, serif"
           fontWeight="900"
@@ -257,11 +257,11 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           CERTIFICATE OF AFFILIATION
         </text>
 
-        {/* Subtitle & Gold Dividers (620, 538, 25px Cinzel) */}
-        <line x1="200" y1="532" x2="330" y2="532" stroke="#C89C38" strokeWidth="2.2" />
+        {/* Subtitle & Gold Dividers (620, 558, 25px Cinzel) */}
+        <line x1="200" y1="552" x2="330" y2="552" stroke="#C89C38" strokeWidth="2.2" />
         <text
           x="620"
-          y="538"
+          y="558"
           fill="#C89C38"
           fontFamily="'Cinzel', Georgia, serif"
           fontWeight="800"
@@ -271,16 +271,16 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         >
           INSTITUTIONAL TRAINING AFFILIATION
         </text>
-        <line x1="910" y1="532" x2="1040" y2="532" stroke="#C89C38" strokeWidth="2.2" />
+        <line x1="910" y1="552" x2="1040" y2="552" stroke="#C89C38" strokeWidth="2.2" />
 
-        {/* Small Flourish Beneath Subtitle (y: 565) */}
-        <path d="M 580 565 Q 600 559 620 565 Q 640 571 660 565 Q 640 559 620 565 Q 600 571 580 565 Z" fill="#C89C38" opacity="0.9" />
-        <circle cx="620" cy="565" r="3.5" fill="#7B151C" />
+        {/* Small Flourish Beneath Subtitle (y: 585) */}
+        <path d="M 580 585 Q 600 579 620 585 Q 640 591 660 585 Q 640 579 620 585 Q 600 591 580 585 Z" fill="#C89C38" opacity="0.9" />
+        <circle cx="620" cy="585" r="3.5" fill="#7B151C" />
 
-        {/* 6. Intro Line (620, 618) */}
+        {/* 6. Intro Line (620, 638) */}
         <text
           x="620"
-          y="618"
+          y="638"
           fill="#222222"
           fontFamily="'Playfair Display', Georgia, serif"
           fontStyle="italic"
@@ -296,7 +296,7 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           <>
             <text
               x="620"
-              y="680"
+              y="705"
               fill="#071F4A"
               fontFamily="'Cinzel', Georgia, serif"
               fontWeight="900"
@@ -306,14 +306,14 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
             >
               {orgLine1}
             </text>
-            <line x1={underlineX1} y1="705" x2={underlineX2} y2="705" stroke="#C89C38" strokeWidth="2.8" />
-            <polygon points="620,700 627,705 620,710 613,705" fill="#C89C38" />
+            <line x1={underlineX1} y1="732" x2={underlineX2} y2="732" stroke="#C89C38" strokeWidth="2.8" />
+            <polygon points="620,727 627,732 620,737 613,732" fill="#C89C38" />
           </>
         ) : (
           <>
             <text
               x="620"
-              y="668"
+              y="692"
               fill="#071F4A"
               fontFamily="'Cinzel', Georgia, serif"
               fontWeight="900"
@@ -325,7 +325,7 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
             </text>
             <text
               x="620"
-              y="712"
+              y="736"
               fill="#071F4A"
               fontFamily="'Cinzel', Georgia, serif"
               fontWeight="900"
@@ -335,13 +335,13 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
             >
               {orgLine2}
             </text>
-            <line x1={underlineX1} y1="735" x2={underlineX2} y2="735" stroke="#C89C38" strokeWidth="2.8" />
-            <polygon points="620,730 627,735 620,740 613,735" fill="#C89C38" />
+            <line x1={underlineX1} y1="760" x2={underlineX2} y2="760" stroke="#C89C38" strokeWidth="2.8" />
+            <polygon points="620,755 627,760 620,765 613,760" fill="#C89C38" />
           </>
         )}
 
-        {/* 8. Representative + Location Row (620, 770) */}
-        <text x="620" y="770" fontFamily="'Inter', sans-serif" fontSize="23" fontWeight="700" textAnchor="middle">
+        {/* 8. Representative + Location Row (620, 798) */}
+        <text x="620" y="798" fontFamily="'Inter', sans-serif" fontSize="23" fontWeight="700" textAnchor="middle">
           <tspan fill="#555555" fontWeight="600">Represented by: </tspan>
           <tspan fill="#071F4A" fontWeight="800" dx="4">{cleanApplicantName}</tspan>
           <tspan fill="#C89C38" fontWeight="800" dx="18">   •   </tspan>
@@ -350,10 +350,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         </text>
 
         {/* 9. Grant Statement (3 Controlled Lines with Generous Spacing) */}
-        {/* Line 1 (620, 825) */}
+        {/* Line 1 (620, 855) */}
         <text
           x="620"
-          y="825"
+          y="855"
           fill="#222222"
           fontFamily="'Playfair Display', Georgia, serif"
           fontStyle="italic"
@@ -364,10 +364,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           has been granted
         </text>
 
-        {/* Line 2 (620, 878) */}
+        {/* Line 2 (620, 908) */}
         <text
           x="620"
-          y="878"
+          y="908"
           fill="#8B1E24"
           fontFamily="'Cinzel', Georgia, serif"
           fontWeight="800"
@@ -378,10 +378,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           Institutional Training Affiliation
         </text>
 
-        {/* Line 3 (620, 925) */}
+        {/* Line 3 (620, 955) */}
         <text
           x="620"
-          y="925"
+          y="955"
           fill="#071F4A"
           fontFamily="'Playfair Display', Georgia, serif"
           fontWeight="800"
@@ -392,10 +392,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
         </text>
 
         {/* 10. Disclaimer Block (2 Controlled Lines) */}
-        {/* Line 1 (620, 972) */}
+        {/* Line 1 (620, 1002) */}
         <text
           x="620"
-          y="972"
+          y="1002"
           fill="#444444"
           fontFamily="'Inter', sans-serif"
           fontStyle="italic"
@@ -406,10 +406,10 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           This affiliation is valid only for the courses/programs approved by DKFFJ
         </text>
 
-        {/* Line 2 (620, 998) */}
+        {/* Line 2 (620, 1028) */}
         <text
           x="620"
-          y="998"
+          y="1028"
           fill="#444444"
           fontFamily="'Inter', sans-serif"
           fontStyle="italic"
@@ -420,53 +420,53 @@ export const AffiliationCertificateRenderer: React.FC<AffiliationCertificateRend
           and listed in Annexure-A / the official verification record.
         </text>
 
-        {/* 11. DEDICATED ENLARGED AUTHENTICATION ROW (Shifted DOWN to y: 1060–1265) */}
+        {/* 11. DEDICATED ENLARGED AUTHENTICATION ROW (Shifted DOWN to y: 1090–1282) */}
         {/* LEFT ZONE: CEO Signature (Centered at x=245) */}
         {signatureSrc && (
-          <image href={signatureSrc} xlinkHref={signatureSrc} x="130" y="1060" width="230" height="80" preserveAspectRatio="xMidYMid meet" style={{ mixBlendMode: "multiply" }} />
+          <image href={signatureSrc} xlinkHref={signatureSrc} x="130" y="1090" width="230" height="80" preserveAspectRatio="xMidYMid meet" style={{ mixBlendMode: "multiply" }} />
         )}
-        <line x1="115" y1="1144" x2="375" y2="1144" stroke="#111111" strokeWidth="2" />
-        <text x="245" y="1166" fill="#111111" fontFamily="'Inter', sans-serif" fontSize="15" fontWeight="700" textAnchor="middle">
+        <line x1="115" y1="1174" x2="375" y2="1174" stroke="#111111" strokeWidth="2" />
+        <text x="245" y="1196" fill="#111111" fontFamily="'Inter', sans-serif" fontSize="15" fontWeight="700" textAnchor="middle">
           (Seal &amp; Signature)
         </text>
-        <text x="245" y="1190" fill="#071F4A" fontFamily="'Cinzel', Georgia, serif" fontSize="17.5" fontWeight="800" textAnchor="middle">
+        <text x="245" y="1220" fill="#071F4A" fontFamily="'Cinzel', Georgia, serif" fontSize="17.5" fontWeight="800" textAnchor="middle">
           CHIEF EXECUTIVE OFFICER
         </text>
-        <text x="245" y="1210" fill="#555555" fontFamily="'Inter', sans-serif" fontSize="14" textAnchor="middle">
+        <text x="245" y="1240" fill="#555555" fontFamily="'Inter', sans-serif" fontSize="14" textAnchor="middle">
           DK Foundation of Freedom and Justice
         </text>
 
         {/* CENTER ZONE: ISO Seal (Centered at x=620, Enlarged 160x160px) */}
-        <image href={isoSealSrc} xlinkHref={isoSealSrc} x="540" y="1065" width="160" height="160" preserveAspectRatio="xMidYMid meet" />
+        <image href={isoSealSrc} xlinkHref={isoSealSrc} x="540" y="1095" width="160" height="160" preserveAspectRatio="xMidYMid meet" />
 
         {/* RIGHT ZONE: QR Code Block (Centered at x=995, Enlarged 160x160px) */}
-        <rect x="915" y="1060" width="160" height="160" fill="#FFFFFF" stroke="#071F4A" strokeWidth="2" rx="4" />
-        {qrSrc && <image href={qrSrc} xlinkHref={qrSrc} x="920" y="1065" width="150" height="150" preserveAspectRatio="xMidYMid meet" />}
-        <text x="995" y="1232" fill="#071F4A" fontFamily="'Inter', sans-serif" fontSize="15.5" fontWeight="800" textAnchor="middle">
+        <rect x="915" y="1090" width="160" height="160" fill="#FFFFFF" stroke="#071F4A" strokeWidth="2" rx="4" />
+        {qrSrc && <image href={qrSrc} xlinkHref={qrSrc} x="920" y="1095" width="150" height="150" preserveAspectRatio="xMidYMid meet" />}
+        <text x="995" y="1262" fill="#071F4A" fontFamily="'Inter', sans-serif" fontSize="15.5" fontWeight="800" textAnchor="middle">
           Scan to Verify Affiliation
         </text>
-        <text x="995" y="1252" fill="#555555" fontFamily="'Inter', sans-serif" fontSize="13.5" textAnchor="middle">
+        <text x="995" y="1282" fill="#555555" fontFamily="'Inter', sans-serif" fontSize="13.5" textAnchor="middle">
           www.dkffj.org/verify
         </text>
 
-        {/* 12. PROMINENT INSTITUTIONAL GOVERNMENT LOGO BAND (Shifted DOWN to y: 1320–1500) */}
-        {/* MCA (40, 1335, 210x140) */}
-        <image href={mcaSrc} xlinkHref={mcaSrc} x="40" y="1335" width="210" height="140" preserveAspectRatio="xMidYMid meet" />
-        {/* NITI Aayog (270, 1360, 200x102) */}
-        <image href={nitiSrc} xlinkHref={nitiSrc} x="270" y="1360" width="200" height="102" preserveAspectRatio="xMidYMid meet" />
-        {/* NSDC (495, 1335, 250x140) */}
-        <image href={nsdcSrc} xlinkHref={nsdcSrc} x="495" y="1335" width="250" height="140" preserveAspectRatio="xMidYMid meet" />
-        {/* State Emblem (770, 1320, 205x160) */}
-        <image href={emblemSrc} xlinkHref={emblemSrc} x="770" y="1320" width="205" height="160" preserveAspectRatio="xMidYMid meet" />
-        {/* MSME (1000, 1360, 230x102) */}
-        <image href={msmeSrc} xlinkHref={msmeSrc} x="1000" y="1360" width="230" height="102" preserveAspectRatio="xMidYMid meet" />
+        {/* 12. PROMINENT INSTITUTIONAL GOVERNMENT LOGO BAND (Shifted CLOSE to Auth Row y: 1330–1510) */}
+        {/* MCA (40, 1345, 210x140) */}
+        <image href={mcaSrc} xlinkHref={mcaSrc} x="40" y="1345" width="210" height="140" preserveAspectRatio="xMidYMid meet" />
+        {/* NITI Aayog (270, 1370, 200x102) */}
+        <image href={nitiSrc} xlinkHref={nitiSrc} x="270" y="1370" width="200" height="102" preserveAspectRatio="xMidYMid meet" />
+        {/* NSDC (495, 1345, 250x140) */}
+        <image href={nsdcSrc} xlinkHref={nsdcSrc} x="495" y="1345" width="250" height="140" preserveAspectRatio="xMidYMid meet" />
+        {/* State Emblem (770, 1330, 205x160) */}
+        <image href={emblemSrc} xlinkHref={emblemSrc} x="770" y="1330" width="205" height="160" preserveAspectRatio="xMidYMid meet" />
+        {/* MSME (1000, 1370, 230x102) */}
+        <image href={msmeSrc} xlinkHref={msmeSrc} x="1000" y="1370" width="230" height="102" preserveAspectRatio="xMidYMid meet" />
 
-        {/* 13. FOOTER ADDRESS BAR (Shifted DOWN to y: 1540 & y: 1585, 1615 - Perfect 43px margin above inner border!) */}
-        <line x1="160" y1="1540" x2="1080" y2="1540" stroke="#C89C38" strokeWidth="1.8" opacity="0.75" />
-        <text x="620" y="1585" fill="#061D48" fontFamily="'Inter', sans-serif" fontSize="18" fontWeight="800" textAnchor="middle">
+        {/* 13. FOOTER ADDRESS BAR (Shifted DOWN to y: 1545 & y: 1590, 1622 - Perfect 36px margin above inner border!) */}
+        <line x1="160" y1="1545" x2="1080" y2="1545" stroke="#C89C38" strokeWidth="1.8" opacity="0.75" />
+        <text x="620" y="1590" fill="#061D48" fontFamily="'Inter', sans-serif" fontSize="18" fontWeight="800" textAnchor="middle">
           Head Office: 117/M/29-C Kakadeo M-block, Madhuvan Appt. Road, Kanpur Nagar 208019 (UP) India
         </text>
-        <text x="620" y="1615" fill="#444444" fontFamily="'Inter', sans-serif" fontSize="16" fontWeight="600" textAnchor="middle">
+        <text x="620" y="1622" fill="#444444" fontFamily="'Inter', sans-serif" fontSize="16" fontWeight="600" textAnchor="middle">
           Website: www.dkffj.org   |   Email: contact@dkffj.org   |   Contact: +91 88712 19033, +91 70804 00333
         </text>
       </svg>
