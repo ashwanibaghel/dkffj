@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { sendMembershipOtp, verifyMembershipOtp, submitMembershipApplication } from "./actions";
+import { sendMembershipOtp, verifyMembershipOtp, submitMembershipApplication, checkReferralEligibility } from "./actions";
 import { ArrowLeft, ArrowRight, Loader2, Check, AlertCircle, FileText, Upload, Shield, Eye, EyeOff } from "lucide-react";
 import { compressImage } from "@/lib/compressImage";
 import { uploadMembershipDocs } from "@/lib/uploadToStorage";
@@ -121,6 +121,12 @@ export default function ApplyPage() {
   const [email, setEmail] = useState<string>(draft?.email || "");
   const [joiningType, setJoiningType] = useState<"direct" | "referred">(draft?.joiningType || "direct");
   const [referralCode, setReferralCode] = useState<string>(draft?.referralCode || "");
+
+  // Referral validation states
+  const [verifyingReferral, setVerifyingReferral] = useState<boolean>(false);
+  const [referralVerified, setReferralVerified] = useState<boolean>(false);
+  const [referrerInfo, setReferrerInfo] = useState<{ name: string; code: string; designation?: string } | null>(null);
+  const [referralError, setReferralError] = useState<string>("");
 
   // OTP states
   const [otpCode, setOtpCode] = useState<string>(draft?.otpCode || "");
@@ -262,7 +268,46 @@ export default function ApplyPage() {
     }
   };
 
-  const handleNextStep = () => {
+  const handleVerifyReferral = async (codeToVerify?: string): Promise<boolean> => {
+    const code = (codeToVerify !== undefined ? codeToVerify : referralCode).trim();
+    if (!code) {
+      setReferralError("Please enter a Referral Member ID.");
+      setReferralVerified(false);
+      setReferrerInfo(null);
+      return false;
+    }
+
+    setVerifyingReferral(true);
+    setReferralError("");
+
+    try {
+      const res = await checkReferralEligibility(code, null, email, mobile);
+      if (res.success && res.referrerName) {
+        setReferralVerified(true);
+        setReferrerInfo({
+          name: res.referrerName,
+          code: res.referrerCode || code,
+          designation: res.referrerDesignation || "Member"
+        });
+        setReferralError("");
+        return true;
+      } else {
+        setReferralVerified(false);
+        setReferrerInfo(null);
+        setReferralError(res.error || "Invalid Referral Member ID.");
+        return false;
+      }
+    } catch (err: any) {
+      setReferralVerified(false);
+      setReferrerInfo(null);
+      setReferralError("Failed to verify referral code. Please check details.");
+      return false;
+    } finally {
+      setVerifyingReferral(false);
+    }
+  };
+
+  const handleNextStep = async () => {
     setErrorMsg("");
     setSuccessMsg("");
     if (step === 1) {
@@ -309,6 +354,19 @@ export default function ApplyPage() {
       if (!emailRegex.test(email)) {
         setErrorMsg("Please enter a valid email address.");
         return;
+      }
+
+      // Step 1 Referral Validation: Must validate referral code before leaving Step 1!
+      if (joiningType === "referred") {
+        if (!referralCode.trim()) {
+          setErrorMsg("Please enter the Referral Member ID or select Direct Joining.");
+          return;
+        }
+        const isValidRef = await handleVerifyReferral(referralCode);
+        if (!isValidRef) {
+          setErrorMsg("Please enter a valid Referral Member ID before proceeding to Step 2, or select Direct Joining.");
+          return;
+        }
       }
 
       setStep(2);
@@ -800,20 +858,65 @@ export default function ApplyPage() {
                   </div>
 
                   {joiningType === 'referred' && (
-                    <div className="pt-2 animate-fadeIn">
-                      <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                    <div className="pt-2 animate-fadeIn space-y-2">
+                      <label className="block text-[10px] font-bold text-slate-700 uppercase tracking-wider">
                         Referral Member ID *
                       </label>
-                      <input
-                        type="text"
-                        value={referralCode}
-                        onChange={(e) => setReferralCode(e.target.value)}
-                        required={joiningType === 'referred'}
-                        placeholder="e.g. DKM00021"
-                        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#001C55]/15 focus:border-[#001C55] bg-white uppercase"
-                      />
-                      <p className="text-[10px] text-slate-500 mt-1 italic">
-                        Enter the unique Membership Number (DKMxxxx) of the member who referred you.
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={referralCode}
+                          onChange={(e) => {
+                            setReferralCode(e.target.value);
+                            setReferralVerified(false);
+                            setReferrerInfo(null);
+                            setReferralError("");
+                          }}
+                          onBlur={() => {
+                            if (referralCode.trim() && !referralVerified) {
+                              handleVerifyReferral(referralCode);
+                            }
+                          }}
+                          required={joiningType === 'referred'}
+                          placeholder="e.g. DKFFJ/M/EXEC/1000 or 1000"
+                          className={`w-full px-3.5 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 uppercase font-semibold ${
+                            referralVerified
+                              ? "border-emerald-500 bg-emerald-50/30 text-emerald-950 ring-2 ring-emerald-500/20"
+                              : referralError
+                              ? "border-rose-500 bg-rose-50/30 text-rose-950 ring-2 ring-rose-500/20"
+                              : "border-slate-200 bg-white focus:ring-[#001C55]/15 focus:border-[#001C55]"
+                          }`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleVerifyReferral(referralCode)}
+                          disabled={verifyingReferral || !referralCode.trim()}
+                          className="px-4 py-2.5 bg-[#001C55] hover:bg-[#001C55]/90 text-white rounded-lg text-xs font-bold shrink-0 transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-xs"
+                        >
+                          {verifyingReferral ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                          Verify Code
+                        </button>
+                      </div>
+
+                      {referralVerified && referrerInfo && (
+                        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 flex items-center gap-2 animate-fadeIn">
+                          <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <div>
+                            <span>Verified Referrer: <strong className="text-emerald-950 underline">{referrerInfo.name}</strong> ({referrerInfo.designation || "Member"})</span>
+                            <span className="block text-[10px] text-emerald-700 font-mono font-normal mt-0.5">Code: {referrerInfo.code}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {referralError && (
+                        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs font-bold text-rose-800 flex items-start gap-2 animate-fadeIn">
+                          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                          <span>{referralError}</span>
+                        </div>
+                      )}
+
+                      <p className="text-[10px] text-slate-500 italic">
+                        Enter the Membership Number (e.g. DKFFJ/M/EXEC/1000) or numeric ID (e.g. 1000) of the referring member.
                       </p>
                     </div>
                   )}

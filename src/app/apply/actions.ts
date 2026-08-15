@@ -136,46 +136,73 @@ export async function verifyMembershipOtp(mobile: string, code: string, email?: 
  */
 export async function checkReferralEligibility(
   referralCode: string,
-  applicantUserId: string | null,
-  applicantEmail: string,
-  applicantMobile: string
+  applicantUserId: string | null = null,
+  applicantEmail: string = "",
+  applicantMobile: string = ""
 ) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  const cleanCode = referralCode.trim().toUpperCase();
+  if (!referralCode || !referralCode.trim()) {
+    return { success: false, error: "Please enter a Referral Member ID." };
+  }
 
-  // 1. Fetch referrer membership details
-  const { data: referrer, error } = await supabase
+  const rawCode = referralCode.trim();
+  const digitsOnly = rawCode.replace(/\D/g, "");
+
+  // Flexible search: match exact membership_no, ack_no, or numeric suffix
+  let query = supabase
     .from("memberships")
-    .select("id, status, user_id, email, mobile, membership_no")
-    .eq("membership_no", cleanCode)
-    .maybeSingle();
+    .select("id, status, user_id, email, mobile, membership_no, ack_no, full_name, designation");
 
-  if (error || !referrer) {
-    return { success: false, error: "The Referral Member ID entered is invalid." };
+  if (digitsOnly && digitsOnly.length >= 3) {
+    query = query.or(`membership_no.ilike.%${rawCode}%,ack_no.ilike.%${rawCode}%,membership_no.ilike.%${digitsOnly}%,ack_no.ilike.%${digitsOnly}%`);
+  } else {
+    query = query.or(`membership_no.ilike.%${rawCode}%,ack_no.ilike.%${rawCode}%`);
   }
 
-  // 2. Check if referrer is APPROVED
-  // (Isolating status check so additional expiry/suspension rules can be added here later)
+  const { data: matches, error } = await query.limit(5);
+
+  if (error || !matches || matches.length === 0) {
+    return {
+      success: false,
+      error: `The Referral Member ID ("${rawCode}") is invalid or not found. Please check with your referrer or choose Direct Joining.`
+    };
+  }
+
+  // Prefer approved referrer
+  const referrer = matches.find((m) => m.status === "APPROVED") || matches[0];
+
   if (referrer.status !== "APPROVED") {
-    return { success: false, error: "The Referral Member ID entered is not an active approved member." };
+    return {
+      success: false,
+      error: `Referrer "${referrer.full_name}" is currently pending or inactive.`
+    };
   }
 
-  // 3. Self-referral prevention (authenticated user checks - hard block)
+  // Self-referral check
   if (applicantUserId && referrer.user_id === applicantUserId) {
     return { success: false, error: "You cannot use your own Membership ID as a referral." };
   }
 
-  // 4. Soft warning check (unauthenticated contact-based matches - do NOT hard block)
-  const cleanAppEmail = applicantEmail.trim().toLowerCase();
-  const cleanAppMobile = applicantMobile.trim();
-  const cleanRefEmail = referrer.email.trim().toLowerCase();
-  const cleanRefMobile = referrer.mobile.trim();
+  const cleanAppEmail = (applicantEmail || "").trim().toLowerCase();
+  const cleanAppMobile = (applicantMobile || "").trim();
+  const cleanRefEmail = (referrer.email || "").trim().toLowerCase();
+  const cleanRefMobile = (referrer.mobile || "").trim();
 
-  const isContactMatch = cleanRefEmail === cleanAppEmail || cleanRefMobile === cleanAppMobile;
+  const isContactMatch = Boolean(
+    (cleanAppEmail && cleanRefEmail && cleanRefEmail === cleanAppEmail) ||
+    (cleanAppMobile && cleanRefMobile && cleanRefMobile === cleanAppMobile)
+  );
 
-  return { success: true, referrerId: referrer.id, isContactMatch };
+  return {
+    success: true,
+    referrerId: referrer.id,
+    referrerName: referrer.full_name,
+    referrerCode: referrer.membership_no || referrer.ack_no,
+    referrerDesignation: referrer.designation,
+    isContactMatch
+  };
 }
 
 // 3. Submit Membership Application
