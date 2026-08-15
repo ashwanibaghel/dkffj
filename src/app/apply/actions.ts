@@ -330,7 +330,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       photo_url: photoUrl,
       aadhaar_url: aadhaarUrl,
       signature_url: signatureUrl,
-      status: "PENDING",
+      status: referredByMemberId ? "UNDER_REVIEW" : "PENDING",
       referred_by_member_id: referredByMemberId,
       remarks: remarksPayload
     };
@@ -374,7 +374,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
           amount: 0,
           transaction_id: tempTxnId,
           gateway: "REFERRAL_BYPASS",
-          status: "SUCCESS",
+          status: "COMPLETED",
           membership_id: membershipId
         });
 

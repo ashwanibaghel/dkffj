@@ -17,23 +17,38 @@ export async function getMemberships(statusFilter?: string) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
-  // Auto-heal: Ensure any membership with a completed payment is at least UNDER_REVIEW
+  // Auto-heal: Ensure any membership with a completed payment or referral code is at least UNDER_REVIEW
   try {
     const { data: completedPayments } = await supabase
       .from("payments")
       .select("membership_id")
-      .eq("status", "COMPLETED")
+      .or("status.eq.COMPLETED,status.eq.SUCCESS,gateway.eq.REFERRAL_BYPASS")
       .not("membership_id", "is", null);
 
+    const membershipIds = new Set<string>();
     if (completedPayments && completedPayments.length > 0) {
-      const membershipIds = Array.from(new Set(completedPayments.map((p) => p.membership_id).filter(Boolean)));
-      if (membershipIds.length > 0) {
-        await supabase
-          .from("memberships")
-          .update({ status: "UNDER_REVIEW" })
-          .in("id", membershipIds)
-          .eq("status", "PENDING");
-      }
+      completedPayments.forEach((p) => {
+        if (p.membership_id) membershipIds.add(p.membership_id);
+      });
+    }
+
+    // Also auto-heal any membership with a referral code (referred_by_member_id is not null)
+    const { data: referredMembers } = await supabase
+      .from("memberships")
+      .select("id")
+      .not("referred_by_member_id", "is", null)
+      .eq("status", "PENDING");
+
+    if (referredMembers && referredMembers.length > 0) {
+      referredMembers.forEach((m) => membershipIds.add(m.id));
+    }
+
+    if (membershipIds.size > 0) {
+      await supabase
+        .from("memberships")
+        .update({ status: "UNDER_REVIEW" })
+        .in("id", Array.from(membershipIds))
+        .eq("status", "PENDING");
     }
   } catch (err) {
     console.error("Auto-heal membership status error:", err);
