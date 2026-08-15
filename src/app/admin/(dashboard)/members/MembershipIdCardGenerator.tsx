@@ -50,9 +50,12 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
   const logoSrc = logoBase64 || "/logo.png";
   const signatureSrc = signatureBase64 || "/images/course_director_sig.png";
 
-  // Smart Address Builder: Appends district/state if missing without pincode, filling address space cleanly
+  // Smart Address Builder: Appends district/state/pincode if missing, filling address space cleanly
   const formattedAddress = (() => {
-    if (!data.addressStr || !data.addressStr.trim()) return "N/A";
+    if (!data.addressStr || !data.addressStr.trim()) {
+      const parts = [data.districtStr, data.stateStr, data.pincodeStr].filter(p => p && p.trim());
+      return parts.length > 0 ? parts.join(", ") : "N/A";
+    }
     let base = data.addressStr.trim();
     const parts = [base];
     if (data.districtStr && data.districtStr.trim() && !base.toLowerCase().includes(data.districtStr.toLowerCase().trim())) {
@@ -60,6 +63,9 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
     }
     if (data.stateStr && data.stateStr.trim() && !base.toLowerCase().includes(data.stateStr.toLowerCase().trim())) {
       parts.push(data.stateStr.trim());
+    }
+    if (data.pincodeStr && data.pincodeStr.trim() && !base.includes(data.pincodeStr.trim())) {
+      parts.push(data.pincodeStr.trim());
     }
     return parts.join(", ");
   })();

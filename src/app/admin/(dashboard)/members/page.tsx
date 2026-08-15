@@ -392,6 +392,22 @@ export default function AdminMembersPage() {
     void fetchData(hasCache);
   }, []);
 
+  // Background Photo Preloader: Cache all member profile photos in browser memory on page load
+  useEffect(() => {
+    if (!members || members.length === 0) return;
+    if (typeof window === "undefined") return;
+
+    members.forEach((m) => {
+      if (m.photo_url) {
+        const fullUrl = resolveFullPhotoUrl(m.photo_url);
+        if (fullUrl && !fullUrl.startsWith("data:")) {
+          const img = new window.Image();
+          img.src = fullUrl;
+        }
+      }
+    });
+  }, [members]);
+
   const startEditing = (member: MemberRecord) => {
     setEditingId(member.id);
     setEditForm({
@@ -1325,7 +1341,7 @@ export default function AdminMembersPage() {
                       <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden relative shadow-sm">
                         {member.photo_url ? (
                           <img
-                            src={member.photo_url}
+                            src={resolveFullPhotoUrl(member.photo_url) || member.photo_url}
                             alt={member.full_name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -1594,9 +1610,9 @@ export default function AdminMembersPage() {
                       <div className="flex flex-col items-center border border-slate-200/60 bg-white rounded-xl p-4 text-center">
                         <div className="relative group w-28 h-28">
                           <img
-                            src={editingId === member.id ? editPhotoPreview : (member.photo_url ? `/api/documents?path=${encodeURIComponent(cleanPhotoUrl(member.photo_url))}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`)}
+                            src={editingId === member.id ? editPhotoPreview : (resolveFullPhotoUrl(member.photo_url) || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`)}
                             alt={member.full_name}
-                            className="h-28 w-28 object-cover rounded-xl border"
+                            className="h-28 w-28 object-cover rounded-xl border shadow-sm"
                             onError={(e) => {
                               (e.currentTarget as HTMLImageElement).onerror = null;
                               (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.full_name || "Member")}&background=001C55&color=fff`;
