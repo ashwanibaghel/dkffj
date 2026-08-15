@@ -90,6 +90,28 @@ export async function getMemberships(statusFilter?: string) {
       return [];
     }
 
+    const referrerIds = Array.from(
+      new Set(
+        (data || [])
+          .map((m: any) => m.referred_by_member_id)
+          .filter((id: any): id is string => Boolean(id))
+      )
+    );
+
+    const referrerMap = new Map<string, { full_name: string; membership_no?: string; ack_no?: string; designation?: string; mobile?: string }>();
+    if (referrerIds.length > 0) {
+      const { data: referrers } = await supabase
+        .from("memberships")
+        .select("id, full_name, membership_no, ack_no, designation, mobile")
+        .in("id", referrerIds);
+
+      if (referrers && referrers.length > 0) {
+        referrers.forEach((r: any) => {
+          referrerMap.set(r.id, r);
+        });
+      }
+    }
+
     const SUPABASE_CDN_BASE = "https://tgszzjbvpcznndrfkkov.supabase.co/storage/v1/object/public/photos/";
 
     return (data || []).map((m: any) => {
@@ -102,9 +124,16 @@ export async function getMemberships(statusFilter?: string) {
           photo = `${SUPABASE_CDN_BASE}membership_form/${cleanPath}`;
         }
       }
+
+      const referrer = m.referred_by_member_id ? referrerMap.get(m.referred_by_member_id) : null;
+
       return {
         ...m,
-        photo_url: photo
+        photo_url: photo,
+        referrer_name: referrer?.full_name || null,
+        referrer_membership_no: referrer?.membership_no || referrer?.ack_no || null,
+        referrer_designation: referrer?.designation || null,
+        referrer_mobile: referrer?.mobile || null
       };
     });
   });

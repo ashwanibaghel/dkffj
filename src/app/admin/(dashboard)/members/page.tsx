@@ -87,6 +87,11 @@ type MemberRecord = {
   valid_until?: string | null;
   created_at: string;
   remarks?: string | null;
+  referred_by_member_id?: string | null;
+  referrer_name?: string | null;
+  referrer_membership_no?: string | null;
+  referrer_designation?: string | null;
+  referrer_mobile?: string | null;
 };
 
 const getErrorMessage = (error: unknown) => {
@@ -1360,6 +1365,11 @@ export default function AdminMembersPage() {
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-slate-900 dark:text-slate-100 text-sm truncate">{member.full_name}</h4>
                         <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block font-mono">ACK: {member.ack_no}</span>
+                        {member.referrer_name && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40 mt-1">
+                            👥 Referred by: {member.referrer_name}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="min-w-0">
@@ -1892,6 +1902,33 @@ export default function AdminMembersPage() {
                             <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">Working Area</span>
                             <span className="text-slate-800 mt-0.5 block">{member.working_area}</span>
                           </div>
+                          {member.referrer_name && (
+                            <div className="sm:col-span-2 p-3 bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 rounded-xl flex items-center justify-between gap-3 shadow-xs">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0 font-bold text-xs shadow-sm">
+                                  👥
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="text-[9px] text-purple-700 dark:text-purple-300 font-extrabold uppercase tracking-wider block">
+                                    Referral Joining Details
+                                  </span>
+                                  <span className="text-xs font-bold text-purple-950 dark:text-purple-100 mt-0.5 block truncate">
+                                    Referred by: <strong className="underline decoration-purple-400">{member.referrer_name}</strong> ({member.referrer_designation || "Member"})
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right text-[11px] font-semibold text-purple-800 dark:text-purple-200 shrink-0">
+                                <span className="block font-mono font-bold bg-white dark:bg-purple-900 px-2 py-0.5 rounded border border-purple-200 dark:border-purple-700 text-purple-900 dark:text-purple-100 text-[10px]">
+                                  Ref Code: {member.referrer_membership_no || "N/A"}
+                                </span>
+                                {member.referrer_mobile && (
+                                  <span className="text-[10px] text-purple-600 dark:text-purple-400 mt-0.5 block font-bold">
+                                    Mob: {member.referrer_mobile}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
 
