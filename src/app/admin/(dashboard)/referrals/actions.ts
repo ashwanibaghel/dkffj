@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { verifyAdmin } from "../auth";
+import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 export interface ReferrerStats {
   id: string;
@@ -136,7 +137,7 @@ export async function getReferrerList(): Promise<ReferrerStats[]> {
     return {
       id: ref.id,
       name: ref.full_name,
-      membershipNo: ref.membership_no || "Awaiting ID",
+      membershipNo: normalizeMembershipNumber(ref.membership_no) || "Awaiting ID",
       membershipTotal,
       membershipApproved,
       membershipPending,
@@ -187,7 +188,7 @@ export async function getReferrerDetails(referrerId: string): Promise<{
     id: m.id,
     name: m.full_name,
     ackNo: m.ack_no,
-    membershipNo: m.membership_no,
+    membershipNo: normalizeMembershipNumber(m.membership_no) || null,
     createdAt: m.created_at.toISOString(),
     status: m.status,
     type: "MEMBERSHIP"
