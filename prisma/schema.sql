@@ -271,8 +271,14 @@ BEGIN
       year = v_year
   RETURNING last_value INTO v_next_val;
 
-  -- Formats as PREFIX-YYYY-0000X (zero-padded to 5 digits)
-  v_formatted := p_prefix || '-' || v_year || '-' || LPAD(v_next_val::TEXT, 5, '0');
+  -- Membership prefixes already contain their year (DKFFJ/M/YYYY/).
+  -- Do not append it a second time; other document sequences retain their
+  -- PREFIX-YYYY-0000X convention.
+  IF p_prefix ~ '^DKFFJ/M/[0-9]{4}/$' THEN
+    v_formatted := p_prefix || LPAD(v_next_val::TEXT, 5, '0');
+  ELSE
+    v_formatted := p_prefix || '-' || v_year || '-' || LPAD(v_next_val::TEXT, 5, '0');
+  END IF;
   RETURN v_formatted;
 END;
 $$ LANGUAGE plpgsql;

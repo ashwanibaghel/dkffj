@@ -12,6 +12,9 @@ export async function GET(req: Request) {
     if (!appNo || appNo.startsWith("AFF-DRAFT-")) {
       return NextResponse.json({ error: "No submitted application found for this reference. Draft applications cannot be tracked until payment is completed." }, { status: 404 });
     }
+    if (!contact) {
+      return NextResponse.json({ error: "Registered email address or mobile number is required to track an application." }, { status: 400 });
+    }
 
     // 1. Check Dev Store strictly by Application Number or Affiliation Number
     const devItem = findDevAffiliationByAppNo(appNo);
@@ -19,12 +22,10 @@ export async function GET(req: Request) {
       if (devItem.status === "DRAFT") {
         return NextResponse.json({ error: "No submitted application found for this reference. Draft applications cannot be tracked until payment is completed." }, { status: 404 });
       }
-      if (contact.length > 0) {
-        const matchEmail = devItem.applicant.email.toLowerCase() === contact;
-        const matchMobile = devItem.applicant.mobile === contact;
-        if (!matchEmail && !matchMobile) {
-          return NextResponse.json({ error: "Registered email or mobile number does not match this application." }, { status: 403 });
-        }
+      const matchEmail = devItem.applicant.email.toLowerCase() === contact;
+      const matchMobile = devItem.applicant.mobile === contact;
+      if (!matchEmail && !matchMobile) {
+        return NextResponse.json({ error: "Registered email or mobile number does not match this application." }, { status: 403 });
       }
 
       const { getNormalizedCourseCatalog } = await import("@/lib/courseCatalog");
@@ -39,7 +40,6 @@ export async function GET(req: Request) {
         id: devItem.id,
         applicationNo: devItem.applicationNo,
         affiliationNo: devItem.affiliationNo,
-        verificationToken: devItem.verificationToken,
         organizationName: devItem.organizationName,
         organizationType: devItem.organizationTypeOther || devItem.organizationType,
         establishmentYear: devItem.establishmentYear,
@@ -88,7 +88,7 @@ export async function GET(req: Request) {
       const applicant = Array.isArray(affiliation.applicants) ? affiliation.applicants[0] : affiliation.applicants;
       const statusLogs = Array.isArray(affiliation.status_logs) ? affiliation.status_logs : [];
 
-      if (contact.length > 0 && applicant) {
+      if (applicant) {
         const matchEmail = applicant.email?.toLowerCase() === contact;
         const matchMobile = applicant.mobile === contact;
         if (!matchEmail && !matchMobile) {
@@ -99,7 +99,6 @@ export async function GET(req: Request) {
       return NextResponse.json({
         applicationNo: affiliation.application_no,
         affiliationNo: affiliation.affiliation_no,
-        verificationToken: affiliation.verification_token,
         organizationName: affiliation.organization_name,
         organizationType: affiliation.organization_type_other || affiliation.organization_type,
         establishmentYear: affiliation.establishment_year,

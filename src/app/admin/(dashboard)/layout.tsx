@@ -13,8 +13,6 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  const isDevAdminSession = cookieStore.get("dev_admin_session")?.value === "true";
-
   let user: any = null;
   let profile: any = null;
 
@@ -38,19 +36,10 @@ export default async function AdminLayout({
     console.warn("Supabase auth check failed in AdminLayout:", err);
   }
 
-  // Fallback to dev admin session if Supabase cloud API is unreachable/blocked by ISP/DNS
+  // A dashboard session is valid only when Supabase authenticates the user and
+  // the corresponding profile has an administrator role.
   if (!user || !profile) {
-    if (isDevAdminSession) {
-      profile = {
-        role: "SUPERADMIN",
-        full_name: "Ashwani Baghel"
-      };
-      user = {
-        email: "admin@dkffj.org"
-      };
-    } else {
-      redirect("/admin/login");
-    }
+    redirect("/admin/login");
   }
 
   return (

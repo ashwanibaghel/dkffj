@@ -80,28 +80,33 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     // Auto-generate password if not provided to seamlessly create account
     const accountPassword = password || ("DKM@" + Math.random().toString(36).substring(2, 10) + "!" + Math.floor(100 + Math.random() * 900));
 
-    // OTP bypass for test/dev email
-    const BYPASS_EMAIL = "ashwanibaghel826@gmail.com";
-    const isBypassUser = email.toLowerCase().trim() === BYPASS_EMAIL || email.toLowerCase().includes("bypass");
+    if (!otpCode) {
+      return { success: false, error: "Verification OTP is required to verify your email." };
+    }
+    // Consume a current OTP before creating an account/registration.
+    const { data: verifiedOtp, error: otpCheckError } = await supabase
+      .from("otp_requests")
+      .select("id")
+      .eq("mobile", mobile)
+      .eq("email", email)
+      .eq("otp_code", otpCode)
+      .eq("verified", true)
+      .gt("expires_at", new Date().toISOString())
+      .limit(1)
+      .maybeSingle();
 
-    if (!isBypassUser) {
-      if (!otpCode) {
-        return { success: false, error: "Verification OTP is required to verify your email." };
-      }
-      // Verify OTP has been verified for this mobile/email combination
-      const { data: verifiedOtp, error: otpCheckError } = await supabase
-        .from("otp_requests")
-        .select("id")
-        .eq("mobile", mobile)
-        .eq("email", email)
-        .eq("otp_code", otpCode)
-        .eq("verified", true)
-        .limit(1)
-        .maybeSingle();
+    if (otpCheckError || !verifiedOtp) {
+      return { success: false, error: "Please verify your email address using OTP first before creating your account." };
+    }
 
-      if (otpCheckError || !verifiedOtp) {
-        return { success: false, error: "Please verify your email address using OTP first before creating your account." };
-      }
+    const { data: consumedOtp, error: consumeOtpError } = await supabase
+      .from("otp_requests")
+      .update({ verified: false })
+      .eq("id", verifiedOtp.id)
+      .eq("verified", true)
+      .select("id");
+    if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
+      return { success: false, error: "OTP has already been used. Please request a new OTP." };
     }
 
     try {
@@ -155,7 +160,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
       const certBuffer = Buffer.from(await experienceCert.arrayBuffer());
 
       const { data: certUpload, error: certErr } = await supabase.storage
-        .from("photos")
+        .from("aadhaar")
         .upload(certName, certBuffer, { contentType: experienceCert.type, upsert: true });
 
       if (certErr) {
@@ -163,8 +168,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
         throw new Error(`Experience certificate upload failed: ${certErr.message}`);
       }
 
-      const { data: certUrlData } = supabase.storage.from("photos").getPublicUrl(certName);
-      experienceCertUrl = certUrlData.publicUrl;
+      experienceCertUrl = `aadhaar/${certName}`;
     } catch (err: any) {
       console.error("Certificate upload pipeline error:", err);
       return { success: false, error: err.message || "Failed to upload experience certificate." };
@@ -180,7 +184,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
       const docBuffer = Buffer.from(await qualificationDoc.arrayBuffer());
 
       const { data: uploadData, error: uploadErr } = await supabase.storage
-        .from("photos")
+        .from("aadhaar")
         .upload(docName, docBuffer, { contentType: qualificationDoc.type, upsert: true });
 
       if (uploadErr) {
@@ -188,8 +192,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
         throw new Error(`Qualification document upload failed: ${uploadErr.message}`);
       }
 
-      const { data: urlData } = supabase.storage.from("photos").getPublicUrl(docName);
-      qualificationDocUrl = urlData.publicUrl;
+      qualificationDocUrl = `aadhaar/${docName}`;
     } catch (err: any) {
       console.error("Qualification doc upload pipeline error:", err);
       return { success: false, error: err.message || "Failed to upload qualification document." };
@@ -205,7 +208,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
       const docBuffer = Buffer.from(await aadhaarDoc.arrayBuffer());
 
       const { data: uploadData, error: uploadErr } = await supabase.storage
-        .from("photos")
+        .from("aadhaar")
         .upload(docName, docBuffer, { contentType: aadhaarDoc.type, upsert: true });
 
       if (uploadErr) {
@@ -213,8 +216,7 @@ export async function registerForCourse(prevData: any, formData: FormData) {
         throw new Error(`Aadhaar card upload failed: ${uploadErr.message}`);
       }
 
-      const { data: urlData } = supabase.storage.from("photos").getPublicUrl(docName);
-      aadhaarDocUrl = urlData.publicUrl;
+      aadhaarDocUrl = `aadhaar/${docName}`;
     } catch (err: any) {
       console.error("Aadhaar doc upload pipeline error:", err);
       return { success: false, error: err.message || "Failed to upload Aadhaar card document." };

@@ -3,6 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 export interface AccountData {
   profile: {
@@ -167,7 +168,10 @@ export async function getAccountDetails(): Promise<AccountData> {
       role: profile.role,
       createdAt: new Date(profile.created_at).toLocaleDateString("en-IN"),
     } : null,
-    memberships: memberships || [],
+    memberships: (memberships || []).map((membership: any) => ({
+      ...membership,
+      membership_no: normalizeMembershipNumber(membership.membership_no) || null,
+    })),
     courses: courses || [],
     complaints: complaints || [],
     notifications: notifications || [],

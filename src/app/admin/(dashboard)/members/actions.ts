@@ -6,6 +6,7 @@ import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getVersionedCache, incrementNamespaceVersion } from "@/lib/redis";
 import { resolveFullPhotoUrl } from "@/lib/photoUtils";
+import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 // 1. Fetch memberships list
 export async function getMemberships(statusFilter?: string) {
@@ -129,9 +130,10 @@ export async function getMemberships(statusFilter?: string) {
 
       return {
         ...m,
+        membership_no: normalizeMembershipNumber(m.membership_no) || null,
         photo_url: photo,
         referrer_name: referrer?.full_name || null,
-        referrer_membership_no: referrer?.membership_no || referrer?.ack_no || null,
+        referrer_membership_no: normalizeMembershipNumber(referrer?.membership_no) || referrer?.ack_no || null,
         referrer_designation: referrer?.designation || null,
         referrer_mobile: referrer?.mobile || null
       };
@@ -270,7 +272,7 @@ export async function updateMembershipStatus(
       console.error("Failed to generate membership number:", rpcError);
       return { success: false, error: "Failed to generate membership ID sequence." };
     }
-    generatedMembershipNo = mNo;
+    generatedMembershipNo = normalizeMembershipNumber(mNo);
   }
 
   // 2. Perform updates
@@ -420,7 +422,9 @@ export async function updateMembershipFields(payload: UpdateMemberPayload) {
   };
 
   if (payload.membershipNo !== undefined) {
-    updatePayload.membership_no = payload.membershipNo ? payload.membershipNo.trim() : null;
+    updatePayload.membership_no = payload.membershipNo
+      ? normalizeMembershipNumber(payload.membershipNo)
+      : null;
   }
 
   if (payload.photoUrl) {
@@ -697,9 +701,9 @@ export async function addMemberByAdminAction(payload: AddMemberAdminPayload) {
         const { count } = await supabase
           .from("memberships")
           .select("*", { count: "exact", head: true });
-        membershipNo = `DKFFJ/M/${currentYear}/${String((count || 0) + 1).padStart(4, "0")}`;
+        membershipNo = `DKFFJ/M/${currentYear}/${String((count || 0) + 1).padStart(5, "0")}`;
       } else {
-        membershipNo = mNoData;
+        membershipNo = normalizeMembershipNumber(mNoData);
       }
     }
 

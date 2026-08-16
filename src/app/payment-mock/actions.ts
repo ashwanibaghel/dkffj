@@ -8,6 +8,9 @@ import { getMembershipReceiptTemplate, getCourseRegistrationReceiptTemplate } fr
 import prisma from "@/lib/prisma";
 
 export async function verifyAndCompletePayment(transactionId: string) {
+  if (process.env.NODE_ENV === "production") {
+    return { success: false, error: "Payment simulation is disabled in production." };
+  }
   if (!transactionId) {
     return { success: false, error: "Transaction ID is required." };
   }

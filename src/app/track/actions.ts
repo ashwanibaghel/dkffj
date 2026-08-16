@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
+import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 export interface TrackingResult {
   found: boolean;
@@ -53,6 +54,7 @@ export interface TrackingResult {
     approved_at?: string | null;
     created_at?: string;
     ack_no?: string;
+    membership_no?: string | null;
   } | null;
 }
 
@@ -121,7 +123,7 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
     return {
       found: true,
       type: "membership",
-      number: membership.membership_no || membership.ack_no,
+      number: normalizeMembershipNumber(membership.membership_no) || membership.ack_no,
       name: membership.full_name,
       status: membership.status,
       date: new Date(membership.created_at).toLocaleDateString("en-IN"),
@@ -146,6 +148,7 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
         approved_at: membership.approved_at,
         created_at: membership.created_at,
         ack_no: membership.ack_no,
+        membership_no: normalizeMembershipNumber(membership.membership_no) || null,
       }
     };
   }
@@ -472,7 +475,7 @@ export async function getSecureMembershipDetails(ackNo: string, contact: string)
   return {
     found: true,
     type: "membership",
-    number: membership.membership_no || membership.ack_no,
+      number: normalizeMembershipNumber(membership.membership_no) || membership.ack_no,
     name: membership.full_name,
     status: membership.status,
     date: new Date(membership.created_at).toLocaleDateString("en-IN"),
@@ -497,6 +500,7 @@ export async function getSecureMembershipDetails(ackNo: string, contact: string)
       approved_at: membership.approved_at ? new Date(membership.approved_at).toISOString() : null,
       created_at: new Date(membership.created_at).toISOString(),
       ack_no: membership.ack_no,
+      membership_no: normalizeMembershipNumber(membership.membership_no) || null,
     }
   };
 }

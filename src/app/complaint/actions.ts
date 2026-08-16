@@ -180,29 +180,27 @@ export async function submitComplaint(prevData: any, formData: FormData) {
     return { success: false, error: "Please fill in all mandatory fields." };
   }
 
-  // Enforce OTP Verification check on the backend (bypass for test email)
-  const BYPASS_EMAIL = "ashwanibaghel826@gmail.com";
-  const isBypassUser = email.toLowerCase().trim() === BYPASS_EMAIL || email.toLowerCase().includes("bypass");
+  // Enforce a current, one-time OTP at the server boundary.
+  const { data: verifiedOtp, error: otpCheckError } = await supabase
+    .from("otp_requests")
+    .select("id")
+    .eq("email", email)
+    .eq("verified", true)
+    .gt("expires_at", new Date().toISOString())
+    .limit(1)
+    .maybeSingle();
 
-  if (!isBypassUser) {
-    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-    const { data: verifiedOtp, error: otpCheckError } = await supabase
-      .from("otp_requests")
-      .select("id")
-      .eq("email", email)
-      .eq("verified", true)
-      .gte("created_at", fifteenMinutesAgo)
-      .limit(1)
-      .maybeSingle();
-
-    if (otpCheckError) {
-      console.error("Error checking OTP status:", otpCheckError);
-      return { success: false, error: "Verification system check error." };
-    }
-
-    if (!verifiedOtp) {
-      return { success: false, error: "Email verification is mandatory. Please verify your email first using OTP." };
-    }
+  if (otpCheckError || !verifiedOtp) {
+    return { success: false, error: "Email verification is mandatory. Please verify your email first using OTP." };
+  }
+  const { data: consumedOtp, error: consumeOtpError } = await supabase
+    .from("otp_requests")
+    .update({ verified: false })
+    .eq("id", verifiedOtp.id)
+    .eq("verified", true)
+    .select("id");
+  if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
+    return { success: false, error: "OTP has already been used. Please request a new OTP." };
   }
 
   // Extract Attachments (Max 3: Aadhaar, Evidence, Supporting)

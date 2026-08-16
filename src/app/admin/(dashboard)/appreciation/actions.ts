@@ -133,6 +133,10 @@ export async function updateAppreciationStatus(
       return { success: false, error: "Appreciation application record not found." };
     }
 
+    const allowedStatuses = new Set(["APPROVED", "REJECTED", "UNDER_REVIEW"]);
+    if (!allowedStatuses.has(newStatus)) {
+      return { success: false, error: "Invalid appreciation status." };
+    }
     const finalStatus = newStatus as "APPROVED" | "REJECTED" | "UNDER_REVIEW";
 
     // 1. Perform updates
@@ -599,4 +603,3 @@ export async function updateAppreciationDetails(payload: UpdateAppreciationPaylo
     return { success: false, error: err instanceof Error ? err.message : "An unexpected error occurred." };
   }
 }
-

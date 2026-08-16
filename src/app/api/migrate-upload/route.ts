@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const MIGRATION_SECRET = "DKFFJ_MIGRATION_SECRET_2026";
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Authorize migration request
-    const authHeader = req.headers.get("x-migration-secret");
-    if (authHeader !== MIGRATION_SECRET) {
+    // Migration is an administrator-only operation. Never trust a client-side secret.
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+    if (!profile || profile.role !== "SUPERADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const formData = await req.formData();
@@ -20,20 +25,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // 2. Initialize server-side Supabase client
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: { persistSession: false }
-    });
+    const allowedBuckets = new Set(["photos", "aadhaar", "signatures"]);
+    if (!allowedBuckets.has(bucket) || filePath.startsWith("/") || filePath.includes("..") || !/^[A-Za-z0-9_./-]{1,500}$/.test(filePath)) {
+      return NextResponse.json({ error: "Invalid upload destination" }, { status: 400 });
+    }
 
-    // 3. Upload file to Supabase Storage
+    // Upload file to Supabase Storage
     const buffer = Buffer.from(await file.arrayBuffer());
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(filePath, buffer, {
         contentType: file.type,
-        upsert: true
+        upsert: false
       });
 
     if (error) {

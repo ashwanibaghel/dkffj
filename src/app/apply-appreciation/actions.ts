@@ -141,11 +141,8 @@ export async function submitAppreciationApplication(prevData: any, formData: For
   const fullName = sanitizeInput(formData.get("fullName") as string);
   const otpCode = sanitizeInput(formData.get("otpCode") as string);
 
-  // Validate OTP was verified (bypass for test email)
-  const BYPASS_EMAIL = "ashwanibaghel826@gmail.com";
-  const isBypassUser = email.toLowerCase().trim() === BYPASS_EMAIL || email.toLowerCase().includes("bypass");
-
-  if (!isBypassUser) {
+  // OTP must be current and can authorize only one submission.
+  {
     const rawMobile = mobile.replace(/\D/g, "").slice(-10);
     const cleanEmail = email.toLowerCase().trim();
 
@@ -153,6 +150,7 @@ export async function submitAppreciationApplication(prevData: any, formData: For
       .from("otp_requests")
       .select("id")
       .eq("verified", true)
+      .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(1);
 
@@ -170,6 +168,16 @@ export async function submitAppreciationApplication(prevData: any, formData: For
 
     if (otpCheckError || !verifiedOtp) {
       return { success: false, error: "Please verify your mobile/email using OTP first." };
+    }
+
+    const { data: consumedOtp, error: consumeOtpError } = await supabase
+      .from("otp_requests")
+      .update({ verified: false })
+      .eq("id", verifiedOtp.id)
+      .eq("verified", true)
+      .select("id");
+    if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
+      return { success: false, error: "OTP has already been used. Please request a new OTP." };
     }
   }
 

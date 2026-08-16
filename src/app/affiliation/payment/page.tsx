@@ -17,7 +17,7 @@ import {
   Lock,
   Sparkles
 } from "lucide-react";
-import { initiateAffiliationPayment, getAffiliationPaymentDetails, bypassAffiliationPayment } from "../apply/actions";
+import { initiateAffiliationPayment, getAffiliationPaymentDetails } from "../apply/actions";
 import { AFFILIATION_FEE_AMOUNT, AFFILIATION_FEE_DESCRIPTION, AFFILIATION_FEE_NOTE } from "@/lib/affiliation-config";
 
 // Inner component that uses useSearchParams — must be wrapped in Suspense
@@ -28,7 +28,6 @@ function AffiliationPaymentContent() {
 
   const [loading, setLoading] = useState(true);
   const [payLoading, setPayLoading] = useState(false);
-  const [bypassLoading, setBypassLoading] = useState(false);
   const [error, setError] = useState("");
   const [appData, setAppData] = useState<any>(null);
 
@@ -75,26 +74,6 @@ function AffiliationPaymentContent() {
     }
   };
 
-  // Dev Test Bypass Checkout
-  const handleDevBypass = async () => {
-    if (!id) return;
-    setBypassLoading(true);
-    setError("");
-
-    try {
-      const res = await bypassAffiliationPayment(id);
-      if (res.success && res.applicationNo) {
-        router.push(`/affiliation/success?appNo=${res.applicationNo}`);
-      } else {
-        setError(res.error || "Failed to complete test payment bypass.");
-      }
-    } catch (err: any) {
-      setError(err.message || "Failed to process test payment verification.");
-    } finally {
-      setBypassLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-4">
@@ -120,8 +99,6 @@ function AffiliationPaymentContent() {
       </div>
     );
   }
-
-  const isDev = process.env.NODE_ENV === "development";
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-4 sm:p-6 lg:p-8">
@@ -208,7 +185,7 @@ function AffiliationPaymentContent() {
           <div className="space-y-3 pt-2">
             <button
               onClick={handlePayNow}
-              disabled={payLoading || bypassLoading}
+              disabled={payLoading}
               className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm sm:text-base shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
             >
               {payLoading ? (
@@ -221,23 +198,6 @@ function AffiliationPaymentContent() {
                 </>
               )}
             </button>
-
-            {/* Dev Test Bypass Option */}
-            {isDev && (
-              <div className="pt-3 border-t border-slate-800 text-center space-y-2">
-                <span className="text-[10px] uppercase tracking-widest font-bold text-amber-400/80 block">
-                  Local Dev Testing Mode
-                </span>
-                <button
-                  onClick={handleDevBypass}
-                  disabled={bypassLoading || payLoading}
-                  className="w-full py-2.5 rounded-xl border border-indigo-500/40 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 text-xs font-bold transition-all flex items-center justify-center gap-2"
-                >
-                  {bypassLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 text-emerald-400" />}
-                  Complete Payment (Test Mode / Bypass)
-                </button>
-              </div>
-            )}
           </div>
         </div>
 

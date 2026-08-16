@@ -21,6 +21,13 @@ async function handleSync() {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+    if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     // 1. Fetch all pending payments from DB
     const { data: pendingPayments, error: fetchErr } = await supabase
       .from("payments")

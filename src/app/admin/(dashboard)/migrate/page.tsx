@@ -122,9 +122,6 @@ export default function MigrationPage() {
     try {
       const res = await fetch("/api/migrate-upload", {
         method: "POST",
-        headers: {
-          "x-migration-secret": "DKFFJ_MIGRATION_SECRET_2026"
-        },
         body: formData
       });
 
@@ -224,7 +221,6 @@ export default function MigrationPage() {
       const dobStr = `${m.dob_year}-${m.dob_month.padStart(2, "0")}-${m.dob_date.padStart(2, "0")}`;
       
       const payload = {
-        secret: "DKFFJ_MIGRATION_SECRET_2026",
         members: [
           {
             id_no: m.id_no,

@@ -4,6 +4,17 @@ import { cookies } from "next/headers";
 
 export async function GET(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).maybeSingle();
+    if (!profile || (profile.role !== "ADMIN" && profile.role !== "SUPERADMIN")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(req.url);
     const rawParam = searchParams.get("path") || searchParams.get("url") || "";
 
@@ -76,9 +87,6 @@ export async function GET(req: NextRequest) {
 
     // Attempt 1: Server-side Supabase client download via Server Client
     try {
-      const cookieStore = await cookies();
-      const supabase = createClient(cookieStore);
-
       const bucketsToTry = Array.from(new Set([bucket, "photos", "aadhaar", "certificates", "signatures"]));
       for (const b of bucketsToTry) {
         const { data, error } = await supabase.storage.from(b).download(cleanRelPath);

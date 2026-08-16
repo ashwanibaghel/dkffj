@@ -13,6 +13,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File and path parameters are required." }, { status: 400 });
     }
 
+    const allowedBuckets = new Set(["photos", "aadhaar", "signatures"]);
+    if (!allowedBuckets.has(bucket) || path.startsWith("/") || path.includes("..") || !/^[A-Za-z0-9_./-]{1,500}$/.test(path)) {
+      return NextResponse.json({ error: "Invalid upload destination." }, { status: 400 });
+    }
+
     const MAX_3MB = 3 * 1024 * 1024;
     if (file.size > MAX_3MB) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
@@ -20,6 +25,13 @@ export async function POST(req: NextRequest) {
         { error: `File size exceeds the maximum allowed limit of 3 MB (Current size: ${sizeMB} MB). Please upload a document under 3 MB.` },
         { status: 400 }
       );
+    }
+
+    const imageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+    const documentTypes = new Set([...imageTypes, "application/pdf"]);
+    const allowedTypes = bucket === "photos" ? imageTypes : documentTypes;
+    if (!allowedTypes.has(file.type)) {
+      return NextResponse.json({ error: "Unsupported file type." }, { status: 400 });
     }
 
     const cookieStore = await cookies();
@@ -31,7 +43,8 @@ export async function POST(req: NextRequest) {
       .from(bucket)
       .upload(path, buffer, {
         contentType: file.type || "image/jpeg",
-        upsert: true,
+        // Generated file paths are unique. Never overwrite an existing file.
+        upsert: false,
         cacheControl: "3600",
       });
 

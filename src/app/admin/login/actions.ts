@@ -39,22 +39,7 @@ export async function adminLoginAction(email: string, password: string) {
       return { success: false, error: authError.message || "Invalid credentials." };
     }
   } catch (err: any) {
-    console.warn("Supabase network request failed, checking admin local fallback authentication:", err?.message || err);
-  }
-
-  // 2. Dev / Network Fallback Authentication (Bypasses local Wi-Fi / ISP DNS blocks on *.supabase.co)
-  const cleanEmail = email.trim().toLowerCase();
-  if (
-    (cleanEmail === "admin@dkffj.org" || cleanEmail === "ashwani@dkffj.org") &&
-    (password === "AdminPassword@123" || password === "admin123" || password === "Admin@123")
-  ) {
-    cookieStore.set("dev_admin_session", "true", {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      sameSite: "lax",
-      httpOnly: true
-    });
-    return { success: true };
+    console.warn("Supabase admin authentication failed:", err?.message || err);
   }
 
   return { success: false, error: "Invalid admin email or password." };
@@ -63,10 +48,6 @@ export async function adminLoginAction(email: string, password: string) {
 export async function checkAdminSessionAction() {
   try {
     const cookieStore = await cookies();
-    if (cookieStore.get("dev_admin_session")?.value === "true") {
-      return { isLoggedIn: true };
-    }
-
     const supabase = createClient(cookieStore);
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -83,10 +64,6 @@ export async function checkAdminSessionAction() {
     }
     return { isLoggedIn: false };
   } catch (err) {
-    const cookieStore = await cookies();
-    if (cookieStore.get("dev_admin_session")?.value === "true") {
-      return { isLoggedIn: true };
-    }
     return { isLoggedIn: false };
   }
 }

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
+import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 // Interface for Membership Certificate Data
 export interface MembershipCertificateData {
@@ -48,7 +49,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   const signatureSrc = signatureBase64 || "/images/director_sig.png";
   const borderSrc = borderBase64 || "/images/membership-heritage-damask-border-a4-landscape.svg";
 
-  const certNumber = data.membershipNo || "1049";
+  const certNumber = normalizeMembershipNumber(data.membershipNo) || "MEMBERSHIP ID PENDING";
 
   // Format date to "DD Mmm, YYYY" (e.g. 08 Oct, 2025)
   let formattedDate = data.issueDateStr;
@@ -521,6 +522,12 @@ export async function generateMembershipPDFClient(
   photoBase64Input?: string,
   qrBase64Input?: string
 ): Promise<{ pdfBlob: Blob; pngBlob: Blob }> {
+  const membershipNo = normalizeMembershipNumber(data.membershipNo);
+  if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/.test(membershipNo)) {
+    throw new Error("Membership certificate can only be issued after a permanent Member ID is assigned.");
+  }
+  data = { ...data, membershipNo };
+
   const html2canvasModule = await import("html2canvas");
   const html2canvas = html2canvasModule.default || html2canvasModule;
   const jspdfModule = await import("jspdf");

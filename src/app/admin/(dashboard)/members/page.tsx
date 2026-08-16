@@ -12,6 +12,7 @@ import { AdminConfirmDialog } from "../components/AdminFeedback";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 import { MEMBERSHIP_TIERS, MEMBERSHIP_TIERS_LIST, autoDetectMembershipLevel, MembershipLevelKey } from "@/lib/data/membershipTiers";
 import { resolveFullPhotoUrl } from "@/lib/photoUtils";
+import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 const PROFESSIONS = [
   "Service", "Business", "Private Sector", "Government Sector", "House Wife", "Retired", "Unemployed", "Student"
@@ -792,7 +793,7 @@ export default function AdminMembersPage() {
   const handleDownloadCertificate = async (member: MemberRecord) => {
     setDownloadingId(member.id);
     try {
-      const certNo = member.membership_no || member.ack_no;
+      const certNo = normalizeMembershipNumber(member.membership_no) || member.ack_no;
       const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
@@ -809,7 +810,7 @@ export default function AdminMembersPage() {
 
       // Generate the PDF
       const certRes = await generateMembershipPDFClient({
-        membershipNo: latestMember.membership_no || "",
+        membershipNo: normalizeMembershipNumber(latestMember.membership_no),
         ackNo: latestMember.ack_no,
         fullName: latestMember.full_name,
         fatherName: latestMember.father_name,
@@ -842,7 +843,7 @@ export default function AdminMembersPage() {
   const handleDownloadIdCard = async (member: MemberRecord) => {
     setDownloadingIdCardId(member.id);
     try {
-      const certNo = member.membership_no || member.ack_no;
+      const certNo = normalizeMembershipNumber(member.membership_no) || member.ack_no;
       const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       
@@ -863,7 +864,7 @@ export default function AdminMembersPage() {
       const validToStr = validToDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
       const idRes = await generateMembershipIdCardPDFClient({
-        membershipNo: latestMember.membership_no || "",
+        membershipNo: normalizeMembershipNumber(latestMember.membership_no),
         ackNo: latestMember.ack_no,
         fullName: latestMember.full_name,
         fatherName: latestMember.father_name,
@@ -1175,7 +1176,7 @@ export default function AdminMembersPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-black text-sm text-slate-800 dark:text-white">{m.full_name}</span>
-                            <span className="text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{m.membership_no || m.ack_no}</span>
+                            <span className="text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{normalizeMembershipNumber(m.membership_no) || m.ack_no}</span>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${m.status === 'APPROVED' ? 'bg-green-100 text-green-700' : m.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{m.status}</span>
                           </div>
                           <div className="text-xs text-slate-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
@@ -1380,7 +1381,7 @@ export default function AdminMembersPage() {
                     <div>
                       <span className="lg:hidden text-[9px] text-slate-400 dark:text-slate-500 block font-bold uppercase tracking-wider">Membership ID</span>
                       <span className="text-slate-800 dark:text-slate-200 block mt-0.5 font-mono font-bold">
-                        {member.membership_no || "NOT GENERATED"}
+                        {normalizeMembershipNumber(member.membership_no) || "NOT GENERATED"}
                       </span>
                     </div>
                     <div className="self-center flex flex-col items-start gap-1.5">
@@ -2588,7 +2589,7 @@ export default function AdminMembersPage() {
                   Renew Membership & Validity
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Member: <strong>{renewalMember.full_name}</strong> (ID: {renewalMember.membership_no || renewalMember.ack_no})
+                  Member: <strong>{renewalMember.full_name}</strong> (ID: {normalizeMembershipNumber(renewalMember.membership_no) || renewalMember.ack_no})
                 </p>
               </div>
               <button

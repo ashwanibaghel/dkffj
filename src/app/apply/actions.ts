@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
+import { normalizeMembershipNumber, toLegacyMembershipNumber } from "@/lib/membershipNumber";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getMembershipVerificationTemplate, getMembershipReceiptTemplate } from "@/services/email/templates";
 import { paymentServiceInstance } from "@/lib/payment/service";
@@ -148,20 +149,22 @@ export async function checkReferralEligibility(
   }
 
   const rawCode = referralCode.trim();
-  const digitsOnly = rawCode.replace(/\D/g, "");
-
-  // Flexible search: match exact membership_no, ack_no, or numeric suffix
-  let query = supabase
-    .from("memberships")
-    .select("id, status, user_id, email, mobile, membership_no, ack_no, full_name, designation");
-
-  if (digitsOnly && digitsOnly.length >= 3) {
-    query = query.or(`membership_no.ilike.%${rawCode}%,ack_no.ilike.%${rawCode}%,membership_no.ilike.%${digitsOnly}%,ack_no.ilike.%${digitsOnly}%`);
-  } else {
-    query = query.or(`membership_no.ilike.%${rawCode}%,ack_no.ilike.%${rawCode}%`);
+  if (!/^[A-Za-z0-9/-]{3,100}$/.test(rawCode)) {
+    return { success: false, error: "Referral Member ID format is invalid." };
   }
 
-  const { data: matches, error } = await query.limit(5);
+  // Accept the corrected public format for older records too, but only match
+  // exact stored values. This avoids turning a referral lookup into a partial
+  // search while the one-time database cleanup is being rolled out.
+  const normalizedCode = normalizeMembershipNumber(rawCode);
+  const memberCodes = [...new Set([rawCode, normalizedCode, toLegacyMembershipNumber(normalizedCode)])];
+  const columns = "id, status, user_id, email, mobile, membership_no, ack_no, full_name, designation";
+  const [{ data: membershipMatches, error: membershipError }, { data: ackMatches, error: ackError }] = await Promise.all([
+    supabase.from("memberships").select(columns).in("membership_no", memberCodes).limit(2),
+    supabase.from("memberships").select(columns).eq("ack_no", rawCode).limit(2),
+  ]);
+  const matches = [...(membershipMatches || []), ...(ackMatches || [])];
+  const error = membershipError || ackError;
 
   if (error || !matches || matches.length === 0) {
     return {
@@ -195,11 +198,15 @@ export async function checkReferralEligibility(
     (cleanAppMobile && cleanRefMobile && cleanRefMobile === cleanAppMobile)
   );
 
+  if (isContactMatch) {
+    return { success: false, error: "You cannot use a referral ID linked to the same email address or mobile number." };
+  }
+
   return {
     success: true,
     referrerId: referrer.id,
     referrerName: referrer.full_name,
-    referrerCode: referrer.membership_no || referrer.ack_no,
+    referrerCode: normalizeMembershipNumber(referrer.membership_no) || referrer.ack_no,
     referrerDesignation: referrer.designation,
     isContactMatch
   };
@@ -218,11 +225,8 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
   const otpCode = sanitizeInput(formData.get("otpCode") as string);
   const referralCode = sanitizeInput(formData.get("referralCode") as string || "");
 
-  // Validate OTP was verified (bypass for test email)
-  const BYPASS_EMAIL = "ashwanibaghel826@gmail.com";
-  const isBypassUser = email.toLowerCase().trim() === BYPASS_EMAIL || email.toLowerCase().includes("bypass");
-
-  if (!isBypassUser) {
+  // OTP must be current and can authorize only one submission.
+  {
     const rawMobile = mobile.replace(/\D/g, "").slice(-10);
     const cleanEmail = email.toLowerCase().trim();
 
@@ -230,6 +234,7 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
       .from("otp_requests")
       .select("id")
       .eq("verified", true)
+      .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(1);
 
@@ -247,6 +252,16 @@ export async function submitMembershipApplication(prevData: any, formData: FormD
 
     if (otpCheckError || !verifiedOtp) {
       return { success: false, error: "Please verify your mobile/email using OTP first." };
+    }
+
+    const { data: consumedOtp, error: consumeOtpError } = await supabase
+      .from("otp_requests")
+      .update({ verified: false })
+      .eq("id", verifiedOtp.id)
+      .eq("verified", true)
+      .select("id");
+    if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
+      return { success: false, error: "OTP has already been used. Please request a new OTP." };
     }
   }
 

@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { cleanAmpText } from "@/lib/sanitize";
+import { normalizeMembershipNumber, toLegacyMembershipNumber } from "@/lib/membershipNumber";
 
 export interface CertificateDetails {
   found: boolean;
@@ -39,8 +40,61 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   const cleanSearch = rawSearch.replace(/%2F/gi, "/").trim();
   const rawNum = cleanSearch.split("/").pop() || cleanSearch;
   const appUrl = "https://www.dkffj.org";
+  const normalizedMembershipNo = normalizeMembershipNumber(cleanSearch);
+  const isMembershipId = /^DKFFJ\/M\/\d{4}\/\d{5,}$/.test(normalizedMembershipNo);
 
   try {
+    // A QR code containing a permanent Member ID must never be allowed to
+    // fall through to another registry table merely because the serial digits
+    // happen to match an appreciation or course certificate.
+    if (isMembershipId) {
+      const membershipNumbers = [...new Set([
+        normalizedMembershipNo,
+        toLegacyMembershipNumber(normalizedMembershipNo),
+      ])];
+      const { data: member } = await supabase
+        .from("memberships")
+        .select("*")
+        .neq("status", "REJECTED")
+        .in("membership_no", membershipNumbers)
+        .maybeSingle();
+
+      if (!member) {
+        return {
+          found: false,
+          certType: "membership",
+          certificateNo: normalizedMembershipNo,
+          userName: "",
+          courseName: "",
+          issueDate: "",
+          status: "",
+          pdfUrl: "",
+          qrCodeUrl: ""
+        };
+      }
+
+      const certNo = normalizeMembershipNumber(member.membership_no);
+      const verificationUrl = `${appUrl}/verify/${certNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
+
+      return {
+        found: true,
+        certType: "membership",
+        certificateNo: certNo,
+        ackNo: member.ack_no || "",
+        userName: cleanAmpText(member.full_name),
+        fatherName: cleanAmpText(member.father_name) || "N/A",
+        courseName: "Membership / Executive Council Certificate",
+        designation: cleanAmpText(member.designation) || "Executive Member",
+        workingArea: cleanAmpText(member.working_area || member.district || member.state || "India"),
+        photoUrl: member.photo_url,
+        issueDate: new Date(member.approved_at || member.created_at).toLocaleDateString("en-IN"),
+        status: member.status === "APPROVED" ? "VALID" : member.status,
+        pdfUrl: "",
+        qrCodeUrl
+      };
+    }
+
     // 1. Search in `certificates` table (Course Certificates)
     const { data: cert } = await supabase
       .from("certificates")
@@ -129,7 +183,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
 
     if (member) {
       const isApproved = member.status === "APPROVED";
-      const certNo = member.membership_no || member.ack_no || "";
+      const certNo = normalizeMembershipNumber(member.membership_no) || member.ack_no || "";
       const verificationUrl = `${appUrl}/verify/${certNo}`.replace(/%2F/gi, "/").replace(/%3A/gi, ":");
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
       

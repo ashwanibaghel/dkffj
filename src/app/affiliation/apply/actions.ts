@@ -59,7 +59,7 @@ export async function sendAffiliationEmailOtp(email: string) {
 
     if (dbErr) {
       console.error("DB error saving OTP request:", dbErr);
-      return { success: true, message: `[DEV MODE] Verification OTP: ${code}` };
+      return { success: false, error: "Unable to start verification. Please try again." };
     }
 
     // Send Email
@@ -74,17 +74,10 @@ export async function sendAffiliationEmailOtp(email: string) {
 
     console.log(`[AFFILIATION OTP SENT] To Email: ${cleanEmail} -> CODE: ${code}`);
 
-    if (emailRes.mock) {
-      return {
-        success: true,
-        message: `[MOCK MODE] Verification OTP: ${code}`
-      };
-    }
-
     return { success: true, message: `Verification OTP sent to ${cleanEmail}. Please check your inbox.` };
   } catch (err: any) {
     console.error("sendAffiliationEmailOtp exception:", err);
-    return { success: true, message: `[DEV MODE] Verification OTP: 123456` };
+    return { success: false, error: "Unable to start verification. Please try again." };
   }
 }
 
@@ -114,10 +107,6 @@ export async function verifyAffiliationEmailOtp(email: string, code: string) {
       .maybeSingle();
 
     if (error || !data) {
-      // Allow fallback verification for dev testing if code matches 6 digits
-      if (cleanCode.length === 6) {
-        return { success: true, message: "Email verified successfully (Dev Mode)!" };
-      }
       return { success: false, error: "Invalid or expired OTP. Please request a new one." };
     }
 
@@ -127,7 +116,7 @@ export async function verifyAffiliationEmailOtp(email: string, code: string) {
     return { success: true, message: "Email verified successfully!" };
   } catch (err: any) {
     console.error("verifyAffiliationEmailOtp exception:", err);
-    return { success: true, message: "Email verified successfully!" };
+    return { success: false, error: "Verification failed. Please try again." };
   }
 }
 
@@ -174,6 +163,31 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
     }
     if (!organizationName || !organizationType || !establishmentYear || !address || !state || !district || !pincode) {
       return { error: "Please fill all required Institute details." };
+    }
+
+    // Require a fresh, verified email OTP and consume it before accepting the
+    // affiliation application. UI state is never trusted for this decision.
+    const { data: verifiedOtp, error: otpError } = await supabase
+      .from("otp_requests")
+      .select("id")
+      .eq("email", email)
+      .eq("mobile", "N/A")
+      .eq("verified", true)
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (otpError || !verifiedOtp) {
+      return { error: "Please verify your email with a current OTP before submitting." };
+    }
+    const { data: consumedOtp, error: consumeOtpError } = await supabase
+      .from("otp_requests")
+      .update({ verified: false })
+      .eq("id", verifiedOtp.id)
+      .eq("verified", true)
+      .select("id");
+    if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
+      return { error: "OTP has already been used. Please request a new OTP." };
     }
 
     // Document File Handling
@@ -552,6 +566,9 @@ export async function getAffiliationPaymentDetails(id: string) {
 }
 
 export async function bypassAffiliationPayment(affiliationId: string) {
+  if (process.env.NODE_ENV !== "development") {
+    return { error: "Test payment bypass is disabled." };
+  }
   try {
     const devItem = findDevAffiliationById(affiliationId);
     if (devItem) {
@@ -685,4 +702,3 @@ export async function bypassAffiliationPayment(affiliationId: string) {
     return { error: err.message || "Failed to process test payment bypass." };
   }
 }
-

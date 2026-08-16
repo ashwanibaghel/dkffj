@@ -8,16 +8,11 @@ const THIRTY_DAYS_IN_SECONDS = 60 * 60 * 24 * 30; // 30 Days (2,592,000 seconds)
 
 export const createClient = async (request: NextRequest) => {
   // Create an unmodified response
-  let supabaseResponse = NextResponse.next({
+  const supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
     },
   });
-
-  // If dev admin session fallback cookie is present, skip network auth call to avoid DNS / fetch errors
-  if (request.cookies.get("dev_admin_session")?.value === "true") {
-    return supabaseResponse;
-  }
 
   const supabase = createServerClient(
     supabaseUrl!,
