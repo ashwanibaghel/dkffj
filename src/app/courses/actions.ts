@@ -70,62 +70,63 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     return { success: false, error: `Aadhaar Document size exceeds 5 MB limit (Current: ${(aadhaarDoc.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 5 MB.` };
   }
 
-  // 1. Get/Create User account
+  // This is a public application form. Do not attach an unrelated browser
+  // session (for example, an admin who previously logged in) to the candidate.
+  // Every submission must pass its own verified OTP.
   let userId = "";
-  const { data: { user } } = await supabase.auth.getUser();
+  const accountPassword = password || ("DKM@" + Math.random().toString(36).substring(2, 10) + "!" + Math.floor(100 + Math.random() * 900));
 
-  if (user) {
-    userId = user.id;
-  } else {
-    // Auto-generate password if not provided to seamlessly create account
-    const accountPassword = password || ("DKM@" + Math.random().toString(36).substring(2, 10) + "!" + Math.floor(100 + Math.random() * 900));
+  if (!otpCode) {
+    return { success: false, error: "Verification OTP is required to verify your email." };
+  }
+  // Consume a current OTP before creating an account/registration.
+  const { data: verifiedOtp, error: otpCheckError } = await supabase
+    .from("otp_requests")
+    .select("id")
+    .eq("mobile", mobile)
+    .eq("email", email)
+    .eq("otp_code", otpCode)
+    .eq("verified", true)
+    .gt("expires_at", new Date().toISOString())
+    .limit(1)
+    .maybeSingle();
 
-    if (!otpCode) {
-      return { success: false, error: "Verification OTP is required to verify your email." };
+  if (otpCheckError || !verifiedOtp) {
+    return { success: false, error: "Please verify your email address using OTP first before creating your account." };
+  }
+
+  const { data: consumedOtp, error: consumeOtpError } = await supabase
+    .from("otp_requests")
+    .update({ verified: false })
+    .eq("id", verifiedOtp.id)
+    .eq("verified", true)
+    .select("id");
+  if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
+    return { success: false, error: "OTP has already been used. Please request a new OTP." };
+  }
+
+  try {
+    const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
+      p_email: email,
+      p_password: accountPassword,
+      p_full_name: fullName
+    });
+
+    if (dbRegError || !createdUserId) {
+      const { data: existingReg } = await supabase
+        .from("course_registrations")
+        .select("user_id")
+        .eq("email", email)
+        .not("user_id", "is", null)
+        .limit(1)
+        .maybeSingle();
+      userId = existingReg?.user_id || "";
+    } else {
+      userId = createdUserId as string;
     }
-    // Consume a current OTP before creating an account/registration.
-    const { data: verifiedOtp, error: otpCheckError } = await supabase
-      .from("otp_requests")
-      .select("id")
-      .eq("mobile", mobile)
-      .eq("email", email)
-      .eq("otp_code", otpCode)
-      .eq("verified", true)
-      .gt("expires_at", new Date().toISOString())
-      .limit(1)
-      .maybeSingle();
-
-    if (otpCheckError || !verifiedOtp) {
-      return { success: false, error: "Please verify your email address using OTP first before creating your account." };
-    }
-
-    const { data: consumedOtp, error: consumeOtpError } = await supabase
-      .from("otp_requests")
-      .update({ verified: false })
-      .eq("id", verifiedOtp.id)
-      .eq("verified", true)
-      .select("id");
-    if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
-      return { success: false, error: "OTP has already been used. Please request a new OTP." };
-    }
-
-    try {
-      const { data: createdUserId, error: dbRegError } = await supabase.rpc("create_auth_user", {
-        p_email: email,
-        p_password: accountPassword,
-        p_full_name: fullName
-      });
-
-      if (dbRegError || !createdUserId) {
-        const { data: existingReg } = await supabase.from("registrations").select("user_id").eq("email", email).maybeSingle();
-        userId = existingReg?.user_id || "";
-      } else {
-        userId = createdUserId as string;
-      }
-    } catch (err: any) {
-      console.error("Auth academy registration exception:", err);
-      userId = "";
-    }
+  } catch (err: any) {
+    console.error("Auth academy registration exception:", err);
+    userId = "";
   }
 
   // Upload Profile Photo to Supabase Storage

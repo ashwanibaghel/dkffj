@@ -627,7 +627,15 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
       return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
     }
   } else {
-    query = query.eq("enrollment_no", searchStr);
+    // A few existing rows still contain the legacy duplicate-year format
+    // (DKFFJ/C/2026/-2026-00021). Accept the clean number printed to the
+    // candidate as well as the old stored variant while the data is migrated.
+    const normalizedEnrollmentNo = normalizeCourseEnrollmentNumber(searchStr);
+    const legacyMatch = normalizedEnrollmentNo.match(/^DKFFJ\/C\/(\d{4})\/(\d+)$/i);
+    const legacyEnrollmentNo = legacyMatch
+      ? `DKFFJ/C/${legacyMatch[1]}/-${legacyMatch[1]}-${legacyMatch[2]}`
+      : normalizedEnrollmentNo;
+    query = query.in("enrollment_no", Array.from(new Set([searchStr, normalizedEnrollmentNo, legacyEnrollmentNo])));
   }
 
   const { data: enrollment, error } = await query.maybeSingle();

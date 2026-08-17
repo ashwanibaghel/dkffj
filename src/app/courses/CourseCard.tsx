@@ -103,35 +103,12 @@ export default function CourseCard({ course }: { course: Course }) {
 
   useEffect(() => {
     if (isOpen) {
-      const checkUser = async () => {
-        try {
-          const supabase = createClient();
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            setIsLoggedIn(true);
-            const userEmail = user.email || "";
-            const userName = user.user_metadata?.full_name || "";
-            const isAdminSession = 
-              userEmail.toLowerCase().includes("admin") ||
-              userName.toLowerCase().includes("administration") ||
-              userName.toLowerCase().includes("admin") ||
-              user.app_metadata?.role === "admin";
-
-            if (!isAdminSession) {
-              setEmail(userEmail);
-              setFullName(userName);
-            } else {
-              setEmail("");
-              setFullName("");
-            }
-          } else {
-            setIsLoggedIn(false);
-            setEmail("");
-            setFullName("");
-          }
-        } catch (_) {}
-      };
-      checkUser();
+      // A course application is always a fresh public form. Never read or
+      // reuse a browser's existing Supabase session: an admin/other user's
+      // session must not lock or prefill a candidate's name and email.
+      setIsLoggedIn(false);
+      setEmail("");
+      setFullName("");
       setModalMode('REGISTRATION');
       setOtpSent(false);
       setOtpVerified(false);
@@ -308,7 +285,7 @@ export default function CourseCard({ course }: { course: Course }) {
       return;
     }
 
-    if (!isLoggedIn && !otpVerified) {
+    if (!otpVerified) {
       setErrorMsg("Please verify your email address via OTP first.");
       return;
     }
@@ -344,9 +321,7 @@ export default function CourseCard({ course }: { course: Course }) {
         formData.append("aadhaarDoc", aadhaarDoc);
       }
       
-      if (!isLoggedIn) {
-        formData.append("otpCode", otpCode);
-      }
+      formData.append("otpCode", otpCode);
 
       const res = await registerForCourse(null, formData);
 
@@ -616,18 +591,6 @@ export default function CourseCard({ course }: { course: Course }) {
                   <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100 text-[11px] text-emerald-800 font-semibold flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{successMsg}</span>
-                  </div>
-                )}
-
-                {isLoggedIn && (
-                  <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100 flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-full bg-[#001C55] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                      {fullName ? fullName.charAt(0).toUpperCase() : "S"}
-                    </div>
-                    <div>
-                      <div className="text-[11px] font-bold text-slate-800">Logged In as {fullName}</div>
-                      <div className="text-[9px] text-slate-500 font-medium">{email}</div>
-                    </div>
                   </div>
                 )}
 
@@ -1108,22 +1071,6 @@ export default function CourseCard({ course }: { course: Course }) {
                   </button>
                 </div>
 
-                {!isLoggedIn && (
-                  <div className="text-center pt-3 border-t text-[10px] text-slate-500">
-                    Already have an academy account?{" "}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setModalMode('SIGN_IN');
-                        setErrorMsg("");
-                        setSuccessMsg("");
-                      }}
-                      className="text-[#001C55] font-bold hover:underline"
-                    >
-                      Sign In
-                    </button>
-                  </div>
-                )}
               </form>
             )}
           </div>
