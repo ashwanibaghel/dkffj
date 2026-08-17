@@ -319,7 +319,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   if (payment.registration_id) {
     const { data: registration } = await supabase
       .from("course_registrations")
-      .select(`id, enrollment_no, full_name, email, father_name, mobile, status, courses (title)`)
+      .select(`id, enrollment_no, draft_enrollment_no, full_name, email, father_name, mobile, status, courses (title)`)
       .eq("id", payment.registration_id)
       .single();
 
@@ -332,8 +332,13 @@ export async function processPaymentCompletion(merchantOrderId: string) {
           p_prefix: `DKFFJ/C/${currentYear}/`
         });
         if (officialEnrollmentNo) {
-          finalEnrollmentNo = officialEnrollmentNo;
-          await supabase.from("course_registrations").update({ enrollment_no: officialEnrollmentNo, status: "APPROVED" }).eq("id", registration.id);
+          const { normalizeCourseEnrollmentNumber } = await import("@/lib/membershipNumber");
+          finalEnrollmentNo = normalizeCourseEnrollmentNumber(officialEnrollmentNo);
+          await supabase.from("course_registrations").update({
+            enrollment_no: finalEnrollmentNo,
+            draft_enrollment_no: registration.draft_enrollment_no || registration.enrollment_no,
+            status: "APPROVED"
+          }).eq("id", registration.id);
         } else {
           await supabase.from("course_registrations").update({ status: "APPROVED" }).eq("id", registration.id);
         }
@@ -354,7 +359,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
         const emailHtml = getCourseRegistrationReceiptTemplate(
           registration.full_name,
           courseTitle,
-          registration.enrollment_no || "PENDING",
+          finalEnrollmentNo || "PENDING",
           Number(payment.amount)
         );
 
@@ -364,7 +369,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
           const pdfBuffer = await generateReceiptPdfBuffer({
             refId: merchantOrderId,
             date: payment.created_at,
-            ackOrEnrollmentNo: registration.enrollment_no || "PENDING",
+            ackOrEnrollmentNo: finalEnrollmentNo || "PENDING",
             gatewayTransactionId: verifyResult.transactionId || "PENDING",
             amount: Number(payment.amount),
             description: courseTitle,
@@ -738,4 +743,3 @@ export async function processPaymentCompletion(merchantOrderId: string) {
     }
   }
 }
-

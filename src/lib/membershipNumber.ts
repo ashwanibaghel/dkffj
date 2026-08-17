@@ -23,3 +23,16 @@ export function toLegacyMembershipNumber(value: string | null | undefined): stri
   const [, year, sequence] = match;
   return `DKFFJ/M/${year}/-${year}-${sequence}`;
 }
+
+export function normalizeCourseEnrollmentNumber(value: string | null | undefined): string {
+  const raw = value?.trim();
+  if (!raw) return "";
+
+  // Legacy value: DKFFJ/C/2026/-2026-00021
+  // Official value: DKFFJ/C/2026/00021
+  const legacyMatch = raw.match(/^DKFFJ\/C\/(\d{4})\/(?:-?\d{4}-)?(\d+)$/i);
+  if (!legacyMatch) return raw;
+
+  const [, year, sequence] = legacyMatch;
+  return `DKFFJ/C/${year}/${sequence.padStart(5, "0")}`;
+}

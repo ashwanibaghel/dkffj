@@ -16,82 +16,6 @@ interface Course {
   image_url: string | null;
 }
 
-const compressImage = (file: File, maxWidth = 1000, maxHeight = 1000, maxFileSizeKB = 600): Promise<File> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result as string;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        let width = img.width;
-        let height = img.height;
-
-        // Calculate aspect ratio
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          resolve(file); // fallback
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-
-        let quality = 0.85; // High starting quality (keeps image very clear)
-        const convertToBlob = (q: number): Promise<Blob | null> => {
-          return new Promise((res) => {
-            canvas.toBlob((blob) => res(blob), "image/jpeg", q);
-          });
-        };
-
-        const checkAndCompress = async () => {
-          let blob = await convertToBlob(quality);
-          if (!blob) {
-            resolve(file);
-            return;
-          }
-
-          // If file is larger than limit, compress further but stop before it becomes blurry
-          while (blob.size > maxFileSizeKB * 1024 && quality > 0.4) {
-            quality -= 0.1;
-            blob = await convertToBlob(quality);
-            if (!blob) break;
-          }
-
-          if (blob) {
-            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
-              type: "image/jpeg",
-              lastModified: Date.now(),
-            });
-            resolve(compressedFile);
-          } else {
-            resolve(file);
-          }
-        };
-
-        checkAndCompress();
-      };
-      img.onerror = () => resolve(file);
-    };
-    reader.onerror = () => resolve(file);
-  });
-};
-
 export default function CourseCard({ course }: { course: Course }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -114,7 +38,6 @@ export default function CourseCard({ course }: { course: Course }) {
   const [fatherName, setFatherName] = useState<string>("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [isCompressing, setIsCompressing] = useState<boolean>(false);
   const [workingSector, setWorkingSector] = useState<string>("");
   const [experienceCert, setExperienceCert] = useState<File | null>(null);
   const [trainingCenter, setTrainingCenter] = useState<string>("");
@@ -131,7 +54,7 @@ export default function CourseCard({ course }: { course: Course }) {
   const selectedStateObj = indiaStatesDistricts.find((s) => s.state === stateName);
   const districts = selectedStateObj ? selectedStateObj.districts : [];
 
-  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     if (!file) {
       setPhoto(null);
@@ -142,9 +65,10 @@ export default function CourseCard({ course }: { course: Course }) {
       return;
     }
 
-    // 1. Check max size limit of 3MB
-    if (file.size > 3 * 1024 * 1024) {
-      setErrorMsg("Maximum file size is 3 MB. Please choose a smaller photo.");
+    // Keep the original file: identity and supporting documents must never be
+    // canvas-compressed or converted to lossy JPEG in the browser.
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg("Maximum file size is 5 MB. Please choose a smaller photo.");
       e.target.value = ""; // Clear file input
       setPhoto(null);
       if (photoPreview) {
@@ -155,27 +79,11 @@ export default function CourseCard({ course }: { course: Course }) {
     }
 
     setErrorMsg("");
-    setIsCompressing(true);
-
-    try {
-      // 2. Compress the image to target size (<600 KB) keeping max bounds at 1000px
-      const compressedFile = await compressImage(file, 1000, 1000, 600);
-      setPhoto(compressedFile);
-      
-      if (photoPreview) {
-        URL.revokeObjectURL(photoPreview);
-      }
-      const newPreviewUrl = URL.createObjectURL(compressedFile);
-      setPhotoPreview(newPreviewUrl);
-    } catch (err: any) {
-      console.error("Image compression error:", err);
-      // Fallback
-      setPhoto(file);
-      const newPreviewUrl = URL.createObjectURL(file);
-      setPhotoPreview(newPreviewUrl);
-    } finally {
-      setIsCompressing(false);
+    setPhoto(file);
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview);
     }
+    setPhotoPreview(URL.createObjectURL(file));
   };
 
   // OTP Verification states
@@ -877,8 +785,8 @@ export default function CourseCard({ course }: { course: Course }) {
                     accept=".pdf,image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
-                      if (file && file.size > 3 * 1024 * 1024) {
-                        setErrorMsg(`Qualification Document file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 3 MB. Please select a smaller document under 3 MB.`);
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        setErrorMsg(`Qualification Document file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 5 MB. Please select a smaller document under 5 MB.`);
                         e.target.value = "";
                         setQualificationDoc(null);
                       } else {
@@ -888,7 +796,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     required
                     className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                   />
-                  <p className="text-[9px] text-slate-400 mt-1">Upload PDF or Image of your highest qualification proof (Max 3MB).</p>
+                  <p className="text-[9px] text-slate-400 mt-1">Original PDF or image is preserved without compression (Max 5MB).</p>
                   {qualificationDoc && (
                     <div className="mt-1 text-[10px] text-emerald-600 font-bold">
                       File selected: {qualificationDoc.name} ({(qualificationDoc.size / 1024).toFixed(1)} KB)
@@ -906,8 +814,8 @@ export default function CourseCard({ course }: { course: Course }) {
                     accept=".pdf,image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
-                      if (file && file.size > 3 * 1024 * 1024) {
-                        setErrorMsg(`Aadhaar Card file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 3 MB. Please select a smaller document under 3 MB.`);
+                      if (file && file.size > 5 * 1024 * 1024) {
+                        setErrorMsg(`Aadhaar Card file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 5 MB. Please select a smaller document under 5 MB.`);
                         e.target.value = "";
                         setAadhaarDoc(null);
                       } else {
@@ -917,7 +825,7 @@ export default function CourseCard({ course }: { course: Course }) {
                     required
                     className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                   />
-                  <p className="text-[9px] text-slate-400 mt-1">Upload PDF or Image containing front and back of Aadhaar (Max 3MB).</p>
+                  <p className="text-[9px] text-slate-400 mt-1">Original PDF or image is preserved without compression (Max 5MB).</p>
                   {aadhaarDoc && (
                     <div className="mt-1 text-[10px] text-emerald-600 font-bold">
                       File selected: {aadhaarDoc.name} ({(aadhaarDoc.size / 1024).toFixed(1)} KB)
@@ -941,12 +849,6 @@ export default function CourseCard({ course }: { course: Course }) {
                   {errorMsg && errorMsg.toLowerCase().includes("all registration fields") && !photo && (
                     <p className="text-[9px] text-rose-600 font-bold mt-1">Profile Photo is required.</p>
                   )}
-                  {isCompressing && (
-                    <div className="text-[10px] text-blue-600 font-semibold mt-1 flex items-center gap-1">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      Optimizing and compressing image...
-                    </div>
-                  )}
                   {photoPreview && photo && (
                     <div className="mt-2.5 flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200 relative">
                       <img
@@ -957,7 +859,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       <div className="flex-1">
                         <div className="text-[10px] font-bold text-slate-700 truncate max-w-[180px]">{photo.name}</div>
                         <div className="text-[9px] text-slate-500 font-medium mt-0.5">
-                          Size: <span className="font-bold text-[#001C55]">{(photo.size / 1024).toFixed(1)} KB</span> (Optimized)
+                          Size: <span className="font-bold text-[#001C55]">{(photo.size / 1024).toFixed(1)} KB</span> (Original quality)
                         </div>
                       </div>
                       <button
@@ -1018,8 +920,8 @@ export default function CourseCard({ course }: { course: Course }) {
                       accept=".pdf,image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0] || null;
-                        if (file && file.size > 3 * 1024 * 1024) {
-                          setErrorMsg(`Experience Certificate file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 3 MB. Please select a smaller document under 3 MB.`);
+                        if (file && file.size > 5 * 1024 * 1024) {
+                          setErrorMsg(`Experience Certificate file size is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). File size must be under 5 MB. Please select a smaller document under 5 MB.`);
                           e.target.value = "";
                           setExperienceCert(null);
                         } else {
@@ -1029,7 +931,7 @@ export default function CourseCard({ course }: { course: Course }) {
                       required
                       className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#001C55]/15"
                     />
-                    <p className="text-[9px] text-slate-400 mt-1">Upload PDF or Image of your experience/qualification proof (Max 3MB).</p>
+                    <p className="text-[9px] text-slate-400 mt-1">Original PDF or image is preserved without compression (Max 5MB).</p>
                     {experienceCert && (
                       <div className="mt-1 text-[10px] text-emerald-600 font-bold">
                         File selected: {experienceCert.name} ({(experienceCert.size / 1024).toFixed(1)} KB)

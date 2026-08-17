@@ -103,6 +103,7 @@ model complaints {
 model course_registrations {
   id                                            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   enrollment_no                                 String?           @unique @db.VarChar(100)
+  draft_enrollment_no                           String?           @unique @db.VarChar(100)
   user_id                                       String?           @db.Uuid
   course_id                                     String            @db.Uuid
   full_name                                     String            @db.VarChar(255)

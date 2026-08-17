@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { normalizeCourseEnrollmentNumber } from "@/lib/membershipNumber";
 
 export interface TrackingResult {
   found: boolean;
@@ -578,6 +579,7 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
   let query = supabase.from("course_registrations").select(`
     id, 
     enrollment_no, 
+    draft_enrollment_no,
     full_name, 
     email,
     father_name,
@@ -597,7 +599,22 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
     )
   `);
 
-  if (searchStr.startsWith("CRS-")) {
+  const shortDraftMatch = searchStr.match(/^DKFFJ\/C\/DRAFT\/\d{4}\/\d{5,}$/i);
+  const legacyDraftMatch = searchStr.match(/^DKFFJ\/C\/DRAFT-(\d{10,})-[A-Z0-9]{4}$/i);
+  if (shortDraftMatch) {
+    query = query.eq("draft_enrollment_no", searchStr);
+  } else if (legacyDraftMatch) {
+    // Older receipts contained a timestamp-based draft ID which was replaced
+    // after payment. Recover the matching enrollment using its embedded
+    // creation time and the candidate's verified email.
+    const submittedAt = Number(legacyDraftMatch[1]);
+    const start = new Date(submittedAt - 5 * 60 * 1000).toISOString();
+    const end = new Date(submittedAt + 5 * 60 * 1000).toISOString();
+    query = query
+      .eq("email", emailStr)
+      .gte("created_at", start)
+      .lte("created_at", end);
+  } else if (searchStr.startsWith("CRS-")) {
     const { data: payment } = await supabase
       .from("payments")
       .select("registration_id")
@@ -663,7 +680,7 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
   return {
     found: true,
     type: "enrollment",
-    number: enrollment.enrollment_no || "",
+    number: normalizeCourseEnrollmentNumber(enrollment.enrollment_no) || "",
     name: `${enrollment.full_name} (${(enrollment.courses as any)?.title || "Course"})`,
     status: enrollment.status,
     date: new Date(enrollment.created_at).toLocaleDateString("en-IN"),

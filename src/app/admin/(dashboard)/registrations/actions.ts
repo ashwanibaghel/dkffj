@@ -7,6 +7,18 @@ import { getCertificateIssuedTemplate } from "@/services/email/templates";
 import PDFDocument from "pdfkit";
 import path from "path";
 import { verifyAdmin } from "../auth";
+import { normalizeCourseEnrollmentNumber } from "@/lib/membershipNumber";
+
+function getCoursePhotoStoragePath(photoUrl: string | null | undefined): string | null {
+  if (!photoUrl) return null;
+  const clean = photoUrl.split("?")[0];
+  const marker = "/storage/v1/object/public/photos/";
+  const markerIndex = clean.indexOf(marker);
+  if (markerIndex >= 0) return decodeURIComponent(clean.slice(markerIndex + marker.length));
+
+  // Existing records may already contain the object path rather than its URL.
+  return /^[-\w]+\/.+/.test(clean) ? clean : null;
+}
 
 // 1. Fetch registrations list
 export async function getRegistrations(statusFilter?: string) {
@@ -49,7 +61,22 @@ export async function getRegistrations(statusFilter?: string) {
     console.error("Error fetching registrations:", error);
     return [];
   }
-  return data || [];
+  return Promise.all((data || []).map(async (registration: any) => {
+    const photoPath = getCoursePhotoStoragePath(registration.photo_url);
+    let photoUrl = registration.photo_url;
+    if (photoPath) {
+      const { data: signedPhoto } = await supabase.storage
+        .from("photos")
+        .createSignedUrl(photoPath, 60 * 60);
+      photoUrl = signedPhoto?.signedUrl || photoUrl;
+    }
+
+    return {
+      ...registration,
+      enrollment_no: normalizeCourseEnrollmentNumber(registration.enrollment_no) || null,
+      photo_url: photoUrl,
+    };
+  }));
 }
 
 // 1b. Fetch student profile details (e.g. father's name from memberships)
@@ -357,9 +384,9 @@ export async function issueCertificateForRegistration(
   try {
     // 1. Generate Certificate Number matching enrollment prefix (DKFFJ/C/YYYY/XXXX)
     const currentYear = new Date().getFullYear();
-    let certNo = reg.enrollment_no || `DKFFJ/C/${currentYear}/0001`;
+    let certNo = normalizeCourseEnrollmentNumber(reg.enrollment_no) || `DKFFJ/C/${currentYear}/00001`;
     if (!certNo.startsWith("DKFFJ/C/")) {
-      certNo = `DKFFJ/C/${currentYear}/` + certNo.split("-").pop()?.padStart(4, "0");
+      certNo = `DKFFJ/C/${currentYear}/` + certNo.split("-").pop()?.padStart(5, "0");
     }
 
     const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;

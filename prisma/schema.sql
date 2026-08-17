@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS public.courses (
 CREATE TABLE IF NOT EXISTS public.course_registrations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   enrollment_no VARCHAR(100) UNIQUE,
+  draft_enrollment_no VARCHAR(100) UNIQUE,
   user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
   course_id UUID REFERENCES public.courses(id) ON DELETE RESTRICT NOT NULL,
   full_name VARCHAR(255) NOT NULL,
@@ -271,10 +272,10 @@ BEGIN
       year = v_year
   RETURNING last_value INTO v_next_val;
 
-  -- Membership prefixes already contain their year (DKFFJ/M/YYYY/).
+  -- Member and course prefixes already contain their year (DKFFJ/M/YYYY/).
   -- Do not append it a second time; other document sequences retain their
   -- PREFIX-YYYY-0000X convention.
-  IF p_prefix ~ '^DKFFJ/M/[0-9]{4}/$' THEN
+  IF p_prefix ~ '^DKFFJ/(M|C)/[0-9]{4}/$' OR p_prefix ~ '^DKFFJ/C/DRAFT/[0-9]{4}/$' THEN
     v_formatted := p_prefix || LPAD(v_next_val::TEXT, 5, '0');
   ELSE
     v_formatted := p_prefix || '-' || v_year || '-' || LPAD(v_next_val::TEXT, 5, '0');

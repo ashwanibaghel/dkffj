@@ -56,18 +56,18 @@ export async function registerForCourse(prevData: any, formData: FormData) {
     return { success: false, error: "Please fill in all registration fields, including Aadhaar Card and Qualification Documents." };
   }
 
-  const MAX_3MB = 3 * 1024 * 1024;
-  if (photo && photo.size > MAX_3MB) {
-    return { success: false, error: `Passport photo size exceeds 3 MB limit (Current: ${(photo.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
+  if (photo && photo.size > MAX_UPLOAD_SIZE) {
+    return { success: false, error: `Passport photo size exceeds 5 MB limit (Current: ${(photo.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 5 MB.` };
   }
-  if (experienceCert && experienceCert.size > MAX_3MB) {
-    return { success: false, error: `Experience Certificate size exceeds 3 MB limit (Current: ${(experienceCert.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  if (experienceCert && experienceCert.size > MAX_UPLOAD_SIZE) {
+    return { success: false, error: `Experience Certificate size exceeds 5 MB limit (Current: ${(experienceCert.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 5 MB.` };
   }
-  if (qualificationDoc && qualificationDoc.size > MAX_3MB) {
-    return { success: false, error: `Qualification Document size exceeds 3 MB limit (Current: ${(qualificationDoc.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  if (qualificationDoc && qualificationDoc.size > MAX_UPLOAD_SIZE) {
+    return { success: false, error: `Qualification Document size exceeds 5 MB limit (Current: ${(qualificationDoc.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 5 MB.` };
   }
-  if (aadhaarDoc && aadhaarDoc.size > MAX_3MB) {
-    return { success: false, error: `Aadhaar Document size exceeds 3 MB limit (Current: ${(aadhaarDoc.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 3 MB.` };
+  if (aadhaarDoc && aadhaarDoc.size > MAX_UPLOAD_SIZE) {
+    return { success: false, error: `Aadhaar Document size exceeds 5 MB limit (Current: ${(aadhaarDoc.size / (1024 * 1024)).toFixed(1)} MB). Please select a file under 5 MB.` };
   }
 
   // 1. Get/Create User account
@@ -237,13 +237,24 @@ export async function registerForCourse(prevData: any, formData: FormData) {
   const fees = Number(course.fees);
 
   try {
-    // 3. Generate temporary Draft Enrollment Number (official sequence ID assigned on payment completion)
-    const enrollmentNo = `DKFFJ/C/DRAFT-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    // 3. Issue a compact, trackable draft reference before payment. The
+    // permanent enrollment number is allocated only after payment succeeds.
+    const currentYear = new Date().getFullYear();
+    const { data: rawEnrollmentNo, error: enrollmentNoError } = await supabase.rpc("generate_next_number", {
+      p_key: "course_draft",
+      p_prefix: `DKFFJ/C/DRAFT/${currentYear}/`
+    });
+    const enrollmentNo = String(rawEnrollmentNo || "").trim();
+    if (enrollmentNoError || !/^DKFFJ\/C\/DRAFT\/\d{4}\/\d{5,}$/.test(enrollmentNo)) {
+      console.error("Failed to generate course draft reference:", enrollmentNoError);
+      throw new Error("Unable to generate a secure course application reference. Please try again.");
+    }
 
     const validUserId = (userId && userId.trim() !== "" && userId.trim() !== "null") ? userId.trim() : null;
 
     const courseInsertPayload: any = {
       enrollment_no: enrollmentNo,
+      draft_enrollment_no: enrollmentNo,
       course_id: courseId,
       full_name: fullName,
       mobile,

@@ -79,7 +79,7 @@ function CourseTrackContent() {
           </span>
           <h1 className="text-3xl font-extrabold font-serif text-[#001C55] mt-4">Track Course Status</h1>
           <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-            Enter your Enrollment ID (DKE-...) and registered email address to securely track your admission and certificate status.
+            Enter your Course Application or Enrollment ID (DKFFJ/C/...) and registered email address to securely track your admission and certificate status.
           </p>
         </div>
 
