@@ -60,6 +60,13 @@ type CertFormState = {
   performance: string;
 };
 
+// Course photos are stored in Supabase.  Loading them through the authenticated
+// application proxy prevents the browser from making an unreliable direct CDN
+// request (and keeps private storage URLs out of the rendered page).
+function getCoursePhotoProxyUrl(photoUrl?: string | null) {
+  return photoUrl ? `/api/documents?path=${encodeURIComponent(photoUrl)}` : null;
+}
+
 export default function AdminRegistrationsPage() {
   const [registrations, setRegistrations] = useState<RegistrationRecord[]>([]);
   const [filter, setFilter] = useState<string>("ALL");
@@ -114,7 +121,7 @@ export default function AdminRegistrationsPage() {
         verificationUrl,
         studentName: registration.full_name,
         courseTitle: registration.courses?.title || "Course Completion",
-        photoUrl: registration.photo_url,
+        photoUrl: getCoursePhotoProxyUrl(registration.photo_url),
         fatherName: registration.father_name || "N/A",
         enrollmentNo: registration.enrollment_no || "N/A",
         durationFrom: certificate.duration_from || "N/A",
@@ -464,9 +471,9 @@ export default function AdminRegistrationsPage() {
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(250px,1.25fr)_minmax(230px,1fr)_minmax(210px,0.95fr)_minmax(150px,0.7fr)_90px] gap-4 flex-1 items-center">
                     <div className="flex items-center gap-3 min-w-0">
-                      {reg.photo_url ? (
+                      {getCoursePhotoProxyUrl(reg.photo_url) ? (
                         <Image
-                          src={reg.photo_url}
+                          src={getCoursePhotoProxyUrl(reg.photo_url)!}
                           alt={reg.full_name}
                           width={40}
                           height={40}
