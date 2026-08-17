@@ -793,16 +793,21 @@ export default function AdminMembersPage() {
   const handleDownloadCertificate = async (member: MemberRecord) => {
     setDownloadingId(member.id);
     try {
-      const certNo = normalizeMembershipNumber(member.membership_no) || member.ack_no;
-      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
-      
-      // Fetch latest database status and pre-resolve images to base64
-      const printRes = await getMemberPrintData(member.id, qrCodeUrl);
+      // This call repairs a legacy APPROVED record before any certificate data
+      // is generated, so the QR always contains the permanent Member ID.
+      const printRes = await getMemberPrintData(member.id, "");
       if (!printRes.success || !printRes.member) {
         throw new Error(printRes.error || "Failed to fetch latest membership details");
       }
       const latestMember = printRes.member;
+      const certNo = normalizeMembershipNumber(latestMember.membership_no);
+      if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(certNo)) {
+        throw new Error("A permanent Member ID could not be assigned. Please try again.");
+      }
+      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
+      const assetsRes = await getMemberPrintData(member.id, qrCodeUrl);
+      if (!assetsRes.success) throw new Error(assetsRes.error || "Failed to prepare certificate assets");
       
       const issueDateStr = latestMember.approved_at 
         ? new Date(latestMember.approved_at).toLocaleDateString("en-IN")
@@ -820,7 +825,7 @@ export default function AdminMembersPage() {
         issueDateStr,
         qrCodeUrl,
         verificationUrl
-      }, printRes.photoBase64, printRes.qrBase64);
+      }, assetsRes.photoBase64, assetsRes.qrBase64);
 
       // Trigger local browser download
       const url = window.URL.createObjectURL(certRes.pdfBlob);
@@ -843,16 +848,19 @@ export default function AdminMembersPage() {
   const handleDownloadIdCard = async (member: MemberRecord) => {
     setDownloadingIdCardId(member.id);
     try {
-      const certNo = normalizeMembershipNumber(member.membership_no) || member.ack_no;
-      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
-      
-      // Fetch latest database status and pre-resolve images to base64
-      const printRes = await getMemberPrintData(member.id, qrCodeUrl);
+      const printRes = await getMemberPrintData(member.id, "");
       if (!printRes.success || !printRes.member) {
         throw new Error(printRes.error || "Failed to fetch latest membership details");
       }
       const latestMember = printRes.member;
+      const certNo = normalizeMembershipNumber(latestMember.membership_no);
+      if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(certNo)) {
+        throw new Error("A permanent Member ID could not be assigned. Please try again.");
+      }
+      const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=3&ecc=M&data=${verificationUrl}`;
+      const assetsRes = await getMemberPrintData(member.id, qrCodeUrl);
+      if (!assetsRes.success) throw new Error(assetsRes.error || "Failed to prepare ID card assets");
 
       const issueDate = latestMember.approved_at ? new Date(latestMember.approved_at) : new Date(latestMember.created_at);
       const issueDateStr = issueDate.toLocaleDateString("en-IN");
@@ -881,7 +889,7 @@ export default function AdminMembersPage() {
         mobileStr: latestMember.mobile || "",
         qrCodeUrl,
         verificationUrl
-      }, printRes.photoBase64, printRes.qrBase64);
+      }, assetsRes.photoBase64, assetsRes.qrBase64);
 
       // 1. Download PDF
       const pdfUrl = window.URL.createObjectURL(idRes.pdfBlob);

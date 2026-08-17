@@ -8,6 +8,43 @@ import { getVersionedCache, incrementNamespaceVersion } from "@/lib/redis";
 import { resolveFullPhotoUrl } from "@/lib/photoUtils";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
+const PERMANENT_MEMBERSHIP_ID_PATTERN = /^DKFFJ\/M\/\d{4}\/\d{5,}$/i;
+
+function isPermanentMembershipId(value: string | null | undefined) {
+  return PERMANENT_MEMBERSHIP_ID_PATTERN.test(normalizeMembershipNumber(value));
+}
+
+async function ensurePermanentMembershipId(supabase: any, member: { id: string; membership_no?: string | null }) {
+  const currentMembershipNo = normalizeMembershipNumber(member.membership_no);
+  if (isPermanentMembershipId(currentMembershipNo)) {
+    return { success: true as const, membershipNo: currentMembershipNo };
+  }
+
+  const currentYear = new Date().getFullYear();
+  const { data: nextNumber, error: sequenceError } = await supabase.rpc("generate_next_number", {
+    p_key: "membership_no",
+    p_prefix: `DKFFJ/M/${currentYear}/`
+  });
+  const membershipNo = normalizeMembershipNumber(String(nextNumber || ""));
+
+  if (sequenceError || !isPermanentMembershipId(membershipNo)) {
+    console.error("Failed to generate permanent membership ID:", sequenceError);
+    return { success: false as const, error: "Failed to generate permanent Member ID." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("memberships")
+    .update({ membership_no: membershipNo })
+    .eq("id", member.id);
+
+  if (updateError) {
+    console.error("Failed to repair permanent membership ID:", updateError);
+    return { success: false as const, error: "Failed to save permanent Member ID." };
+  }
+
+  return { success: true as const, membershipNo };
+}
+
 // 1. Fetch memberships list
 export async function getMemberships(statusFilter?: string) {
   const isAdmin = await verifyAdmin();
@@ -258,21 +295,14 @@ export async function updateMembershipStatus(
   }
 
   let finalStatus = newStatus as "APPROVED" | "REJECTED" | "UNDER_REVIEW";
-  let generatedMembershipNo = member.membership_no;
+  let generatedMembershipNo = normalizeMembershipNumber(member.membership_no);
 
-  // 1. Generate Membership Number atomically if approving for the first time
-  if (newStatus === "APPROVED" && !member.membership_no) {
-    const currentYear = new Date().getFullYear();
-    const { data: mNo, error: rpcError } = await supabase.rpc("generate_next_number", {
-      p_key: "membership_no",
-      p_prefix: `DKFFJ/M/${currentYear}/`
-    });
-
-    if (rpcError || !mNo) {
-      console.error("Failed to generate membership number:", rpcError);
-      return { success: false, error: "Failed to generate membership ID sequence." };
-    }
-    generatedMembershipNo = normalizeMembershipNumber(mNo);
+  // An APPROVED record is never allowed to remain without a valid permanent ID.
+  // This also repairs older records that were manually approved or had a legacy ID.
+  if (newStatus === "APPROVED" && !isPermanentMembershipId(generatedMembershipNo)) {
+    const ensured = await ensurePermanentMembershipId(supabase, member);
+    if (!ensured.success) return ensured;
+    generatedMembershipNo = ensured.membershipNo;
   }
 
   // 2. Perform updates
@@ -422,9 +452,15 @@ export async function updateMembershipFields(payload: UpdateMemberPayload) {
   };
 
   if (payload.membershipNo !== undefined) {
-    updatePayload.membership_no = payload.membershipNo
+    const normalizedMembershipNo = payload.membershipNo
       ? normalizeMembershipNumber(payload.membershipNo)
-      : null;
+      : "";
+    if (normalizedMembershipNo && !isPermanentMembershipId(normalizedMembershipNo)) {
+      return { success: false, error: "Permanent Member ID must use DKFFJ/M/YYYY/00000 format." };
+    }
+    if (normalizedMembershipNo) {
+      updatePayload.membership_no = normalizedMembershipNo;
+    }
   }
 
   if (payload.photoUrl) {
@@ -548,6 +584,11 @@ export async function dispatchMembershipWelcomeEmail(
 
 // 6. Fetch latest member print data and pre-resolve images to Base64 to bypass client CORS
 export async function getMemberPrintData(id: string, qrCodeUrl: string) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return { success: false, error: "Unauthorized access." };
+  }
+
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -559,6 +600,12 @@ export async function getMemberPrintData(id: string, qrCodeUrl: string) {
 
   if (error || !member) {
     return { success: false, error: "Member record not found" };
+  }
+
+  if (member.status === "APPROVED" && !isPermanentMembershipId(member.membership_no)) {
+    const ensured = await ensurePermanentMembershipId(supabase, member);
+    if (!ensured.success) return ensured;
+    member.membership_no = ensured.membershipNo;
   }
 
   let photoBase64 = "";

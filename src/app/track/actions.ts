@@ -568,20 +568,20 @@ export async function getSecureComplaintDetails(complaintNo: string, contact: st
   };
 }
 
-export async function getSecureCourseDetails(enrollmentNo: string, email: string): Promise<TrackingResult | null> {
+export async function getSecureCourseDetails(enrollmentNo: string, contact: string): Promise<TrackingResult | null> {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
   const searchStr = enrollmentNo.trim();
-  const emailStr = email.trim();
+  const contactStr = contact.trim();
 
-  if (!searchStr || !emailStr) return null;
+  if (!searchStr || !contactStr) return null;
 
   let query = supabase.from("course_registrations").select(`
     id, 
     enrollment_no, 
-    draft_enrollment_no,
     full_name, 
     email,
+    mobile,
     father_name,
     photo_url,
     status, 
@@ -606,14 +606,11 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
   } else if (legacyDraftMatch) {
     // Older receipts contained a timestamp-based draft ID which was replaced
     // after payment. Recover the matching enrollment using its embedded
-    // creation time and the candidate's verified email.
+    // creation time and the candidate's verified contact.
     const submittedAt = Number(legacyDraftMatch[1]);
     const start = new Date(submittedAt - 5 * 60 * 1000).toISOString();
     const end = new Date(submittedAt + 5 * 60 * 1000).toISOString();
-    query = query
-      .eq("email", emailStr)
-      .gte("created_at", start)
-      .lte("created_at", end);
+    query = query.gte("created_at", start).lte("created_at", end);
   } else if (searchStr.startsWith("CRS-")) {
     const { data: payment } = await supabase
       .from("payments")
@@ -638,14 +635,78 @@ export async function getSecureCourseDetails(enrollmentNo: string, email: string
     query = query.in("enrollment_no", Array.from(new Set([searchStr, normalizedEnrollmentNo, legacyEnrollmentNo])));
   }
 
-  const { data: enrollment, error } = await query.maybeSingle();
+  let { data: enrollment, error } = await query.maybeSingle();
+
+  // Older production databases may not yet have draft_enrollment_no. A normal
+  // permanent enrollment lookup must never fail merely because that optional
+  // migration has not been applied; a pre-payment draft can still be found
+  // from enrollment_no in that legacy schema.
+  if (error?.code === "42703" && shortDraftMatch) {
+    const fallback = await supabase
+      .from("course_registrations")
+      .select(`
+        id,
+        enrollment_no,
+        full_name,
+        email,
+        mobile,
+        father_name,
+        photo_url,
+        status,
+        created_at,
+        remarks,
+        courses ( title ),
+        status_logs ( id, from_status, to_status, remarks, created_at )
+      `)
+      .eq("enrollment_no", searchStr)
+      .maybeSingle();
+    enrollment = fallback.data;
+    error = fallback.error;
+  }
+
+  // This public server action verifies the candidate's contact below before
+  // returning anything. Use the server database client as a final fallback so
+  // an anonymous browser is not blocked by an overly restrictive RLS policy.
+  if (!error && !enrollment && !shortDraftMatch && !legacyDraftMatch && !searchStr.startsWith("CRS-")) {
+    const normalizedEnrollmentNo = normalizeCourseEnrollmentNumber(searchStr);
+    const legacyMatch = normalizedEnrollmentNo.match(/^DKFFJ\/C\/(\d{4})\/(\d+)$/i);
+    const legacyEnrollmentNo = legacyMatch
+      ? `DKFFJ/C/${legacyMatch[1]}/-${legacyMatch[1]}-${legacyMatch[2]}`
+      : normalizedEnrollmentNo;
+    try {
+      enrollment = await prisma.course_registrations.findFirst({
+        where: { enrollment_no: { in: Array.from(new Set([searchStr, normalizedEnrollmentNo, legacyEnrollmentNo])) } },
+        select: {
+          id: true,
+          enrollment_no: true,
+          full_name: true,
+          email: true,
+          mobile: true,
+          father_name: true,
+          photo_url: true,
+          status: true,
+          created_at: true,
+          remarks: true,
+          courses: { select: { title: true } },
+          status_logs: { select: { id: true, from_status: true, to_status: true, remarks: true, created_at: true } }
+        }
+      }) as any;
+    } catch (prismaError) {
+      console.error("Course tracking database fallback failed:", prismaError);
+    }
+  }
 
   if (error || !enrollment) {
     return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
   }
 
-  // Security check: Must match registered email
-  if (enrollment.email.toLowerCase().trim() !== emailStr.toLowerCase()) {
+  // Security check: the supplied contact must match the registered email or
+  // mobile number. Compare phone digits so +91, spaces and hyphens do not
+  // incorrectly reject a genuine candidate.
+  const normalizePhone = (value: string | null | undefined) => (value || "").replace(/\D/g, "").slice(-10);
+  const matchesEmail = Boolean(enrollment.email) && enrollment.email.toLowerCase().trim() === contactStr.toLowerCase();
+  const matchesMobile = normalizePhone(enrollment.mobile) !== "" && normalizePhone(enrollment.mobile) === normalizePhone(contactStr);
+  if (!matchesEmail && !matchesMobile) {
     return { found: false, type: "enrollment", number: searchStr, name: "", status: "", date: "", timeline: [] };
   }
 

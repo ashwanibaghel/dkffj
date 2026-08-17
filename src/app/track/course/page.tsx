@@ -9,7 +9,7 @@ import { getSecureCourseDetails, TrackingResult } from "../actions";
 function CourseTrackContent() {
   const searchParams = useSearchParams();
   const [enrollmentNo, setEnrollmentNo] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [contact, setContact] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [searched, setSearched] = useState<boolean>(false);
   const [result, setResult] = useState<TrackingResult | null>(null);
@@ -25,18 +25,18 @@ function CourseTrackContent() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!enrollmentNo.trim() || !email.trim()) {
-      setErrorMsg("Please enter both Enrollment Number and registered Email.");
+    if (!enrollmentNo.trim() || !contact.trim()) {
+      setErrorMsg("Please enter both Enrollment Number and registered email address or mobile number.");
       return;
     }
     setLoading(true);
     setErrorMsg("");
     setSearched(true);
     try {
-      const res = await getSecureCourseDetails(enrollmentNo, email);
+      const res = await getSecureCourseDetails(enrollmentNo, contact);
       setResult(res);
       if (res && !res.found) {
-        setErrorMsg("Enrollment record not found or email address does not match.");
+        setErrorMsg("Enrollment record not found or registered email/mobile number does not match.");
       }
     } catch (err) {
       console.error(err);
@@ -79,7 +79,7 @@ function CourseTrackContent() {
           </span>
           <h1 className="text-3xl font-extrabold font-serif text-[#001C55] mt-4">Track Course Status</h1>
           <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-            Enter your Course Application or Enrollment ID (DKFFJ/C/...) and registered email address to securely track your admission and certificate status.
+            Enter your Course Application or Enrollment ID (DKFFJ/C/...) and registered email address or mobile number to securely track your admission and certificate status.
           </p>
         </div>
 
@@ -101,13 +101,15 @@ function CourseTrackContent() {
 
             <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Registered Email Address
+                Registered Email Address or Mobile Number
               </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g., student@example.com"
+                type="text"
+                inputMode="text"
+                autoComplete="email"
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder="e.g., student@example.com or +91 98765 43210"
                 className="w-full px-4 py-3 rounded-xl border border-sky-100 text-sm focus:outline-none focus:ring-2 focus:ring-[#1565C0]/20 focus:border-[#1565C0] transition-all bg-slate-50/50"
               />
             </div>
