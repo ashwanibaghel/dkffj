@@ -3,7 +3,9 @@
  * legacy database function, which appended the year twice.
  */
 export function normalizeMembershipNumber(value: string | null | undefined): string {
-  const raw = value?.trim();
+  // IDs are copied from certificates and older spreadsheets, where accidental
+  // spaces are common. They are never meaningful inside a member ID.
+  const raw = value?.trim().replace(/\s+/g, "");
   if (!raw) return "";
 
   // Legacy value: DKFFJ/M/2026/-2026-00031
@@ -13,6 +15,17 @@ export function normalizeMembershipNumber(value: string | null | undefined): str
 
   const [, year, sequence] = legacyMatch;
   return `DKFFJ/M/${year}/${sequence.padStart(5, "0")}`;
+}
+
+/**
+ * New membership records use DKFFJ/M/YYYY/00000.  Records migrated from the
+ * Executive Council registry legitimately use DKFFJ/EXEC/YYYY/<serial> and
+ * must remain editable and printable forever.  Do not convert EXEC IDs to M.
+ */
+export function isRecognizedMembershipNumber(value: string | null | undefined): boolean {
+  const normalized = normalizeMembershipNumber(value);
+  return /^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(normalized)
+    || /^DKFFJ\/EXEC\/\d{4}\/\d+$/i.test(normalized);
 }
 
 export function toLegacyMembershipNumber(value: string | null | undefined): string {

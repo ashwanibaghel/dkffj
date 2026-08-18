@@ -6,14 +6,12 @@ import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { getVersionedCache, incrementNamespaceVersion } from "@/lib/redis";
 import { resolveFullPhotoUrl } from "@/lib/photoUtils";
-import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { isRecognizedMembershipNumber, normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 // M is the current format; EXEC is a legitimate historic format used by
 // members migrated from the old system. Both must remain valid permanently.
-const PERMANENT_MEMBERSHIP_ID_PATTERN = /^DKFFJ\/(?:M|EXEC)\/\d{4}\/\d{5,}$/i;
-
 function isPermanentMembershipId(value: string | null | undefined) {
-  return PERMANENT_MEMBERSHIP_ID_PATTERN.test(normalizeMembershipNumber(value));
+  return isRecognizedMembershipNumber(value);
 }
 
 async function getMembershipPhotoDataUrl(supabase: any, photoUrl: string | null | undefined) {
@@ -491,7 +489,10 @@ export async function updateMembershipFields(payload: UpdateMemberPayload) {
       ? normalizeMembershipNumber(payload.membershipNo)
       : "";
     if (normalizedMembershipNo && !isPermanentMembershipId(normalizedMembershipNo)) {
-      return { success: false, error: "Permanent Member ID must use DKFFJ/M/YYYY/00000 format." };
+      return {
+        success: false,
+        error: "Member ID must use DKFFJ/M/YYYY/00000, or the migrated DKFFJ/EXEC/YYYY/serial format."
+      };
     }
     if (normalizedMembershipNo) {
       updatePayload.membership_no = normalizedMembershipNo;

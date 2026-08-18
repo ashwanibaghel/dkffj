@@ -524,7 +524,7 @@ export async function generateMembershipPDFClient(
   qrBase64Input?: string
 ): Promise<{ pdfBlob: Blob; pngBlob: Blob }> {
   const membershipNo = normalizeMembershipNumber(data.membershipNo);
-  if (!/^DKFFJ\/(?:M|EXEC)\/\d{4}\/\d{5,}$/i.test(membershipNo)) {
+  if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(membershipNo) && !/^DKFFJ\/EXEC\/\d{4}\/\d+$/i.test(membershipNo)) {
     throw new Error("Membership certificate can only be issued after a permanent Member ID is assigned.");
   }
   data = { ...data, membershipNo };

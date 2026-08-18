@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { cleanAmpText } from "@/lib/sanitize";
-import { normalizeMembershipNumber, toLegacyMembershipNumber } from "@/lib/membershipNumber";
+import { isRecognizedMembershipNumber, normalizeMembershipNumber, toLegacyMembershipNumber } from "@/lib/membershipNumber";
 import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 export interface CertificateDetails {
@@ -42,7 +42,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   const rawNum = cleanSearch.split("/").pop() || cleanSearch;
   const appUrl = "https://www.dkffj.org";
   const normalizedMembershipNo = normalizeMembershipNumber(cleanSearch);
-  const isMembershipId = /^DKFFJ\/(?:M|EXEC)\/\d{4}\/\d{5,}$/i.test(normalizedMembershipNo);
+  const isMembershipId = isRecognizedMembershipNumber(normalizedMembershipNo);
 
   try {
     // A QR code containing a permanent Member ID must never be allowed to
