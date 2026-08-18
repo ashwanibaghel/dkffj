@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import prisma from "@/lib/prisma";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 import { normalizeCourseEnrollmentNumber } from "@/lib/membershipNumber";
+import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 export interface TrackingResult {
   found: boolean;
@@ -145,7 +146,7 @@ export async function getTrackingDetails(type: string, trackingNumber: string): 
         profession: membership.profession,
         working_area: membership.working_area,
         designation: membership.designation,
-        photo_url: membership.photo_url,
+        photo_url: getPublicPhotoProxyUrl(membership.photo_url),
         approved_at: membership.approved_at,
         created_at: membership.created_at,
         ack_no: membership.ack_no,
@@ -497,7 +498,7 @@ export async function getSecureMembershipDetails(ackNo: string, contact: string)
       profession: membership.profession,
       working_area: membership.working_area,
       designation: membership.designation,
-      photo_url: membership.photo_url,
+        photo_url: getPublicPhotoProxyUrl(membership.photo_url),
       approved_at: membership.approved_at ? new Date(membership.approved_at).toISOString() : null,
       created_at: new Date(membership.created_at).toISOString(),
       ack_no: membership.ack_no,
