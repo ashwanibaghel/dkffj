@@ -2,7 +2,7 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
-import { resolveFullPhotoUrl } from "@/lib/photoUtils";
+import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 // Interface for ID Card Data
 export interface MembershipIdCardData {
@@ -45,7 +45,7 @@ export const MembershipIdCardRenderer: React.FC<MembershipIdCardRendererProps> =
   logoBase64,
   signatureBase64
 }) => {
-  const photoSrc = photoBase64 || resolveFullPhotoUrl(data.photoUrl) || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300";
+  const photoSrc = photoBase64 || getPublicPhotoProxyUrl(data.photoUrl) || "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&q=80&w=300";
   const qrSrc = qrBase64 || data.qrCodeUrl || "";
   const logoSrc = logoBase64 || "/logo.png";
   const signatureSrc = signatureBase64 || "/images/course_director_sig.png";
@@ -535,7 +535,7 @@ export async function generateMembershipIdCardPDFClient(
   const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
 
   const [photoBase64, qrBase64, logoBase64, signatureBase64] = await Promise.all([
-    photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
+    photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(getPublicPhotoProxyUrl(data.photoUrl)) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
     getNativeWhiteOrGoldSignature("/images/course_director_sig.png", "#FFFFFF")

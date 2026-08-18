@@ -11,7 +11,7 @@ import AdminEmptyState from "../components/AdminEmptyState";
 import { AdminConfirmDialog } from "../components/AdminFeedback";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 import { MEMBERSHIP_TIERS, MEMBERSHIP_TIERS_LIST, autoDetectMembershipLevel, MembershipLevelKey } from "@/lib/data/membershipTiers";
-import { resolveFullPhotoUrl } from "@/lib/photoUtils";
+import { getPublicPhotoProxyUrl, resolveFullPhotoUrl } from "@/lib/photoUtils";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 const PROFESSIONS = [
@@ -821,7 +821,7 @@ export default function AdminMembersPage() {
         fatherName: latestMember.father_name,
         designation: latestMember.designation,
         workingArea: latestMember.working_area,
-        photoUrl: latestMember.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(latestMember.photo_url),
         issueDateStr,
         qrCodeUrl,
         verificationUrl
@@ -878,7 +878,7 @@ export default function AdminMembersPage() {
         fatherName: latestMember.father_name,
         designation: latestMember.designation,
         workingArea: latestMember.working_area,
-        photoUrl: resolveFullPhotoUrl(latestMember.photo_url),
+        photoUrl: getPublicPhotoProxyUrl(latestMember.photo_url),
         issueDateStr,
         validFromStr,
         validToStr,
@@ -986,7 +986,7 @@ export default function AdminMembersPage() {
                   fatherName: latestMember.father_name,
                   designation: latestMember.designation,
                   workingArea: latestMember.working_area,
-                  photoUrl: latestMember.photo_url,
+                  photoUrl: getPublicPhotoProxyUrl(latestMember.photo_url),
                   issueDateStr,
                   qrCodeUrl,
                   verificationUrl
@@ -1014,7 +1014,7 @@ export default function AdminMembersPage() {
                   fatherName: latestMember.father_name,
                   designation: latestMember.designation,
                   workingArea: latestMember.working_area,
-                  photoUrl: latestMember.photo_url,
+                  photoUrl: getPublicPhotoProxyUrl(latestMember.photo_url),
                   issueDateStr,
                   validFromStr,
                   validToStr,

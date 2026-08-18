@@ -3,6 +3,7 @@
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 // Interface for Membership Certificate Data
 export interface MembershipCertificateData {
@@ -35,7 +36,7 @@ export const MembershipCertificateRenderer: React.FC<MembershipCertificateRender
   signatureBase64,
   borderBase64
 }) => {
-  const photoSrc = photoBase64 || data.photoUrl || "";
+  const photoSrc = photoBase64 || getPublicPhotoProxyUrl(data.photoUrl) || "";
   let rawQrUrl = qrBase64 || data.qrCodeUrl || "";
   if (!qrBase64 && rawQrUrl) {
     rawQrUrl = rawQrUrl
@@ -540,7 +541,7 @@ export async function generateMembershipPDFClient(
     signatureBase64,
     borderBase64
   ] = await Promise.all([
-    photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(data.photoUrl) : Promise.resolve("")),
+    photoBase64Input ? Promise.resolve(photoBase64Input) : (data.photoUrl ? getBase64ImageFromUrl(getPublicPhotoProxyUrl(data.photoUrl)) : Promise.resolve("")),
     qrBase64Input ? Promise.resolve(qrBase64Input) : getBase64ImageFromUrl(data.qrCodeUrl),
     getBase64ImageFromUrl("/logo.png"),
     getBase64ImageFromUrl("/images/director_sig.png"),
