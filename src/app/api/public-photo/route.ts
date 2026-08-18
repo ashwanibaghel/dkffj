@@ -30,13 +30,21 @@ export async function GET(request: NextRequest) {
     path = null;
   }
 
-  if (!path || path.includes("..")) {
+  const pathSegments = path?.replace(/\\/g, "/").split("/") || [];
+  if (!path || pathSegments.some((segment) => segment === ".." || segment === ".")) {
     return NextResponse.json({ error: "Invalid public photo path." }, { status: 400 });
   }
 
+  const isLegacySiteUpload = path.startsWith("uploads/membership_form/");
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
   try {
-    const upstream = await fetch(`${STORAGE_BASE}/storage/v1/object/public/photos/${encodedPath}`, {
+    // Migrated members keep their original photos in the legacy public
+    // /uploads/membership_form directory, while new submissions live in the
+    // Supabase photos bucket. Serve both through this one app-domain endpoint.
+    const upstreamUrl = isLegacySiteUpload
+      ? new URL(`/${encodedPath}`, request.url).toString()
+      : `${STORAGE_BASE}/storage/v1/object/public/photos/${encodedPath}`;
+    const upstream = await fetch(upstreamUrl, {
       next: { revalidate: 86400 },
     });
     if (!upstream.ok) {
