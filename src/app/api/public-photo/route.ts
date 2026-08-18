@@ -37,18 +37,28 @@ export async function GET(request: NextRequest) {
 
   const isLegacySiteUpload = path.startsWith("uploads/membership_form/");
   const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+  const legacyStoragePath = isLegacySiteUpload
+    ? `membership_form/${path.substring("uploads/membership_form/".length)}`
+    : path;
+  const encodedStoragePath = legacyStoragePath.split("/").map(encodeURIComponent).join("/");
   try {
     // Migrated members keep their original photos in the legacy public
     // /uploads/membership_form directory, while new submissions live in the
     // Supabase photos bucket. Serve both through this one app-domain endpoint.
-    const upstreamUrl = isLegacySiteUpload
-      ? new URL(`/${encodedPath}`, request.url).toString()
-      : `${STORAGE_BASE}/storage/v1/object/public/photos/${encodedPath}`;
-    const upstream = await fetch(upstreamUrl, {
-      next: { revalidate: 86400 },
-    });
-    if (!upstream.ok) {
-      return NextResponse.json({ error: "Photo not found." }, { status: upstream.status });
+    const upstreamUrls = [
+      `${STORAGE_BASE}/storage/v1/object/public/photos/${encodedStoragePath}`,
+      ...(isLegacySiteUpload ? [new URL(`/${encodedPath}`, request.url).toString()] : []),
+    ];
+    let upstream: Response | null = null;
+    for (const upstreamUrl of upstreamUrls) {
+      const candidate = await fetch(upstreamUrl, { next: { revalidate: 86400 } });
+      if (candidate.ok) {
+        upstream = candidate;
+        break;
+      }
+    }
+    if (!upstream) {
+      return NextResponse.json({ error: "Photo not found." }, { status: 404 });
     }
     return new NextResponse(await upstream.arrayBuffer(), {
       headers: {

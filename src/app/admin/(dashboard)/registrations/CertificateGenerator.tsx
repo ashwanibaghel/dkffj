@@ -59,6 +59,12 @@ export async function getBase64ImageFromUrl(imageUrl: string, timeoutMs: number 
     }
   }
 
+  // This URL is already our image proxy. Passing it through /api/documents
+  // creates an invalid nested storage path, so fail cleanly instead.
+  if (imageUrl.startsWith("/api/public-photo?")) {
+    return "";
+  }
+
   // 2. Fallback to proxy route /api/documents using fresh AbortController
   const controller2 = new AbortController();
   const id2 = setTimeout(() => {
