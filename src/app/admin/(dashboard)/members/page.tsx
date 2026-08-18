@@ -801,7 +801,7 @@ export default function AdminMembersPage() {
       }
       const latestMember = printRes.member;
       const certNo = normalizeMembershipNumber(latestMember.membership_no);
-      if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(certNo)) {
+      if (!/^DKFFJ\/(?:M|EXEC)\/\d{4}\/\d{5,}$/i.test(certNo)) {
         throw new Error("A permanent Member ID could not be assigned. Please try again.");
       }
       const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
@@ -854,7 +854,7 @@ export default function AdminMembersPage() {
       }
       const latestMember = printRes.member;
       const certNo = normalizeMembershipNumber(latestMember.membership_no);
-      if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(certNo)) {
+      if (!/^DKFFJ\/(?:M|EXEC)\/\d{4}\/\d{5,}$/i.test(certNo)) {
         throw new Error("A permanent Member ID could not be assigned. Please try again.");
       }
       const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;

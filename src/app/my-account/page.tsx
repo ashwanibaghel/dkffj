@@ -11,7 +11,7 @@ import { createClient } from "@/utils/supabase/client";
 import { getAccountDetails, updateProfileDetails, AccountData } from "./actions";
 import { generateMembershipPDFClient } from "../admin/(dashboard)/members/MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "../admin/(dashboard)/members/MembershipIdCardGenerator";
-import { resolveFullPhotoUrl } from "@/lib/photoUtils";
+import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 export default function MyAccountPage() {
@@ -167,7 +167,7 @@ export default function MyAccountPage() {
         fatherName: member.father_name,
         designation: member.designation,
         workingArea: member.working_area,
-        photoUrl: member.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(member.photo_url),
         issueDateStr,
         qrCodeUrl,
         verificationUrl
@@ -214,7 +214,7 @@ export default function MyAccountPage() {
         verificationUrl,
         studentName: cert.user_name || reg.full_name || "",
         courseTitle: cert.course_name || reg.courses?.title || "",
-        photoUrl: reg.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(reg.photo_url),
         fatherName: reg.father_name || "N/A",
         enrollmentNo: reg.enrollment_no || "",
         durationFrom: cert.duration_from || issueDateStr,
@@ -263,7 +263,7 @@ export default function MyAccountPage() {
         fatherName: member.father_name,
         designation: member.designation,
         workingArea: member.working_area,
-        photoUrl: resolveFullPhotoUrl(member.photo_url),
+        photoUrl: getPublicPhotoProxyUrl(member.photo_url),
         issueDateStr,
         validFromStr,
         validToStr,

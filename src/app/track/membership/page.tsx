@@ -8,6 +8,7 @@ import { getSecureMembershipDetails, TrackingResult } from "../actions";
 import { generateMembershipPDFClient } from "../../admin/(dashboard)/members/MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "../../admin/(dashboard)/members/MembershipIdCardGenerator";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 function MembershipTrackContent() {
   const searchParams = useSearchParams();
@@ -99,7 +100,7 @@ function MembershipTrackContent() {
         fatherName: member.father_name,
         designation: member.designation,
         workingArea: member.working_area,
-        photoUrl: member.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(member.photo_url),
         issueDateStr,
         qrCodeUrl,
         verificationUrl
@@ -145,7 +146,7 @@ function MembershipTrackContent() {
         fatherName: member.father_name,
         designation: member.designation,
         workingArea: member.working_area,
-        photoUrl: member.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(member.photo_url),
         issueDateStr,
         validFromStr,
         validToStr,

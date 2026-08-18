@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { cleanAmpText } from "@/lib/sanitize";
 import { normalizeMembershipNumber, toLegacyMembershipNumber } from "@/lib/membershipNumber";
+import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 export interface CertificateDetails {
   found: boolean;
@@ -41,17 +42,16 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
   const rawNum = cleanSearch.split("/").pop() || cleanSearch;
   const appUrl = "https://www.dkffj.org";
   const normalizedMembershipNo = normalizeMembershipNumber(cleanSearch);
-  const isMembershipId = /^DKFFJ\/M\/\d{4}\/\d{5,}$/.test(normalizedMembershipNo);
+  const isMembershipId = /^DKFFJ\/(?:M|EXEC)\/\d{4}\/\d{5,}$/i.test(normalizedMembershipNo);
 
   try {
     // A QR code containing a permanent Member ID must never be allowed to
     // fall through to another registry table merely because the serial digits
     // happen to match an appreciation or course certificate.
     if (isMembershipId) {
-      const membershipNumbers = [...new Set([
-        normalizedMembershipNo,
-        toLegacyMembershipNumber(normalizedMembershipNo),
-      ])];
+      const membershipNumbers = normalizedMembershipNo.toUpperCase().startsWith("DKFFJ/M/")
+        ? [...new Set([normalizedMembershipNo, toLegacyMembershipNumber(normalizedMembershipNo)])]
+        : [cleanSearch];
       const { data: member } = await supabase
         .from("memberships")
         .select("*")
@@ -87,7 +87,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
         courseName: "Membership / Executive Council Certificate",
         designation: cleanAmpText(member.designation) || "Executive Member",
         workingArea: cleanAmpText(member.working_area || member.district || member.state || "India"),
-        photoUrl: member.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(member.photo_url),
         issueDate: new Date(member.approved_at || member.created_at).toLocaleDateString("en-IN"),
         status: member.status === "APPROVED" ? "VALID" : member.status,
         pdfUrl: "",
@@ -113,7 +113,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
       if (reg) {
         fatherName = cleanAmpText(reg.father_name) || "N/A";
         enrollmentNo = reg.enrollment_no || "";
-        photoUrl = reg.photo_url;
+        photoUrl = getPublicPhotoProxyUrl(reg.photo_url);
       }
 
       const certNo = cert.certificate_no;
@@ -165,7 +165,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
         courseName: `Certificate of Appreciation — ${cleanAmpText(appreciationApp.social_work_field)}`,
         designation: "Honorable Social Advocate",
         workingArea: cleanAmpText(appreciationApp.social_work_field),
-        photoUrl: appreciationApp.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(appreciationApp.photo_url),
         issueDate,
         status: isApproved ? "VALID" : "VALID (UNDER REVIEW)",
         pdfUrl: "",
@@ -201,7 +201,7 @@ export async function verifyCertificate(certificateNo: string): Promise<Certific
         courseName: "Membership / Executive Council Certificate",
         designation: cleanAmpText(member.designation) || "Executive Member",
         workingArea: cleanAmpText(member.working_area || member.district || member.state || "India"),
-        photoUrl: member.photo_url,
+        photoUrl: getPublicPhotoProxyUrl(member.photo_url),
         issueDate,
         status: isApproved ? "VALID" : member.status,
         pdfUrl: "",

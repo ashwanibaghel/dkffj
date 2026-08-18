@@ -66,6 +66,14 @@ export default async function VerifyCertIdPage({ params }: { params: Promise<{ c
                   : "Academic Course Certificate Verified"}
               </span>
 
+              {result.certType === "membership" && result.photoUrl ? (
+                <img
+                  src={result.photoUrl}
+                  alt={`${result.userName} profile`}
+                  className="w-20 h-20 rounded-2xl object-cover mx-auto mt-5 border-2 border-white/70 bg-white shadow-lg"
+                />
+              ) : null}
+
               <h2 className="text-xl sm:text-2xl font-extrabold font-serif mt-4 leading-snug tracking-wide">{result.userName}</h2>
               
               <p className="text-xs text-white/90 mt-1.5 max-w-md mx-auto font-medium">

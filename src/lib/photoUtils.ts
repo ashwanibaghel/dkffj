@@ -66,3 +66,16 @@ export function resolveFullPhotoUrl(url?: string | null): string {
 
   return `${currentCdnBase}${path}`;
 }
+
+/**
+ * Uses the app-domain proxy for membership/public profile photos. This avoids
+ * direct browser CDN/QUIC failures and gives every page the same stable URL.
+ */
+export function getPublicPhotoProxyUrl(url?: string | null): string {
+  if (!url) return "";
+  const resolved = resolveFullPhotoUrl(url);
+  if (!resolved || resolved.startsWith("data:") || resolved.startsWith("blob:") || resolved.startsWith("/logo")) {
+    return resolved;
+  }
+  return `/api/public-photo?path=${encodeURIComponent(resolved)}`;
+}

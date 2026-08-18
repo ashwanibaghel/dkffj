@@ -8,10 +8,45 @@ import { getVersionedCache, incrementNamespaceVersion } from "@/lib/redis";
 import { resolveFullPhotoUrl } from "@/lib/photoUtils";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 
-const PERMANENT_MEMBERSHIP_ID_PATTERN = /^DKFFJ\/M\/\d{4}\/\d{5,}$/i;
+// M is the current format; EXEC is a legitimate historic format used by
+// members migrated from the old system. Both must remain valid permanently.
+const PERMANENT_MEMBERSHIP_ID_PATTERN = /^DKFFJ\/(?:M|EXEC)\/\d{4}\/\d{5,}$/i;
 
 function isPermanentMembershipId(value: string | null | undefined) {
   return PERMANENT_MEMBERSHIP_ID_PATTERN.test(normalizeMembershipNumber(value));
+}
+
+async function getMembershipPhotoDataUrl(supabase: any, photoUrl: string | null | undefined) {
+  if (!photoUrl) return "";
+  const clean = photoUrl.split("?")[0].replace(/^\/+/, "");
+  const storageMatch = clean.match(/\/storage\/v1\/object\/(?:public|sign)\/photos\/(.+)$/i);
+  const relativePath = storageMatch?.[1]
+    || clean.replace(/^photos\//i, "")
+    || clean.replace(/^uploads\/membership_form\//i, "membership_form/");
+
+  for (const path of Array.from(new Set([relativePath, `membership_form/${relativePath.replace(/^membership_form\//i, "")}`]))) {
+    try {
+      const { data, error } = await supabase.storage.from("photos").download(path);
+      if (data && !error) {
+        const buffer = Buffer.from(await data.arrayBuffer());
+        return `data:${data.type || "image/jpeg"};base64,${buffer.toString("base64")}`;
+      }
+    } catch (error) {
+      console.warn("Membership photo storage download failed:", error);
+    }
+  }
+
+  // Legacy/public CDN fallback for records outside the photos bucket.
+  try {
+    const response = await fetch(resolveFullPhotoUrl(photoUrl));
+    if (response.ok) {
+      const buffer = Buffer.from(await response.arrayBuffer());
+      return `data:${response.headers.get("content-type") || "image/jpeg"};base64,${buffer.toString("base64")}`;
+    }
+  } catch (error) {
+    console.warn("Membership photo CDN fallback failed:", error);
+  }
+  return "";
 }
 
 async function ensurePermanentMembershipId(supabase: any, member: { id: string; membership_no?: string | null }) {
@@ -611,21 +646,9 @@ export async function getMemberPrintData(id: string, qrCodeUrl: string) {
   let photoBase64 = "";
   let qrBase64 = "";
 
-  // Fetch photo and convert to base64 on server side
-  const fullPhotoUrl = resolveFullPhotoUrl(member.photo_url);
-  if (fullPhotoUrl) {
-    try {
-      const res = await fetch(fullPhotoUrl);
-      if (res.ok) {
-        const arrayBuffer = await res.arrayBuffer();
-        const base64 = Buffer.from(arrayBuffer).toString("base64");
-        const contentType = res.headers.get("content-type") || "image/jpeg";
-        photoBase64 = `data:${contentType};base64,${base64}`;
-      }
-    } catch (e) {
-      console.error("Failed to convert photoUrl on server:", e);
-    }
-  }
+  // Fetch the original member photo from Storage server-side. This avoids
+  // browser/CDN CORS and QUIC failures during PDF/ID-card rendering.
+  photoBase64 = await getMembershipPhotoDataUrl(supabase, member.photo_url);
 
   // Fetch QR code and convert to base64 on server side
   if (qrCodeUrl) {
