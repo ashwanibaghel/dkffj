@@ -327,7 +327,12 @@ export async function updateMembershipStatus(
     return { success: false, error: "Membership record not found." };
   }
 
-  let finalStatus = newStatus as "APPROVED" | "REJECTED" | "UNDER_REVIEW";
+  const allowedStatuses = new Set(["APPROVED", "REJECTED", "UNDER_REVIEW"]);
+  if (!allowedStatuses.has(newStatus)) {
+    return { success: false, error: "Invalid membership status." };
+  }
+
+  const finalStatus = newStatus as "APPROVED" | "REJECTED" | "UNDER_REVIEW";
   let generatedMembershipNo = normalizeMembershipNumber(member.membership_no);
 
   // An APPROVED record is never allowed to remain without a valid permanent ID.
@@ -369,10 +374,13 @@ export async function updateMembershipStatus(
     updated_by: user.id
   });
 
-  // 4. Send notification email to candidate
-  const actionText = finalStatus === "APPROVED" ? "APPROVED" : "REJECTED";
-  const emailSubject = `Membership Application ${actionText} - DKFFJ`;
-  let emailHtml = `
+  // 4. A rejection email is sent only for an actual transition to REJECTED.
+  // Moving a record to UNDER_REVIEW, editing a profile, or approving a record
+  // must never produce a rejection email. Approval email + documents are sent
+  // separately by dispatchMembershipWelcomeEmail after they are generated.
+  if (finalStatus === "REJECTED" && member.status !== "REJECTED") {
+    const emailSubject = "Membership Application REJECTED - DKFFJ";
+    const emailHtml = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
       <div style="background-color: #1E60B4; padding: 24px; text-align: center;">
 <img src="https://dkffj.vercel.app/logo.png" alt="DKFFJ Logo" style="width: 70px; height: 70px; margin-bottom: 12px; display: inline-block;" />
@@ -381,27 +389,11 @@ export async function updateMembershipStatus(
 <div style="color: #e0f2fe; font-size: 11px; margin-top: 6px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; opacity: 0.9;">Regd By Ministry of Corporate Affairs Govt. of India</div>
 </div>
       <div style="padding: 24px; color: #334155;">
-        <h2>Application Status: ${actionText}</h2>
+        <h2>Application Status: REJECTED</h2>
         <p>Dear ${member.full_name},</p>
-        <p>Your application for DKFFJ Membership (Acknowledgement: ${member.ack_no}) has been reviewed by the board and was <strong>${actionText}</strong>.</p>
-  `;
-
-  if (finalStatus === "APPROVED") {
-    emailHtml += `
-      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin: 20px 0;">
-        <span style="font-size: 13px; color: #166534; font-weight: bold; block;">Your Permanent Membership ID:</span>
-        <strong style="font-size: 20px; color: #15803d; block; margin-top: 5px;">${generatedMembershipNo}</strong>
-      </div>
-      <p>Congratulations! You are now a registered member and human rights officer with the DK Foundation. Your official ID card and certificate are attached to this email and can also be downloaded from the tracking portal.</p>
-    `;
-  } else {
-    emailHtml += `
+        <p>Your application for DKFFJ Membership (Acknowledgement: ${member.ack_no}) has been reviewed by the board and was <strong>REJECTED</strong>.</p>
       <p><strong>Remarks from board:</strong> ${remarks || "No specific reasons specified."}</p>
       <p>If you have any doubts, you can submit corrections or contact our state coordinating office.</p>
-    `;
-  }
-
-  emailHtml += `
         <div style="margin-top: 24px;">
           <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/track?type=membership&id=${member.ack_no}" style="background-color: #001C55; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px; display: inline-block;">Track Application Details</a>
         </div>
@@ -412,8 +404,7 @@ export async function updateMembershipStatus(
     </div>
   `;
 
-  // Send in background so database response returns immediately to client
-  if (finalStatus !== "APPROVED") {
+    // Send in background so database response returns immediately to client.
     sendTransactionalEmail(member.email, emailSubject, emailHtml).catch((err) => {
       console.error("sendTransactionalEmail failed:", err);
     });
@@ -547,12 +538,18 @@ export async function dispatchMembershipWelcomeEmail(
   // Fetch membership record
   const { data: member } = await supabase
     .from("memberships")
-    .select("full_name, email, membership_no, ack_no")
+    .select("full_name, email, membership_no, ack_no, status")
     .eq("id", id)
     .single();
 
   if (!member) {
     return { success: false, error: "Membership record not found." };
+  }
+  // PDF generation runs in the browser after an approval click. A second admin
+  // may change the record before that background work finishes, so never send
+  // an approval email for a member who is no longer approved.
+  if (member.status !== "APPROVED") {
+    return { success: false, error: "Approval email was not sent because this member is not currently approved." };
   }
 
   const emailSubject = `Membership Application APPROVED - DKFFJ`;
