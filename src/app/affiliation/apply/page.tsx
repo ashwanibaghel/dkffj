@@ -472,6 +472,11 @@ export default function AffiliationApplyPage() {
         clearDraft();
         showToast("info", "Form details saved. Redirecting to payment checkout...");
         router.push(`/affiliation/payment?id=${res.affiliationId}`);
+      } else {
+        const message = "Application could not be prepared for payment. Please try again.";
+        setErrorMessage(message);
+        showToast("error", message);
+        setLoading(false);
       }
     } catch (err: any) {
       setErrorMessage(err.message || "An error occurred during submission.");

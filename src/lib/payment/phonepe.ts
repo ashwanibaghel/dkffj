@@ -62,7 +62,7 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
 
   if (isBypassEmail) {
     console.log(`[PAYMENT BYPASS] Bypass email detected - skipping PhonePe payment gateway`);
-    return `${appUrl}/payment/success?orderId=${details.orderId}`;
+    return details.successUrl || `${appUrl}/payment/success?orderId=${encodeURIComponent(details.orderId)}`;
   }
 
   if (!merchantId || !saltKey) {
@@ -74,7 +74,7 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
     merchantTransactionId: details.orderId,
     merchantUserId: "USER-" + details.orderId.split("-")[1] || "USER-SYSTEM",
     amount: Math.round(details.amount * 100), // convert ₹ to paise
-    redirectUrl: `${appUrl}/payment/success?orderId=${details.orderId}`,
+    redirectUrl: details.successUrl || `${appUrl}/payment/success?orderId=${encodeURIComponent(details.orderId)}`,
     redirectMode: "REDIRECT",
     callbackUrl: `${appUrl}/api/phonepe/callback`,
     paymentInstrument: {
@@ -313,4 +313,3 @@ export class PhonePeGateway implements PaymentGateway {
     };
   }
 }
-

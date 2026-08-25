@@ -7,6 +7,7 @@ import {
   getMembershipReceiptTemplate,
   getCourseRegistrationReceiptTemplate,
 } from "@/services/email/templates";
+import { finalizeAffiliationPayment } from "@/lib/affiliationPayment";
 
 export async function GET(req: NextRequest) {
   const orderId = req.nextUrl.searchParams.get("orderId");
@@ -112,6 +113,31 @@ export async function GET(req: NextRequest) {
           isBypass = true;
         }
       }
+    } else if (payment.affiliation_id) {
+      paymentType = "affiliation";
+      const { data: affiliation } = await supabase
+        .from("affiliations")
+        .select("application_no, organization_name, affiliation_applicants(full_name, email, mobile)")
+        .eq("id", payment.affiliation_id)
+        .maybeSingle();
+      const applicant = (affiliation?.affiliation_applicants as any)?.[0] || {};
+      customerEmail = applicant.email || "";
+      customerName = applicant.full_name || "";
+      customerMobile = applicant.mobile || "";
+      ackOrEnrollmentNo = affiliation?.application_no || "";
+      courseTitle = affiliation?.organization_name || "Institute Affiliation Processing Fee";
+    }
+
+    // If PhonePe confirmed payment but a callback was interrupted, the success
+    // page itself repairs the affiliation draft before reporting success.
+    if (payment.affiliation_id && payment.status === "COMPLETED") {
+      const finalized = await finalizeAffiliationPayment({
+        supabase,
+        payment,
+        gatewayTransactionId: payment.gateway_transaction_id || orderId,
+        paidAmount: Number(payment.amount)
+      });
+      ackOrEnrollmentNo = finalized.applicationNo;
     }
 
     const payloadDetails = {
@@ -124,7 +150,7 @@ export async function GET(req: NextRequest) {
       gatewayTransactionId: payment.gateway_transaction_id || "PENDING",
       ackOrEnrollmentNo,
       paymentType,
-      description: courseTitle || (paymentType === "membership" ? "NGO Membership Fee" : paymentType === "appreciation" ? "Appreciation Application Fee" : "General Donation")
+      description: courseTitle || (paymentType === "membership" ? "NGO Membership Fee" : paymentType === "appreciation" ? "Appreciation Application Fee" : paymentType === "affiliation" ? "Institute Affiliation Processing Fee" : "General Donation")
     };
 
     if (payment.status === "COMPLETED") {
@@ -537,6 +563,27 @@ export async function GET(req: NextRequest) {
     if (result.success && payment && payment.status !== "COMPLETED") {
       const { processPaymentCompletion } = await import("../callback/route");
       await processPaymentCompletion(orderId);
+      if (payment.affiliation_id) {
+        const { data: finalizedAffiliation } = await supabase
+          .from("affiliations")
+          .select("application_no, current_status")
+          .eq("id", payment.affiliation_id)
+          .maybeSingle();
+        if (finalizedAffiliation?.current_status === "SUBMITTED" && finalizedAffiliation.application_no) {
+          return NextResponse.json({
+            success: true,
+            status: "COMPLETED",
+            transactionId: result.transactionId,
+            orderId,
+            details: {
+              ...payloadDetails,
+              paymentType: "affiliation",
+              ackOrEnrollmentNo: finalizedAffiliation.application_no,
+              gatewayTransactionId: result.transactionId || "COMPLETED"
+            }
+          });
+        }
+      }
     }
 
     return NextResponse.json({

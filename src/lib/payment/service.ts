@@ -6,6 +6,8 @@ export interface PaymentDetails {
   currency: string;
   customerEmail: string;
   customerMobile: string;
+  /** Optional first-party page shown after the gateway redirect. */
+  successUrl?: string;
 }
 
 export interface PaymentResponse {

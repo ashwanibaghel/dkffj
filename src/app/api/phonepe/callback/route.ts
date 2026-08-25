@@ -18,6 +18,7 @@ import {
 } from "@/services/email/templates";
 import prisma from "@/lib/prisma";
 import { createHmac } from "crypto";
+import { finalizeAffiliationPayment } from "@/lib/affiliationPayment";
 
 /** Verify HMAC signature from PhonePe webhook */
 function verifyWebhookSignature(rawBody: string, authHeader: string | null): boolean {
@@ -106,7 +107,7 @@ export async function processPaymentCompletion(merchantOrderId: string) {
   // 2. Fetch payment record from DB
   const { data: payment } = await supabase
     .from("payments")
-    .select("id, amount, status, created_at, membership_id, registration_id, donation_id, appreciation_id")
+    .select("id, amount, status, created_at, transaction_id, membership_id, registration_id, donation_id, appreciation_id, affiliation_id")
     .eq("transaction_id", merchantOrderId)
     .maybeSingle();
 
@@ -117,6 +118,16 @@ export async function processPaymentCompletion(merchantOrderId: string) {
 
   if (payment.status === "COMPLETED") {
     console.log("Payment already processed:", merchantOrderId);
+    if (payment.affiliation_id) {
+      // Recovery path: a previous webhook may have completed the payment but
+      // been interrupted before promoting the affiliation draft.
+      await finalizeAffiliationPayment({
+        supabase,
+        payment,
+        gatewayTransactionId: verifyResult.transactionId || merchantOrderId,
+        paidAmount: Number(payment.amount)
+      });
+    }
     return;
   }
 
@@ -133,6 +144,24 @@ export async function processPaymentCompletion(merchantOrderId: string) {
 
   if (!updatedPayment || updatedPayment.length === 0) {
     console.log("[PHONEPE CALLBACK] Payment already completed by another thread/process:", merchantOrderId);
+    if (payment.affiliation_id) {
+      await finalizeAffiliationPayment({
+        supabase,
+        payment,
+        gatewayTransactionId: verifyResult.transactionId || merchantOrderId,
+        paidAmount: Number(payment.amount)
+      });
+    }
+    return;
+  }
+
+  if (payment.affiliation_id) {
+    await finalizeAffiliationPayment({
+      supabase,
+      payment,
+      gatewayTransactionId: verifyResult.transactionId || merchantOrderId,
+      paidAmount: Number(payment.amount)
+    });
     return;
   }
 

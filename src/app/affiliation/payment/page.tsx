@@ -17,7 +17,7 @@ import {
   Lock,
   Sparkles
 } from "lucide-react";
-import { initiateAffiliationPayment, getAffiliationPaymentDetails } from "../apply/actions";
+import { initiateAffiliationPayment, getAffiliationPaymentDetails, bypassAffiliationPayment } from "../apply/actions";
 import { AFFILIATION_FEE_AMOUNT, AFFILIATION_FEE_DESCRIPTION, AFFILIATION_FEE_NOTE } from "@/lib/affiliation-config";
 
 // Inner component that uses useSearchParams — must be wrapped in Suspense
@@ -30,6 +30,7 @@ function AffiliationPaymentContent() {
   const [payLoading, setPayLoading] = useState(false);
   const [error, setError] = useState("");
   const [appData, setAppData] = useState<any>(null);
+  const isLocalTestMode = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     if (!id) {
@@ -39,7 +40,9 @@ function AffiliationPaymentContent() {
     }
 
     getAffiliationPaymentDetails(id).then((res) => {
-      if (res.appData) {
+      if (res.error) {
+        setError(res.error);
+      } else if (res.appData) {
         const app = res.appData as any;
         setAppData(app);
         if (app.status === "SUBMITTED" || app.payment?.status === "COMPLETED") {
@@ -70,6 +73,26 @@ function AffiliationPaymentContent() {
       }
     } catch (err: any) {
       setError(err.message || "Failed to launch payment checkout.");
+      setPayLoading(false);
+    }
+  };
+
+  // This is intentionally compiled out of production. It exercises the
+  // post-payment workflow without creating a PhonePe transaction or charge.
+  const handleTestPayment = async () => {
+    if (!id || !isLocalTestMode) return;
+    setPayLoading(true);
+    setError("");
+    try {
+      const res = await bypassAffiliationPayment(id);
+      if (res.error || !res.applicationNo || !res.orderId) {
+        setError(res.error || "Unable to complete the local test payment.");
+        setPayLoading(false);
+        return;
+      }
+      router.push(`/affiliation/success?test=1&appNo=${encodeURIComponent(res.applicationNo)}&orderId=${encodeURIComponent(res.orderId)}`);
+    } catch (err: any) {
+      setError(err.message || "Unable to complete the local test payment.");
       setPayLoading(false);
     }
   };
@@ -198,6 +221,20 @@ function AffiliationPaymentContent() {
                 </>
               )}
             </button>
+            {isLocalTestMode && (
+              <button
+                onClick={handleTestPayment}
+                disabled={payLoading}
+                className="w-full py-3 rounded-2xl border border-sky-500/50 bg-sky-500/10 hover:bg-sky-500/20 text-sky-200 font-bold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              >
+                <CheckCircle className="w-4 h-4" /> Complete local test payment (₹0 — no PhonePe charge)
+              </button>
+            )}
+            {isLocalTestMode && (
+              <p className="text-center text-[11px] text-slate-400">
+                Development only: this creates a test submission locally and does not contact PhonePe or send email.
+              </p>
+            )}
           </div>
         </div>
 

@@ -65,6 +65,10 @@ function PaymentSuccessContent() {
         const data = await res.json();
 
         if (data.success && data.status === "COMPLETED") {
+          if (data.details?.paymentType === "affiliation") {
+            router.replace(`/affiliation/success?orderId=${encodeURIComponent(orderId)}`);
+            return;
+          }
           setStatus("success");
           setRefId(orderId);
           if (data.details) {

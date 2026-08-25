@@ -1,7 +1,7 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import React, { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   CheckCircle,
@@ -18,9 +18,48 @@ import {
 
 function AffiliationSuccessContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const appNo = searchParams.get("appNo") || searchParams.get("app") || "";
+  const orderId = searchParams.get("orderId") || "";
+  const testAppNo = searchParams.get("appNo") || "";
+  const isLocalTestResult = process.env.NODE_ENV === "development" && searchParams.get("test") === "1" && Boolean(orderId) && Boolean(testAppNo);
+  const [appNo, setAppNo] = useState(isLocalTestResult ? testAppNo : "");
+  const [verificationStatus, setVerificationStatus] = useState<"verifying" | "success" | "failed">(isLocalTestResult ? "success" : orderId ? "verifying" : "failed");
+  const [verificationError, setVerificationError] = useState(orderId ? "" : "Payment reference is missing. Please use the affiliation tracking page.");
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!orderId || isLocalTestResult) return;
+    let cancelled = false;
+    let attempts = 0;
+    const verify = async () => {
+      try {
+        const response = await fetch(`/api/phonepe/verify?orderId=${encodeURIComponent(orderId)}`);
+        const data = await response.json();
+        if (cancelled) return;
+        if (data.success && data.status === "COMPLETED" && data.details?.paymentType === "affiliation" && data.details?.ackOrEnrollmentNo) {
+          setAppNo(data.details.ackOrEnrollmentNo);
+          setVerificationStatus("success");
+          return;
+        }
+        attempts += 1;
+        if (data.status === "FAILED" || attempts >= 15) {
+          setVerificationError(data.error || "Payment verification is still pending. Please use your payment reference to contact support.");
+          setVerificationStatus("failed");
+          return;
+        }
+        window.setTimeout(verify, 2000);
+      } catch {
+        attempts += 1;
+        if (attempts >= 15) {
+          setVerificationError("Unable to verify payment right now. Please do not pay again; try tracking after a few minutes.");
+          setVerificationStatus("failed");
+        } else {
+          window.setTimeout(verify, 2000);
+        }
+      }
+    };
+    void verify();
+    return () => { cancelled = true; };
+  }, [orderId, isLocalTestResult]);
 
   const copyToClipboard = () => {
     if (!appNo) return;
@@ -28,6 +67,20 @@ function AffiliationSuccessContent() {
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
   };
+
+  if (verificationStatus !== "success") {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-4 bg-slate-900 border border-slate-800 rounded-3xl p-8">
+          {verificationStatus === "verifying" ? <Sparkles className="w-9 h-9 text-amber-400 animate-spin mx-auto" /> : <FileText className="w-9 h-9 text-rose-400 mx-auto" />}
+          <h1 className="text-xl font-black">{verificationStatus === "verifying" ? "Verifying Payment…" : "Payment Verification Pending"}</h1>
+          <p className="text-sm text-slate-400">{verificationStatus === "verifying" ? "Please wait. Do not make another payment." : verificationError}</p>
+          {orderId && <p className="text-[11px] font-mono text-slate-500 break-all">Reference: {orderId}</p>}
+          <Link href="/affiliation/track" className="inline-flex px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-bold">Go to Affiliation Tracking</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between p-4 sm:p-6 lg:p-8 relative overflow-hidden">
@@ -59,7 +112,7 @@ function AffiliationSuccessContent() {
             </span>
             <div className="p-4 bg-slate-950 border border-emerald-500/30 rounded-2xl flex items-center justify-between gap-3 shadow-inner">
               <span className="font-mono text-xl sm:text-2xl font-black text-emerald-400 tracking-wider">
-                {appNo || "AFF-2026-000001"}
+                {appNo}
               </span>
               <button
                 onClick={copyToClipboard}
@@ -90,7 +143,7 @@ function AffiliationSuccessContent() {
           <div className="space-y-3 pt-2">
             {/* 1. Track Application Button */}
             <Link
-              href={`/affiliation/track?appNo=${encodeURIComponent(appNo)}`}
+              href={`/affiliation/track?app=${encodeURIComponent(appNo)}`}
               className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-black text-sm shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
             >
               <Search className="w-4 h-4" /> Track Application Status <ArrowRight className="w-4 h-4" />
@@ -98,7 +151,7 @@ function AffiliationSuccessContent() {
 
             {/* 2. Download Receipt Button */}
             <a
-              href={`/api/affiliation/receipt?orderId=${encodeURIComponent(appNo)}`}
+              href={`/api/affiliation/receipt?orderId=${encodeURIComponent(orderId)}`}
               target="_blank"
               rel="noreferrer"
               className="w-full py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-all"

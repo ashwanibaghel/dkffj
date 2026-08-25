@@ -13,7 +13,7 @@ import {
   maskPAN,
   maskIDProof
 } from "@/lib/affiliation-utils";
-import { saveDevAffiliation, findDevAffiliationById, updateDevAffiliation, getDevAffiliations } from "@/lib/affiliation-dev-store";
+import { saveDevAffiliation, findDevAffiliationById, updateDevAffiliation, getDevAffiliations, type DevAffiliationRecord } from "@/lib/affiliation-dev-store";
 import { AFFILIATION_FEE_AMOUNT, AFFILIATION_FEE_DESCRIPTION, AFFILIATION_FEE_NOTE } from "@/lib/affiliation-config";
 
 import { getNormalizedCourseCatalog } from "@/lib/courseCatalog";
@@ -165,8 +165,9 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
       return { error: "Please fill all required Institute details." };
     }
 
-    // Require a fresh, verified email OTP and consume it before accepting the
-    // affiliation application. UI state is never trusted for this decision.
+    // Require a fresh, verified email OTP. Keep it valid until all validation,
+    // uploads and persistence have succeeded; consuming it earlier stranded
+    // applicants after a transient upload/database error.
     const { data: verifiedOtp, error: otpError } = await supabase
       .from("otp_requests")
       .select("id")
@@ -180,16 +181,6 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
     if (otpError || !verifiedOtp) {
       return { error: "Please verify your email with a current OTP before submitting." };
     }
-    const { data: consumedOtp, error: consumeOtpError } = await supabase
-      .from("otp_requests")
-      .update({ verified: false })
-      .eq("id", verifiedOtp.id)
-      .eq("verified", true)
-      .select("id");
-    if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
-      return { error: "OTP has already been used. Please request a new OTP." };
-    }
-
     // Document File Handling
     const documentFiles: { type: string; file: File }[] = [];
     const docKeys: { formKey: string; docType: string; label: string; required: boolean }[] = [
@@ -210,6 +201,9 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
       if (file && file.size > 0) {
         if (file.size > 5 * 1024 * 1024) {
           return { error: `${key.label} exceeds 5 MB limit. Please upload a file smaller than 5 MB.` };
+        }
+        if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+          return { error: `${key.label} must be an image or PDF file.` };
         }
         documentFiles.push({ type: key.docType, file });
       }
@@ -246,24 +240,35 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
           console.log(`[DEV] Saved document locally: ${localFilePath}`);
         } catch (localErr) {
           console.error("[DEV] Local file save failed:", localErr);
-          // Fall through to Supabase upload attempt
-          try {
-            const { error } = await supabase.storage.from(targetBucket).upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
-            if (error) {
-              targetBucket = "photos";
-              await supabase.storage.from(targetBucket).upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
+          const { error: documentUploadError } = await supabase.storage
+            .from(targetBucket)
+            .upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
+          if (documentUploadError) {
+            targetBucket = "photos";
+            const { error: photoUploadError } = await supabase.storage
+              .from(targetBucket)
+              .upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
+            if (photoUploadError) {
+              return { error: `Unable to upload ${doc.file.name}. Please try again.` };
             }
-          } catch (_) {}
+          }
         }
       } else {
-        // Production mode: use Supabase storage with fallback
-        try {
-          const { error } = await supabase.storage.from(targetBucket).upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
-          if (error) {
-            targetBucket = "photos";
-            await supabase.storage.from(targetBucket).upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
+        // Production mode: storage failure must stop the submission. Silently
+        // continuing here created broken drafts that could not be reviewed.
+        const { error: documentUploadError } = await supabase.storage
+          .from(targetBucket)
+          .upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
+        if (documentUploadError) {
+          targetBucket = "photos";
+          const { error: photoUploadError } = await supabase.storage
+            .from(targetBucket)
+            .upload(storagePath, buffer, { contentType: doc.file.type, upsert: true });
+          if (photoUploadError) {
+            console.error("Affiliation document upload failed:", photoUploadError);
+            return { error: `Unable to upload ${doc.file.name}. Please try again.` };
           }
-        } catch (_) {}
+        }
       }
 
       uploadedMetadata.push({
@@ -286,8 +291,7 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
     const headersList = await headers();
     const clientIp = headersList.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
 
-    // Save to Dev Store with DRAFT status
-    saveDevAffiliation({
+    const draftRecord: DevAffiliationRecord = {
       id: recordId,
       applicationNo: draftNo,
       draftNo,
@@ -358,11 +362,12 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
           date: new Date().toLocaleDateString("en-IN")
         }
       ]
-    });
+    };
 
-    // Try Insert Record into Supabase (if DB table exists)
-    try {
-      await supabase.from("affiliations").insert({
+    // Local dev uses the filesystem-backed store. Production must use the
+    // database; Vercel/serverless instances do not retain this local state.
+    if (!isDev) {
+      const { error: affiliationInsertError } = await supabase.from("affiliations").insert({
         id: recordId,
         application_no: draftNo,
         draft_no: draftNo,
@@ -384,7 +389,68 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
         has_duplicate_warning: false,
         public_remarks: "Draft created. Awaiting processing fee payment."
       });
-    } catch (_) {}
+
+      if (affiliationInsertError) {
+        console.error("Affiliation draft insert failed:", affiliationInsertError);
+        return { error: "Unable to save your application. Please try again; no payment has been started." };
+      }
+
+      const { error: applicantInsertError } = await supabase.from("affiliation_applicants").insert({
+        affiliation_id: recordId,
+        full_name: fullName,
+        designation,
+        mobile,
+        whatsapp: whatsapp || mobile,
+        email,
+        id_proof_type: idProofType,
+        id_proof_last_four: idProofLastFour,
+        authorized_signatory_name: authorizedSignatoryName,
+        declaration_accepted: true,
+        declaration_ip_address: clientIp
+      });
+
+      let persistenceError: unknown = applicantInsertError;
+      if (!persistenceError && uploadedMetadata.length > 0) {
+        const { error } = await supabase.from("affiliation_documents").insert(uploadedMetadata.map((meta) => ({
+          affiliation_id: recordId, document_type: meta.type, file_name: meta.name,
+          file_size: meta.size, mime_type: meta.mime, storage_path: meta.path
+        })));
+        persistenceError = error;
+      }
+      if (!persistenceError && domainsRaw.length > 0) {
+        const { error } = await supabase.from("affiliation_domains").insert(domainsRaw.map((domain) => ({
+          affiliation_id: recordId, domain_type: domain, domain_other: domain === "OTHER" ? domainOther || null : null
+        })));
+        persistenceError = error;
+      }
+      if (!persistenceError && infrastructureRaw.length > 0) {
+        const { error } = await supabase.from("affiliation_infrastructure").insert(infrastructureRaw.map((infra) => ({
+          affiliation_id: recordId, infra_type: infra
+        })));
+        persistenceError = error;
+      }
+      if (persistenceError) {
+        console.error("Affiliation detail insert failed:", persistenceError);
+        await supabase.from("affiliations").delete().eq("id", recordId);
+        return { error: "Unable to save all application details. Please try again; no payment has been started." };
+      }
+    }
+
+    // Consume the OTP only after the complete draft is safely available for
+    // checkout. The conditional update prevents a double submit from using it.
+    const { data: consumedOtp, error: consumeOtpError } = await supabase
+      .from("otp_requests")
+      .update({ verified: false })
+      .eq("id", verifiedOtp.id)
+      .eq("verified", true)
+      .select("id");
+    if (consumeOtpError || !consumedOtp || consumedOtp.length !== 1) {
+      if (!isDev) await supabase.from("affiliations").delete().eq("id", recordId);
+      return { error: "OTP has already been used. Please request a new OTP." };
+    }
+    if (isDev) {
+      saveDevAffiliation(draftRecord);
+    }
 
     return {
       success: true,
@@ -394,11 +460,7 @@ export async function submitAffiliationApplication(formData: FormData): Promise<
     };
   } catch (err: any) {
     console.error("Fatal Error in submitAffiliationApplication:", err);
-    const fallbackAppNo = `AFF-DRAFT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    return {
-      success: true,
-      applicationNo: fallbackAppNo
-    };
+    return { error: "Unable to save your application. Please try again; no payment has been started." };
   }
 }
 
@@ -422,19 +484,27 @@ export async function initiateAffiliationPayment(affiliationId: string) {
     } else {
       const cookieStore = await cookies();
       const supabase = createClient(cookieStore);
-      const { data: aff } = await supabase
+      const { data: aff, error: affiliationError } = await supabase
         .from("affiliations")
-        .select("id, application_no, affiliation_applicants(full_name, email, mobile)")
+        .select("id, application_no, current_status, affiliation_applicants(full_name, email, mobile)")
         .eq("id", affiliationId)
         .maybeSingle();
 
-      if (aff) {
-        appNo = aff.application_no;
-        const applicant = (aff.affiliation_applicants as any)?.[0] || {};
-        customerName = applicant.full_name || customerName;
-        customerEmail = applicant.email || customerEmail;
-        customerMobile = applicant.mobile || customerMobile;
+      if (affiliationError || !aff) {
+        return { error: "Application draft was not found. Please return to the form and submit it again." };
       }
+      if (aff.current_status !== "DRAFT") {
+        return { error: "This application is no longer awaiting payment. Please use the tracking page." };
+      }
+
+      appNo = aff.application_no;
+      const applicant = (aff.affiliation_applicants as any)?.[0] || {};
+      if (!applicant.full_name || !applicant.email || !applicant.mobile) {
+        return { error: "Application contact details are incomplete. Please return to the form and submit it again." };
+      }
+      customerName = applicant.full_name;
+      customerEmail = applicant.email;
+      customerMobile = applicant.mobile;
     }
 
     const orderId = `AFFPAY-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -461,11 +531,12 @@ export async function initiateAffiliationPayment(affiliationId: string) {
       });
     }
 
-    // Save payment entry in Supabase
+    // The payment record must exist before PhonePe is called; otherwise a paid
+    // transaction could not be verified or recovered by the callback.
     try {
       const cookieStore = await cookies();
       const supabase = createClient(cookieStore);
-      await supabase.from("payments").insert({
+      const { error: paymentInsertError } = await supabase.from("payments").insert({
         id: crypto.randomUUID(),
         affiliation_id: affiliationId,
         amount: AFFILIATION_FEE_AMOUNT,
@@ -473,15 +544,24 @@ export async function initiateAffiliationPayment(affiliationId: string) {
         gateway: `PHONEPE_${process.env.PHONEPE_MODE || "UAT"}`,
         status: "PENDING"
       });
-    } catch (_) {}
+      if (paymentInsertError) {
+        console.error("Affiliation payment record insert failed:", paymentInsertError);
+        return { error: "Unable to start secure payment. Please try again; no payment has been started." };
+      }
+    } catch (error) {
+      console.error("Affiliation payment record creation failed:", error);
+      return { error: "Unable to start secure payment. Please try again; no payment has been started." };
+    }
 
     // Create PhonePe redirect URL
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://dkffj.org").replace(/\/$/, "");
     const paymentUrl = await createPhonePeOrder({
       orderId,
       amount: AFFILIATION_FEE_AMOUNT,
       currency: "INR",
       customerEmail,
-      customerMobile
+      customerMobile,
+      successUrl: `${baseUrl}/affiliation/success?orderId=${encodeURIComponent(orderId)}`
     });
 
     return {
@@ -506,14 +586,17 @@ export async function getAffiliationPaymentDetails(id: string) {
 
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
-    const { data: aff } = await supabase
+    const { data: aff, error: affiliationError } = await supabase
       .from("affiliations")
-      .select("id, application_no, organization_name, organization_type, address, affiliation_applicants(full_name, email, mobile)")
+      .select("id, application_no, organization_name, organization_type, address, current_status, affiliation_applicants(full_name, email, mobile)")
       .eq("id", id)
       .maybeSingle();
 
-    if (aff) {
+    if (aff && !affiliationError) {
       const applicant = (aff.affiliation_applicants as any)?.[0] || {};
+      if (!applicant.full_name || !applicant.email || !applicant.mobile) {
+        return { error: "Application details are incomplete. Please return to the form and submit it again." };
+      }
       return {
         success: true,
         appData: {
@@ -522,6 +605,7 @@ export async function getAffiliationPaymentDetails(id: string) {
           organizationName: aff.organization_name,
           organizationType: aff.organization_type,
           address: aff.address,
+          status: aff.current_status,
           applicant: {
             fullName: applicant.full_name,
             email: applicant.email,
@@ -531,37 +615,10 @@ export async function getAffiliationPaymentDetails(id: string) {
       };
     }
 
-    return {
-      success: true,
-      appData: {
-        id,
-        applicationNo: id,
-        organizationName: "Your Institute",
-        organizationType: "Educational Institute",
-        address: "Registered Address",
-        applicant: {
-          fullName: "Authorized Applicant",
-          email: "applicant@example.com",
-          mobile: "9876543210"
-        }
-      }
-    };
+    return { error: "Application draft was not found. Please return to the form and submit it again." };
   } catch (err: any) {
-    return {
-      success: true,
-      appData: {
-        id,
-        applicationNo: id,
-        organizationName: "Your Institute",
-        organizationType: "Educational Institute",
-        address: "Registered Address",
-        applicant: {
-          fullName: "Authorized Applicant",
-          email: "applicant@example.com",
-          mobile: "9876543210"
-        }
-      }
-    };
+    console.error("getAffiliationPaymentDetails error:", err);
+    return { error: "Unable to load your application. Please try again." };
   }
 }
 
@@ -610,8 +667,9 @@ export async function bypassAffiliationPayment(affiliationId: string) {
         ]
       });
 
-      // Send payment receipt email
-      try {
+      // A local test must not accidentally send a real receipt email.  Set this
+      // explicitly only when email delivery itself is being tested.
+      if (process.env.ENABLE_DEV_EMAILS === "true") try {
         const { getAffiliationReceiptTemplate } = await import("@/services/email/templates");
         const { sendTransactionalEmail } = await import("@/services/email/service");
         const { generateReceiptPdfBuffer } = await import("@/lib/payment/receiptPdf");
@@ -657,7 +715,7 @@ export async function bypassAffiliationPayment(affiliationId: string) {
         console.error("Bypass email error:", emailErr);
       }
 
-      return { success: true, applicationNo: officialNo };
+      return { success: true, applicationNo: officialNo, orderId };
     }
 
     const cookieStore = await cookies();
@@ -694,7 +752,7 @@ export async function bypassAffiliationPayment(affiliationId: string) {
         current_status: "SUBMITTED"
       }).eq("id", affiliationId);
 
-      return { success: true, applicationNo: officialNo };
+      return { success: true, applicationNo: officialNo, orderId };
     }
 
     return { error: "Application record not found for test bypass." };
