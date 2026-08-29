@@ -18,7 +18,10 @@ import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
-  return getVersionedCache("members", "home_leaders_v5", async () => {
+  // Version this payload whenever the photo URL policy changes. Cached leader
+  // records contain the final URL, so retaining an older entry can keep a
+  // broken proxy URL alive even after the resolver itself is fixed.
+  return getVersionedCache("members", "home_leaders_v6", async () => {
     try {
       // Primary source: memberships table in Supabase where show_home is true
       const homeMembers = await prisma.memberships.findMany({
