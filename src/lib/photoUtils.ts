@@ -74,7 +74,16 @@ export function resolveFullPhotoUrl(url?: string | null): string {
 export function getPublicPhotoProxyUrl(url?: string | null): string {
   if (!url) return "";
   const resolved = resolveFullPhotoUrl(url);
-  if (!resolved || resolved.startsWith("data:") || resolved.startsWith("blob:") || resolved.startsWith("/logo") || resolved.startsWith("/api/public-photo?")) {
+  // Assets shipped in /public are already served by this app. They are not
+  // Supabase object paths and must never be sent to the photo-storage proxy.
+  // Only uploaded/legacy membership photos need the proxy.
+  if (
+    !resolved
+    || resolved.startsWith("data:")
+    || resolved.startsWith("blob:")
+    || /^\/(?:logo(?:\.|\/)|members\/|authorities\/|images\/|slider\/)/i.test(resolved)
+    || resolved.startsWith("/api/public-photo?")
+  ) {
     return resolved;
   }
   return `/api/public-photo?path=${encodeURIComponent(resolved)}`;
