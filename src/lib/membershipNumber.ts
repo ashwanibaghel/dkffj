@@ -19,13 +19,15 @@ export function normalizeMembershipNumber(value: string | null | undefined): str
 
 /**
  * New membership records use DKFFJ/M/YYYY/00000.  Records migrated from the
- * Executive Council registry legitimately use DKFFJ/EXEC/YYYY/<serial> and
- * must remain editable and printable forever.  Do not convert EXEC IDs to M.
+ * Executive Council registry has more than one historic layout in migrated
+ * data: DKFFJ/EXEC/YYYY/<serial> and DKFFJ/M/EXEC/<serial> (some exports also
+ * contain a year after EXEC). They must remain editable and printable forever.
+ * Do not convert EXEC IDs to the newer M format.
  */
 export function isRecognizedMembershipNumber(value: string | null | undefined): boolean {
   const normalized = normalizeMembershipNumber(value);
   return /^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(normalized)
-    || /^DKFFJ\/EXEC\/\d{4}\/\d+$/i.test(normalized);
+    || /^DKFFJ\/(?:M\/)?EXEC\/(?:\d{4}\/)?\d+$/i.test(normalized);
 }
 
 export function toLegacyMembershipNumber(value: string | null | undefined): string {

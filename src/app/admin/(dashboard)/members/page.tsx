@@ -12,7 +12,7 @@ import { AdminConfirmDialog } from "../components/AdminFeedback";
 import { indiaStatesDistricts } from "@/lib/data/indiaStatesDistricts";
 import { MEMBERSHIP_TIERS, MEMBERSHIP_TIERS_LIST, autoDetectMembershipLevel, MembershipLevelKey } from "@/lib/data/membershipTiers";
 import { getPublicPhotoProxyUrl, resolveFullPhotoUrl } from "@/lib/photoUtils";
-import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { isRecognizedMembershipNumber, normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 const PROFESSIONS = [
   "Service", "Business", "Private Sector", "Government Sector", "House Wife", "Retired", "Unemployed", "Student"
@@ -801,7 +801,7 @@ export default function AdminMembersPage() {
       }
       const latestMember = printRes.member;
       const certNo = normalizeMembershipNumber(latestMember.membership_no);
-      if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(certNo) && !/^DKFFJ\/EXEC\/\d{4}\/\d+$/i.test(certNo)) {
+      if (!isRecognizedMembershipNumber(certNo)) {
         throw new Error("A permanent Member ID could not be assigned. Please try again.");
       }
       const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;
@@ -854,7 +854,7 @@ export default function AdminMembersPage() {
       }
       const latestMember = printRes.member;
       const certNo = normalizeMembershipNumber(latestMember.membership_no);
-      if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(certNo) && !/^DKFFJ\/EXEC\/\d{4}\/\d+$/i.test(certNo)) {
+      if (!isRecognizedMembershipNumber(certNo)) {
         throw new Error("A permanent Member ID could not be assigned. Please try again.");
       }
       const verificationUrl = `https://www.dkffj.org/verify/${certNo}`;

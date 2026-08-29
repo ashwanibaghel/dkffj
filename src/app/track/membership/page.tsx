@@ -7,7 +7,7 @@ import { Search, ArrowLeft, Loader2, CheckCircle2, AlertCircle, Award, Download,
 import { getSecureMembershipDetails, TrackingResult } from "../actions";
 import { generateMembershipPDFClient } from "../../admin/(dashboard)/members/MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "../../admin/(dashboard)/members/MembershipIdCardGenerator";
-import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { isRecognizedMembershipNumber, normalizeMembershipNumber } from "@/lib/membershipNumber";
 import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 function MembershipTrackContent() {
@@ -380,7 +380,7 @@ function MembershipTrackContent() {
                 )}
 
                 {/* Download Actions - APPROVED ONLY */}
-                {result.status === "APPROVED" && result.memberDetails && /^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(normalizeMembershipNumber(result.memberDetails.membership_no)) ? (
+                {result.status === "APPROVED" && result.memberDetails && isRecognizedMembershipNumber(result.memberDetails.membership_no) ? (
                   <div className="mb-8 p-6 rounded-2xl bg-emerald-50 border border-emerald-100 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm text-left">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">

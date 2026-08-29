@@ -2,7 +2,7 @@
 
 import React from "react";
 import { getBase64ImageFromUrl } from "../registrations/CertificateGenerator";
-import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { isRecognizedMembershipNumber, normalizeMembershipNumber } from "@/lib/membershipNumber";
 import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 // Interface for Membership Certificate Data
@@ -524,7 +524,7 @@ export async function generateMembershipPDFClient(
   qrBase64Input?: string
 ): Promise<{ pdfBlob: Blob; pngBlob: Blob }> {
   const membershipNo = normalizeMembershipNumber(data.membershipNo);
-  if (!/^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(membershipNo) && !/^DKFFJ\/EXEC\/\d{4}\/\d+$/i.test(membershipNo)) {
+  if (!isRecognizedMembershipNumber(membershipNo)) {
     throw new Error("Membership certificate can only be issued after a permanent Member ID is assigned.");
   }
   data = { ...data, membershipNo };

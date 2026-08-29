@@ -482,7 +482,7 @@ export async function updateMembershipFields(payload: UpdateMemberPayload) {
     if (normalizedMembershipNo && !isPermanentMembershipId(normalizedMembershipNo)) {
       return {
         success: false,
-        error: "Member ID must use DKFFJ/M/YYYY/00000, or the migrated DKFFJ/EXEC/YYYY/serial format."
+        error: "Member ID must use DKFFJ/M/YYYY/00000 or a recognized migrated EXEC format."
       };
     }
     if (normalizedMembershipNo) {

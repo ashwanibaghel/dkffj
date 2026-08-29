@@ -12,7 +12,7 @@ import { getAccountDetails, updateProfileDetails, AccountData } from "./actions"
 import { generateMembershipPDFClient } from "../admin/(dashboard)/members/MembershipCertificateGenerator";
 import { generateMembershipIdCardPDFClient } from "../admin/(dashboard)/members/MembershipIdCardGenerator";
 import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
-import { normalizeMembershipNumber } from "@/lib/membershipNumber";
+import { isRecognizedMembershipNumber, normalizeMembershipNumber } from "@/lib/membershipNumber";
 
 export default function MyAccountPage() {
   const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -783,7 +783,7 @@ export default function MyAccountPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Membership certificates & ID card downloads */}
                   {memberships.map((member) => {
-                    const isApproved = member.status === "APPROVED" && /^DKFFJ\/M\/\d{4}\/\d{5,}$/i.test(normalizeMembershipNumber(member.membership_no));
+                    const isApproved = member.status === "APPROVED" && isRecognizedMembershipNumber(member.membership_no);
                     return (
                       <div key={member.id} className="bg-white border border-sky-100 rounded-2xl p-5 flex flex-col justify-between shadow-sm">
                         <div>
