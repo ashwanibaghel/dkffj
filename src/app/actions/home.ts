@@ -14,11 +14,11 @@ const leaderDescriptions: Record<string, string> = {
 };
 
 import { leaderPhotos } from "@/lib/leaderPhotos";
-import { resolveFullPhotoUrl } from "@/lib/photoUtils";
+import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
 
 // 1. Fetch Executive Council members for Homepage
 export async function getHomeLeaders() {
-  return getVersionedCache("members", "home_leaders_v4", async () => {
+  return getVersionedCache("members", "home_leaders_v5", async () => {
     try {
       // Primary source: memberships table in Supabase where show_home is true
       const homeMembers = await prisma.memberships.findMany({
@@ -39,7 +39,11 @@ export async function getHomeLeaders() {
           if (photoPath.includes("default.jpg") || photoPath.includes("default.png")) {
             photoPath = "";
           }
-          photoPath = resolveFullPhotoUrl(photoPath);
+          // Some migrated member photos are stored in Supabase under the old
+          // /uploads/membership_form path. The browser cannot load that legacy
+          // URL directly, so always use the app proxy which resolves both old
+          // and current storage locations.
+          photoPath = getPublicPhotoProxyUrl(photoPath);
           return {
             id: m.membership_no || m.ack_no || m.id,
             name: m.full_name,
@@ -71,7 +75,7 @@ export async function getHomeLeaders() {
         const formatted = dbLeaders.map((m) => {
           let p = leaderPhotos[m.id] || m.photo || "";
           if (p.includes("default.jpg") || p.includes("default.png")) p = "";
-          p = resolveFullPhotoUrl(p);
+          p = getPublicPhotoProxyUrl(p);
           return {
             id: m.id,
             name: m.name,
@@ -97,7 +101,7 @@ export async function getHomeLeaders() {
       .map((m) => {
         let p = leaderPhotos[m.id] || m.photo || "";
         if (p.includes("default.jpg") || p.includes("default.png")) p = "";
-        p = resolveFullPhotoUrl(p);
+        p = getPublicPhotoProxyUrl(p);
         return {
           id: m.id,
           name: m.name,
