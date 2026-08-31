@@ -6,7 +6,7 @@ import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { verifyPhonePeOrder } from "@/lib/payment/phonepe";
 
-import { getCachedData, setCachedData, invalidateCache } from "@/lib/serverCache";
+import { invalidateCache } from "@/lib/serverCache";
 
 // 1. Fetch appreciation applications list
 export async function getAppreciationApplications(statusFilter?: string) {
@@ -167,12 +167,6 @@ export async function getAppreciationApplications(statusFilter?: string) {
     console.error("Appreciation draft-number recovery error:", err);
   }
 
-  const cacheKey = `appreciation_list_${statusFilter || "ALL"}`;
-  const cached = getCachedData<any[]>(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
   // Auto-heal: Ensure any appreciation application with a completed payment is promoted to UNDER_REVIEW
   try {
     const { data: completedPayments } = await supabase
@@ -211,7 +205,9 @@ export async function getAppreciationApplications(statusFilter?: string) {
     return [];
   }
   const result = data || [];
-  setCachedData(cacheKey, result, 60); // 60s TTL cache
+  // This is a workflow/approval desk. Returning a process-local cached list
+  // can show an old UNDER_REVIEW state immediately after a successful admin
+  // approval, especially across separate serverless invocations.
   return result;
 }
 
@@ -317,7 +313,7 @@ export async function updateAppreciationStatus(
     }
 
     // 1. Perform updates
-    const { error: updateError } = await supabase
+    const { data: updatedApplication, error: updateError } = await supabase
       .from("appreciation_applications")
       .update({
         status: finalStatus,
@@ -325,11 +321,12 @@ export async function updateAppreciationStatus(
         approved_at: newStatus === "APPROVED" ? new Date().toISOString() : null,
         remarks: remarks || null
       })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id, status");
 
-    if (updateError) {
+    if (updateError || !updatedApplication || updatedApplication.length !== 1 || updatedApplication[0].status !== finalStatus) {
       console.error("Failed to update appreciation status:", updateError);
-      return { success: false, error: "Failed to update record status in database: " + updateError.message };
+      return { success: false, error: "Failed to confirm the status update in the database. Please refresh and try again." };
     }
 
     invalidateCache("appreciation_list_");
