@@ -681,14 +681,13 @@ export default function AdminAppreciationPage() {
     try {
       const res = await updateAppreciationStatus(applicationId, newStatus, remarks);
       if (res.success) {
-        // Reflect the confirmed write immediately; fetchData then replaces it
-        // with the fresh server result.
+        // Reflect the confirmed write immediately without reloading or
+        // re-fetching the entire approval desk.
         setApplications((previous) => previous.map((app) => (
           app.id === applicationId ? { ...app, status: newStatus } : app
         )));
         showToast(`Application ${newStatus} successfully! Candidate notified via email.`, "success");
         setRemarks("");
-        await fetchData();
       } else {
         setActionError(res.error || "Failed to update status.");
       }

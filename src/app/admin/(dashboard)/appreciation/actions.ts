@@ -18,6 +18,37 @@ export async function getAppreciationApplications(statusFilter?: string) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
+  // Board-issued certificates are valid offline-payment records. They use the
+  // explicit zero-value ADMIN_VIP_FREE gateway and must never be sent to
+  // PhonePe or classified as a test/bypass transaction.
+  try {
+    const { data: adminIssuedPayments } = await supabase
+      .from("payments")
+      .select("id, appreciation_id")
+      .eq("gateway", "ADMIN_VIP_FREE")
+      .eq("amount", 0)
+      .not("appreciation_id", "is", null);
+    const adminIssuedAppIds = Array.from(new Set((adminIssuedPayments || []).map((payment: any) => payment.appreciation_id).filter(Boolean)));
+    if (adminIssuedPayments?.length) {
+      await supabase
+        .from("payments")
+        .update({ status: "COMPLETED", failure_reason: null })
+        .in("id", adminIssuedPayments.map((payment: any) => payment.id))
+        .neq("status", "COMPLETED");
+      // Only undo the accidental PENDING demotion. Deliberate rejections are
+      // left exactly as the board set them.
+      if (adminIssuedAppIds.length > 0) {
+        await supabase
+          .from("appreciation_applications")
+          .update({ status: "APPROVED", approved_at: new Date().toISOString(), remarks: "Board-issued certificate recorded through the authorized admin workflow." })
+          .in("id", adminIssuedAppIds)
+          .eq("status", "PENDING");
+      }
+    }
+  } catch (err) {
+    console.error("Admin-issued appreciation recovery error:", err);
+  }
+
   // Remove the old test-bypass footprint before it can appear as a paid
   // application, be approved, or have a certificate issued. A genuine PhonePe
   // completion always records a gateway transaction ID; the retired bypass
@@ -25,11 +56,12 @@ export async function getAppreciationApplications(statusFilter?: string) {
   try {
     const { data: suspiciousPayments } = await supabase
       .from("payments")
-      .select("id, appreciation_id, gateway_transaction_id")
+      .select("id, appreciation_id, gateway_transaction_id, gateway, amount")
       .eq("status", "COMPLETED")
       .not("appreciation_id", "is", null);
 
     const invalidPayments = (suspiciousPayments || []).filter((payment: any) => {
+      if (payment.gateway === "ADMIN_VIP_FREE" && Number(payment.amount) === 0) return false;
       const gatewayId = String(payment.gateway_transaction_id || "").trim();
       return !gatewayId || /^BYPASS-/i.test(gatewayId) || /^MOCK_/i.test(gatewayId);
     });
@@ -291,7 +323,7 @@ export async function updateAppreciationStatus(
     if (finalStatus === "APPROVED") {
       const { data: payment } = await supabase
         .from("payments")
-        .select("id, transaction_id, amount, status")
+        .select("id, transaction_id, amount, status, gateway")
         .eq("appreciation_id", id)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -301,8 +333,9 @@ export async function updateAppreciationStatus(
         return { success: false, error: "Cannot approve: the PhonePe payment has not been completed." };
       }
 
-      const gatewayCheck = await verifyPhonePeOrder(payment.transaction_id);
-      if (!gatewayCheck.success || Number(gatewayCheck.amount) !== Number(payment.amount)) {
+      const isAuthorizedAdminIssue = payment.gateway === "ADMIN_VIP_FREE" && Number(payment.amount) === 0;
+      const gatewayCheck = isAuthorizedAdminIssue ? null : await verifyPhonePeOrder(payment.transaction_id);
+      if (!isAuthorizedAdminIssue && (!gatewayCheck?.success || Number(gatewayCheck.amount) !== Number(payment.amount))) {
         await supabase
           .from("payments")
           .update({ status: "FAILED", failure_reason: "Manual approval reconciliation failed against PhonePe." })
