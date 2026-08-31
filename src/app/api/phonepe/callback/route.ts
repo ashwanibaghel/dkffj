@@ -23,10 +23,7 @@ import { finalizeAffiliationPayment } from "@/lib/affiliationPayment";
 /** Verify HMAC signature from PhonePe webhook */
 function verifyWebhookSignature(rawBody: string, authHeader: string | null): boolean {
   const secret = process.env.PHONEPE_WEBHOOK_SECRET;
-  if (!secret) {
-    console.warn("PHONEPE_WEBHOOK_SECRET not set — skipping verification");
-    return true; // allow in dev if secret not configured
-  }
+  if (!secret) return false;
   if (!authHeader) {
     console.warn("No Authorization header from PhonePe webhook");
     return false;
@@ -45,7 +42,8 @@ export async function POST(req: NextRequest) {
     // Verify this request is genuinely from PhonePe
     const authHeader = req.headers.get("authorization") || req.headers.get("x-verify");
     if (!verifyWebhookSignature(rawBody, authHeader)) {
-      console.warn("PhonePe webhook signature check failed — processing payload safely");
+      console.warn("PhonePe webhook signature check failed");
+      return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 });
     }
 
     const body = JSON.parse(rawBody || "{}");
@@ -113,6 +111,18 @@ export async function processPaymentCompletion(merchantOrderId: string) {
 
   if (!payment) {
     console.error("Payment record not found for orderId:", merchantOrderId);
+    return;
+  }
+
+  // The gateway amount is authoritative. A successful response for a
+  // different amount must never unlock an application or issue a certificate.
+  if (Number(verifyResult.amount) !== Number(payment.amount)) {
+    console.error(`[PHONEPE AMOUNT MISMATCH] ${merchantOrderId}: expected ${payment.amount}, received ${verifyResult.amount}`);
+    await supabase
+      .from("payments")
+      .update({ status: "FAILED", failure_reason: "PhonePe amount did not match the order amount." })
+      .eq("id", payment.id)
+      .eq("status", "PENDING");
     return;
   }
 

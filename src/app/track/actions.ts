@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 import { normalizeMembershipNumber } from "@/lib/membershipNumber";
 import { normalizeCourseEnrollmentNumber } from "@/lib/membershipNumber";
 import { getPublicPhotoProxyUrl } from "@/lib/photoUtils";
+import { verifyPhonePeOrder } from "@/lib/payment/phonepe";
 
 export interface TrackingResult {
   found: boolean;
@@ -634,6 +635,35 @@ export async function getSecureCourseDetails(enrollmentNo: string, contact: stri
       ? `DKFFJ/C/${legacyMatch[1]}/-${legacyMatch[1]}-${legacyMatch[2]}`
       : normalizedEnrollmentNo;
     query = query.in("enrollment_no", Array.from(new Set([searchStr, normalizedEnrollmentNo, legacyEnrollmentNo])));
+  }
+
+  // A previously issued appreciation certificate must remain inaccessible if
+  // its recorded payment cannot be confirmed by PhonePe. This server-side
+  // check protects the public tracker as well as the admin approval screen.
+  if (app.status === "APPROVED") {
+    const { data: payment } = await supabase
+      .from("payments")
+      .select("transaction_id, amount, status, gateway_transaction_id")
+      .eq("appreciation_id", app.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const gatewayId = String(payment?.gateway_transaction_id || "").trim();
+    const gatewayCheck = payment?.status === "COMPLETED" && gatewayId && !/^BYPASS-|^MOCK_/i.test(gatewayId)
+      ? await verifyPhonePeOrder(payment.transaction_id)
+      : null;
+    if (!gatewayCheck || !gatewayCheck.success || Number(gatewayCheck.amount) !== Number(payment?.amount)) {
+      return {
+        found: true,
+        type: "appreciation",
+        number: app.application_no,
+        name: app.full_name,
+        status: "PENDING",
+        date: new Date(app.created_at).toLocaleDateString("en-IN"),
+        details: "Payment confirmation is pending reconciliation. Certificate download is unavailable.",
+        timeline: []
+      };
+    }
   }
 
   let { data: enrollment, error } = await query.maybeSingle();

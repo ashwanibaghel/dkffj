@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
+import { verifyPhonePeOrder } from "@/lib/payment/phonepe";
 
 import { getCachedData, setCachedData, invalidateCache } from "@/lib/serverCache";
 
@@ -14,14 +15,61 @@ export async function getAppreciationApplications(statusFilter?: string) {
     return [];
   }
 
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // Remove the old test-bypass footprint before it can appear as a paid
+  // application, be approved, or have a certificate issued. A genuine PhonePe
+  // completion always records a gateway transaction ID; the retired bypass
+  // path recorded a Bypass-prefixed ID and left the application number DRAFT.
+  try {
+    const { data: suspiciousPayments } = await supabase
+      .from("payments")
+      .select("id, appreciation_id, gateway_transaction_id")
+      .eq("status", "COMPLETED")
+      .not("appreciation_id", "is", null);
+
+    const invalidPayments = (suspiciousPayments || []).filter((payment: any) => {
+      const gatewayId = String(payment.gateway_transaction_id || "").trim();
+      return !gatewayId || /^BYPASS-/i.test(gatewayId) || /^MOCK_/i.test(gatewayId);
+    });
+
+    if (invalidPayments.length > 0) {
+      const paymentIds = invalidPayments.map((payment: any) => payment.id);
+      const appIds = invalidPayments.map((payment: any) => payment.appreciation_id).filter(Boolean);
+      await supabase
+        .from("payments")
+        .update({ status: "FAILED", failure_reason: "Invalid test/bypass payment record. No PhonePe confirmation exists." })
+        .in("id", paymentIds)
+        .eq("status", "COMPLETED");
+      if (appIds.length > 0) {
+        await supabase
+          .from("appreciation_applications")
+          .update({
+            status: "PENDING",
+            approved_at: null,
+            approved_by: null,
+            remarks: "Payment verification failed. No valid PhonePe transaction was recorded."
+          })
+          .in("id", appIds);
+        await supabase.from("status_logs").insert(appIds.map((appreciationId: string) => ({
+          appreciation_id: appreciationId,
+          from_status: "UNDER_REVIEW",
+          to_status: "PENDING",
+          remarks: "Application locked automatically: payment had no valid PhonePe gateway transaction."
+        })));
+      }
+      invalidateCache("appreciation_list_");
+    }
+  } catch (err) {
+    console.error("Appreciation payment integrity reconciliation error:", err);
+  }
+
   const cacheKey = `appreciation_list_${statusFilter || "ALL"}`;
   const cached = getCachedData<any[]>(cacheKey);
   if (cached) {
     return cached;
   }
-
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
 
   // Auto-heal: Ensure any appreciation application with a completed payment is promoted to UNDER_REVIEW
   try {
@@ -138,6 +186,33 @@ export async function updateAppreciationStatus(
       return { success: false, error: "Invalid appreciation status." };
     }
     const finalStatus = newStatus as "APPROVED" | "REJECTED" | "UNDER_REVIEW";
+
+    // A certificate is a paid credential. Never allow an admin click, stale
+    // dashboard cache, or a forged local COMPLETED flag to approve it without
+    // a fresh, matching confirmation from PhonePe.
+    if (finalStatus === "APPROVED") {
+      const { data: payment } = await supabase
+        .from("payments")
+        .select("id, transaction_id, amount, status")
+        .eq("appreciation_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!payment || payment.status !== "COMPLETED") {
+        return { success: false, error: "Cannot approve: the PhonePe payment has not been completed." };
+      }
+
+      const gatewayCheck = await verifyPhonePeOrder(payment.transaction_id);
+      if (!gatewayCheck.success || Number(gatewayCheck.amount) !== Number(payment.amount)) {
+        await supabase
+          .from("payments")
+          .update({ status: "FAILED", failure_reason: "Manual approval reconciliation failed against PhonePe." })
+          .eq("id", payment.id)
+          .eq("status", "COMPLETED");
+        return { success: false, error: "Cannot approve: PhonePe has no matching successful transaction for this application." };
+      }
+    }
 
     // 1. Perform updates
     const { error: updateError } = await supabase

@@ -38,12 +38,10 @@ export async function GET(req: NextRequest) {
     let ackOrEnrollmentNo = "";
     let courseTitle = "";
     let paymentType = "donation";
+    // There is intentionally no test-email or client-visible payment bypass.
+    // Every completed public payment must be confirmed by PhonePe.
     let isBypass = false;
-
-    const isBypassCheck = (email: string) => {
-      const e = email.toLowerCase().trim();
-      return e.includes("bypass");
-    };
+    const isBypassCheck = (_email: string) => false;
 
     if (payment.membership_id) {
       paymentType = "membership";
@@ -154,6 +152,15 @@ export async function GET(req: NextRequest) {
     };
 
     if (payment.status === "COMPLETED") {
+      const gatewayCheck = await verifyPhonePeOrder(orderId);
+      if (!gatewayCheck.success || Number(gatewayCheck.amount) !== Number(payment.amount)) {
+        console.error(`[PAYMENT RECONCILIATION FAILED] ${orderId}`, gatewayCheck);
+        return NextResponse.json({
+          success: false,
+          status: "UNVERIFIED",
+          error: "This payment has not been confirmed by PhonePe. The application remains unavailable until it is reconciled."
+        }, { status: 409 });
+      }
       // Payment is done — but check if the linked entity was also updated.
       // If not (partial failure scenario), recover it now.
       if (payment.registration_id) {

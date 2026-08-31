@@ -57,14 +57,6 @@ export async function createPhonePeOrder(details: PaymentDetails): Promise<strin
     appUrl = "https://dkffj.org";
   }
 
-  // Bypass only for test emails containing "bypass"
-  const isBypassEmail = details.customerEmail.toLowerCase().includes("bypass");
-
-  if (isBypassEmail) {
-    console.log(`[PAYMENT BYPASS] Bypass email detected - skipping PhonePe payment gateway`);
-    return details.successUrl || `${appUrl}/payment/success?orderId=${encodeURIComponent(details.orderId)}`;
-  }
-
   if (!merchantId || !saltKey) {
     throw new Error("PhonePe credentials missing: PHONEPE_MERCHANT_ID / PHONEPE_CLIENT_ID or PHONEPE_API_KEY");
   }
