@@ -65,30 +65,64 @@ export async function getAppreciationApplications(statusFilter?: string) {
     console.error("Appreciation payment integrity reconciliation error:", err);
   }
 
-  // Older admin sync code could mark a real PhonePe appreciation payment as
-  // completed without replacing its temporary DRAFT number. Repair such a
-  // record from the already stored gateway transaction ID. This recovery is
-  // intentionally restricted to historic COMPLETED payments with a non-test
-  // gateway ID; approval still performs a fresh PhonePe verification.
+  // Repair historic draft numbers only after a fresh PhonePe confirmation.
+  // A local COMPLETED flag or a stored gateway ID is never enough on its own:
+  // that is precisely how an unpaid record could previously look paid.
   try {
     const { data: draftPayments } = await supabase
       .from("payments")
-      .select("id, transaction_id, gateway_transaction_id, appreciation_id, appreciation_applications!inner(id, application_no)")
+      .select("id, transaction_id, amount, appreciation_id")
       .eq("status", "COMPLETED")
       .not("appreciation_id", "is", null);
-    const legacyDraftPayments = (draftPayments || []).filter((payment: any) => {
-      const gatewayId = String(payment.gateway_transaction_id || "").trim();
-      const linkedApp = Array.isArray(payment.appreciation_applications)
-        ? payment.appreciation_applications[0]
-        : payment.appreciation_applications;
-      const appNo = String(linkedApp?.application_no || "");
-      return appNo.includes("DRAFT") && gatewayId && !/^BYPASS-|^MOCK_/i.test(gatewayId);
-    });
-    for (const payment of legacyDraftPayments) {
-      const legacyApp = (Array.isArray(payment.appreciation_applications)
-        ? payment.appreciation_applications[0]
-        : payment.appreciation_applications) as { id: string; application_no: string };
-      if (!legacyApp?.id || !legacyApp.application_no) continue;
+    const paymentAppIds = Array.from(new Set((draftPayments || []).map((payment: any) => payment.appreciation_id).filter(Boolean)));
+    const { data: linkedApps } = paymentAppIds.length > 0
+      ? await supabase.from("appreciation_applications").select("id, application_no, status").in("id", paymentAppIds)
+      : { data: [] as any[] };
+    const appsById = new Map((linkedApps || []).map((app: any) => [app.id, app]));
+    let recoveredAny = false;
+
+    for (const payment of draftPayments || []) {
+      const legacyApp = appsById.get(payment.appreciation_id) as { id: string; application_no: string; status: string } | undefined;
+      if (!legacyApp || !String(legacyApp.application_no || "").includes("DRAFT")) continue;
+
+      let gatewayCheck: Awaited<ReturnType<typeof verifyPhonePeOrder>>;
+      try {
+        gatewayCheck = await verifyPhonePeOrder(payment.transaction_id);
+      } catch (verifyError) {
+        // A network outage must not turn a genuinely paid application into a
+        // failed one. It remains unchanged and is retried on the next load.
+        console.error("Appreciation draft reconciliation PhonePe request failed:", verifyError);
+        continue;
+      }
+      console.info("[APPRECIATION_DRAFT_RECONCILIATION]", {
+        paymentId: payment.id,
+        orderId: payment.transaction_id,
+        gatewaySuccess: gatewayCheck.success,
+        gatewayState: gatewayCheck.state,
+        expectedAmount: Number(payment.amount),
+        gatewayAmount: Number(gatewayCheck.amount)
+      });
+      if (!gatewayCheck.success || Number(gatewayCheck.amount) !== Number(payment.amount)) {
+        await supabase
+          .from("payments")
+          .update({ status: "FAILED", failure_reason: "Draft recovery failed: no matching successful PhonePe payment." })
+          .eq("id", payment.id)
+          .eq("status", "COMPLETED");
+        await supabase
+          .from("appreciation_applications")
+          .update({ status: "PENDING", approved_at: null, approved_by: null, remarks: "Payment could not be verified with PhonePe." })
+          .eq("id", legacyApp.id)
+          .eq("application_no", legacyApp.application_no);
+        await supabase.from("status_logs").insert({
+          appreciation_id: legacyApp.id,
+          from_status: legacyApp.status,
+          to_status: "PENDING",
+          remarks: "Application locked automatically: PhonePe could not confirm the recorded payment."
+        });
+        recoveredAny = true;
+        continue;
+      }
+
       const currentYear = new Date().getFullYear();
       const { data: rawAppNo, error: numberError } = await supabase.rpc("generate_next_number", {
         p_key: "appreciation_app",
@@ -120,12 +154,13 @@ export async function getAppreciationApplications(statusFilter?: string) {
           appreciation_id: legacyApp.id,
           from_status: "UNDER_REVIEW",
           to_status: "UNDER_REVIEW",
-          remarks: `Recovered official application number ${officialNo} from verified PhonePe transaction ${payment.gateway_transaction_id}.`
+          remarks: `Recovered official application number ${officialNo} after live PhonePe verification for order ${payment.transaction_id}.`
         });
         console.info("[APPRECIATION_LEGACY_DRAFT_RECOVERED]", { paymentId: payment.id, officialNo });
+        recoveredAny = true;
       }
     }
-    if (legacyDraftPayments.length > 0) {
+    if (recoveredAny) {
       invalidateCache("appreciation_list_");
     }
   } catch (err) {
