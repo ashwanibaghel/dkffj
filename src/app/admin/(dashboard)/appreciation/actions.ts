@@ -66,24 +66,66 @@ export async function getAppreciationApplications(statusFilter?: string) {
   }
 
   // Older admin sync code could mark a real PhonePe appreciation payment as
-  // completed without replacing its temporary DRAFT number. Re-run the same
-  // server-side PhonePe finalizer for those records; it verifies the gateway
-  // again and allocates exactly one official number.
+  // completed without replacing its temporary DRAFT number. Repair such a
+  // record from the already stored gateway transaction ID. This recovery is
+  // intentionally restricted to historic COMPLETED payments with a non-test
+  // gateway ID; approval still performs a fresh PhonePe verification.
   try {
     const { data: draftPayments } = await supabase
       .from("payments")
-      .select("transaction_id, appreciation_id, appreciation_applications!inner(application_no)")
+      .select("id, transaction_id, gateway_transaction_id, appreciation_id, appreciation_applications!inner(id, application_no)")
       .eq("status", "COMPLETED")
       .not("appreciation_id", "is", null);
-    const orderIds = (draftPayments || [])
-      .filter((payment: any) => String(payment.appreciation_applications?.application_no || "").includes("DRAFT"))
-      .map((payment: any) => payment.transaction_id)
-      .filter(Boolean);
-    if (orderIds.length > 0) {
-      const { processPaymentCompletion } = await import("@/app/api/phonepe/callback/route");
-      for (const orderId of Array.from(new Set(orderIds))) {
-        await processPaymentCompletion(orderId);
+    const legacyDraftPayments = (draftPayments || []).filter((payment: any) => {
+      const gatewayId = String(payment.gateway_transaction_id || "").trim();
+      const linkedApp = Array.isArray(payment.appreciation_applications)
+        ? payment.appreciation_applications[0]
+        : payment.appreciation_applications;
+      const appNo = String(linkedApp?.application_no || "");
+      return appNo.includes("DRAFT") && gatewayId && !/^BYPASS-|^MOCK_/i.test(gatewayId);
+    });
+    for (const payment of legacyDraftPayments) {
+      const legacyApp = (Array.isArray(payment.appreciation_applications)
+        ? payment.appreciation_applications[0]
+        : payment.appreciation_applications) as { id: string; application_no: string };
+      if (!legacyApp?.id || !legacyApp.application_no) continue;
+      const currentYear = new Date().getFullYear();
+      const { data: rawAppNo, error: numberError } = await supabase.rpc("generate_next_number", {
+        p_key: "appreciation_app",
+        p_prefix: "DKFFJ/A/"
+      });
+      if (numberError || !rawAppNo) {
+        console.error("Appreciation historic draft recovery number error:", numberError);
+        continue;
       }
+      let officialNo = String(rawAppNo)
+        .replace(/DKFFJ\/APP\//g, "DKFFJ/A/")
+        .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
+        .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
+        .replace(/(\d{4})\/-\1-/g, "$1/");
+      if (!officialNo.includes(`/${currentYear}/`)) {
+        const sequence = officialNo.split("-").pop()?.padStart(5, "0") || "00001";
+        officialNo = `DKFFJ/A/${currentYear}/${sequence}`;
+      }
+      // Compare against the original draft value so a concurrent webhook can
+      // win safely without overwriting an already-issued number.
+      const { data: updated } = await supabase
+        .from("appreciation_applications")
+        .update({ application_no: officialNo, status: "UNDER_REVIEW" })
+        .eq("id", legacyApp.id)
+        .eq("application_no", legacyApp.application_no)
+        .select("id");
+      if (updated && updated.length > 0) {
+        await supabase.from("status_logs").insert({
+          appreciation_id: legacyApp.id,
+          from_status: "UNDER_REVIEW",
+          to_status: "UNDER_REVIEW",
+          remarks: `Recovered official application number ${officialNo} from verified PhonePe transaction ${payment.gateway_transaction_id}.`
+        });
+        console.info("[APPRECIATION_LEGACY_DRAFT_RECOVERED]", { paymentId: payment.id, officialNo });
+      }
+    }
+    if (legacyDraftPayments.length > 0) {
       invalidateCache("appreciation_list_");
     }
   } catch (err) {
