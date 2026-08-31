@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
       .maybeSingle();
 
     if (!payment) {
+      console.warn("[PHONEPE_VERIFY_RECORD_MISSING]", { orderId });
       return NextResponse.json({ success: false, error: "Payment record not found" }, { status: 404 });
     }
 
@@ -153,6 +154,14 @@ export async function GET(req: NextRequest) {
 
     if (payment.status === "COMPLETED") {
       const gatewayCheck = await verifyPhonePeOrder(orderId);
+      console.info("[PHONEPE_VERIFY_COMPLETED_RECHECK]", {
+        orderId,
+        localStatus: payment.status,
+        gatewaySuccess: gatewayCheck.success,
+        gatewayState: gatewayCheck.state,
+        expectedAmount: Number(payment.amount),
+        gatewayAmount: Number(gatewayCheck.amount)
+      });
       if (!gatewayCheck.success || Number(gatewayCheck.amount) !== Number(payment.amount)) {
         console.error(`[PAYMENT RECONCILIATION FAILED] ${orderId}`, gatewayCheck);
         return NextResponse.json({
@@ -565,6 +574,14 @@ export async function GET(req: NextRequest) {
 
     // Otherwise verify with PhonePe directly
     const result = await verifyPhonePeOrder(orderId);
+    console.info("[PHONEPE_VERIFY_RESULT]", {
+      orderId,
+      localStatus: payment.status,
+      gatewaySuccess: result.success,
+      gatewayState: result.state,
+      expectedAmount: Number(payment.amount),
+      gatewayAmount: Number(result.amount)
+    });
 
     // If PhonePe says completed but our DB isn't updated yet, trigger update
     if (result.success && payment && payment.status !== "COMPLETED") {

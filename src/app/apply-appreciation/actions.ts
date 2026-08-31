@@ -374,6 +374,14 @@ export async function submitAppreciationApplication(prevData: any, formData: For
       throw new Error(`Failed to initialize payment tracking: ${paymentError.message}`);
     }
 
+    console.info("[APPRECIATION_PAYMENT_CREATED]", {
+      applicationId,
+      applicationNo: appNo,
+      orderId: tempTxnId,
+      amount,
+      paymentStatus: "PENDING"
+    });
+
     // 5. Generate Payment Redirect Link
     const checkoutUrl = await paymentServiceInstance.processPayment({
       orderId: tempTxnId,

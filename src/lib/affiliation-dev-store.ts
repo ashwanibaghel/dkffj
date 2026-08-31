@@ -101,8 +101,12 @@ export interface DevAffiliationRecord {
 }
 
 const DEV_DATA_FILE = path.join(process.cwd(), "scratch", "affiliation_dev_store.json");
+const IS_LOCAL_DEVELOPMENT = process.env.NODE_ENV === "development";
 
 function ensureDevFileExists() {
+  // Vercel/serverless filesystems are read-only and this store is only a local
+  // development convenience. Production affiliation data is always Supabase.
+  if (!IS_LOCAL_DEVELOPMENT) return false;
   try {
     const dir = path.dirname(DEV_DATA_FILE);
     if (!fs.existsSync(dir)) {
@@ -111,12 +115,15 @@ function ensureDevFileExists() {
     if (!fs.existsSync(DEV_DATA_FILE)) {
       fs.writeFileSync(DEV_DATA_FILE, JSON.stringify([], null, 2), "utf-8");
     }
+    return true;
   } catch (err) {
     console.error("Error in ensureDevFileExists:", err);
+    return false;
   }
 }
 
 export function getDevAffiliations(): DevAffiliationRecord[] {
+  if (!IS_LOCAL_DEVELOPMENT) return [];
   try {
     ensureDevFileExists();
     if (fs.existsSync(DEV_DATA_FILE)) {
@@ -130,6 +137,7 @@ export function getDevAffiliations(): DevAffiliationRecord[] {
 }
 
 export function saveDevAffiliation(record: DevAffiliationRecord) {
+  if (!IS_LOCAL_DEVELOPMENT) return;
   try {
     ensureDevFileExists();
     const list = getDevAffiliations();
@@ -143,11 +151,13 @@ export function saveDevAffiliation(record: DevAffiliationRecord) {
 }
 
 export function findDevAffiliationById(id: string): DevAffiliationRecord | undefined {
+  if (!IS_LOCAL_DEVELOPMENT) return undefined;
   const list = getDevAffiliations();
   return list.find((item) => item.id === id || item.applicationNo === id);
 }
 
 export function findDevAffiliationByAppNo(appNo: string): DevAffiliationRecord | undefined {
+  if (!IS_LOCAL_DEVELOPMENT) return undefined;
   const clean = appNo.trim().toLowerCase();
   const list = getDevAffiliations();
   return list.find(
@@ -158,6 +168,7 @@ export function findDevAffiliationByAppNo(appNo: string): DevAffiliationRecord |
 }
 
 export function updateDevAffiliation(id: string, updates: Partial<DevAffiliationRecord>) {
+  if (!IS_LOCAL_DEVELOPMENT) return;
   try {
     ensureDevFileExists();
     const list = getDevAffiliations();

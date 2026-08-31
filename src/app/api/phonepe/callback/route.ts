@@ -67,6 +67,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing merchantOrderId" }, { status: 400 });
     }
 
+    console.info("[PHONEPE_WEBHOOK_RECEIVED]", { merchantOrderId });
+
     await processPaymentCompletion(merchantOrderId);
     return NextResponse.json({ success: true });
   } catch (err: any) {
@@ -89,6 +91,12 @@ export async function processPaymentCompletion(merchantOrderId: string) {
 
   // 1. Verify with PhonePe
   const verifyResult = await verifyPhonePeOrder(merchantOrderId);
+  console.info("[PHONEPE_CALLBACK_GATEWAY_RESULT]", {
+    orderId: merchantOrderId,
+    gatewaySuccess: verifyResult.success,
+    gatewayState: verifyResult.state,
+    gatewayAmount: Number(verifyResult.amount)
+  });
   if (!verifyResult.success) {
     console.warn(`PhonePe payment not completed for orderId: ${merchantOrderId}`, verifyResult);
     // Only mark as FAILED if PhonePe explicitly confirms failure/declined (NOT for pending/in-progress)
