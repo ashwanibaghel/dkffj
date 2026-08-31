@@ -65,6 +65,31 @@ export async function getAppreciationApplications(statusFilter?: string) {
     console.error("Appreciation payment integrity reconciliation error:", err);
   }
 
+  // Older admin sync code could mark a real PhonePe appreciation payment as
+  // completed without replacing its temporary DRAFT number. Re-run the same
+  // server-side PhonePe finalizer for those records; it verifies the gateway
+  // again and allocates exactly one official number.
+  try {
+    const { data: draftPayments } = await supabase
+      .from("payments")
+      .select("transaction_id, appreciation_id, appreciation_applications!inner(application_no)")
+      .eq("status", "COMPLETED")
+      .not("appreciation_id", "is", null);
+    const orderIds = (draftPayments || [])
+      .filter((payment: any) => String(payment.appreciation_applications?.application_no || "").includes("DRAFT"))
+      .map((payment: any) => payment.transaction_id)
+      .filter(Boolean);
+    if (orderIds.length > 0) {
+      const { processPaymentCompletion } = await import("@/app/api/phonepe/callback/route");
+      for (const orderId of Array.from(new Set(orderIds))) {
+        await processPaymentCompletion(orderId);
+      }
+      invalidateCache("appreciation_list_");
+    }
+  } catch (err) {
+    console.error("Appreciation draft-number recovery error:", err);
+  }
+
   const cacheKey = `appreciation_list_${statusFilter || "ALL"}`;
   const cached = getCachedData<any[]>(cacheKey);
   if (cached) {

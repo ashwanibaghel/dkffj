@@ -84,6 +84,67 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
+/**
+ * Recovery finalizer for a genuine appreciation payment that was marked
+ * complete by an older reconciliation path without promoting its draft number.
+ * This is deliberately idempotent: it only allocates a number while DRAFT is
+ * still present, so a retry can never consume a second certificate number.
+ */
+async function finalizeCompletedAppreciationPayment(supabase: any, appreciationId: string) {
+  const { data: app, error: appError } = await supabase
+    .from("appreciation_applications")
+    .select("id, application_no, status")
+    .eq("id", appreciationId)
+    .maybeSingle();
+
+  if (appError || !app) {
+    console.error("[APPRECIATION_FINALIZE] Application not found", { appreciationId, error: appError?.message });
+    return;
+  }
+
+  let applicationNo = String(app.application_no || "");
+  if (applicationNo.includes("DRAFT")) {
+    const currentYear = new Date().getFullYear();
+    const { data: rawAppNo, error: numberError } = await supabase.rpc("generate_next_number", {
+      p_key: "appreciation_app",
+      p_prefix: "DKFFJ/A/"
+    });
+    if (numberError || !rawAppNo) {
+      console.error("[APPRECIATION_FINALIZE] Number generation failed", { appreciationId, error: numberError?.message });
+      return;
+    }
+
+    applicationNo = String(rawAppNo)
+      .replace(/DKFFJ\/APP\//g, "DKFFJ/A/")
+      .replace(/DKFFJ\/A\/(\d{4})\/-\1-/g, "DKFFJ/A/$1/")
+      .replace(/DKFFJ\/A\/(\d{4})\/(\d{4})\//g, "DKFFJ/A/$1/")
+      .replace(/(\d{4})\/-\1-/g, "$1/");
+    if (!applicationNo.includes(`/${currentYear}/`)) {
+      const seq = applicationNo.split("-").pop()?.padStart(5, "0") || "00001";
+      applicationNo = `DKFFJ/A/${currentYear}/${seq}`;
+    }
+  }
+
+  const { error: updateError } = await supabase
+    .from("appreciation_applications")
+    .update({ application_no: applicationNo, status: "UNDER_REVIEW" })
+    .eq("id", app.id);
+  if (updateError) {
+    console.error("[APPRECIATION_FINALIZE] Update failed", { appreciationId, error: updateError.message });
+    return;
+  }
+
+  if (app.status !== "UNDER_REVIEW") {
+    await supabase.from("status_logs").insert({
+      appreciation_id: app.id,
+      from_status: app.status,
+      to_status: "UNDER_REVIEW",
+      remarks: "Appreciation fee verified via PhonePe. Official application number assigned."
+    });
+  }
+  console.info("[APPRECIATION_FINALIZED]", { appreciationId, applicationNo });
+}
+
 /** Core logic: verify with PhonePe → update DB → send email */
 export async function processPaymentCompletion(merchantOrderId: string) {
   const cookieStore = await cookies();
@@ -136,6 +197,9 @@ export async function processPaymentCompletion(merchantOrderId: string) {
 
   if (payment.status === "COMPLETED") {
     console.log("Payment already processed:", merchantOrderId);
+    if (payment.appreciation_id) {
+      await finalizeCompletedAppreciationPayment(supabase, payment.appreciation_id);
+    }
     if (payment.affiliation_id) {
       // Recovery path: a previous webhook may have completed the payment but
       // been interrupted before promoting the affiliation draft.

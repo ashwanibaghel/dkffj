@@ -48,6 +48,33 @@ async function handleSync() {
         const verifyRes = await verifyPhonePeOrder(payment.transaction_id);
 
         if (verifyRes.success || verifyRes.state === "PAYMENT_SUCCESS" || verifyRes.state === "COMPLETED") {
+          // Route every appreciation success through the canonical completion
+          // handler. The former sync-only branch marked it paid but left its
+          // DRAFT application number unchanged.
+          if (payment.appreciation_id) {
+            const { processPaymentCompletion } = await import("@/app/api/phonepe/callback/route");
+            await processPaymentCompletion(payment.transaction_id);
+            const { data: finalizedPayment } = await supabase
+              .from("payments")
+              .select("status")
+              .eq("id", payment.id)
+              .maybeSingle();
+            if (finalizedPayment?.status === "COMPLETED") {
+              const { data: finalizedApp } = await supabase
+                .from("appreciation_applications")
+                .select("full_name")
+                .eq("id", payment.appreciation_id)
+                .maybeSingle();
+              syncedResults.push({
+                transactionId: payment.transaction_id,
+                amount: Number(payment.amount),
+                type: "appreciation",
+                status: "COMPLETED",
+                customerName: finalizedApp?.full_name || "Applicant"
+              });
+            }
+            continue;
+          }
           console.log(`[PHONEPE SYNC SUCCESS] Payment ${payment.transaction_id} is COMPLETED on PhonePe! Updating DB...`);
 
           // Update payment status in DB
