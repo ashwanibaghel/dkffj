@@ -291,7 +291,11 @@ export async function syncPendingPaymentsWithPhonePe() {
             await supabase.from("memberships").update({ status: "UNDER_REVIEW" }).eq("id", payment.membership_id);
           }
           if (payment.appreciation_id) {
-            await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", payment.appreciation_id);
+            await supabase
+              .from("appreciation_applications")
+              .update({ status: "UNDER_REVIEW" })
+              .eq("id", payment.appreciation_id)
+              .eq("status", "PENDING");
           }
           if (payment.registration_id) {
             await supabase.from("course_registrations").update({ status: "APPROVED" }).eq("id", payment.registration_id);

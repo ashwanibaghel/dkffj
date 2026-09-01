@@ -128,7 +128,11 @@ async function handleSync() {
 
             if (app) {
               customerName = app.full_name;
-              await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", app.id);
+              await supabase
+                .from("appreciation_applications")
+                .update({ status: "UNDER_REVIEW" })
+                .eq("id", app.id)
+                .eq("status", "PENDING");
               await supabase.from("status_logs").insert({
                 appreciation_id: app.id,
                 from_status: app.status || "PENDING",
