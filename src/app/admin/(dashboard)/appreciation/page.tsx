@@ -596,37 +596,23 @@ export default function AdminAppreciationPage() {
     }
   }, [toast.visible]);
 
-  async function fetchData(isBackground = false) {
-    if (!isBackground) setLoading(true);
+  async function fetchData() {
+    setLoading(true);
     try {
       const data = await getAppreciationApplications();
       const apps = data as AppreciationApplication[];
       setApplications(apps);
-      try {
-        sessionStorage.setItem("admin_appreciation_cache", JSON.stringify(apps));
-      } catch {}
     } catch (err) {
       console.error(err);
     } finally {
-      if (!isBackground) setLoading(false);
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    let hasCache = false;
-    try {
-      const cached = sessionStorage.getItem("admin_appreciation_cache");
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setApplications(parsed);
-          setLoading(false);
-          hasCache = true;
-        }
-      }
-    } catch {}
-
-    void fetchData(hasCache);
+    // Approval status is operational data. Never hydrate this desk from a
+    // browser cache; a page load must always reflect the live database.
+    void fetchData();
   }, []);
 
   const statusFilters = ["ALL", "APPROVED", "PENDING", "UNDER_REVIEW", "REJECTED"];
