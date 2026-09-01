@@ -125,16 +125,19 @@ async function finalizeCompletedAppreciationPayment(supabase: any, appreciationI
     }
   }
 
+  // A delayed callback/retry must only move an unpaid application into review.
+  // It must never erase a board's APPROVED or REJECTED decision.
+  const nextStatus = app.status === "PENDING" ? "UNDER_REVIEW" : app.status;
   const { error: updateError } = await supabase
     .from("appreciation_applications")
-    .update({ application_no: applicationNo, status: "UNDER_REVIEW" })
+    .update({ application_no: applicationNo, status: nextStatus })
     .eq("id", app.id);
   if (updateError) {
     console.error("[APPRECIATION_FINALIZE] Update failed", { appreciationId, error: updateError.message });
     return;
   }
 
-  if (app.status !== "UNDER_REVIEW") {
+  if (app.status === "PENDING") {
     await supabase.from("status_logs").insert({
       appreciation_id: app.id,
       from_status: app.status,
@@ -571,20 +574,22 @@ export async function processPaymentCompletion(merchantOrderId: string) {
             cleanAppNo = `DKFFJ/A/${currentYear}/${seq}`;
           }
           finalAppNo = cleanAppNo;
-          await supabase.from("appreciation_applications").update({ application_no: cleanAppNo, status: "UNDER_REVIEW" }).eq("id", app.id);
+          await supabase.from("appreciation_applications").update({ application_no: cleanAppNo, status: app.status === "PENDING" ? "UNDER_REVIEW" : app.status }).eq("id", app.id);
         } else {
-          await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", app.id);
+          await supabase.from("appreciation_applications").update({ status: app.status === "PENDING" ? "UNDER_REVIEW" : app.status }).eq("id", app.id);
         }
       } else {
-        await supabase.from("appreciation_applications").update({ status: "UNDER_REVIEW" }).eq("id", app.id);
+        await supabase.from("appreciation_applications").update({ status: app.status === "PENDING" ? "UNDER_REVIEW" : app.status }).eq("id", app.id);
       }
 
-      await supabase.from("status_logs").insert({
-        appreciation_id: app.id,
-        from_status: app.status,
-        to_status: "UNDER_REVIEW",
-        remarks: "Appreciation fee payment verified via PhonePe. Application sequence number assigned.",
-      });
+      if (app.status === "PENDING") {
+        await supabase.from("status_logs").insert({
+          appreciation_id: app.id,
+          from_status: app.status,
+          to_status: "UNDER_REVIEW",
+          remarks: "Appreciation fee payment verified via PhonePe. Application sequence number assigned.",
+        });
+      }
 
       const { getAppreciationReceiptTemplate } = await import("@/services/email/templates");
       const emailHtml = getAppreciationReceiptTemplate(

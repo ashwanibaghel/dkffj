@@ -115,7 +115,7 @@ export async function getAppreciationApplications(statusFilter?: string) {
 
     for (const payment of draftPayments || []) {
       const legacyApp = appsById.get(payment.appreciation_id) as { id: string; application_no: string; status: string } | undefined;
-      if (!legacyApp || !String(legacyApp.application_no || "").includes("DRAFT")) continue;
+      if (!legacyApp || !String(legacyApp.application_no || "").includes("DRAFT") || ["APPROVED", "REJECTED"].includes(legacyApp.status)) continue;
 
       let gatewayCheck: Awaited<ReturnType<typeof verifyPhonePeOrder>>;
       try {
