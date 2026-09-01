@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { verifyAdmin } from "../auth";
 import { sendTransactionalEmail } from "@/services/email/service";
 import { verifyPhonePeOrder } from "@/lib/payment/phonepe";
+import prisma from "@/lib/prisma";
 
 import { invalidateCache } from "@/lib/serverCache";
 
@@ -345,22 +346,26 @@ export async function updateAppreciationStatus(
       }
     }
 
-    // 1. Perform updates
-    const { data: updatedApplication, error: updateError } = await supabase
-      .from("appreciation_applications")
-      .update({
+    // 1. Perform the authoritative write through Prisma, not the browser
+    // session-scoped Supabase client. This bypasses no authorization (admin
+    // was validated above), but avoids an RLS/session response being mistaken
+    // for a durable database update.
+    const updatedApplication = await prisma.appreciation_applications.update({
+      where: { id },
+      data: {
         status: finalStatus,
         approved_by: validUserId,
-        approved_at: newStatus === "APPROVED" ? new Date().toISOString() : null,
+        approved_at: newStatus === "APPROVED" ? new Date() : null,
         remarks: remarks || null
-      })
-      .eq("id", id)
-      .select("id, status");
+      },
+      select: { id: true, status: true }
+    });
 
-    if (updateError || !updatedApplication || updatedApplication.length !== 1 || updatedApplication[0].status !== finalStatus) {
-      console.error("Failed to update appreciation status:", updateError);
-      return { success: false, error: "Failed to confirm the status update in the database. Please refresh and try again." };
+    if (updatedApplication.status !== finalStatus) {
+      console.error("Appreciation status did not persist:", { id, requested: finalStatus, actual: updatedApplication.status });
+      return { success: false, error: "The status update was not saved in the database." };
     }
+    console.info("[APPRECIATION_STATUS_PERSISTED]", { id, fromStatus: app.status, toStatus: finalStatus });
 
     invalidateCache("appreciation_list_");
 
